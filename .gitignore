@@ -1,0 +1,13 @@
+# vim temporary and swap files.
+
+*~
+*.swp
+*.swo
+
+# archives
+
+*.zip
+*.tar
+*.gz
+*.xz
+
