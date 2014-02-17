@@ -66,7 +66,7 @@ std::array&lt;T&gt;を返すmake_arrayの提案。以下のように使う。
 <pre><code>// make_arrayの利用例
 std::array&lt;int, 3&gt; a = std::make_array( 1, 2, 3 ) ;
 std::array&lt;long, 2&gt; b = std::make_array( 1, 2L ) ;
-</pre>
+</code></pre>
 
 <p>
 どの型になるかは、std::common_typeを使って決定される。ただし、narrowing conversionは禁止されている。
@@ -91,7 +91,7 @@ auto a = std::make_arrary&lt;long&gt;( 1, 2U ) ; // OK
 <pre><code>// make_arrayの利用例
 auto a = std::make_array( 1, 2, 3 ) ;
 auto b = std::make_array( 1, 2L ) ;
-</pre>
+</code></pre>
 
 <p>
 <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3825.pdf">[PDFを廃止する議論が必要とされている] N3825: SG13 Graphics Discussion</a>
