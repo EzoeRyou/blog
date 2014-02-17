@@ -1,0 +1,1909 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+2014-01-pre-Issaquah mailingの簡易レビュー Part 1
+</title>
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+</header>
+
+<article>
+<h1><a href="">2014-01-pre-Issaquah mailingの簡易レビュー Part 1</a></h1>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/#mailing2014-01">2014-01-pre-Issaquah mailing</a>が公開された。
+</p>
+
+<p>
+今回は、論文の本数が多いのと、ドワンゴに雇われているので、本気でじっくりと論文を読んで解説しているし、ライブラリの論文も読み飛ばさずに読んでいるので、いつもより時間がかかる。そのため、いくつかのパートに分けて公開することにした。
+</p>
+
+<p>
+今回はドラフトの更新はなし。
+</p>
+
+<p>
+今回の新機能の提案の論文には、SG10のためのマクロ名の提案が目立つ。SG10というのは、Cプリプロセッサーによる機能テストのマクロ名を標準化しようという提案のStudy Groupだ。醜悪で将来廃止されるべきCプリプロセッサーに依存する機能をこれ以上増やさないで欲しいのだが。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3824.htm">N3824: make_array</a>
+</p>
+
+<p>
+std::array&lt;T&gt;を返すmake_arrayの提案。以下のように使う。
+</p>
+
+<pre><code>// make_arrayの利用例
+std::array&lt;int, 3&gt; a = std::make_array( 1, 2, 3 ) ;
+std::array&lt;long, 2&gt; b = std::make_array( 1, 2L ) ;
+</pre>
+
+<p>
+どの型になるかは、std::common_typeを使って決定される。ただし、narrowing conversionは禁止されている。
+</p>
+
+<pre><code>// narrowing conversionは違法になる
+auto a = std::make_array( 1, 2U ) ; // エラー
+</code></pre>
+
+<p>
+明示的に型を指定することで、キャストされる。
+</p>
+
+<pre><code>// 明示的に型を指定する例
+auto a = std::make_arrary&lt;long&gt;( 1, 2U ) ; // OK
+</code></pre>
+
+<p>
+もちろん、現実に書くときには、auto指定子を使うべきだ。
+</p>
+
+<pre><code>// make_arrayの利用例
+auto a = std::make_array( 1, 2, 3 ) ;
+auto b = std::make_array( 1, 2L ) ;
+</pre>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3825.pdf">[PDFを廃止する議論が必要とされている] N3825: SG13 Graphics Discussion</a>
+</p>
+
+<p>
+C++14に標準ライブラリとして入れるために設計を進めている軽量グラフィックライブラリの土台として、何を使うかの議論のまとめ。
+</p>
+
+<p>
+C++にグラフィックライブラリを入れたいが、グラフィックライブラリを一から設計するのは、C++標準化委員会の規模を大幅に超えているので、既存のグラフィックライブラリを土台として使い、必要であればC++風にバインドして使おうというのが、これまでの議論。では、その土台を何にするかというのが、この議論の主題だ。
+</p>
+
+<p>
+土台には二つの意見があった。既存の規格を使うものと、既存のライブラリを使うものだ。
+</p>
+
+<p>
+既存の規格というのは、例えばSVG+Canvasのような、標準規格を参照して、その設計を元にC++風にバインドして使うということだ。
+</p>
+
+<p>
+既存のライブラリというのは、例えばcairoのような、すでに実装されているライブラリを元にして、必要であればC++風にバインドして使うということだ。
+</p>
+
+<p>
+どうやら、議論の方向は既存のライブラリ、それもcairoを土台とするところに向かったらしい。cairoはCで書かれているが、オブジェクト指向であり、正しくconstを使っており、またドキュメントも非常に充実している。
+</p>
+
+<p>
+cairoには、cairommというC++へのバインドがあるが、どうもこのcairommは、2010年から更新されていないので、おそらくプロジェクトとしては死んだのではないかと思われる。
+</p>
+
+<p>
+そこで、cairo本体を土台とし、数ページ程度に収まるような機会的な変換ルールを定義して、cairoのインターフェースをC++風に合わせてはどうか。論文では、そのための変換ルール案も箇条書している。また、cairoのドキュメントなどがISO規格として使えるような著作権許諾が得られるかなどの調整も必要だ。
+</p>
+
+<p>
+本当にC++14の標準ライブラリにグラフィックライブラリが入るのだろうか。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3827.html">N3827: Working Draft Technical Specification - URI</a>
+</p>
+
+<p>
+URIライブラリのドラフト
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3829.pdf">[汚いPDF] N3829: apply() call a function with arguments from a tuple (V2)</a>
+</p>
+
+<p>
+tupleの要素をすべて関数の実引数に渡すライブラリー、applyの提案。
+</p>
+
+<p>
+これは欲しい。自前で実装するのは簡単だが、面倒だ。
+</p>
+
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3830.pdf">N3830: Scoped Resource - Generic RAII Wrapper for the Standard Library</a>
+</p>
+
+<p>
+汎用的なRAIIラッパーライブラリー、scoped_resourceの提案。
+</p>
+
+<p>
+RAIIというのは、Resource Acquisition Is Initializationの略である。C++では、クラスオブジェクトにリソースを所有させ、デストラクターが動くタイミングで解放処理をさせるような一連の技法を言う。
+</p>
+
+<pre><code>// RAIIの例
+class raii_holder
+{
+    int * owned ;
+public :
+    explicit raii_holder( int * ptr )
+        : owned( ptr ) { }
+
+    raii_holder( raii_holder const &amp; ) = delete ;    
+    raii_holder &amp; operator =( raii_holder const &amp; ) = delete ;
+
+    int * get() { return owned ; } 
+
+    ~raii_holder()
+    {
+        delete owned ;
+    }
+} ;
+
+
+int main()
+{
+    raii_holder r( new int(0) ) ;
+    *r.get() = 123 ;
+
+// 自動的にdeleteされる
+} 
+</code></pre>
+
+<p>
+ポインターの場合は、すでにunique_ptrがあるが、ポインター以外のリソースを管理するライブラリは、手で書くしかない。unique_ptrは、ポインター以外のリソース（単なる整数値で表現される環境依存のハンドルなど）を管理するのは面倒だ。
+</p>
+
+<p>
+問題は、このようなRAIIラッパーを手でいちいち書くのは面倒だ。これは、テンプレートで汎用化すべき種類のコードだ。C++14までのコア言語機能を総動員し、最新の設計をすれば、そのような汎用RAIIラッパーライブラリが実現できる。
+</p>
+
+<pre><code>// 提案中のライブラリ
+int main()
+{
+    auto r = std::make_scoped_resource( &amp;::operator delete, new int(0) ) ;
+
+// 自動でdeleteされる。
+}
+</code></pre>
+
+<p>
+まだ設計は変わるが、このライブラリは非常に柔軟である。例えば、解放のための処理が、単に引数をひとつとるものではない場合がある。たとえば、以下のような実装依存のリソースの確保、解放関数があったとする。
+</p>
+
+<pre><code>// System defined APIs:
+void* VirtualAlloc(
+void *pAddress,
+size_t size,
+unsigned int fAllocationType,
+unsigned int fProtect);
+
+bool VirtualFree(
+void *pAddress,
+size_t size,
+unsigned int uiFreeType);
+</code></pre>
+
+<p>
+これはこのようになっているので、いまさらどうしようもない。提案中のscoped_resouceでは、これを単に、複数のリソースをまとめて管理するという形で扱う。わざわざユーザーがVirtualFreeと複数のリソースをラップする必要はない。
+</p>
+
+<pre><code>// VirtualFreeにもらくらく対応
+int main()
+{
+    auto r = std::make_scoped_resource( &amp;VirtualFree,
+        VirtualAlloc( nullptr, PAGE_SIZE, MEM_COMMIT, PAGE_HARDWARE ),
+        0,
+        MEM_RELEASE ) ;
+
+// 自動的にVirtualFree
+}
+</code></pre>
+
+<p>
+Variadic Templatesを使えば、任意個のリソースを管理できる。
+</p>
+
+<p>
+実は、管理するリソースは、0個でも良い。
+</p>
+
+<pre><code>// 0個のリソースを管理する例
+int main()
+{
+    auto r = std::make_scoped_resource(
+        []{ std::cout &lt;&lt; "I'm exception safe. Thank you very much." &lt;&lt; '\n' ; }
+    ) ;
+
+// 自動的にlambda式が呼ばれる
+}
+</code></pre>
+
+<p>
+これにより、オブジェクトrが破棄されるタイミングで処理を実行することもできる。
+</p>
+
+<p>
+このようなライブラリを手で書くのは簡単だが、正しく書くのは面倒なので、標準ライブラリに入って欲しい。
+</p>
+
+<p>
+この提案では、あくまでunique_ptrをポインター以外にも広げたscoped_resourceを提案している。参照カウンターを使ったものは提案されていない。そのようなライブラリも実装可能だが、この論文では、それは後から検討する話だとしている。追加は簡単なので、とりあえずはこれを議論したほうがいい。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3831.pdf">[気分を害するPDF] N3831: Language Extensions for Vector level parallelism</a>
+</p>
+
+<p>
+Clik PlusやOpenMPで提供されている、プログラムにSIMD化のためのヒントを与える構文の提案。
+</p>
+
+<p>
+SIMD化できるループは、極めて厳しい制約が課される。論文ではこれをcountable loopと呼んでいる。
+</p>
+
+<p>
+SIMD loopをコア言語でサポートするために、for文に変更がくわえられる。
+</p>
+
+<pre><code>// SIMD loop
+for simd ( int i = 0 ; i &lt; 10 ; ++i ) 
+{
+// 処理
+}
+</code></pre>
+
+<p>
+キーワードsimdは、文脈依存キーワードなので、この文脈でなければ予約されていない。そのため、自由に識別子として使うことができる。
+</p>
+
+<p>
+for文の条件式につかえる式は、非常に限られている。以下の組み込みの演算子しか使えない。
+</p>
+
+<pre><code>// SIMD forの条件式で使える式
+relational-expression &lt; shift-expression
+relational-expression &gt; shift-expression
+relational-expression &lt;= shift-expression
+relational-expression &gt;= shift-expression
+equality-expression != relational-expression
+</code></pre>
+
+<p>
+また、for文の3つ目のオペランドにも、前置後置のインクリメントとデクリメント、+=, -=, E1 = E2 + E3, E1 = E2 - E3ぐらいしか使えない。これは組み込みのコンマ演算子で区切ることができる。その中で使える識別子で参照されているものにも、強い制約がある。
+</p>
+
+<p>
+return, break, goto, switchなどを使って、ループの中から外に脱出したり、また外からループの中に飛び込んだりすることはできない。
+</p>
+
+<p>
+また、SIMD関数というものもある。これは、文脈依存キーワードsimdでマークされる関数のことである。
+</p>
+
+<pre><code>// SIMD関数の例
+int f() simd { }
+[]() simd { } ; // もちろんlambda式にも使える
+</code></pre>
+
+<p>
+さて、このようにsimdキーワードでマークされたループや関数には、複数のコードが生成され、実行時にふさわしいものが選ばれる。つまり、これはコンパイラーへのヒントである。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3832.pdf">[理論的に美しくないPDF] N3832: Task Region</a>
+</p>
+
+<p>
+C++でstrict fork-joinを実現するためのライブラリ。
+</p>
+
+<p>
+こうしてみると、並列処理というのは、理論が数十年ぐらい先行していて、いま、ようやく理論をC++のような実用的な言語で使うために、現実の場に落としこんできているというのがわかる。このライブラリはかなり理論よりの内容になっているが、はたしてここまでガチガチの机上の理論に裏打ちされたライブラリが、普通のプログラマーに簡単に使えるようなライブラリに落ち着くだろうかという懸念はある。
+</p>
+
+<p>
+原理としては、task_regionに関数オブジェクトを渡して、その中で並列実行したいタスクはtask_runに関数オブジェクトを渡して実行するということになっている。そして、最後にすべての並列処理をjoinして集める。
+</p>
+
+<p>
+ただしこれはかなり理論的なライブラリなのでかなり制約がなくす方向で進んでいる。たとえば、関数を呼び出した時のスレッドと関数が戻ってきた時のスレッドが異なることは、従来起こりえないことだったが、このライブラリでは、起こりえてしまう。これをどうしようかということが議論されている。また、まだ完全に処理が終わらない状態で関数が戻るということもあるので、その場合をどうしようかという議論もある。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3839.pdf">[PDF不使用原則も提案したい] N3839: Proposing the Rule of Five, v2</a>
+</p>
+
+<p>
+従来の三原則に変えて、五原則を導入する提案。
+</p>
+
+<p>
+三原則とは、コピーコンストラクター、コピー代入演算子、デストラクターの、どれかひとつをユーザー定義した場合、残りの二つも、おそらくはユーザー定義が必要になるであろうという原則だ。
+</p>
+
+<p>
+C++11では、ムーブという概念が、直接コア言語に組み込まれた。当初、ムーブを直接コア言語でサポートするかどうかは、決まっていなかった。しかし、ムーブのような基本的な概念は、コア言語で認識したほうがいいだろうという結論になり、従来のコピーコンストラクター、コピー代入演算子にくわえて、ムーブコンストラクター、ムーブ代入演算子が、新たにコア言語で特別なメンバー関数として認識されるようになった。
+</p>
+
+<p>
+もし、C++11で、ムーブコンストラクター、ムーブ代入演算子がユーザー定義されていた場合、コピーコンストラクター、コピー代入演算子は、暗黙にdefault化される。この挙動はdeprecatedであり、将来的には廃止される見込みに、C++11ではなっていた。
+</p>
+
+<p>
+さて、C++14では、十分に猶予を与えたし、そろそろ廃止してもよかろうという論調になってきた。すなわち、五原則の成立だ。コピーコンストラクター、コピー代入演算子、ムーブコンストラクター、ムーブ代入演算子、デストラクターの5つの特別なメンバー関数のうち、どれかひとつをユーザー定義した場合、残りもユーザー定義しなければならない。なぜならば暗黙にdefault化されないからだ。
+</p>
+
+<pre><code>// 五原則の例
+struct X
+{
+    ~X() { }
+} 
+
+int main()
+{
+    X x1 ;
+    X x2 = x1 ; // エラー、五原則
+}
+</code></pre>
+
+<p>
+ただし、五原則を導入すると、既存のコードで、暗黙の宣言に頼っているコードが壊れてしまう。C++規格では、互換性を壊す変更は、相当に慎重になるので、すでにdeprecated扱いになったとはいえ、たやすく消すことはできない。文字列リテラルから暗黙にconst性を失わせる仕様の除去にも、15年かかった。
+</p>
+
+<pre><code>// 文字列リテラルからconst性をなくす例
+int main()
+{
+    // well-formed in C++03
+    // ill-formed in C++11
+    char * ptr = "hello" ; 
+}
+</code></pre>
+
+<p>
+この五原則は、ぜひともC++14に入って欲しい。deprecated仕様は、もう何年もの猶予を与えたのだから、十分すぎる。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3840.pdf">[PDFは世界一おバカなフォーマット] N3840: A Proposal for the World's Dumbest Smart Pointer, v3</a>
+</p>
+
+<p>
+世界一おバカなスマートポインター、observer_ptrの提案。
+</p>
+
+<p>
+生のポインターというのは、意図がわかりにくい。たとえ、所有して管理という概念がないとしても、ポインタークラスを標準ライブラリに入れたほうがいいのではないか。そうすれば、そのオブジェクトは管理されていないポインターであるという意図が明確になる。
+</p>
+
+<pre><code>// observer_ptrの例
+#include &lt;memory&gt;
+
+int main()
+{
+    // std::observer_ptr&lt;int&gt; ptr = new int(0) ; と同じ
+    auto ptr = std::make_observer( new int(0) ) ;
+
+    auto p2 = ptr ; // コピーできる
+
+    delete ptr ;
+}
+</code></pre>
+
+<p>
+observer_ptrは、ポインターを所有しないし、管理することもない。そのため、自由にコピーもできる。ポインターが動的に確保されたストレージをさす場合、その解放は利用者の責任である。
+</p>
+
+<p>
+生のポインターを直接使うより、意図がわかりやすくなる。ただし、別に生のポインターでもわかりにくくならないのではないかという標準会員の重鎮もいるし、議論は分かれている。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3841.pdf">[PDFの使用も非推奨] N3841: Discouraging rand() in C++14</a>
+</p>
+
+<p>
+std::random_shuffleとstd::randを非推奨にする文面を追加する提案。
+</p>
+
+<p>
+std::randは、とてつもなく使いにくい設計であり、広く誤用されている。例えば、以下のような間違ったコードが使われている。
+</p>
+
+<pre><code>// 間違ったサイコロの実装
+int roll( )
+{
+    return std::rand()%6 + 1 ;
+}
+</code></pre>
+
+<p>
+このコードは間違っている。なぜならば、剰余は均一分布しないからだ。ある乱数から、特定の範囲の値を数学的に信頼できるほどの精度で均一分布させたい場合は、もっと工夫が必要になる。このような間違ったコードは、世の中のソフトウェアに乱用されていて、世の中のソフトウェアに正しくない乱数をもたらしている。このような誤用をしやすい時代遅れの設計のstd::randは、使用を非推奨にすべきである。
+</p>
+
+<p>
+また、イテレーターの組の中の要素を、ランダムにシャフルするアルゴリズム、std::random_shuffleも、std::randの利用を前提にしたオーバーロードがあり、また、独自の乱数を渡す部分も、非常に汚い設計になっているので、これも同じく非推奨にする。
+</p>
+
+<p>
+規格では、注記として、「randの使用は、故に、移植性がなく、予期できず疑わしい品質とパフォーマンスである」と書かれるようになった。
+</p>
+
+<p>
+読者は、std::randやstd::random_shuffleのような時代遅れの設計のライブラリを使ってはならない。std::randの代わりには、C++11に新しく入った素晴らしい設計の乱数ライブラリを使うべきであるし、std::random_shuffleの代わりには、C++11で新しく追加されたstd::shuffleを使うべきである。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3842.pdf">[標本採取されないべきPDF] N3842: A sample Proposal</a>
+</p>
+
+<p>
+sample（標本採取）というアルゴリズムの追加。このアルゴリズムは、値の集合の中から、ランダムで一部を取り出すものである。このアルゴリズムは、Knuth先生のThe Art of Computer Programming, Volume 2で、アルゴリズムS(“selection sampling technique”) とアルゴリズムR(“reservoir sampling”)と呼ばれている。
+</p>
+
+<p>
+ちなみに、vol. 2でアルゴリズムBと呼ばれているのは、C++11に入った&lt;random&gt;にある、std::knuth_bである。
+</p>
+
+<p>
+アルゴリズムS(Selection sampling)は、標本を採取する値の集合は、Forward iteratorを必要とし、採取した標本を書き出すイテレーターには、Output Iteratorを必要とする。
+</p>
+
+<p>
+アルゴリズムR(Reservoir sampling)は、標本を採取する値の集合は、Input Iteratorを必要とし、採取した標本を書き出すイテレーターには、Random Access Iteratorを必要とする。
+</p>
+
+<p>
+提案では、アルゴリズムS版とR版で名前を分けるのではなく、実引数に渡したイテレーターのカテゴリーにより、タグディスパッチをして自動的に適用可能なアルゴリズムを選ぶ設計になっている。
+</p>
+
+<pre><code>
+template&lt; class PopIter, class SampleIter, class Size, class URNG &gt;
+SampleIter
+sample( PopIter first, PopIter last, SampleIter out, Size n, URNG&amp;&amp; g )
+{
+    using pop_t = typename iterator_traits&lt;PopIter&gt;::iterator_category;
+    using samp_t = typename iterator_traits&lt;SampleIter&gt;::iterator_category;
+    return __sample( first, last, pop_t{},
+                     out, samp_t{},
+                     n, forward&lt;URNG&gt;(g) );
+}
+</code></pre>
+
+<p>
+Knuth本のアルゴリズムRは、安定しているが、追加の処理が必要になる。SGI版のSTLにあるsampleアルゴリズムは、不安定だが追加の処理をしない。論文ではこの点を注記しているが、C++のアルゴリズムR版のsampleが、どのように実装されるかについては言及していない。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3843.pdf">[江添フレンドリーではないPDF] N3843: A SFINAE-Friendly std::common_type</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3844.pdf">[江添フレンドリーではないPDF] N3844: A SFINAE-Friendly std::iterator_traits</a>
+</p>
+
+<p>
+std::common_typeと、std::iterator_traitsをSFINAEフレンドリーにする提案。
+</p>
+
+<p>
+たとえば、以下のようなコードは、C++11では違法（コンパイルエラー）になる。
+</p>
+
+<pre><code>// C++11では違法
+using type = std::common_type&lt;int, int *&gt;::type ;
+</pre></code>
+
+<p>
+なぜならば、int型とint *型には、共通の変換できる型がないからだ。
+</p>
+
+<p>
+しかし、このようなコードが違法になると、SFINAEの文脈で、問題になる。
+</p>
+
+<pre><code>// SFINAEとはならない例
+
+// 共通の型がある場合のみ候補に上がるべき関数テンプレート
+template &lt; typename T1, typename T2,
+    typename COMMON_TYPE = std::common_type&lt;T1, T2&gt;::type &gt;
+void f( T1, T2 ) { }
+
+// その他の関数fのオーバーロード
+
+int main()
+{
+    int a1 = 0 ;
+    int * a2 = nullptr ;
+
+    f( a1, a2 ) ; // コンパイルエラー
+
+} 
+</code></pre>
+
+<p>
+このコードでは、SFINAEを使って、共通の型がある場合のみ、オーバーロード解決の候補に上がるテンプレート関数fを宣言しようとしているが、残念ながら、common_typeは共通の型がない場合、内部でill-formedになってしまうので、このコードは通らない。
+</p>
+
+<p>
+N3843は、共通の型がない場合にも、内部で勝手にill-formedにならず、しかもSFINAEの文脈で使えるよう、ネストされた型名を宣言しないように、std::common_typeを変更しようという提案だ。
+</p>
+
+<p>
+これと全く同じ理由で、std::result_typeは、以下の提案論文の採択により、すでにSFINAEフレンドリーに変更されている。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3462.html">N3462: std::result_of and SFINAE</a>
+</p>
+
+<p>
+result_typeと同様に、common_typeとiterator_traitsもSFINAEフレンドリーになるべきである。この提案は採択されてほしい。
+</p>
+
+<p>
+ちなみに、この論文には、<a href="https://twitter.com/SubaruG">ブインの提督、銀天すばる (SubaruG)</a>さんがこの問題を取り上げたブログ記事にも言及している。
+</p>
+
+<blockquote>
+<dl>
+<dt><b><a href="http://d.hatena.ne.jp/gintenlabo/20110420/1303288950">A Blog Post</a></b></dt>
+<dd>Although written in Japanese, the author shows an <code>invoke</code> function defined with <code>result_of</code> that fails to compile because it (<code>result_of</code>) is not SFINAE-friendly. It also calls out <code>std::common_type</code> as another trait that would benefit from being SFINAE-friendly.</dd>
+</dl>
+</blockquote>
+
+<blockquote>
+<p>
+<a href="http://d.hatena.ne.jp/gintenlabo/20110420/1303288950">FDIS の不満点 - 野良C++erの雑記帳</a>
+</p>
+
+<p>
+現状、 std::result_of や std::common_type といった「型を取得するメタ関数」は、与えられた型が前提条件を満たさない場合、クラステンプレートの内部でコンパイルエラーとなるため、 SFINAE に使うことが出来ません
+</p>
+</blockquote>
+
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3845.pdf">[PDFは割り切れない思い] N3845: Greatest Common Divisor and Least Common Multiple</a>
+</p>
+
+<p>
+最大公約数を計算するgcdと、最小公倍数を計算するlcmを&lt;cstdlib&gt;に追加する提案。
+</p>
+
+<p>
+最大公約数や最小公倍数のアルゴリズムは、義務教育でも習うほど初歩的なものであるが、たとえ実装が一行にせよ、コードを書いて、正しく動くかどうかテストするのは難しい。しかも、このような基本的な関数の用途はかなり広い。標準ライブラリに存在するべきだ。
+</p>
+
+<p>
+提案されているgcdとlcmは、constexpr関数かつ関数テンプレートで、二つの整数型の引数を取る。
+</p>
+
+<p>
+また、gcdとlcmを実装するために、constexpr関数でテンプレート関数版のabsも追加される。
+</p>
+
+<p>
+その実装は、コード量だけで言えば、とても短い。この記事に引用できるほどだ。
+</p>
+
+<pre><code>// N3845のリファレンス実装例
+// 仮にclib名前空間内に置く
+namespace clib {
+
+// 任意の整数型で動くテンプレート版のabs
+template&lt; class T &gt;
+constexpr auto abs( T i ) -&gt; enable_if_t&lt; is_integral&lt;T&gt;{}(), T &gt;
+{
+    return i &lt; T(0) ? -i : i; }
+}
+
+// 二つの実引数が整数型であるかどうかを確認し、また共通の型を返すメタ関数common_int_t
+template&lt; class M, class N = M &gt;
+using common_int_t = enable_if_t&lt; is_integral&lt;M&gt;{}() and is_integral&lt;N&gt;{}()
+, common_type_t&lt;M,N&gt;
+&gt; ;
+
+// 最大公約数
+template&lt; class M, class N &gt;
+constexpr auto gcd( M m, N n ) -&gt; common_int_t&lt;M,N&gt;
+{
+using CT = common_int_t&lt;M,N&gt;;
+return n == 0 ? clib::abs&lt;CT&gt;(m) : gcd&lt;CT,CT&gt;(n, m % n);
+}
+
+// 最小公倍数
+template&lt; class M, class N &gt;
+constexpr auto lcm( M m, N n ) -&gt; common_int_t&lt;M,N&gt;
+{ return abs((m / gcd(m,n)) * n); }
+</code></pre>
+
+<p>
+いくら短いとはいえ、このようなコードをコピペして使いまわすのは不適切だ。このような基本的でよく使われる関数は、標準ライブラリに存在するべきなのだ。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3846.pdf">[PDFは拡張せずに滅びるべき] N3846: Extending static_assert</a>
+</p>
+
+<p>
+C++11で追加されたstatic_assertは、必ず文字列リテラルを指定しなければならない。
+</p>
+
+<pre><code>// C++11のstatic_assertの例
+static_assert( true, "This can't be possible!") ;
+</code></pre>
+
+<p>
+しかし、なぜ指定しなければならないのだろうか。単にコンパイル時assertを書きたいだけで、特に文字列を指定したくない時でも、たとえ空にせよ、文字列リテラルを指定しなければならないのだ。
+</p>
+
+<p>
+さらに、現在のBOOST_STATIC_ASSERTの実装は、コンパイラーにstatic_assertが実装されている場合は、以下のようになる。
+</p>
+
+<pre><code>// BOOST_STATIC_ASSERTの実装
+#define BOOST_STATIC_ASSERT(B) static_assert(B, #B)
+</code></pre>
+
+<p>
+これはつまり、以下のように書くと、
+</p>
+
+<pre><code>BOOST_STATIC_ASSERT(( sizeof(int) == 4 )) ;</code></pre>
+
+<p>
+以下のように展開される。
+</p>
+
+<pre><code>static_assert(( sizeof(int) == 4 ), "( sizeof(int) == 4 )") ;</code></pre>
+
+<p>
+多くのプログラマーにとって、static_assertに指定した式を文字列として読め、しかもそれがデフォルトとなっているのは、便利だ。
+</p>
+
+<p>
+このような文字列リテラルを指定しないstatic_assert、デフォルトで式を文字列化するstatic_assertは、何年もの間、多数の人から、要望されてきた。
+</p>
+
+<p>
+実際、BOOST_STATIC_ASSERTと同等のマクロは、実に大勢のものによって、再発明されてきた。これは、明らかに利用者がこのような機能を必要としている証拠である。
+</p>
+
+<p>
+とはいえ、式を文字列化するというのは、ただでさえコンパイラーの実装が難しいC++では、とても難しいのだ。Phase of Translationをかける前の文字列でなければならない。あるいは、トークン列に分割したものを再び文字列化するか。
+</p>
+
+<p>
+それ故、多くのコンパイラー屋は、式を文字列化するという機能をコア言語でサポートすることに難色を示している。「文字列リテラルを取らない文法を追加して、出力される文字列は実装依存とするならば反対はしないが、式を文字列化するというのは、C++コンパイラーの実装の都合上、とても難しい」という意見だ。これはプリプロセッサーの仕事だと主張するコンパイラー屋が多い。
+</p>
+
+<p>
+一方、Cプリプロセッサーは醜悪であり、将来的には廃止されるべきであり、そのような機能に依存してはならないと江添は考える。
+</p>
+
+<p>
+ところで、本当に式の文字列化は有益だろうか。実際にstatic_assertに引っかかったならば、ソースコードから問題のstatic_assertとその前後を確認するはずで、static_assertの式が文字列化されて、コンパイルエラーメッセージに含まれたところで、それほど意味はないのではないか。つまり、
+</p>
+
+<pre><code>#define STATIC_ASSERT(B) static_assert(B, #B)</code></pre>
+
+<p>
+このような実装と、
+</p>
+
+<pre><code>#define STATIC_ASSERT(B) static_assert(B, "ouch")</code></pre>
+
+<p>
+この実装で、現実的になにか違いはあるだろうか？
+</p>
+
+<p>
+いやまて、そもそも、文字列以外の任意個の値を表示したい需要だってあるだろう。独自拡張を含めれば、様々な値がコンパイル時に取得できるのに、コンパイル時に値を表示できないのは残念すぎる。
+</p>
+
+<p>
+static_assertがprintf風のフォーマットをサポートしてたら嬉しいって誰かが言ってた。
+</p>
+
+<p>
+と、論文では収集がつかない意見の噴出を紹介している。
+</p>
+
+<p>
+その上で、論文は、いくつかの文面案を提案している。
+</p>
+
+<dl>
+<dt>
+案1 (Daniel Krüglerの提案)
+</dt>
+
+<dd>
+<p>
+もし、文字列リテラルが与えられない場合は、結果のdiagnosticメッセージは、定数式のテキストである。
+</p>
+
+<p>
+BOOST_STATIC_ASSERT相当の機能をコア言語で直接サポートする提案
+</p>
+</dd>
+
+<dt>
+案2 (Mike Millerの提案)
+</dt>
+
+<dd>
+<p>
+もし、文字列リテラルが与えられない場合は、結果のdiagnosticメッセージは、実装依存である。
+</p>
+
+<p>
+すでにトークン列化されてるものを、再び文字列に戻したくねーよというコンパイラー屋の提案。
+</p>
+</dd>
+
+<dt>
+案4
+</dt>
+
+<dd>
+
+<p>
+コンマで区切って任意個の値を与え、それを人間が読める形で表示する提案
+</p>
+
+<p>
+文面案の全訳は面倒なので、コードで示す。
+</p>
+
+<pre><code>// 案4の利用例
+static_assert( sizeof(int) == 4,
+    "Oops, the size of int is not 4! Use this:", sizeof(int),
+    " Also check the size of long, just in case :D :", sizeof(long)
+) ; 
+</code></pre>
+
+<p>
+これは・・・はて、どうだろう。
+</p>
+</dd>
+</dl>
+
+<p>
+何にせよ、文字列を指定しないstatic_assertは欲しいところだ。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3847.pdf">[PDFは簡単ではない！] N3847: Random Number Generation is Not Simple!</a>
+</p>
+
+<p>
+すでに提案中の、初心者にも使いやすい乱数ライブラリ、std::pick_a_numberに対する提案。
+</p>
+
+<p>
+まず、pick_a_numberを関数テンプレートにし、浮動小数点数型も扱えるようにする。
+</p>
+
+<pre><code>// N3847提案のpick_a_number
+#include &lt;random&gt;
+
+int main()
+{
+    int a = std::pick_a_number( 1, 6 ) ;
+    double b  = std::pick_a_nubmer( 1.0, 6.0 ) ;
+}
+</code></pre>
+
+<p>
+また、関数オブジェクトとして呼ぶと乱数を返すクラスも提供する。これにより、&lt;algorithm&gt;に渡しやすくなる。
+</p>
+
+<p>
+さらに、乱数を返すイテレーターも提供する。これにより、copy_nなどのアルゴリズムに渡せる。
+</p>
+
+<p>
+クラスがテンプレートでないのは気になるところだ。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3848.html">N3848: Working Draft, Technical Specification on C++ Extensions for Library Fundamentals</a>
+</p>
+
+<p>
+std::optionalのドラフト文面。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3849.html">N3849: string_view: a non-owning reference to a string, revision 6</a>
+</p>
+
+<p>
+文字列をラップするクラス、string_viewの提案。
+</p>
+
+<p>
+多くの場合、文字列を扱うとき、その文字列がどのように実装されているかは、どうでもいいことだ。std::stringかもしれないし、null終端されたcharの配列かもしれない。重要なのは、それが文字列として振る舞うことであって、実装方法の詳細ではない。そこで、様々な実装方法の文字列をラップして、共通の操作を提供するクラスが欲しい。
+</p>
+
+<p>
+このような需要は極めて一般的なもので、GoogleとかBloombergとか、ChromiumとかLLVMなどといった企業やプロジェクトで、ほぼ同等機能のライブラリが、独立して再発明され続けている。それならば、標準ライブラリとして存在すべきだ。
+</p>
+
+<p>
+string_viewは、具体的な文字列の実装を参照して、std::basic_string風のインターフェースで見るためのクラスであり、変更することはできない。変更できるようにすると、文字列リテラルでstring_viewを初期化することができなくなる。それに、文字列を変更するということは、往々にして、文字列の長さも変えなければならない。それには具体的な実装による処理が絡んでくる。そのため、文字列を変更するという需要はない。事実、LLVMでも、文字列を変更する版のライブラリを追加する需要は発生していない。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3850.pdf">[PDFはやめてくれ頼む] N3850: Working Draft, Technical Specification for C++ Extensions for Parallelism</a>
+</p>
+
+<p>
+&lt;algorithm&gt;に並列実行版を付け加える提案のドラフト文面
+</p>
+
+<p>
+この提案では、従来のアルゴリズムに、実行ポリシー(execution policy)を取るオーバーロードが追加される。
+</p>
+
+<p>
+標準規格では、三つの実行ポリシーを定義している。すなわち、std::seq, std::par, std::vecであり、それぞれ、シーケンシャル実行ポリシー(sequential execution policy)、並列実行ポリシー(parallel execution policy)、ベクトル実行ポリシー(vector execution policy)である。既存のアルゴリズムは、すべてシーケンシャル実行ポリシーである。
+</p>
+
+<p>
+並列実行ポリシーは、処理の実行単位が順序を問わず、未規定のスレッドで非シーケンシャルに実行される。そのため、スレッドローカルストレージなどは、実行の単位ごとに異なる可能性があるし、ロックなども慎重に使わなければ、実行単位の間でデッドロックを引き起こす。
+</p>
+
+<p>
+ベクトル実行ポリシーは、処理が未規定のスレッドで実行されるし、またひとつのスレッドで実行された場合、非シーケンシャルである。ベクトル実行ポリシーはさらに制約が強く、実行単位の中では、一切のロックを行ってはならない。
+</p>
+
+
+
+<pre><code>// N3850の例
+#include <algorithm>
+
+int main()
+{
+    std::vector<int> v ;
+    // vに値を入れる
+
+    // 従来のsort、暗黙にシーケンシャル実行ポリシー
+    std::sort( v.begin(), v.end() ) ;
+
+    // 明示的にシーケンシャル実行ポリシー
+    std::sort( std::seq, v.begin(), v.end() ) ;
+
+    // 並列実行ポリシー
+    std::sort( std::par, v.begin(), v.end() ) ;
+
+    // ベクトル実行ポリシー
+    std::sort( std::vec, v.begin(), v.end() ) ;
+}
+</code></pre>
+
+<p>
+並列実行ポリシーや、ベクトル実行ポリシーが、どのように実装されるかは規定されていないし、それは規格が定めるところではない。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3851.pdf">[多次元的に複雑なPDF] N3851: Multidimensional bounds, index and array_view</a>
+</p>
+
+<p>
+連続したメモリ配列に対して、多次元配列操作を提供する、array_viewライブラリの提案。Microsoftのライブラリ、C++ AMPを土台としている。
+</p>
+
+<p>
+array_viewは、連続したメモリを参照して、あたかも多次元配列を操作しているかのようなインターフェースを提供する。
+<p>
+
+<pre><code>// N3851時点での提案の例
+std::size_t M = 32 ;
+std::size_t N = 64 ;
+
+std::vector&lt;float&gt; v( M * N ) ;
+
+std::array_view&lt;float, 2&gt; view{ { M, N }, v } ;
+
+
+view[{ 3, 3 }] = 0 ;
+</code></pre>
+
+<p>
+また、array_viewは、bounds_iteratorにより、各要素に対して、一次元的なアクセスを提供している。
+</p>
+
+<pre><code>// N3851時点でのイテレーター
+std::bounds_iterator<2> first = std::begin( view.bounds() ) ;
+std::bounds_iterator<2> last = std::end( view.bounds() ) ;
+
+float sum = 0.0 ;
+
+std::for_each( first, last,
+[]( std::index<2> index )
+{
+    sum += view[index] ;
+}
+</code></pre>
+
+<p>
+string_viewとは違い、array_viewはmutableである。つまり、参照先を変更することができる。これは、文字列と多次元配列という違う概念による違いだ。LLVMでも、2011年2月に追加したimmutableなArrayRefに対して、mutable版のMutableArrayRefを追加したのが2013年1月。StringRefに対しては、いまだにMutableStringRefを追加する需要がない。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3852.html">N3852: C++ FCD Comment Status</a>
+</p>
+
+<p>
+前回、各国から送られたNational Body CommentへのC++標準化委員会への返答。日本は一件も送っていない。
+</p>
+
+<p>
+特に興味深いNBコメントの結果だけ紹介する。
+</p>
+
+<p>
+CH2: スイスは、C++14はマイナーアップデートであり、ドラフトの質に影響するような大規模な変更をやめろと意見した。これは受け入れられた。その結果、optionalとdynarrayは、標準規格ではなく、TS（Technical Specification）という形で制定することになった。いずれは、標準規格にも取り入れられるだろう。
+</p>
+
+<p>
+US15: アメリカ合衆国は、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3655.pdf">N3655</a>により、すべてのtypetrait&lt;...&gt;::typeは、エイリアステンプレートを使って、typetrait_t&lt;...&gt;と書けるようになった。さっそく、規格の文面でも置換を行おうと意見した。これは採択された。
+</p>
+
+<p>
+数値区切りは、一旦却下されたものの、各国から、入れろ、考えなおせというNBコメントが相次いだために、採択された。
+</p>
+
+<pre><code>// 数値区切りの例
+int x = 1000'000'000 ;
+</code></pre>
+
+<p>
+ES8: グローバルなoperator delete[]に、第二引数にstd::size_t型で、ストレージのサイズを取るオーバーロードが追加された。これは、従来メンバー関数にはあったが、なぜかグローバルな解放関数にはなかったものだ。ストレージのサイズが渡されることで、一部のメモリアロケーターの実装の解放時の処理が、とても効率的になる。
+</p>
+
+<p>
+GB4: 文面の変更により、ストレージ確保と例外がからむと、従来は余計にストレージが確保されて、もともとメモリーリークしていたコードが、さらにリークする可能性があるというイギリスの意見に対し、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_active.html#1786">core issue 1786</a>が作られた。
+</p>
+
+<p>
+ES10, US8: [[deprecated]]は採択されたが、CDに入れ忘れているぞというスペインの意見に対し、N3394をCDに適用する対応がなされた。
+</p>
+
+<p>
+US9: 現行ドラフトでは、実行時サイズ配列の添字が0と評価された場合、例外を投げるとしている。これは合法なC99のコードをC++14では実行時に失敗させてしまう。既存のC99コードには、添字0のコードが山ほどある。実際に、G++で実行時サイズ配列を実装して、既存のコードに試してみると、多くが壊れてしまった。添字が負数である場合はいいが、0の場合は認めるべきであるというアメリカ合衆国が意見した。これは採択された。<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_active.html#1768">core issue 1768</a>
+</p>
+
+<p>
+CH5: プリプロセッサーマクロ、__func__が関数の中ではないlambda式（名前空間スコープの中の初期化子の中のlambda式）の中で使えるかどうか、文面上疑問であるというスイスの意見。これは文面を修正することに決まった。
+</p>
+
+<p>
+US13: 非volatileローカル変数をreturnするときは、常にムーブでいいだろうという米国の意見。これは採用された。
+</p>
+
+<p>
+ES11: forward_as_tupleがconstexprではないというスペインの意見。constexprとなることに決まった。
+</p>
+
+<p>
+GB9: C11では、忌まわしき危険なgetsが取り除かれた。まだC++はC99規格を参照しているとはいえ、getsに関しては、C++でも廃止すべきであるというイギリスの意見が採用された。
+</p>
+
+<p>
+FI4: これは却下されたが面白かったので紹介。戻り値の型推定は、変換関数にも適用できる。
+</p>
+
+<pre><code>// 変換関数に関数の戻り値の型推定を適用する例
+struct Zero
+{
+    operator auto() { return 0 ; }
+} ;
+
+int main()
+{
+    Zero zero ;
+    int x = zero ;
+}
+</code></pre>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3853.htm">N3853: Range-Based For-Loops: The Next Generation</a>
+</p>
+
+<p>
+range-based for loopは、従来のforに比べて、格段に使いやすくなった。
+</p>
+
+<pre><code>// 昔のforループ
+
+void once_upon_a_time( std::vector&lt;int&gt; &amp; range )
+{
+    for (   std::vector&lt;int&gt;::iterator first = range.begin(),
+            std::vector&lt;int&gt;::iterator last = range.end() ;
+            first != last ; ++first )
+    {
+        std::cout &lt;&lt; *first &lt;&lt; '\n' ;
+    }
+}
+
+// 今のforループ
+
+void and_now( std::vector&lt;int&gt; &amp; range )
+{
+    for ( int elem : range )
+    {
+        std::cout &lt;&lt; elem &lt;&lt; '\n' ;
+    }
+}
+</code></pre>
+
+<p>
+なるほど、これはわかりやすくなった。しかし、要素の型を指定するのが面倒だ。そもそも、要素の型はコンパイル時に決定できるわけだ。重要なのは型ではない。すると、以下のように書ける。
+</p>
+
+<pre><code>// auto specifierの利用
+for ( auto elem : range ) ;
+</code></pre>
+
+<p>
+なるほど、これは実にわかりやすい。ただし、これには問題がある。
+</p>
+
+<pre><code>// Range-based for loopとauto specifierの問題点
+
+void f( std::vector&lt; std::string &gt; &amp; range )
+{
+    for ( auto elem : range )
+    {
+        std::cout &lt;&lt; elem &lt;&lt; '\n' ;
+    }
+}
+</code></pre>
+
+<p>
+これは動くが、いちいちにstd::stringオブジェクトのコピーが発生してしまう。そして、従来のC++プログラマーは、このコードによってコピーが発生しているということを、見逃しやすい。これは問題だ。
+</p>
+
+<p>
+では型名を書くかというと、それも問題なのだ。例えば以下のようなコードが問題になる。
+</p>
+
+<pre><code>// コピーが発生してしまうコード
+void f( std::map&lt; const int, int &gt; &amp; range )
+{
+    for ( std::pair&lt; int, int &gt; const &amp; elem : range )
+    {
+    // ...
+    }
+}
+</code></pre>
+
+<p>
+これにはコピーが発生してしまう。なぜならば、rangeの要素は、std::pair&lt; const int, int &gt;だからだ。型の変換のためにコピーが発生してしまうのだ。
+</p>
+
+<p>
+型名を明示的に指定するのは問題が多い。しかし、autoでもコピーが発生してしまう。ではどうすればいいのか。
+</p>
+
+<p>
+"for ( auto &amp; elem : range )"は、まだいくらかマシだ。しかし、これもvector&lt;bool&gt;のようなプロクシーイテレーターに対応できない問題がある。
+</p>
+
+<pre><code>// プロクシーに対応できない例
+void f( std::vector&lt;int&gt; &amp; v )
+{
+    for ( auto &amp; elem : v )
+    {
+        std::cout &lt;&lt; elem &lt;&lt; '\n' ;
+    }
+}
+
+int main()
+{
+    std::vector&lt;int&gt; non_proxy{ 1, 2, 3  } ;
+    f( non_proxy ) ; // well-formed
+
+    std::vector&lt;bool&gt; proxy{ true, true, true } ;
+    f( proxy ) ; // ill-formed!
+} 
+</code></pre>
+
+<p>
+vector&lt;bool&gt;は、規格上、だいぶ変わった実装をしなければならない。この実装はプロクシーと呼ばれてる技法が使われている。イテレーター一つ一つに対応する要素へのオブジェクトはない。そもそも、boolはたったの1ビットの情報で表現できるのだ。であれば、charの配列のようなストレージを用意しておき、その1bitづつに、要素一つを対応させればいいのだ。そして、イテレーターで変換を行う。
+</p>
+
+<p>
+問題は、そういう場合に、bool一つ一つに対応するオブジェクトがないので、イテレーターはかなり不自然な挙動をする。もちろん、規格の要件通りなのだが、やはり不自然なことは不自然だ。
+</p>
+
+<p>
+"for( auto const &amp; elem : range )"は、ほとんどのプロクシー実装に対応できるが、これでは書き換えることができない。
+</p>
+
+<p>
+実は、この問題を解決できる最高の方法があるのだ。"for ( auto &amp;&amp; elem : range )"である。
+</p>
+
+<p>
+auto &amp;&amp;は、どんなものにでも対応できる、万能の指定子なのだ。
+</p>
+
+<p>
+しかし問題は、auto &amp;&amp;を使うには、プログラマーはrvalue referenceやauto specifierやTemplate Argument Deduction（とくにテンプレート名にrvalue referenceが用いられた場合の不思議な挙動）について精通していなければならない。それは初心者にはいかにも無理だ。
+</p>
+
+<p>
+簡単に使えるように作られたはずの機能が、実際には簡単に使えないときている。これは簡単に使えるように、言語を拡張すべきだ。すなわち、新しい文法、"for ( elem : range )"の提案だ。
+</p>
+
+<p>
+"for ( elem : range )"は、自動的に、"for ( auto &amp;&amp; elem : range )"と書いたものと同様にみなされる。これにより、初心者も詳細を理解せずに使うことができる。文法上必要なゴミもなくなり、とてもわかりやすい。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3854.htm">N3854: Variable Templates For Type Traits</a>
+</p>
+
+<p>
+C++14では、エイリアステンプレートを用いて、従来のtype traitsの使いやすいラッパーを追加している。
+</p>
+
+<pre><code>// 新旧比較
+std::add_pointer&lt;int&gt;::type old = nullptr ;
+std::add_pointer_t&lt;int&gt; latest = nullptr ;
+</code></pre>
+
+<p>
+余計な、ネストされた型名、::typeがいらなくなるので、とても書きやすくなる。
+</p>
+
+
+<p>
+type_traits_tは、エイリアステンプレートを用いたラッパーであり、以下のように書くことができる。
+</p>
+
+<pre>
+template &lt; typename T &gt;
+add_pointer_t = std::add_pointer&lt;T&gt;::type ;
+</pre>
+
+
+<p>
+C++14には、変数テンプレートも追加されたので、これの値版を追加する提案。すなわち、
+</p>
+
+<pre><code>// 新旧比較
+bool old = std::is_integer&lt;int&gt;::value ;
+bool latest = std::is_integer_v&lt;int&gt; ;
+</code></pre>
+
+<p>
+::valueが必要なくなる。
+</p>
+
+<p>
+この実装は、例えば以下のようになる。
+</p>
+
+<pre><code>
+template &lt; typename T &gt;
+constexpr bool is_integer_v = is_integer&lt;T&gt;::value ;
+</code></pre>
+
+<p>
+これは入って当然の提案だ。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3856.pdf">[PDFは忘却されるべき] N3856: Unforgetting standard functions min/max as constexpr</a>
+</p>
+
+<p>
+これは異例に短い論文。PDFである理由が全くわからない。
+</p>
+
+<p>
+中身は、min/maxをconstexprにする提案だ。ついうっかり入れ忘れていたらしい。
+</p>
+
+<p>
+岡山の某陶芸家がおお喜びする様が目に見えるようだ。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3857.pdf">[PDFは改良の余地なし] N3857: Improvements to std::future&lt;T&gt; and Related APIs</a>
+</p>
+
+<p>
+非常に基礎的な機能しかなかった貧弱なfutureを大幅に改良する提案。便利な機能が追加される。この提案は、次にN3858と対になっている。
+</p>
+
+<p>
+まず、futureの基本的な使い方をみてみよう。
+</p>
+
+<pre><code>// C++11のfuture
+#include &lt;future&gt;
+
+int main()
+{
+    auto f = std::async( [](){ return 123 ; } ) ;
+
+    auto result = f.get() ;
+} 
+</code></pre>
+
+<p>
+futureは、基本的にはこれだけしかできない。futureは、値をgetで取得する。そして、getは、値がfutureに対応するpromiseに設定されるまでブロックする。それだけだ。
+</p>
+
+<p>
+then
+</p>
+
+<p>
+futureに値が決定された後に、処理をしたいことはほとんどだろう。そもそも、値が決定されたら、自動的に処理をして欲しいはずだ。また、その処理は、再び非同期で実行されて欲しいかも知れない。すなわちfutureを返したい。C++11では、以下のように書かなければならない。
+</p>
+
+<pre><code>// C++11の例
+#include &lt;future&gt;
+
+int main()
+{
+    // まあ、これはいいか
+    auto f1 = std::async( [](){ return 123 ; } ) ;
+    auto r1 = f.get() ;// え、俺がやるの？
+
+    // またかよ・・・
+    auto f2 = std::async( [&amp;](){ return r1 + 456 ; } ) ;
+    auto r2 = f2.get() ; // で、また俺がやるの？
+} 
+</code></pre>
+
+<p>
+たったの一回の後処理だけでこれなのだ。続けて何度も非同期な後処理をしたい場合、記述が煩雑になり面倒だ。
+</p>
+
+<p>
+このような煩雑なコードは、thenにより簡略化できる。
+</p>
+
+<pre><code>// then
+#include &lt;future&gt;
+
+int main()
+{
+    auto f2 = std::async( []() { return 123 ; } )
+                .then( []( auto f ){ return f.get() + 456 ; }
+              )
+    auto r2 = f2.get() ;   
+} 
+</code></pre>
+
+<p>
+thenならば、futureの結果非同期に実行される後処理を、future.then(..).then(...).then(...)と続けて、簡潔に書ける。
+</p>
+
+<p>
+unwrap
+</p>
+
+<p>
+futureのネスト、すなわち、future&lt;future&lt;int&gt;&gt;&gt;のようなことは、起こりうることである。では、ネストしたfutureを取り出すにはどうすればいいのか。getを使うとブロックしてしまうおそれがある。非同期に中身を取り出したい。しかし、futureから中身を取り出すために非同期処理を書くのは面倒だし、例外も面倒を見なければならない。非同期処理をした結果を得るのに非同期処理を自前で書くという、わけのわからないことをしなければならない。
+</p>
+
+<p>
+unwrapは、そのような非同期のfutureの展開をしてくれるものだ。
+</p>
+
+<pre><code>// unwrapの例
+#include &lt;future&gt;
+
+int main()
+{
+    // outer_futureはstd::future&lt; std::future&lt; int &gt; &gt;
+    auto outer_future = std::async( []{
+        return std::async( [] {
+            return 123 ;
+        } ) ; // inner
+    } ) ; // outer
+
+    auto inner_future_proxy = outer_future.unwrap() ;
+
+    inner_future_proxy.then([]( auto f ) {
+        auto result = f.get() ;
+    } ) ;
+} 
+</code></pre>
+
+<p>
+is_ready
+</p>
+
+<p>
+C++11のfutureには、getしかない。getは、まだ値が決定されていない場合、問答無用で待ちに入る。しかし、多くの場合、値が決定されているかどうかをブロックせずに確認だけしたいはずだ。こんな初歩的な機能が、C++11になかったのは、どうしようもないことなのだが、その機能が入る。is_readyだ。
+</p>
+
+<pre><code>// is_readyの例
+#include &lt;future&gt;
+
+void do_something_or_other( std::future&lt;int&gt; f )
+{
+    if ( f.is_ready() )
+    {
+        int value = f.get() ; // ブロックしない
+    }
+    else
+    {
+        // getはブロックするので、なにか別のことをする
+    }
+}
+</code></pre>
+
+<p>
+時間を指定する、wait_forやwait_untilはあったが、なぜこれはなかったのか。
+</p>
+
+<p>
+when_any
+</p>
+
+<p>
+複数のfutureのどれか一つでも完了した場合に値が決定するfutureを返す。
+</p>
+
+<p>
+これには2バージョンあり、future&lt;vector&lt;future&lt;T&gt;&gt;&gt;を返すタイプと、future&lt;tuple&lt;future&lt;T&gt;&gt;&gt;を返すタイプがある、複数のfutureをイテレーターで渡すとvector版が、実引数で渡すとtuple版が返される
+</p>
+
+<pre><code>// when_anyの例
+#include &lt;future&gt;
+
+int main()
+{
+    std::future&lt;int&gt; futures[] = { 
+        std::async( []{ return 1 ; },
+        std::async( []{ return 2 ; },
+        std::async( []{ return 3 ; }
+    } ;
+
+    // std::future&lt; std::vector&lt; std::future&lt;int&gt; &gt; &gt;
+    auto vec_future = std::when_any( std::begin(futures), std::end(futures) ) ;
+    // std::future&lt; std::tuple&lt; std::future&lt;int&gt;, std::future&lt;int&gt;, std::future&lt;int&gt; &gt; &gt;
+    auto tuple_future = std::when_any( futures[0], futures[1], futures[2] ) ;
+
+    vec_future.then([]{
+        // どれかが完了している
+    } ) ;
+} 
+</code></pre>
+
+<p>
+when_all
+</p>
+
+<p>
+複数のfutureのすべてが完了した時に完了するfutureを返す。
+</p>
+
+<p>
+make_ready_future
+</p>
+
+<p>
+futureを作るとき、すでに値が決定されていることが、しばしばある。しかし、値を設定済みのfutureを作るのは、C++11では意外と面倒だ。まず、promiseを作り、そのpromiseに値をセットして、そのpromiseからfutureを得なければならない。
+</p>
+
+<pre><code>// 値をセット済みのfutureを作る
+template &lt;typename T &gt;
+std::future&lt; typename std::decay_t&lt;T&gt; &gt; make_ready_future( T &amp;&amp; value )
+{
+    std::promise&lt; typename std::decay&lt;T&gt;::type &gt; p ;
+    p.set_value( std::forward&lt;T&gt;( value ) ) ;
+    return p.get_future() ;
+}
+</code></pre>
+
+<p>
+こんな基礎的なことを、わざわざ自前で書きたくない。間違いの元だ。最初からこれが標準ライブラリにあればよい。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3858.pdf">[PDFを継続する必要はない] N3858: Resumable Functions</a>
+</p>
+
+<p>
+Resumable Functionの提案。
+</p>
+
+<p>
+Resumable Functionとは、ブロックする実行を途中で中断して、関数の呼び出し元に、制御を返し、後で自動的に実行が再開されて、結果を得ることができる関数だ。futureにメンバー関数thenを付け加えるのもいいのだが、resumable functionがコア言語でサポートされていると、非同期コードが、とても簡潔に書けるようになる。
+</p>
+
+<p>
+future.thenを使うと以下のように書かなければならないコードが、
+</p>
+
+<pre><code>// future.thenの例
+future&lt;int&gt; f(shared_ptr&lt;stream&gt; str)
+{
+    shared_ptr&lt;vector&lt;char&gt;&gt; buf = ...;
+    return str-&gt;read(512, buf)
+        .then([](future&lt;int&gt; op)
+        // lambda 1
+            {
+                return op.get() + 11;
+            });
+}
+
+future&lt;void&gt; g()
+{
+    shared_ptr&lt;stream&gt; s = ...;
+    return f(s).then([s](future&lt;int&gt; op)
+        {
+            s-&gt;close();
+        });
+}
+</code></pre>
+
+<p>
+以下のように簡潔に書けるようになる。
+</p>
+
+<pre><code>// resumable functionの例
+future&lt;int&gt; f(stream str) resumable
+{
+    shared_ptr&lt;vector&lt;char&gt;&gt; buf = ...;
+    int count = await str.read(512, buf);
+    return count + 11;
+}
+
+future&lt;void&gt; g() resumable
+{
+    stream s = ...;
+    int pls11 = await f(s);
+    s.close();
+}
+</code></pre>
+
+<p>
+非同期コードを書くときは、同期コードをまず書いてから、それを非同期コードに直すことも多いので、ほぼ同期コードと同じように書けるコア言語によるresumable functionのサポートは、コードの記述をとても簡単にする。
+</p>
+
+<p>
+resumable functionの文法と機能について簡単に解説すると、以下のようになる。
+</p>
+
+<p>
+resumable functionの宣言は、かならずresumable指定子を使わなければならない。resumable指定子とは、resumableというキーワードだ。
+</p>
+
+<pre><code>// resumableキーワード
+std::future&lt;int&gt; f() resumable ;
+[]() resumable {} ;
+</code></pre>
+
+<p>
+resumable指定子の位置は、関数とメンバー関数の場合、リファレンス修飾子の後、例外指定の前だ。
+</p>
+
+<pre><code>// 関数のresumable指定子の位置
+struct S
+{
+    std::future&lt;int&gt; f() &amp; resumable noexcept ;
+} ;
+</code></pre>
+
+<p>
+lambda式の場合、mutableの後、例外指定の前になる
+</p>
+
+<pre><code>// lambda式のresumable指定子の位置
+[]() mutable resumable noexcept -&gt; std::future&lt;int&gt;{ return 0 ; }
+</code></pre>
+
+<p>
+もし、resumable指定子のあるlambda式で、戻り値の型が省略された場合、戻り値の型は、Tをreturn文から型推定された型とすると、std::future&lt;T&gt;になる。
+</p>
+
+<pre><code>// lambda式かつresumable functionの戻り値の型推定
+// 戻り値の型はstd::future&lt;int&gt;
+[]() resumable { return 0 ; }
+</code></pre>
+
+<p>
+resumable functionには、いくつかの制約がある。大きな制約を抜き出すと、
+</p>
+
+<ul>
+<li>
+resumable functionの戻り値の型は、std::future&lt;T&gt;か、std::shared_future&lt;T&gt;でなければならない。Tがvoid型のときは、値を返さないresumable functionとして認識される。
+</li>
+<li>
+C言語からある可変引数(...)は使えない。Variadic Templatesの関数パラメーターパックは使える。
+</li>
+
+</ul>
+
+<p>
+resumable functionの関数の本体では、await演算子が使える。これも新しいキーワードで、文法上、式になる。
+</p>
+
+<pre><code>await expr</code></pre>
+
+<p>
+したがって、条件を満たす式ならば、どこにでも使える。awaitを使った時点で、関数の実行は中断され、その時点で呼び出し元に処理が戻る。そして、await演算子のオペランドが終了した時点で、resumable関数の実行が再開される。
+</p>
+
+<pre><code>//awaitの例
+std::future&lt;void&gt; f() resumable
+{
+    // 事前の処理
+    int r1 =  await std::async( []{ return 0 ; } ) ;
+    // 事後の処理
+    int r2 = await std::async) [] { return 0 ; } ) ;
+    // さらに処理
+
+    return ;
+}
+</code></pre>
+
+<p>
+await演算子の特徴で、特に興味深いものを抜き出すと、
+</p>
+
+<ul>
+<li>
+await演算子は、resumable functionの中か、decltype式の中でしか使えない。
+</li>
+
+<li>
+await演算子のオペランドの式を評価した型は、future&lt;T&gt;かshared_future&lt;T&gt;か、あるいは、このどちらかの型に暗黙に変換可能でなければならない
+</li>
+
+<li>
+await演算子は、例外ハンドラーの中では使えない。
+</li>
+
+<li>
+mutexのロックを取得している状態でawait演算子を実行してはならない。
+</li>
+
+<li>
+await演算子を評価した結果の型は、futureかshared_futureをgetした結果の型になる。もし、型がvoid型の場合、await演算子は他の式の中では使えない。
+</li>
+</ul>
+
+<p>
+論文では、resumable functionの実装方法の例についても言及している。
+</p>
+
+<p>
+とても簡単な実装は、サイドスタックと呼ばれる方法だ。これは、resumable functionが発動する際に、専用のスタック用のメモリーを確保し、resumable functionに入る前と後で、スタックポインターのすげかえを行う。これにより、ローカル関数を始めとしたスタックに依存するものが、問題なく動くようになる。ただし、スタック用のメモリは、ある程度の大きさの連続したメモリ空間を必要とするため、効率が悪い。
+</p>
+
+<p>
+より効率的な実装としては、メモリをヒープ上に動的に確保して、参照カウンターで管理する方法がある。しかし、この方法は、実装が難しい。
+</p>
+
+<p>
+論文では、将来の拡張の可能性についても言及している。
+</p>
+
+<p>
+まず、汎用化だ。futureやshared_future以外の型も、メンバー関数getを持つとか、thenを持つとか、is_readyを持つなどすれば、認めるという案だ。これにより、汎用的に書ける。
+</p>
+
+<p>
+そして、ジェネレーターだ。C#やPythonではすでに実用化されているパラダイムだが、値の集合を一つ一つ遅延して計算したいときなどに、ジェネレーターを使うと、とても自然に書ける。このために、yieldというキーワードを導入し、yieldが実行されるたびに関数から処理を戻すような機能を提供する。
+</p>
+
+<p>
+ジェネレーターは、非同期やスレッドとは関係がないが、とてもおもしろくて便利なパラダイムだ。ぜひともジェネレーターは、将来、議論されて欲しい。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3859.pdf">[空間の間に消えてほしいPDF] N3859: Transactional Memory Support for C++</a><br>
+</p>
+
+<p>
+トランザクショナルメモリー(Transactional Memory)の提案。
+</p>
+
+<p>
+トランザクショナルメモリーとは、並列実行における複数のストレージへの排他的なアクセスを、より簡単に行うための機能だ。
+</p>
+
+<p>
+複数のスレッドから、複数のストレージに書き込む場合は、mutexなどの方法で、排他的なロックをかけなければならない。
+</p>
+
+<pre><code>// mutexの例
+int x = 0 ;
+int y = 0 ;
+// x, yにアクセスする際は、かならずmをロックすること
+std::mutex m ;
+
+void f()
+{
+    {
+        std::lock_guard&lt; std::mutex &gt; lock(m) ;
+
+        ++x ;
+        ++y ;
+    }
+}
+</code></pre>
+
+<p>
+しかし、このような明示的にロックするコードは、書きにくい。わざわざロック、アンロックしなければならないし、mutexオブジェクトの管理も面倒だ。もっと簡単に書けないものか。
+</p>
+
+<p>
+そこで、Transactional Memoryの出番だ。これはコア言語の文法として提供される機能なので、とても簡単に使えるようになっている。
+</p>
+
+<pre><code>// N3859提案のTransactional Memoryの例
+int x = 0 ;
+int y = 0 ;
+
+void f()
+{
+    synchronized
+    {
+        ++x ;
+        ++y ;
+    }
+}
+</code></pre>
+
+<p>
+Transactional Memoryを使えば、自前でmutexオブジェクトを管理せずに、とても簡単に複数のオブジェクトへの排他的なアクセスを書けるようになる。
+</p>
+
+<p>
+これは同期ブロック(synchronized block)と呼ばれている。その文法は、キーワードsynchronizedに続けてブロック文を書く。すべてのスレッドのすべての同期ブロックは同期する。つまり、同期ブロックの評価は、あたかもひとつのスレッドの中で逐次実行したかのように振る舞う。つまり、正しく同期ブロックの中から読み書きすれば、複数のスレッドからであっても、競合は一切起こらない。
+</p>
+
+
+<p>
+Transactional Memoryには、もうひとつ。アトミックブロック(Atomic Block)というものがある。これには、三種類ある。
+</p>
+
+<pre><code>// N3859提案のAtomic Block三種類
+atomic noexcept { /* ... */ }
+atomic commit_except { /* ... */ }
+atomic cancel_except { /* ... */ }
+</code></pre>
+
+<p>
+アトミックブロックの文法は、キーワードatomicに続けて、noexcept/commit_except/cancel_exceptのいずれかのキーワードを書き、その後にブロック文を書く。
+</p>
+
+<p>
+atomic noexceptは、アトミックブロックの中から外に例外を投げないことをユーザーが保証する。
+</p>
+
+<pre><code>// atomic noexcept
+atomic noexcept
+{
+    try
+    {
+        // ...
+    }
+    catch( ... )
+    {
+        // 絶対に外に例外を投げないように握りつぶす
+    }
+}
+</code></pre>
+
+<p>
+atomic commit_exceptは、アトミックブロックから例外によって抜けだした際に、トランザクションをコミットして、例外を投げる。つまり、それまでの副作用をブロックの外から観測できるようにする。
+</p>
+
+<pre><code>// atomic commit_except
+int x = 0 ;
+int y = 0 ;
+
+void f()
+{
+    try
+    {
+        atomic commit_except
+        {
+            ++x ;
+            throw 0 ;
+            ++y ;
+        }
+    } catch( ... ) { }
+
+    // この時点で、他のスレッドを考慮に入れなければ
+    // xはインクリメントされている
+    // yは初期値のまま
+}
+</code></pre>
+
+<p>
+atomic cancel_exceptは、アトミックブロックから例外によって抜けだした際に、それがTransaction-safeな例外であれば、トランザクションをキャンセルして、例外を投げる。つまり、それまでの副作用をなかったことにする。
+</p>
+
+<pre><code>// atomic cancel_except
+int x = 0 ;
+int y = 0 ;
+
+void f()
+{
+    try
+    {
+        atomic cancel_except
+        {
+            ++x ;
+            throw 0 ;
+            ++y ;
+        }
+    } catch( ... ) { }
+
+    // この時点で、他のスレッドを考慮に入れなければ
+    // xは初期値のまま
+    // yは初期値のまま
+}
+</code></pre>
+
+<p>
+transaction-safeな例外というのは、N3859提案の段階では、bad_alloc, bad_array_length, bad_array_new)length, bad_cast , bad_typeid , スカラー型となっている。議論の上で、この制限を緩和することも考えているそうだ。
+</p>
+
+<p>
+アトミックブロックの中の副作用は、アトミックブロックを抜けた際に、一斉に観測できるようになる。つまり、
+</p>
+
+<pre><code>// 副作用は一斉に見えるか見えないか
+int x = 0 ;
+int y = 0 ;
+
+void f()
+{
+    atomic noexcept
+    {
+        ++x ;
+        // #1
+        ++y ;
+    }
+    // #2
+}
+</code></pre>
+
+<p>
+#1の時点では、アトミックブロックの中では、xはインクリメントされているようにみえるが、他のスレッドからは、xは初期値のままにみえる。
+</p>
+
+<p>
+#2で、すべてのスレッドから、xとyが一斉にインクリメントされたように見える。この点では、同期ブロックもアトミックブロックも変わらない。また、アトミックブロックも、観測できる範囲では、同期ブロックと同じく、順序だって評価されているように見える。
+</p>
+
+
+<p>
+では、アトミックブロックは、同期ブロックとどう違うのか。同期ブロックというのは、単なるプログラム全体で単一のmutexを共有するような想定だが、アトミックブロックというのは、何らかのハードウェア、ソフトウェアによる効率的なトランザクショナルメモリーの実装が行われることが期待されている。もちろん、規格上、どのように実装されるかという詳細は規定していないのだが。
+</p>
+
+<p>
+また、規格ではTransaction-safeという概念を提唱し、Transactional Memoryのブロック内で行える処理に制限を設けている。また、関数をtransaction-safeとtransaction-unsafeに分けている。これらはキーワードで明示的に指定することもできる。既存のSTLコンテナーなどの標準ライブラリはtransaction-safeで使えるべきで、対応すべきだという意見も提示している。
+</p>
+
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3861.pdf">[読みづらいPDF] N3861: Transactional Memory (TM) Meeting Minutes 2013/09/09-2014/01/20</a>
+</p>
+
+<p>
+トランザクショナルメモリーに関する会議の議事録
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3862.pdf">[PDF廃止に向けて] N3862: Towards a Transaction-safe C++ Standard Library: std::list</a>
+</p>
+
+<p>
+GCC 4.9に実装されたTransactional Memoryの実験的実装を使い、libstdc++のstd::listを、実際にtransaction-safeにしてみる実験。変更は最小限ですんだそうだ。
+</p>
+
+<p>
+そのコードはGitHubに上がっている。
+</p>
+
+<p>
+<a href="https://github.com/mfs409/tm_stl">mfs409/tm_stl: A scratchpad for working on making some of the C++11 STL code from gcc 4.9 transaction-safe</a>
+</p>
+
+<p>
+残りの論文も、追って解説する。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴの勤務時間中に書かれた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+
+</body>
+</html>
+
+
