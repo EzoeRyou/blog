@@ -1,0 +1,340 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-01-pre-Issaquah mailingの簡易レビュー Part 2 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+</header>
+
+
+<article>
+<h1><a href="">2014-01-pre-Issaquah mailingの簡易レビュー</a></h1>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/#mailing2014-01">2014-01-pre-Issaquah mailing</a>が公開された。
+</p>
+
+<p>
+<a href="http://ezoeryou.github.io/blog/article/2014-02-17-2014-01-pre-Issaquah-mailing-review-part-1.html">前回</a>に引き続いて、C++WGの論文集を解説していく。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3863.html">N3863: Private Extension Methods</a>
+</p>
+
+<p>
+プライベート拡張メソッド(Private Extension Methods, PEM)は、privateな非virtualメンバー関数を、クラス定義の外で定義できる機能だ。
+</p>
+
+<p>
+以下のようなコードを考える。
+</p>
+
+<pre><code>// Foo.h
+class Foo
+{
+public :
+    int get_secret() ;
+
+private :
+    void set_secret( int value ) ;
+    int secret ;
+} ;
+</code></pre>
+
+<p>
+時に、このヘッダーファイルは、ユーザー側から利用される。そのようなヘッダーになぜ、privateなメンバーの情報を書いておく必要があるのか。よいクラスの条件とは、なるべく多くを隠匿することにかかっている。ユーザーにとって必要最小限のインターフェースしか提供しなければ、ユーザーにとって覚えることが少ないので使いやすくなるし、ユーザーがつまらない低級な実装の詳細にかかわらずにすむようになるし、実装の自由度も上がる。
+</p>
+
+<p>
+privateなメンバーは、ユーザーとクラスの派生先からは、利用できない。したがって、ユーザー向けに提供するヘッダーに書いておく必要はない。しかし、クラス定義をユーザー向けとライブラリ作者向けに分けることは、ODRの都合上できない。
+</p>
+
+<p>
+クラス定義には、ユーザーと派生クラス向けではなく、コンパイラー向けの要素も存在する。たとえば、コンパイラーはクラスのレイアウトを決定するために、すべての非staticデータメンバーやvirtual関数(vtableによる実装方法を取るコンパイラーにとっては、レイアウトの決定に関わる)の宣言を必要とする。この場合はsecretだ。
+</p>
+
+<p>
+しかし、privateな非virtualであるstatic/非staticなメンバー関数はどうか。set_secretは、ユーザーからも派生クラスからも使えない。コンパイラーはクラスのレイアウトを決定するためにset_secretの存在を知る必要はない。とすれば、private non-virtual member functionは、クラス定義の外で定義してもいいのではないか。そうすれば、ユーザー側から存在を隠すことができる。
+</p>
+
+<p>
+privateなメンバーをクラス定義に書かなければならない問題はいくつもある。
+</p>
+
+<p>
+ライブラリ作者が、クラス定義のprivateなメンバーを追加、削除、シグネチャの変更をするたびに、そのクラスを使う翻訳単位はすべて、再コンパイルしなければならない。しかし、private非virtualメンバー関数は、完全にクラス作者の中だけで完結しているので、そのような再コンパイルは、本来必要がないのだ。
+</p>
+
+<p>
+実装上の都合になるが、クラス定義に書くということは、シンボル名がその分増えるということである。シンボル名が増えるということは、shared libraryなどのシンボル名を解決して動的にロードするような機能に、余計に時間がかかるようになる。
+</p>
+
+<p>
+内部リンケージを持つ名前をprivateメンバー関数で使うことができない。たとえそのprivateメンバー関数が、クラス作者の翻訳単位でしか使われないとしてもだ。
+</p>
+
+<p>
+この問題は、private非virtualメンバー関数を、クラス定義の外で、追加的に宣言、定義できればよいのだ。すなわち、プライベート拡張メソッドの提案となる。そのために、privateキーワードを流用して、新たな文法を作る。
+</p>
+
+<pre><code>// Foo.h
+struct Foo
+{
+    int get_secret() ;
+private :
+    int secret ;
+} ;
+</code></pre>
+
+<pre><code>// Foo.cpp
+#include &lt;Foo.h&gt;
+
+private void set_secret( int value )
+{
+    secret = value ;
+}
+</code></pre>
+
+<p>
+また、private非virtualコンストラクターも、同様に外部定義できる。
+</p>
+
+<pre><code>// privateコンストラクター
+private Foo::Foo( int value ) : secret( value ) { }
+</code></pre>
+
+<p>
+プライベート拡張メソッド(PEM)は、staticメンバー関数にも使えるし、内部リンケージ指定もできる。ただし・・・現在提案中の文法では、色々とややこしい。
+</p>
+
+<p>
+問題は、staticというキーワードは、staticメンバーの宣言にも、内部リンケージの宣言にも使われているということだ。そのため、staticキーワードは、位置に酔って意味が変わる。
+</p>
+
+<ul>
+<li>
+privateキーワードの後にstaticキーワードを書くと、staticメンバーになる。
+</li>
+<li>
+privateキーワードの前にstaticキーワードを書くと、内部リンケージを持つ。
+</li>
+
+<li>
+privateキーワードの前後にstaticキーワードを書くと、staticメンバーで内部リンケージを持つ。
+</li>
+</ul>
+
+<pre><code>// staticキーワードの利用例一覧
+struct Foo{ } ;
+
+private void Foo::f() ; // private non-static member function
+private static void Foo::f() ; // private static member function
+static private void Foo::f() ; // private member function with internal linkage
+static private static void Foo::f() ; // private static member function with internal linkage
+</code></pre>
+
+<p>
+これはあまりにもわかりにくい。
+</p>
+
+<p>
+まだC++11がC++0xと呼ばれていたドラフト段階では、一時期、内部リンケージを指定するためのstaticキーワードの使用は、deprecated扱いであった。後に覆ったが、こうしてみると、やはりstaticキーワードを内部リンケージを指定するために使うのは、間違っている気がする。
+</p>
+
+<p>
+C++11では、無名namespaceが追加されたので、これを使うことにより、内部リンケージにできる。
+</p>
+
+<pre>// 無名namespaceを使って内部リンケージにする
+namespace
+{
+    private void Foo::f() ; // private non-static member function with internal linkage
+    private static void Foo::f() ; // private static member function with internal linkage
+}
+</pre>
+
+<p>
+論文では、プライベート拡張メソッドを、デフォルトで内部リンケージにしてしまうという案も提示している。外部リンケージが欲しければ、明示的にexternキーワードを書くようにする。結局、多くの利用例はデフォルトが内部リンケージで問題ないだろうから。
+</p>
+
+<pre><code>// デフォルトで内部リンケージ案
+private void Foo::f() ; // private non-static member function with internal linkage
+private static void Foo::f() ; // private non-static member function with internal linkage
+extern private void Foo::f() ; // private non-static member function with external linkage
+extern private static void Foo::f() ; // private static member function with external linkage
+</code></pre>
+
+<p>
+あるいは、privateキーワードの利用自体を省いてしまうという案もあるが、これは賛成できない。
+</p>
+
+<p>
+ところで、誰でもクラス定義の外でprivateメンバー関数を宣言できてしまうというと、アクセス指定の回避ができるかどうかが問題になるところだ。これは、通常は問題がない。なぜならば、誰でもprivateメンバー関数を宣言できるとはいえ、呼び出すことはできないからだ。
+</p>
+
+<pre><code>// クラスGodivaを定義しているヘッダー
+#include &lt;Godiva.h&gt;
+
+private auto Godiva::peeping_tom()
+{
+    return naughty_bits ;
+}
+
+int main()
+{
+    Godiva godiva ;
+    auto dirty_view = godiva.peeping_tom() ; // ill-formed、盲目となる
+}
+</code></pre>
+
+<p>
+しかし、それでも規格の抜け穴を縫うような形で、プライベート拡張メソッドを使って、合法かつアクセス指定を破れるコードが存在する。
+</p>
+
+<pre><code>
+class A {
+  int n;
+public:
+  A() : n(42) {}
+};
+
+template&lt;typename T&gt; struct X {
+  static decltype(T()()) t;
+};
+template&lt;typename T&gt; decltype(T()()) X&lt;T&gt;::t = T()();
+
+int A::*p;
+private int A::expose_private_member() { // note, not called anywhere
+  struct DoIt {
+    int operator()() {
+      p = &amp;A::n;
+      return 0;
+    }
+  };
+  return X&lt;DoIt&gt;::t; // odr-use of X&lt;DoIt&gt;::t triggers instantiation
+}
+
+int main() {
+  A a;
+  return a.*p; // read private member
+}
+</code></pre>
+
+<p>
+しかし、このようなコードは、うっかりと引っかかる種類のコードではない。プログラマーが意図的に行わない限り、遭遇することのないコードだ。Herb Sutterがかつて言ったように[<a href="http://www.gotw.ca/gotw/076.htm">GotW076</a>]
+、
+</p>
+
+<blockquote>
+<p>
+これは実際、問題ではない。この問題は、マーフィーの法則から保護する　VS　マキャベリから保護するかでしかない。つまり、うっかりミスから守るか（これは言語がとてもうまくやっている）VS　意図的な悪用から守る、かだ。結局、もしプログラマーが体制を破壊したいのであれば、例1から3で示したように、必ず方法をみつけるものだ。
+</p>
+
+<p>
+訳注:<br>
+マーフィーの法則＝よくあることを意味するレトリック<br>
+マキャベリ＝目的のために手段を選ばないことを意味するレトリック
+</p>
+
+<p>
+<a href="http://www.gotw.ca/gotw/076.htm">GotW #76: Uses and Abuses of Access Rights</a>
+</p>
+</blockquote>
+
+<p>
+その他、色々と反論に対する反論が書かれている。例えば、モジュール機能によりこの問題は解決するという反論には、モジュールはいつ入るかわからない。いま使える機能が欲しい。そのためには最小限度の変更で実装できる機能でなければならないと反論している。
+</p>
+
+<p>
+また、クラス定義を再び開ける案も書かれている。これは、クラスのレイアウトを変化させるようなメンバーは宣言できないが、private non-virtualメンバー関数以外にも、nested typeなどを追加できる。
+</p>
+
+<pre><code>// クラス定義を再び開く案
+class Foo { } ;
+
+// 再び開く
+private Foo
+{
+    void f() ; // private member 
+    int x ; // static data member
+} ;
+</code></pre>
+
+<p>
+これは興味深い提案だ。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3864.html">N3864: A constexpr bitwise operations library for C++</a>
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事もドワンゴの勤務時間中に書いた。
+</p>
+
+<p>
+ドワンゴは仕事のできるC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
