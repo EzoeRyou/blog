@@ -400,8 +400,165 @@ C++にビット列操作ライブラリを追加する提案。
 </p>
 
 <p>
-
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3865.pdf">[PDFに改良案はない] N3865: More Improvements to std::future&lt;T&gt;</a>
 </p>
+
+<p>
+futureを更に改良する提案。
+</p>
+
+<p>
+現在のfutureは、値と例外を同時に扱っている。
+</p>
+
+<pre><code>
+#include &lt;thread&gt;
+#include &lt;future&gt;
+int main()
+{
+    auto f = std::async( []() -&gt; int
+    {
+        throw 0 ;
+        return 0 ;
+    } ) ;
+
+    // 例外が投げられる
+    int result = f.get() ;
+} 
+</code></pre>
+
+<p>
+future/promise/asyncは、新しくC++11に追加された標準ライブラリexception_ptrを使って例外を束縛し、スレッドを超えて例外を伝えることができる。問題は、もしasyncに渡した関数オブジェクトが例外を外に投げた場合、futureのget()は、例外を投げる。
+</p>
+
+<p>
+futureのgetは、値と例外を一緒くたにあつかっている。これは様々な点で不便だ。たとえば、例外を投げてほしくない場合、直ちにtry { } catch( ... ) { }などで囲まなければならないし、その場合でも、やはり例外を投げているわけで、無駄なコストが発生する。
+</p>
+
+<p>
+また、futureが持っている例外をexception_ptrの形で欲しい場合でも、やはり一度投げさせてtry catchで受け止めなければならない。なんという無駄だろうか。
+</p>
+
+<p>
+そもそも、future自体は、値を持っているのか例外を持っているのか、知っているわけだ。futureが今、readyで、しかも値を持っているのかどうか調べることのできるメンバー関数を追加してはどうか。
+</p>
+
+<p>
+そして、値を取得するメンバー関数、get_valueと、exception_ptrを取得するメンバー関数、get_exceptionも追加する。
+</p>
+
+
+<pre><code>
+std::future&lt;int&gt; f = ...
+
+if( f.has_value() )
+{
+    // 値を持っている
+    int result = f.get_value
+}
+else
+{
+    // 例外を持っている。
+    std::exception_ptr ptr = f.get_exception_ptr() ;
+}
+</code></pre>
+
+<p>
+ところで、このようにhas_valueでしらべてからget_valueを使うのは面倒だ。もしfutureが値を持っておらず例外を持っている場合に、実引数に指定した値を返すちょっとした関数が欲しい。それがvalue_orだ。
+</p>
+
+<pre><code>// value_orの例
+x = f.value_or(v) ;
+</code></pre>
+
+<p>
+このコードは、以下のように書くのと等しい。
+</p>
+
+<pre><code>// 同等のコード
+x = (f.has_value()) ? f.get_value() : v ;
+</code></pre>
+
+<p>
+nextは、thenと似ているが、futureに値がセットされている時のみ関数オブジェクトが呼ばれる。
+</p>
+
+<pre><code>// nextの例
+f.next( []( auto f )
+{
+    auto value = f.get() ; // 必ず値がセットされている
+}) ;
+</code></pre>
+
+<p>
+recoverは、thenと似ているが、futureに例外がセットされている時のみ関数オブジェクトが呼ばれる。recoverの引数は、std::exception_ptrとなる
+</p>
+
+<pre><code>// recoverの例
+f.recover([]( std::exception_ptr ptr )
+{
+// ptrは例外を束縛している
+}) ;
+</code></pre>
+
+<p>
+futureに例外がセットされている時、フォールバックとしての値を使いたい時がよくある。fallback_toは、そのような利用例のためのメンバー関数だ。
+</p>
+
+<pre><code>// fallback_toの例
+x = f.fallback_to(v) ;
+</code></pre>
+
+<p>
+これを真面目に書くと、以下のようになる。
+</p>
+
+<pre><code>// 真面目に書いた例
+x = f.then( [&amp;]( auto f )
+{
+    return f.value_or(v) ;
+}) ;
+</code></pre>
+
+<p>
+make_exceptional_futureは、例外がセット済みのfutureを作れる。make_ready_futureの例外版といったところだ。
+</p>
+
+<pre><code>// make_exceptional_futureの例
+auto f = std::make_exceptional_future&lt;int&gt;( 123 ) ;
+</code></pre>
+
+<p>
+たしかに、値と例外が一緒くたになっているのは不便だ。これはなかなかいい提案だ。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3866.html">Invocation type traits (Rev. 2)</a>
+</p>
+
+<p>
+C++に新たなtype traits、invocation_typeを追加する提案。
+</p>
+
+<p>
+invocation_typeはメタ関数で、メタ関数引数は関数型、関数型の戻り値の型にクラスを、仮引数リストに、実引数の型リストを与えると、実際に呼び出す関数型（あるいはメンバー関数型）を返す。
+</p>
+
+<pre><code>// invocation_typeの例
+struct C
+{
+    int operator() ( double, int ) ;
+    int operator() ( double, double ) ;
+} ;
+
+// typeは int
+using type = std::invocation_type_t< C( int, int ) > ;
+</code></pre>
+
+
+
+
+
 
 <div class="dwango-ad">
 <p>
@@ -409,7 +566,7 @@ C++にビット列操作ライブラリを追加する提案。
 </p>
 
 <p>
-この記事もドワンゴの勤務時間中に書いた。
+この記事もドワンゴの勤務時間中に書いた。ドワンゴはC++の啓蒙活動を進めている。
 </p>
 
 <p>
