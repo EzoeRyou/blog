@@ -533,7 +533,7 @@ auto f = std::make_exceptional_future&lt;int&gt;( 123 ) ;
 </p>
 
 <p>
-<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3866.html">Invocation type traits (Rev. 2)</a>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3866.html">N3866: Invocation type traits (Rev. 2)</a>
 </p>
 
 <p>
@@ -551,14 +551,134 @@ struct C
     int operator() ( double, double ) ;
 } ;
 
-// typeは int
-using type = std::invocation_type_t< C( int, int ) > ;
+// int ( double, int )
+using type1 = std::invocation_type&lt; C ( int, int ) &gt;::type ;
+// int ( double, double )
+using type1 = std::invocation_type&lt; C ( double, double ) &gt;::type ;
+</code></pre>
+
+<p>
+invocation_type&lt; Fn( ArgTypes ... ) &gt;は、Fnを実引数ArgTypesで関数呼び出ししたときに、どのような型の関数が選ばれるかを、::typeで返すメタ関数である。result_ofは呼び出した結果の型を返すが、invocation_typeは、呼び出される関数の型を返す。これにより、呼び出される最適関数のformal parameterを得ることができる。
+</p>
+
+<p>
+なるほど、たしかに面白いが、いったいどのように利用するのか。これはMore Perfect Forwardingを実装するのに使う。
+</p>
+
+<p>
+たとえば、以下のようなコードは、より完全な転送ができないので、コンパイルエラーになる。
+</p>
+
+<pre><code>// More Perfect Forwardingが必要な例
+void f( int &amp; i ) ;
+
+int i ;
+
+int main()
+{
+    f( i ) ; // well-formed
+    std::thread t( f, i ) ; // ill-formed
+}
+</code></pre>
+
+<p>
+見ての通り、より完全な転送が失敗している。このコードをうまく通るようにするには、threadの実装で、最適関数に選ばられる関数の実際の仮引数の型を知る必要がある。そのため、invocation_typeが必要になる。
+</p>
+
+<p>
+実は、invocation_typeは、より直接的な、raw_invocation_typeのラッパーである。invocation_typeは、もし第一引数がメンバーへのポインターであり、第二引数がrvalueリファレンスである場合、decayを適用してリファレンスを外す。これは、すぐに寿命が尽きる一次オブジェクトを束縛してしまうのを防ぐためである。raw_invocation_typeは、そのような処理を行わない、生の関数型を返す。
+</p>
+
+<p>
+さらに、提案では、function_call_operatorを提供している。これは、::valueで、オーバーロード解決で選ばれたメンバーへのポインターを返すメタ関数である。
+</p>
+
+<pre><code>// function_call_operatorの例
+struct C
+{
+    void operator ()() ;
+    void operator ()( int ) ;
+} ;
+
+int main()
+{
+    auto fco = std::function_call_operator&lt; C ( int ) &gt;::value ;
+    C c ;
+    c.*fco(0) ; // call C::operator()(int)
+}
 </code></pre>
 
 
+<p>
+これはぜひとも入って欲しい。
+</p>
 
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3867.html">N3867: Specialization and namespaces (Rev. 2)</a>
+</p>
 
+<p>
+別の名前空間からテンプレートの明示的特殊化と部分的特殊化ができる提案。
+</p>
 
+<p>
+ユーザーがテンプレートを明示的に特殊化することを前提とした設計のライブラリがある。たとえば、std::hashだ。このテンプレートは、ユーザー側がユーザー定義型に対するハッシュの計算方法を指定するために、ユーザーに明示的に特殊化させることを想定している。
+</p>
+
+<p>
+問題は、その特殊化には、同じ名前空間であることを必要とするので、面倒なのだ。クラスを定義したら、名前空間を閉じて、目的の名前空間を開き、また閉じて、さて、また元の名前空間を開いて、続きを記述しなければならない。
+</p>
+
+<pre><code>
+namespace A {
+  namespace B {
+    /* ... */
+    class C { 
+      /* ... */ 
+    };
+    // hashの明示的特殊化を宣言したい  
+  } // Bを閉じる
+} // Aを閉じる 
+
+// stdを開く
+namespace std {
+  template&lt;&gt;
+  struct hash&lt;A::B::C&gt; {
+    size_t operator()(A::B::C const &amp;c) { /* ... */ }
+  };
+} // stdを閉じる
+
+namespace A { /* さっきまで使っていた名前空間を開き直す */
+  namespace B { 
+      /* ... */
+  }
+}
+</code></pre>
+
+<p>
+こんなコードは書きたくない。以下のように書きたいものだ。
+</p>
+
+<pre><code>
+namespace A {
+  namespace B {
+    /* ... */
+    class C { 
+      /* ... */ 
+    };
+      
+    template&lt;&gt;
+    struct ::std::hash&lt;C&gt; {
+      std::size_t operator()(C const &amp;c) { /* ... */ }
+    };
+    /* ... */
+  }
+}
+</code></pre>
+
+<p>
+このように書けるようにする提案。
+</p>
 
 <div class="dwango-ad">
 <p>
