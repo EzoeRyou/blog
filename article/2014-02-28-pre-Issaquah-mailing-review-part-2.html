@@ -41,7 +41,7 @@ GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
 
 
 <article>
-<h1><a href="">2014-01-pre-Issaquah mailingの簡易レビュー</a></h1>
+<h1><a href="http://cpplover.blogspot.jp/2014/02/2014-01-pre-issaquah-mailing-part-2.html">2014-01-pre-Issaquah mailingの簡易レビュー</a></h1>
 
 <p>
 <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/#mailing2014-01">2014-01-pre-Issaquah mailing</a>が公開された。
@@ -375,7 +375,6 @@ C++にビット列操作ライブラリを追加する提案。
 <li>ms1b: most significant 0 bit</li>
 <li>ls0b: least significant 1 bit</li>
 <li>ms0b: most significant 0 bit</li>
-</ul></li>
 </ul>
 
 <p>
@@ -679,6 +678,117 @@ namespace A {
 <p>
 このように書けるようにする提案。
 </p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3869.html">N3869: Extending shared_ptr to Support Arrays, Revision 1</a>
+</p>
+
+<p>
+shared_ptrで、配列を直接サポートする提案。これまでは、カスタムデリーターを渡してやれば、配列を扱うこともできた。しかし、もっと直接的に、
+</p>
+
+<pre><code>// こんなこといいな、できたらいいな
+std::shared_ptr&lt; int [] &gt; ptr{ new int [10] } ;
+</code></pre>
+
+<p>
+こう書きたいはずだ。すなわち、shared_ptr&lt;T[]&gt;が、直接サポートされていて欲しい。これをサポートする提案。
+</p>
+
+<p>
+論文では、shared_ptr&lt;T[N]&gt;のサポートも提案している。unique_ptrでこれが取り除かれたのは誤りであるとし、むしろunique_ptrにもT[N]を追加すべきだと主張している。
+</p>
+
+<p>
+また、論文では、reinterpret_pointer_castという関数テンプレートを提案している。これは、shared_ptr&lt;U&gt;からshared_ptr&lt;T&gt;に変換するものだ。論文はこれをあまり強く主張しておらず、もし削らなければならないのであれば、必要な犠牲として受け入れるとしている。
+</p>
+
+<p>
+実装は簡単で、既存のshared_ptrのコードを劇的に変更する必要はない。
+</p>
+
+<p>
+Boost 1.53のshared_ptrは、この提案通りに配列をサポートしていて、テストやドキュメントも揃っている。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3870.html">N3870: Extending make_shared to Support Arrays, Revision 1</a>
+</p>
+
+<p>
+N3869と関係していて、make_shardを配列に対応させる提案。
+</p>
+
+<p>
+前回の論文、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3641.html">N3641</a>との違いは、寄せられた意見を元に、オーバーロードを極端に削った。今の提案がサポートしているのは、2パターンの利用例だ。
+</p>
+
+<pre><code>// shared_ptrで配列を確保する例
+
+// 値初期化されたN個のT型の配列、new U[N]()と等しい
+// std::shared_ptr&lt; int [ ] &gt;
+auto p1 = std::make_shared&lt;int&gt;( 10 ) ;
+// std::shared_ptr&lt; int [10] &gt;
+auto p2 = std::make_shared&lt; int [10] &gt;( ) ;
+
+// 指定した値で初期化するもの、std::vector&lt;U&gt;コンストラクターと等しい
+// std::shared_ptr&lt;int [] &gt;
+auto p3 = std::make_shared&lt;int&gt;( 10, 0 ) ;
+// std::make_shared&lt; int [10] &gt;
+auto p4 = std::make_shared&lt; int [10] &gt;( 0 ) ;
+</code></pre>
+
+<p>
+以前の提案では、二次元配列の確保などの、やたらと複雑なオーバーロードが存在した。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3871.html">N3871: Proposal to Add Decimal Floating Point Support to C++ (revision 2)</a>
+</p>
+
+<p>
+十進浮動小数点数をサポートする提案。decimal32, decimal64, decimal128という名前のクラスが提案されている。
+</p>
+
+<p>
+C++の標準規格では、浮動小数点数がどのように表現されているかを定めていない。したがって、規格上は十進浮動小数点数で実装することも可能であるが、既存のC++実装はすべて、速度を重視して、浮動小数点数の内部表現は二進数にしている。
+</p>
+
+
+<p>
+十進浮動小数点数の利点は、10進数を正確に表現できることである。たとえば、十進浮動小数点数を使えば、二進浮動小数点数では正確に表現できなかった、10進数の0.1が、正確に表現できるようになる。
+</p>
+
+<p>
+論文では、C++03向けに書かれた十進浮動小数点数のTechnical Reportを参照して、C++14用に修正している。この提案が規格入りすれば、C++17では、十進浮動小数点数のサポートは、規格上、必須になる。
+</p>
+
+<p>
+C++03向けのTRをC++17向けに書きなおすにあたってなされた変更も興味深い。
+</p>
+
+<p>
+まず、10新浮動小数点数型を、Standard layout typeかつPODにするために、明示的にdefault化された宣言を使う。
+</p>
+<p>
+また、long longへの変換関数は、暗黙的でないほうがいいだろうということで、explicitになった。
+</p>
+
+<pre><code>// explicitな変換関数になった
+decimal32 d = 123.0 ; // OK, doubleからdecimal32は暗黙に変換できる
+long long i1 = d ; // ill-formed、decimal32からlong longは暗黙に変換できない
+long long i2 = static_cast&lt;long long&gt;(d) ; // OK
+</code></pre>
+
+<p>
+また、十進浮動小数点数はクラスではあるが、実装により組込型扱いすることを認めるために、finalとなる。つまり、派生することができない。
+</p>
+
+<p>
+ちなみに、ドワンゴの業務で十進浮動小数点数の需要があるかどうかを聞いてみたところ、「あんまりなさそうな」という答えが返ってきた。
+</p>
+
+
 
 <div class="dwango-ad">
 <p>
