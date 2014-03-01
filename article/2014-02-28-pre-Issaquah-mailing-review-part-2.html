@@ -179,13 +179,13 @@ static private static void Foo::f() ; // private static member function with int
 C++11では、無名namespaceが追加されたので、これを使うことにより、内部リンケージにできる。
 </p>
 
-<pre>// 無名namespaceを使って内部リンケージにする
+<pre><code>// 無名namespaceを使って内部リンケージにする
 namespace
 {
     private void Foo::f() ; // private non-static member function with internal linkage
     private static void Foo::f() ; // private static member function with internal linkage
 }
-</pre>
+</code></pre>
 
 <p>
 論文では、プライベート拡張メソッドを、デフォルトで内部リンケージにしてしまうという案も提示している。外部リンケージが欲しければ、明示的にexternキーワードを書くようにする。結局、多くの利用例はデフォルトが内部リンケージで問題ないだろうから。
