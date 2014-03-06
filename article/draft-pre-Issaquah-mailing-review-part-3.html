@@ -1,0 +1,359 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-01-pre-Issaquah mailingの簡易レビュー Part 3 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+</header>
+
+
+<article>
+<h1><a href="">2014-01-pre-Issaquah mailingの簡易レビュー Part 3</a></h1>
+
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3872.pdf">N3872: A Primer on Scheduling Fork-Join Parallelism with Work Stealing</a>
+</p>
+
+<p>
+これは提案ではなく、Fork-Joinにおける実装戦略の入門書的な論文。
+</p>
+
+<p>
+Fork-Joinというのは、処理の単位を発生させて、ある地点で、発生させた処理が全て終わるまで待つものだ。Clik風の文法で書くと、以下のようになる。
+</p>
+
+<pre><code>// Clik風文法によるFork-Join
+// オリジナルのスレッドが実行開始
+e() ; // オリジナルのスレッドが逐次実行
+spawn f() ; // 並行して実行される処理を生成
+g() ; // fとは並行して実行される
+sync ; // f, gの処理が両方終わるまで待つ
+h() ; // 逐次実行
+</code></pre>
+
+<p>
+さて、ここで疑問が二つある。
+</p>
+
+<ol>
+<li>
+fとgを実行するスレッドは何か？
+</li>
+
+<li>
+hを実行するスレッドは何か？
+</li>
+</ol>
+
+<p>
+fとgを実行するスレッドは何か？
+</p>
+
+<p>
+Fork-Joinという概念による並列実行のスケジューラーの実装方法としては、Work-stealingというものがある。これは、MIT Cilk, Intel Clik Plus, Microsoft PPL, OpenMPで使われている。work stealingの概要としては、まずスレッドが処理を作る。スレッドが処理の実行を終えたら、そのスレッドは泥棒(thief)となり、別のスレッドで未実行のままたまっている処理を横取りする。
+</p>
+
+<p>
+上の例では、spawn f() ;　で処理が作成されている。さて、その処理を作成したオリジナルのスレッドは、fとgのどちらの実行をすればいいのだろうか。それには、ふたつの戦略がある。
+</p>
+
+<ul>
+<li>
+Child Stealing: fは泥棒スレッドに盗まれるようにし、オリジナルのスレッドはgを実行する
+</li>
+
+<li>
+Continuation Stealing: オリジナルのスレッドがfを実行する。オリジナルのスレッドの実行の継続は、別の泥棒スレッドに任せる。
+</li>
+</ul>
+
+<p>
+これは、一見すると、些細な違いのように見える。しかし、ループの中で処理を延々と生成していくようなコードでは、この違いが問題になってくる。例えば以下のコード、
+</p>
+
+<pre><code>// 戦略の違いが問題となるコード
+for ( int i = 0 ; i &lt; n ; ++i )
+{ spawn f( i ) ; }
+
+sync ;
+</code></pre>
+
+<p>
+さて、このコードを実行すると、f(0)から、f(n-1)までの処理が生成される。ここで先ほどの二つの戦略を当てはめてみると。
+</p>
+
+<p>
+Child Stealingでは、spawn f( i )を実行したあと、オリジナルのスレッドは、未実行の処理の数にむとんちゃくでfor文の実行を続けるので、f(i)が爆発的に生成されてしまう。これにより、未実行の処理を記録しておくリソースなどが浪費される。
+</p>
+
+<p>
+Continuation Stealingでは、オリジナルのスレッドが、まずf(0)を実行しに行く。for文の実行は、泥棒スレッドに任せる。この戦略では、未実行の処理が爆発的にたまることはない。泥棒スレッドがあるだけ効率的に処理を生成し、実行できる。ただし問題は、本来実行していたスレッドとは別のスレッドが実行を継続することになるので、たとえばレジスターやTLSなど、退避、復帰させなければならないデータがたくさんあり、コストがかかる。
+</p>
+
+<p>
+また、Child Stealingは、純粋にライブラリだけでも実装できる。Continuation Stealingは、コンパイラーのサポートが必要だ。
+</p>
+
+<p>
+それに、Continuation Stealingは、一見逐次実行に見えるのに、実行するスレッドが変わるので、初心者を混乱させる。
+</p>
+
+<p>
+hを実行するスレッドは何か？
+</p>
+
+<p>
+さて、syncによってjoinしたあと、hを実行するスレッドは、いったいなんだろうか。これには二つの実装戦略がある。
+</p>
+
+<ul>
+<li>
+Stalling: オリジナルのスレッドが実行する。
+</li>
+
+<li>
+Greedy: 最後に処理を終えたスレッドが実行する
+</li>
+</ul>
+
+<p>
+Stallingの、オリジナルのスレッドが実行を再開するのは、とてもわかりやすい。ただし、それはオリジナルのスレッドが、すべての処理が終わるまで待たなければならない。そのためにStallingと呼ばれている。うかつに時間のかかる処理を、オリジナルのスレッドが盗んでしまうと厄介だ。
+</p>
+
+<p>
+Greedyは、最後に処理を終えたスレッドが実行するので、スレッドが何もしないで待つ必要がない。ただし、オリジナルのスレッドとは別のスレッドが実行を継続する可能性があるので、TLSなどがうまく動かないし、TLSもうまく動かすようにしようとすれば、相当のスレッド環境の退避、復帰のコストがかかる。それに、わかりにくい。
+</p>
+
+<p>
+TBBとPPLはStallingをサポートしている。Cilkは、Greedyをサポートしているが、Stallingをサポートする実験的なライブラリもある。OpenMPは、なんとまた、どちらもサポートしている。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3873.html">[汚らしいド素人の書いたHTML] N3873: Improved insertion interface for std::{unordered_,}map</a>
+</p>
+
+<p>
+論文のタイトルは"Improved insertion interface for unique-key maps", 論文のHTMLのtitle要素は、"Improved insertion interface for std::{unordered_,}map"という一貫性に欠けるマークアップ。しかも、物理的な改行が意味を持つコードをマークアップするのに、既存の意味的にもふさわしいpre要素やcode要素を使わずに、div.code { white-space : pre-wrap ; }しているという、汚らしいド素人が書いたであろうマークアップの論文。 
+</p>
+
+<p>
+mapとunordered_mapにemplaceのようなものを追加する提案。
+</p>
+
+<p>
+既存のmapとunordered_mapのemplaceは、キーが存在する場合、要素の挿入を行わない。問題は、要素の挿入が行われなかったとしても、依然として、実引数で渡したオブジェクトは、ムーブ後の状態になる可能性がある。
+</p>
+
+<pre><code>// emplaceの例
+std::map&lt;std::string, std::unique_ptr&lt;Foo&gt;&gt; m ;
+m["foo"] ; // キー"foo"を挿入
+
+std::unique_ptr&lt;Foo&gt; p(new Foo) ;
+// キーはすでに存在する
+// pはムーブ後の状態になっている可能性がある
+auto res = m.emplace("foo", std::move(p)) ;
+</code></pre>
+
+<p>
+挿入を行わないのならば、ムーブしなくてもいいし、実際、そのように実装することもできる。ただし、規格は上の例で、pをムーブ後の状態にすることを禁止していないし、実際にムーブ後の状態にするライブラリ実装もある。なぜかというと、emplaceは、実引数から、std::pair&lt; std::string, std::unique_ptr&lt;Foo&gt; &gt;のオブジェクトを生成するのだが、この生成は、キーの検索の前に行われることが、規格上許されているからだ。規格上許されている以上、そのように実装しても何の問題もない。
+</p>
+
+<p>
+そこで、キーが存在した場合は、実引数のオブジェクトに何の変更をもくわえないことを保証した、新しいメンバー関数、emplace_stableを追加する提案。
+</p>
+
+
+<pre><code>// emplace_stableの例
+std::map&lt;std::string, std::unique_ptr&lt;Foo&gt;&gt; m ;
+m["foo"] ; // キー"foo"を挿入
+
+std::unique_ptr&lt;Foo&gt; p(new Foo) ;
+// キーはすでに存在する
+// pはムーブ後の状態になることはないことが保証されている
+auto res = m.emplace_stable("foo", std::move(p)) ;
+</code></pre>
+
+<p>
+なぜ、既存のemplaceをemplace_stableの挙動にしないのかというと、どうも、うまい文面案が思いつかないらしい。なんともプラグイン的な解決方法だ。
+</p>
+
+<p>
+提案では、もうひとつ、empalce_or_updateというメンバーを付け加える。これは、キーが存在する場合でも、上書きムーブする。
+</p>
+
+<pre><code>
+std::map&lt;std::string, std::string&gt; m ;
+m["foo"] = "bar" ;
+
+std::string value{ "hoge" } ;
+
+// キーが存在するので上書きされることはない
+m.emplace_stable( "foo", value ) ;
+m["foo"] ; // "bar"
+
+// キーが存在するが上書きする
+m.emplace_or_update("foo", std::move(p)) ;
+m["foo"] ; // "hoge"
+</code></pre>
+
+<p>
+emplace_or_updateは、emplace_stableがあれば、効率を落とさず簡単に実装できる。なぜならば、emplace_stableは、イテレーターと、挿入を行ったかどうかをpairで返すからだ。
+</p>
+
+<pre><code>
+auto it = m.emplace_stable("foo", std::move(p));
+if (!it.second)
+{
+    it.first = std::move(p); 
+}
+</code></pre>
+
+<p>
+とはいえ、こんなコードをいちいち書きたくない。標準ライブラリで提供されているべきだ。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3874.pdf">[クソみたいなPDF] N3874: Light-Weight Execution Agents</a>
+</p>
+
+<p>
+スレッドとかタスクとかSIMDとかベクトル実行とか、様々な名称で呼ばれている、Execution Agent(実行物)の定義を与える提案。
+</p>
+
+<p>
+Execution Agentとは、実行の単位の名称である。
+</p>
+
+<p>
+C++11では、スレッドを導入し、C++に並列実行の道具を与えた。
+</p>
+
+<p>
+Execution Agent(実行物)とは、すでに規格で定義されている用語(§30.2.5.1 paragraph 1)だ。スレッドは、「ブロックされていない限り、いずれ実行が進む」("should eventually make progress if they are not blocked.")と定義されている。これは、とても強い保証を持っている。
+</p>
+
+<p>
+ところで、C++11で入ったスレッドというのは、たとえばPOSIXのpthreadをモデル化したものであり、多くの実装ではOSの提供するスレッドである。このようなスレッドは、とても重たい。しかし、そのような重たいものは、大量に生成すると、リソース使用量の点でコストがかかる。軽い並列処理には、もっと軽い単位のExecution Agentが使われるべきである。すでに、そのような提案はあるが、みな用語がバラバラである。その根底にある基本的なExecution Agentという概念を、共通化してまとめて定義しよう、と、こういう提案である。
+</p>
+
+<p>
+まず、Foward progress(実行が進む)保証について考察する。これにはいくつかの保証の強弱が考えられる。
+</p>
+
+<dl>
+<dt>
+Concurrent execution
+</dt>
+
+<dd>
+スレッドのような、いずれ実行が進むという強い保証
+</dd>
+
+<dt>
+Parallel execution
+</dt>
+<dd>
+スレッドプールやFork-joinのような、弱い保証。クリティカルセクションの使用にも難あり。
+</dd>
+
+<dt>
+SIMD execution
+</dt>
+
+<dd>
+SIMD演算のモデル化。これはやや特殊な保証。
+</dd>
+
+<dt>
+Parallel+SIMD execution
+</dt>
+<dd>
+ParallelとSIMDを組み合わせて、両方の良いとこどりをねらった保証。ただし、この保証の存在理由には疑問もある。
+</dd>
+</dl>
+
+<p>
+また、スレッドの紐付けられた状態という点からも考察できる。たとえば、TLSや、this_thread::get_id()や、ロック所有するスレッドという点だ。
+</p>
+
+<p>
+論文は最後に、いくつかの疑問を提示している。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3875.pdf">[おぞましいPDF] N3875: Run-time bound array data members</a>
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴの勤務中に書かれた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
