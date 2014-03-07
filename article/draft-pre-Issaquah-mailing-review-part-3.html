@@ -254,7 +254,7 @@ if (!it.second)
 </p>
 
 <p>
-スレッドとかタスクとかSIMDとかベクトル実行とか、様々な名称で呼ばれている、Execution Agent(実行物)の定義を与える提案。
+スレッドとかタスクとかSIMDとかベクトル実行とか、様々な名称で呼ばれている、light-Weight Execution Agent(軽量実行物)の定義を与える提案。
 </p>
 
 <p>
@@ -321,7 +321,235 @@ ParallelとSIMDを組み合わせて、両方の良いとこどりをねらっ�
 <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3875.pdf">[おぞましいPDF] N3875: Run-time bound array data members</a>
 </p>
 
+<p>
+実行時にサイズを指定できる配列をクラスのデータメンバーとして持つことができるようにする提案。
+</p>
+
+<p>
+ただし、Cとはだいぶ違う方向だ。そして、名前も、実行時サイズ配列(runtime sized array)ではない。
+</p>
+
+<p>
+まず、文法をひと通り見ていくことにしよう。
+</p>
+
+<pre><code>// 文法例
+struct runtime_size_bound_class
+{
+    char [] runtime_bound_array ;
+
+    // array constructor
+    runtime_size_bound_class( std::size_t size )
+        : runtime_bound_array[ size ]
+    {
+        // ...
+    }
+} ;
+</code></pre>
+
+<p>
+他にも色々と文法案が提案されているが、どれもこれも一様に気持ち悪い。
+</p>
+
+<p>
+まず、データメンバーの宣言文法から見ていこう。これは、実行時束縛配列(runtime bound array)と呼ばれていて、以下のように宣言する
+</p>
+
+<pre><code>type [] name ;</code></pre>
+
+<p>
+なぜこうならなければならないのか。当初、runtime bound arrayの文法は、通常のtype name [] ; になる予定だったのだが、それだと、既存のCの構造体のテクニックとかぶってしまうのだ。
+</p>
+
+<pre><code>// 非常によく使われているテクニック
+struct X
+{
+    std::size_t size ;
+    char buf [] ;
+} ;
+
+int main()
+{
+    constexpr std::size_t size = 100 ;
+    X * ptr = reinterpret_cast&lt; X * &gt;( std::malloc( sizeof(X) + size ) ) ;
+    ptr-&gt;size = size ;
+}
+</code></pre>
+
+<p>
+そのため、文法を変える必要があったのだ。
+</p>
+
+<p>
+実行時束縛配列のデータメンバーは、複数持つこともできる。
+</p>
+
+<pre><code>// 複数個持つ例
+struct X
+{
+    char [] a ;
+    char [] b ;
+
+    X( ) : a[ 1 ], b[ 2 ]
+    { }
+} ;
+</code></pre>
+
+
+
+<p>
+さて、runtime bound arrayのサイズは、array constructor(配列コンストラクター)と呼ばれるコンストラクターで指定する。
+</p>
+
+<pre><code></code></pre>
+runtime_size_bound_class( std::size_t size )
+    : runtime_bound_array[ size ]
 <div class="dwango-ad">
+
+<p>
+array constructorは、メンバー初期化子の文法を拡張して[]でサイズを実行時に指定する。
+</p>
+
+<p>
+array constrcutorは、必ず、クラス定義の中で定義しなければならない。
+</p>
+
+<pre><code>// 間違いの例
+struct X
+{
+    char [] a ;
+    X() ;
+} ;
+
+// ill-formed
+X::X() : a[1] { }
+</code></pre>
+
+<p>
+初期化も、通常通りだ
+</p>
+
+<pre><code>// 初期化の例
+X() :
+a[1], // デフォルト初期化
+b[1](), // 値初期化
+c[1]{} // リスト初期化
+{ } 
+</code></pre>
+
+
+<p>
+さて、runtime bound arrayをデータメンバーに持つクラスは、runtime size bound class(実行時サイズ束縛クラス)と呼ばれる。runtime size bound classをデータメンバーに持つクラス、runtime size bound classから派生するクラスも、runtime size bound classとなる。
+</p>
+
+<p>
+runtime size bound classのオブジェクトは、自動変数として使うことしかできない。つまり、一切の動的に確保する操作は禁止されている。たとえばnewできないし、std::vectorのvalue_typeとなることもできない。
+</p>
+
+<pre><code>// 禁止例
+// ill-formed
+new runtime_size_bound_class ; 
+// ill-formed
+std::vector&lt; runtime_size_bound_class &gt; v ;
+</code></pre>
+
+<p>
+runtime size bound classへのsizeofは禁止されている。
+</p>
+
+<pre><code>// sizeofは許可しないィィィッ！
+struct X
+{
+    char [] a ;
+    X() a[1] { } 
+} ;
+
+// ill-formed
+std::size_t size = sizeof( X ) ;
+</code></pre>
+
+<p>
+なぜdynarrayではダメなのかというと、dynarrayで自動ストレージを実行時サイズ確保しようとすると、実装にコンパイラーマジックが必要になるからだ。C++は歴史的にコア言語とライブラリを分割している言語である。C++11では、std::initializer_listという例外が追加されたが、あれは例外中の例外で、基本的には、コア言語とライブラリは直接関わらない。
+</p>
+
+<p>
+そのため、ライブラリを実装できる機能は、コア言語で提供されているべきである。そのような機能が、実行時束縛配列というわけだ。実行時束縛配列を使えば、dynarrayが実装できる。
+</p>
+
+<p>
+さて、論文では、この提案の他にも、様々な提案をしている。
+</p>
+
+<p>
+非inlineコンストラクター
+</p>
+
+<p>
+コンストラクター定義をクラス定義の外に書きたい。しかし、配列のサイズの指定方法は、実装の都合上、クラス定義の中になければならない。そこで、メンバー初期化子だけ、inline definition(インライン定義)という名前で、クラス宣言に書くことができる案も、論文に書かれている。
+</p>
+
+<pre><code>// 提案
+struct X
+{
+    char [] a ;
+
+    // インライン定義
+    X() : a[1] { }
+} ;
+
+// 本物の定義
+X::X() // メンバー初期化子はすでに指定されているので書けない
+{
+// ...
+}
+</code></pre>
+
+<p>
+多次元配列
+</p>
+
+<p>
+現在の提案では、一次元配列しかサポートしていないが、文法を多次元に拡張することもできる。
+</p>
+
+<pre><code>// 多次元実行時束縛配列
+struct X
+{
+    char [][] a ;
+
+    X( std::size_t x, std::size_t y )
+        : a[x][y]{}
+    { }
+} ;
+</code></pre>
+
+<p>
+sized constructor
+</p>
+
+<p>
+サイズコンストラクターといって、コンストラクターをクラス定義の外に書く文法の別の提案。これはDaveed Vandevoordeの提案。
+</p>
+
+<pre><code>// sized constructorの例
+struct X
+{
+    char [] a ;
+    int x ;
+
+    X( std::size_t size, int x ) sizeof( a[size] ) ;
+} ;
+
+X::X( std::size_t size, int x ) : x(x)
+{
+// ...
+}
+</code></pre>
+
+<p>
+相変わらずだが、Daveed Vandevoordeの提案する文法は、毎回キモい。彼はEDGという不自由なC++コンパイラーフロントエンドの開発者であるので、とりあえず非曖昧でパースしやすい文法を再優先で考案するのだろう。
+</p>
+
 <p>
 ドワンゴ広告
 </p>
