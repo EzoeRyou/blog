@@ -554,7 +554,265 @@ X::X( std::size_t size, int x ) : x(x)
 </p>
 
 <p>
+unordered associative container(unordered_map, unordered_multimap, unordered_set, unordered_multiset)は、一般にはハッシュとよばれる仕組みで要素を管理するコンテナーである。具体的には、value_typeから短時間で計算できる短い情報量のハッシュ値を計算して、ハッシュ値同士の比較を行うことで、定数時間の複雑性を可能にしている。
 </p>
+
+<p>
+問題は、value_typeからハッシュ値を計算する方法が必要だということだ。標準ライブラリは、基本型やstd::stringなどの標準ライブラリには、ハッシュ値の計算方法を提供している。ただし、ユーザー定義型については、利用者がクラステンプレートstd::hashを特殊化するか、あるいはクラスで実装してテンプレート実引数で渡すなどして、ハッシュ値の計算方法を実装しなければならない。
+</p>
+
+<p>
+適切なハッシュ値の計算というのは、とても難しい問題である。平均的なプログラマーがたやすく扱える問題ではない。
+</p>
+
+<p>
+たとえば、以下のクラスを考える。
+</p>
+
+<pre><code>// 顧客クラス
+class Customer {
+public:
+    // ...
+
+    std::string getFirstname() const;
+    std::string getLastname() const;
+    int getAge() const;
+} ;
+bool operator== (const Customer&amp;, const Customer&amp;);
+</code></pre>
+
+<p>
+このようなクラスのオブジェクトのハッシュ値を計算したい。ところで、都合の良いことに、std::stringやintといった型は、すでに標準ライブラリによって、ハッシュ値を計算する実装が提供されている。これを使って、以下のように実装してはどうか。
+</p>
+
+<pre><code>// 非常に問題のあるコード例
+class CustomerHash
+{
+public:
+    std::size_t operator() (const Customer&amp; c) const
+    {
+        return  std::hash&lt;std::string&gt;()(c.getFirstname()) +
+                std::hash&lt;std::string&gt;()(c.getLastname()) +
+                std::hash&lt;std::string&gt;()(c.getAge()) ;
+    }
+} ;
+
+std::unordered_set&lt;Customer,CustomerHash&gt; coll;
+</code></pre>
+
+<p>
+このコードにより生成されるハッシュ値は、極めて質が悪くなる。ハッシュ値は、単に足しあわせてはいけないのだ。
+</p>
+
+<p>
+ではどうすればいいのか。筆者はこのレビューを書くにあたって、Donald Knuth先生の大著、The Art of Computer Programming Volume 3を読んだが、やはり、適切なハッシュ値の計算を書くのは難しい。コンテナーという利用目的にあった効率的なハッシュ値を計算しなければならない。ハッシュ値の計算は高速に行われるべきだが、生成されるハッシュ値の質が低くては元も子もない。
+</p>
+
+<p>
+そこで、複数のハッシュ値から、まあまあ使える程度のハッシュ値を生成するライブラリを、標準で入れてはどうか。
+</p>
+
+<p>
+たとえば、Boostには、そのようなライブラリが存在する。
+</p>
+
+<p>
+<a href="http://www.boost.org/doc/libs/1_35_0/doc/html/hash/combine.html">Combining hash values - 1.35.0</a><br>
+<a href="http://www.boost.org/doc/libs/1_35_0/doc/html/boost/hash_combine_id241013.html">Function template hash_combine - 1.35.0</a>
+</p>
+
+<p>
+hash_combineは、たとえば、以下のように実装できる。
+</p>
+
+<pre><code>// hash_combineの実装例
+template &lt;typename T&gt;
+void hash_combine (std::size_t&amp; seed, const T&amp; val)
+{
+seed ^= std::hash&lt;T&gt;()(val) + 0x9e3779b9
++ (seed&lt;&lt;6) + (seed&gt;&gt;2);
+}
+</code></pre>
+
+<p>
+これは、最高のハッシュ値の計算方法ではないが、単なる足し算よりはいくらかマシな、複数のハッシュ値のハッシュ値の計算方法だ。
+</p>
+
+<p>
+議論のしどころはたくさんある。たとえば、seedを直接公開しないようにして、もっといい実装ができる余地を残すなどだ。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3877.pdf">[冗長すぎるPDF] N3877: Centralized Defensive-Programming Support for Narrow Contracts (Revision 3)</a>
+</p>
+
+<p>
+防衛的プログラミングをサポートするための標準ライブラリ。Bloombergが出したこの論文は、その格調高さに反比例して、中身は薄すぎる。文章量だけは無駄に常用で長いが、本質が薄っぺらい。
+</p>
+
+<p>
+要するに、中身はCプリプロセッサーによるassertマクロに毛が生えたようなものだ。assertに引っかかった時の挙動を指定できたり、例外が投げられたりといった機能があるだけのassertだ。
+</p>
+
+<p>
+筆者はCプリプロセッサーを使ういかなる機能にも反対しており、この提案にも当然ながら反対する。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3878.pdf">[あまりにも冗長なPDF] N3878: Extensions to the Concept Introduction Syntax in Concepts Lite</a>
+</p>
+
+<p>
+この提案には、まだ文面案がないので、このレビューの解釈は間違っている可能性がある。そもそも、文法が大幅に変更される可能性がある。
+</p>
+
+<p>
+Concept Liteについては、もう十分に有名になったので、いまさら説明するまでもないだろう。Concept Liteは、C++11がまだC++0xと呼ばれていた時代に、一旦はドラフトに入りながら、標準化委員会内でconcept mapを暗黙に生成するべきか、明示的に記述させるべきかで意見が二分されたコンセプトの、テンプレート実引数のチェック部分だけを切り取った、軽量版のコンセプトだ。
+</p>
+
+<p>
+たとえば、2種類のイテレーターFor1, For2をマージして、Outというイテレーターで出力可能かどうかを判定するconstexpr関数Mergeableの宣言が、以下のように書かれていたとする。
+</p>
+
+<pre><code>// Mergeable
+template &lt; typename For1, typename For2, typename Out&gt;
+constexpr bool Mergeable() ;
+// 定義省略
+</code></pre>
+
+<p>
+さて、このconstexpr関数をConcept Liteに使いたい場合は、以下のように記述する。
+</p>
+
+<pre><code>// Concept Liteの例
+template &lt; typename For1, typename For2, typename Out &gt;
+    requires Mergeable&lt; For1, For2, Out &gt;()
+void merge( For1 p1, For1 q1, For2 p2, For2 q2, Out o ) ;
+</code></pre>
+
+<p>
+これは冗長で書くのが面倒だ。以下のように書けるようにしてはどうか、という提案。
+</p>
+
+<pre><code>// N3878提案
+Mergeable{ For1, For2, Out }
+void merge( For1 p, For1 q, For2 p2, For2 q2, Out o );
+</code></pre>
+
+<p>
+このように書けば、最初の長ったらしく書いたものと同じように扱われるようにする提案だ。
+</p>
+
+<p>
+もうすこし順序立てて解説する。まず、従来のunconstrained templateが、以下のようだとしよう。
+</p>
+
+<pre><code>// unconstrained template
+template &lt; typename C &gt;
+void function( C ) ;
+</code></pre>
+
+<p>
+このテンプレート仮引数Cに対して、UnaryConceptというconstexpr関数を適用して、constrained templateにしたいとする。
+</p>
+
+<pre><code>// constrained template
+template &lt; typename T &gt;
+constexpr bool UnaryConcept() ;
+</code></pre>
+
+<p>
+requires句を使うと、以下のように書ける。
+</p>
+
+<pre><code>// requires句を使う例
+template &lt; typename C &gt;
+    requires UnaryConcept&lt;C&gt;() ;
+void function(C) ;
+</code></pre>
+
+<p>
+これは面倒だ。そのため、今のConcept Liteの提案は、以下のようなシンタックスシュガーを提供している。
+</p>
+
+<pre><code>// 便利なシンタックスシュガー
+template &lt; UnaryConcept C &gt;
+void function(C) ;
+</code></pre>
+
+<p>
+class/typenameと書くべきところに、直接constexpr関数名を指定できるのだ。
+</p>
+
+<p>
+それを延長して、以下のように書けるようにする。
+</p>
+
+<pre><code>// N3878提案
+template &lt; UnaryConcept { C } &gt;
+void function( C ) ;
+</code></pre>
+
+<p>
+そして、さらに突き進めて、以下のように書けるようにする（はず、あるいは論文が間違っているのか）
+</p>
+
+<pre><code>// N3878提案
+UnaryConcept { C }
+void function( C ) ;
+</code></pre>
+
+<p>
+テンプレートの冗長な文法が、だいぶ簡略化された。いや、簡略化し過ぎで、個人的には落ち着かない。しかし、プログラマーというものは、簡単な文法を好むものであるから、むしろこのくらい大胆に簡略化したほうがいいのかもしれない。
+</p>
+
+<p>
+この提案されているシンタックスシュガー的な文法が、どのように変換されるのか。まず、以下のようなコード
+</p>
+
+<pre><code>// N3878提案
+SomeConcept{ A, B, C }
+void function( A, B, C ) ;
+</code></pre>
+
+<p>
+において、SomeConceptはconstexpr関数名である。braceで囲った識別子一つ一つについて、テンプレート仮引数として指定したことになる。
+</p>
+
+<pre><code>// シンタックスシュガー変換後
+template &lt; typename A, typename B, typename C &gt;
+    requires SomeConcept&lt; A, B, C &gt;()
+void function( A, B, C ) ;
+</code></pre>
+
+<p>
+もし、すでに宣言したテンプレート仮引数を使った場合は、ill-formedとなる。たとえば、以下のようなコード
+</p>
+
+<pre><code>// ill-formedな例
+template &lt; typename A, SomeConcept{ A, B } &gt;
+void function( A, B ) ;
+</code></pre>
+
+<p>
+は、以下のように展開されるので、
+</p>
+
+<pre><code>// 展開後
+template &lt; typename A, typename A, typename B &gt;
+    requires SomeConcept{ A, B {
+void function( A, B ) ;
+</code></pre>
+
+<p>
+ill-formedとなる。
+</p>
+
+<p>
+
+</p>
+
+
 
 
 <div class="dwango-ad">
