@@ -44,7 +44,7 @@ GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
 
 
 <article>
-<h1><a href="">2014-01-pre-Issaquah mailingのレビュー: N3872-N3879</a></h1>
+<h1><a href="http://cpplover.blogspot.jp/2014/03/2014-01-pre-issaquah-mailing-n3872-n3879.html">2014-01-pre-Issaquah mailingのレビュー: N3872-N3879</a></h1>
 
 
 <p>
@@ -401,9 +401,9 @@ struct X
 さて、runtime bound arrayのサイズは、array constructor(配列コンストラクター)と呼ばれるコンストラクターで指定する。
 </p>
 
-<pre><code></code></pre>
-runtime_size_bound_class( std::size_t size )
+<pre><code>runtime_size_bound_class( std::size_t size )
     : runtime_bound_array[ size ]
+</code></pre>
 
 <p>
 array constructorは、メンバー初期化子の文法を拡張して[]でサイズを実行時に指定する。
@@ -702,7 +702,7 @@ void merge( For1 p, For1 q, For2 p2, For2 q2, Out o );
 <p>
 このように書けば、最初の長ったらしく書いたものと同じように扱われるようにする提案だ。
 </p>
-
+http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3879.pdf
 <p>
 もうすこし順序立てて解説する。まず、従来のunconstrained templateが、以下のようだとしよう。
 </p>
@@ -809,11 +809,267 @@ ill-formedとなる。
 </p>
 
 <p>
+ところで、Concept Liteでは、constrained関数テンプレートを宣言する新しい文法、terse notationを提案している。これは聡明な読者ならば、いまさら説明するまでもないであろうが、念の為に説明しておくと、以下のようなコードが、
+</p>
 
+<pre><code>// terse notationの例
+void sort( Container &amp; c ) ;
+</code></pre>
+
+<p>
+以下のように書いたものとみなされる。
+</p>
+
+<pre><code>// 上記のterse notationと同等のコード
+template &lt; Container __Contaiener &gt;
+void sort( __Container &amp; c ) ;http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3879.pdf
+</code></pre>
+
+<p>
+もちろんこれは、以下のような意味だ。
+</p>
+
+<pre><code>// さらに展開後
+template &lt; typename __Container &gt;
+    requires Container&lt;__Container&gt;()
+void sort( __Container &amp; c ) ;
+</code></pre>
+
+<p>
+そう、聡明な読者ならば、もう気がついているだろう。N3878提案の拡張は、このterse notationにも適用できる。
+</p>
+
+<pre><code>// terse notationのN3878拡張の例
+void sort( Container{C} &amp; c ) ;
+</code></pre>
+
+<p>
+これは、以下と等しい。
+</p>
+
+<pre><code>// 同等のコード
+template &lt; typename C &gt;
+    requires Container&lt;C&gt;()
+void sort( C &amp; c ) ;
+</code></pre>
+
+<p>
+なぜ、これが役に立つのか。現在のterse notationは、同じコンセプトを満たす別の型を複数、仮引数に取りたい場合、使うことができない。
+</p>
+
+<p>
+たとえば、以下のコードは、
+</p>
+
+<pre><code>void f( SomeConcept a, SomeConcept b ) ;</code></pre>
+
+<p>
+以下のコードと同じ意味である。
+</p>
+
+<pre><code>template &lt; typename __SomeConcept &gt;
+    requires SomeConcept&lt;__SomeConcept&gt;()
+void f( __SomeConcept a, __SomeConcept b ) ;
+</code></pre>
+
+<p>
+したがって、もし、aとbが違う型で、どちらの型もSomeConceptを満たして欲しい場合は、terse notationは使えない。面倒でも従来のやり方で書かなければならない。
+</p>
+
+<pre><code>// 従来のやり方
+template &lt; SomeConcept A, SomeConcept B &gt;
+void f( A a, B b ) ;
+</code></pre>
+
+<p>
+N3878拡張を使えば、上記と同じ意味を、terse notationと組み合わせることにより、以下のように書くことができる。
+</p>
+
+<pre><code>// N3878提案
+void f( SomeConcept{A} a, SomeConcept{B} b ) ;
+</code></pre>
+
+<p>
+また、N3878提案で宣言された名前は、宣言されたことになるので、例えばterse notationでも面倒な以下のようなコードが、
+</p>
+
+<pre><code>// 面倒なTerse Notationコード
+void f( RandomAccessIterator first, RandomAccessIterator Last ) ;
+</code></pre>
+
+<p>
+以下のように書ける。
+</p>
+
+<pre><code>// N3878提案
+void f( RandomAccessIterator{R} first, R last ) ;
+</code></pre>
+
+<p>
+N3878拡張は、新しいテンプレート仮引数を宣言するので、たとえば、以下のようなコードはill-formedとなる。
+</p>
+
+<pre><code>// ill-formed
+void f( RandomAccessIterator{R} first, RandomAccessIterator{R} last ) ;
+</code></pre>
+
+<p>
+なぜならば、これは以下と同等の意味になってしまうからだ。
+</p>
+
+<pre><code>// ill-formed
+template &lt; RandomAccessIterator R, RandomAccessIterator R &gt;
+void f( R first, R last ) ;
+</code></pre>
+
+<p>
+また、現在のConcept Liteの提案では、変数テンプレートもconstrained templateにでき、また、変数宣言の型引数の代わりに使うことができるとしている。
+</p>
+
+<pre><code>// constrained変数テンプレート
+RandomAccessIterator r = std::find( p, q, r ) ;
+</code></pre>
+
+<p>
+これは、読者のような本物のC++プログラマーには、いまさら説明するのは失礼に当たるかも知れないが、念の為に解説すると、以下のような意味である。
+</p>
+
+<pre><code>
+template &lt; typename __RandomAccessIterator &gt;
+    requires RandomAccessIterator&lt;__RandomAccessIterator&gt;()
+__RandomAccessIterator r = std::find( p, q, r ) ;
+</code></pre>
+
+<p>
+一貫性を保つため、N3878拡張は、constrained変数テンプレートにも適用できる。
+</p>
+
+<pre><code>// N3878提案
+RandomAccessIterator{R} r = std::find( p, q, r ) ;
+</code></pre>
+
+<p>
+これは、rの型名に名前をつけることができるという点で、素のterse notationより優れている。decltype(r)などと書きたくはない。
+</p>
+
+<p>
+また、提案では、以下のような文法にも触れている。
+</p>
+
+<pre><code>// どこまで本気かわからないコード
+auto{T} t = foo() ;
+// Tはtの型
+</code></pre>
+
+<p>
+これは・・・いやはや
 </p>
 
 
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3879.pdf">[明示的PDF警告] N3879: Explicit Flow Control: break label, goto case and explicit switch</a>
+</p>
 
+<p>
+これは面白い。
+</p>
+
+<p>
+この提案は、break label, continue label(Javaと同等), goto case 定数式, goto default(C#と同等), explicit switch文(C#と同等)
+</p>
+
+<p>
+break labelとcontinue labelは、ネストしたfor, while, do-whileから抜けるのに使うことができる。
+</p>
+
+<pre><code>// break labelの例
+beginning_of_the_loop:
+for ( auto &amp;&amp; elem : v )
+    for ( auto &amp;&amp; elem : w )
+    {
+        break beginning_of_the_loop ;
+    }
+
+// continue labelの例
+for( auto &amp;&amp; elem : v )
+{
+    middle_of_the_loop:
+    for ( auto &amp;&amp; elem : w )
+        for ( auto &amp;&amp; elem : x )
+        {
+            continue middile_of_the_loop ;
+        }
+}
+</code></pre>
+
+<p>
+goto case 定数式は、switch文の中で、caseラベルを指定してgotoするのに使うことができる。
+</p>
+
+<pre><code>// goto case 定数式
+switch( cond )
+{
+    case 0 :
+        break ;
+    default :
+        goto case 1 ;
+}
+</code></pre>
+
+<p>
+explicit switchは、caseラベルひとつひとつが、ブロックスコープを持つ。これにより、次のcaseラベルかdefaultラベルに到達した時点で、switch文を抜ける。もうbreakを書き忘れて、下まで突き抜けてしまうという、しょうもないが人間であるがゆえに起こりうるバグに悩まされることはない。また、わざわざブロック文を使わずとも、ブロックスコープになっているので、変数の宣言も楽になる。
+</p>
+
+<pre><code>// explicit switchの例
+explicit switch( cond )
+{
+    case 1:
+        // ...
+    case 2 :
+        // flag == 1の場合、ここは実行されない
+}
+</code></pre>
+
+<p>
+連続するcaseラベルは、ひとつのブロックスコープにまとめられる。
+</p>
+
+<pre><code>
+explicit switch( cond )
+{
+    case 1 :
+    case 2 :
+        // ブロックスコープ開始
+        // cond == 1 or 2の場合、ここが実行される
+        // ブロックスコープ終了
+}
+</code></pre>
+
+<p>
+caseラベルがブロックスコープを持つということは、変数ももちろん、スコープに従う。
+</p>
+
+<pre><code>
+switch ( cond )
+{
+    case 1 :
+        int x = 0 ;
+    case 2 :
+        int x = 0 ; // エラー、おなじスコープ
+}
+
+explicit switch ( cond )
+{
+    case 1 :
+    // {
+        int x = 0 ;
+    // }
+    case 2 :
+    // {
+        int x = 0 ; // OK、別のスコープ
+    // }
+}
+</code></pre>
 
 <div class="dwango-ad">
 <p>
