@@ -51,7 +51,7 @@ GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
 
 
 <article>
-<h1><a href="">2014-01-pre-Issaquah mailingのレビュー: N3880-N3889</a></h1>
+<h1><a href="http://cpplover.blogspot.jp/2014/03/2014-01-pre-issaquah-mailing-n3880-n3889.html">2014-01-pre-Issaquah mailingのレビュー: N3880-N3889</a></h1>
 
 <p>
 <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3880.html">[なかなか悪くないHTML] N3880: Improving the Verification of C++ Programs</a>
@@ -82,10 +82,323 @@ GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
 </p>
 
 <p>
-<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3881.pdf">N3881: Fixing the specification of universal-character-names</a>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3881.pdf">[PDFも修正されるべき] N3881: Fixing the specification of universal-character-names</a>
 </p>
 
 <p>
+UCNに関する訂正。
+</p>
+
+<p>
+C++11では、Unicode文字はすべてPhase of Translationのできる限り早い段階でUCNに変換するなどという定義にしてしまったため、真面目に実装しようとすると、色々と問題が出てくる箇所がある。また、変換前のソースコードを再び読まなければならない時もある。未定義な挙動もある。
+</p>
+
+<p>
+そのため、いままで規格がカバーしきれていなかった範囲の挙動まで詳細に指定する文面の変更を行う提案。
+</p>
+
+<p>
+具体的にどのような問題があるかは、論文を参照。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3882.pdf">[PDFも使いづらいという現状を認識すべき] N3882: An update to the preprocessor specification</a>
+</p>
+
+<p>
+これもN3881と似通った論文。
+</p>
+
+<p>
+忌まわしき太古の遺物であるCプリプロセッサーには、未定義な挙動が多々ある。当時としては、実装の自由度を持たせるために適切であったことも、Cプリプロセッサーが十分に枯れ尽くした今となっては、異なる実装間の移植性を妨げるだけである。
+</p>
+
+<p>
+それに、今の最新のコンパイラー(GCC 4.9, Clang 3.4, 不自由なMSVC 12, 不自由なEDG/ICC 13)を比較すれば、もはや挙動の差異は微々たるものである。
+</p>
+
+<p>
+そこで、今までCプリプロセッサーで未定義の挙動とされていた部分を、今の有名な実装の挙動を追認する形で、規格で詳細に定義する提案。
+</p>
+
+<p>
+具体的にどのような問題があるかは、論文を参照。No! You cant haz cheeze burger!
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3883.html">N3883: Code checkers & generators</a>
+</p>
+
+
+<p>
+コードチェッカーとジェネレーターというか、コンパイル時リフレクション機能の提案。
+</p>
+
+<p>
+この論文が大雑把に提案している機能は、コンパイル時に、コンパイラーのASTの一部をC++ユーザーに提供し、また生成する力を与えようというものである。
+</p>
+
+<p>
+例えば、以下のようなクラスがあったとする。
+</p>
+
+<pre><code>// 人を表現するクラス
+class Person
+{
+private :
+    std::string name ;
+    std::string address ;
+    double weight ;
+
+    // その他多くのデータメンバー
+
+public :
+    // 比較関数の宣言
+    bool operator == ( Person const &amp; rhs ) const ;
+} ;
+</code></pre>
+
+<p>
+このクラスのoperator ==を実装したい。3個のデータメンバーがすべて等しければ等しいとみなすようにしよう。これは、以下のように書ける。
+</p>
+
+<pre><code>// 比較関数の定義
+bool Person::operator == ( Person const &amp; rhs ) const
+{
+    return  this-&gt;name == rhs.name &amp;&amp;
+            this-&gt;age == rhs.age &amp;&amp;
+            this-&gt;weight == rhs.weight &amp;&amp;
+            // その他のデータメンバーの比較
+            ;
+}
+</code></pre>
+
+<p>
+しかし、このようなコードを手書きするのは、間違いの元である。もしPersonの宣言を変更した場合、operator ==も変更しなければならない。またまた間違いの元である。このような機械的なコードは、自動生成したい。
+</p>
+
+<p>
+それには、コンパイル時にクラスのメンバーという情報を取得し、また取得した情報に基づいてコードを生成する力が必要だ。すなわち、ASTの取得と改変能力が必要だ。
+</p>
+
+<p>
+N3883提案は、そのような強力な力をC++に与える力強い提案である。
+</p>
+
+<pre><code>
+// ドライバー
+class EqualityDriver
+{
+    constexpr EqualityDriver(const ClassDecl &amp; classDecl)
+    {
+        class_name = classDecl.getTypeName() ;
+        for ( auto &amp; field : classDecl.fields( ) )
+        {
+            members.emplace_back( field.getName( ) );
+        }
+    }
+
+    meta::vector&lt;meta::id_name&gt; members;
+    meta::type_name class_name;
+} ;
+
+// 比較関数生成のためのパターン
+$define OperatorEqGenerator( EqualityDriver driver )
+{
+  bool $driver.class_name::operator==(const $driver.class_name &amp; rhs) const
+  {
+    return true
+      $for (auto member : driver.members) {
+        &amp;&amp; $member == rhs.$member
+      }
+    ;
+  }
+}
+
+// 比較関数の生成
+$OperatorEqGenerator(　Person　)　;
+</code></pre>
+
+<p>
+N3883提案は、$define, $use, $for, $if, $switchという新しいキーワードで、ASTを取得、あるいは改変する。
+</p>
+
+<p>
+一度このような生成規則を書いてしまえば、あとは、全データメンバーを比較するあらゆるクラスに適用できる。
+</p>
+
+<pre><code>
+struct Foo
+{
+    int x ;
+    int y ;
+    bool operator == ( Foo const &amp; ) const ;
+} ;
+
+struct Bar
+{
+    double d ;
+    bool b ;
+    bool operator == ( Bar const &amp; ) const ;
+} ;
+
+$OperatorEqGenerator(　Foo　)　;
+$OperatorEqGenerator(　Bar　)　;
+</code></pre>
+
+<p>
+いや、ちょっと待て。先ほどのクラスPersonだが、weightというデータメンバーの値は、比較の対象にならないようにできないのか。第一、人は体重が増減しても、同一人物ではないか。
+</p>
+
+<p>
+もちろんできる。
+</p>
+
+<pre><code>// 体重を考慮しないドライバー
+class EqualityDriver
+{
+    constexpr EqualityDriver( const ClassDecl &amp; classDecl )
+    {
+        class_name = classDecl.getTypeName();
+        for ( auto &amp; field : classDecl.fields() )
+        {
+            // 特定の名前のデータメンバーをフィルターする
+            if ( field.getName() == "weight" )
+                continue ;
+
+            // 残りは追加。
+            members.emplace_back(field.getName());
+        }
+    }
+    meta::vector&lt;meta::id_name&gt; members;
+    meta::type_name class_name;
+} ;
+</code></pre>
+
+<p>
+これぐらいたやすいことだ。そう、N3883提案ならば、C++はASTの一部に干渉できるのだ。
+</p>
+
+<p>
+他にも、具体的なコード例は省略するが、構造体の配列を、構造体の各データメンバーの配列に変換したり、既存の関数を置き換えたり、文字列からenum型を生成したりと、やりたい放題だ。
+</p>
+
+<p>
+そう、もはやCプリプロセッサーマクロは時代遅れの遺物になるのだ。これから#defineなどと書く幽霊プログラマーは、後ろ指をさされてひと目を忍んで地下に潜って、かつての混沌とした日々を懐かしむぐらいしかすることがなくなるであろう。$if, $else, $switchにより、従来のCプリプロセッサーマクロの役割は、完全に代替される。
+</p>
+
+<p>
+そう、テンプレートメタプログラミングも時代遅れの遺物になる。もはやTMPでレイトレーシングをする岡山の陶芸家はお呼びではないのだ。
+</p>
+
+<p>
+コンセプトですら、N3883により、改善される。
+</p>
+
+<p>
+この提案は、<a href="http://angularjs.org/">AngularJS</a>から影響を受けており、またその設計には、Clang APIをそのまま持ってきている。
+
+</p>
+
+<p>
+唯一の不満点は、その文法が悲惨なことだ。$はPHPを彷彿とさせるものがある。
+</p>
+
+<p>
+文法に議論の余地はあるものの、このような提案は、さらに発展させるべきだ。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3884.pdf">[PDFも一新されるべき] N3884: Contiguous Iterators: A Refinement of Random Access Iterators</a>
+</p>
+
+<p>
+Contiguous Iteratorという概念を標準ライブラリに追加する提案。
+</p>
+
+<p>
+Contiguous Iteratorとは、連続したストレージ上に確保されている要素の集合を指し示すイテレーターであることを保証するものである。
+</p>
+
+<p>
+つまり、以下のようなことが保証される。
+</p>
+
+<pre><code>// Contiguous Iteratorの例
+template &lt; typename contiguous_iterator &gt;
+void f( contiguous_iterator iter )
+{
+    auto next = iter + 1 ;
+    &amp;*iter + 1 == &amp;*next ; // true
+} 
+</code></pre>
+
+<p>
+つまり、イテレーターの指し示すオブジェクトのポインターを+1した結果のポインターと、イテレーターを+1した結果のイテレーターの指ししめすオブジェクトのポインターが、等しいことが保証される。
+</p>
+
+<p>
+これは、たとえばC時代のAPIにポインターを渡すとか、連続したメモリであることを検出してmemcpyに切り替えるなどのアルゴリズムの最適化など、連続したストレージ上に確保されていることが保証されていることを利用したコードが書けることを意味する。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3886.pdf">[PDFを廃止する提案] N3886: A Proposal to add a Database Access Layer to the Standard Library</a>
+</p>
+
+<p>
+データベースアクセスのためのインターフェース的なライブラリを標準ライブラリに追加する提案。
+</p>
+
+<p>
+論文には、具体的なインターフェースの設計が書かれているので、興味のある人は呼んでもらいたい。このブログにコピペして解説することはしない。
+</p>
+
+<p>
+インターフェースの設計は、バックエンドのデータベースとして、SQLベースのリレーショナルデータベースを想定している。
+</p>
+
+<p>
+このような共通のインターフェースを標準化する理由としては、データベースアクセスのためのAPIは、実に多数あり、しかもその多くが、大昔のCの設計になっている。モダンなC++風の洗練されたインターフェース設計のライブラリが存在するべきである。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3887.pdf">[一貫性のために論文フォーマットとしてPDFを廃止せよ] N3887: Consistent Metafunction Aliases</a>
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3655.pdf">[PDF注意] N3655</a>で、ほとんどのメタ関数には、エイリアステンプレートを用いて、metafunction_tが作られたが、tuple_elementだけは欠けていた。そのため、tuple_element_tを付け加える提案。
+</p>
+
+<p>
+また、すべてのメタ関数にそのようなエイリアスが必要というわけではない。そのようなエイリアスが必要もないメタ関数だってある。そのため、いつ_tにすべきかという今のガイドラインは、あまりにも範囲が広すぎるという議論もしている。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3888.pdf">[PDFで公開するようでは、お先真っ暗] N3888: A Proposal to Add 2D Graphics Rendering and Display to C++</a>
+</p>
+
+<p>
+3Dグラフィック描画ライブラリをC++に付け加える提案。
+</p>
+
+<p>
+なぜ必要なのかという理由から始まって、グラフィック関連の様々な事情を説明している、結構長い論文。これはいずれ、別の記事で詳しく紹介したい。
+</p>
+
+<p>
+今の予定では、土台としてcairoを用い、C言語によるインターフェースに、機械的な変換ルールを定義して、C++風のインターフェースに書き換えるようにしている。
+</p>
+
+<p>
+その変換ルールも提案している。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3889.pdf">[高濃度のPDF汚染を検出] N3889: Concepts Lite Specification</a>
+</p>
+
+<p>
+Concept Liteの仕様書案
 </p>
 
 <div class="dwango-ad">
@@ -93,6 +406,9 @@ GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
 ドワンゴ広告
 </p>
 
+<p>
+この記事は、ドワンゴに昼過ぎに出社してボードゲームをやる合間に書いた。
+</p>
 
 <p>
 ドワンゴは本物のC++プログラマーを募集しています。
