@@ -1,0 +1,402 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-01-pre-Issaquah-mailingのレビュー：N3890-N3899
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合の宛先：<br>
+郵便番号：165-0027<br>
+住所：東京都中野区野方5-30-13 ヴィラアテネ401<br>
+宛名：江添亮
+</p>
+</header>
+
+
+<article>
+<h1><a href="">2014-01-pre-Issaquah-mailing-review</a></h1>
+
+<h1>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3890.html">N3890: Container&lt;Incomplete Type&gt;</a>
+</h1>
+
+<p>
+一部のコンテナーのvalue_typeに、不完全型(Incomplete type)を許すよう、制限を緩和する提案。
+</p>
+
+<p>
+この提案により、以下のようなパターンが合法になる。
+</p>
+
+<pre><code>// 再帰的なクラス宣言
+struct Foo
+{
+    std::deque&lt;Foo&gt; deq ; 
+} ;
+</code></pre>
+
+<p>
+クラスは、クラス定義の閉じカッコ、'}'を持って、完全型になる。したがって、クラス定義の中では、クラス名はまだ不完全型なのだ。クラス定義の中でテンプレート実引数にクラス名を渡すと、当然不完全型になる。
+</p>
+
+<p>
+ここで、std::dequeの実装が、sizeof(value_type)のような記述をしていた場合、ill-formedとなる。
+</p>
+
+<p>
+std::dequeの実装で、sizeof(value_type)のような、value_typeが不完全型であるとill-formedとなるような記述を避けることは可能である。しかし、現行のC++標準規格は、value_typeに不完全型を許していないので、上記のコードがC++98/11/14で通るかどうかは、実装依存である。
+</p>
+
+<p>
+有名どころのC++実装で言えば、libstdc++のdequeは不完全型に対応しているが、libc++と、Microsoftの不自由なC++コンパイラーに付属のSTLは、ill-formedとなる。どちらの実装も、この点においては規格準拠である。
+</p>
+
+<p>
+しかし、C++98時代から、このような再帰的なクラス定義のパターンを使いたいという需要は相当にあったlibstdc++の多くのコンテナーが、不完全型に対応しているのは、そのためである。
+</p>
+
+<p>
+N3890提案は、多くのコンテナーを不完全型に対応させることを提案している。std::arrayのような特殊なコンテナーは対応できないが、set/mapやunordered_set/unordered_mapまで対応するという。
+</p>
+
+<p>
+さて、既存のC++実装を、不完全型に対応させるのは、技術的に難しくはない。技術的な困難はないものの、現実的な困難はある。
+</p>
+
+<ul>
+<li>
+LLVMのSTL実装であるlibc++は、対応可能である。ただし、std::dequeのABI互換性が壊れてしまう
+</li>
+
+<li>
+GCCのSTL実装であるlibstdc++は、対応可能である。ただし、std::dequeのABI互換性が壊れてしまう
+</li>
+
+<li>
+不自由なソフトウェアであるMSVCのSTL実装は、デバック可視化機能のために、コンパイル時定数を維持したい部分がかなりある。このため、std::dequeのようなクラスの対応は予定していない。std::listやstd::forward_listの対応には興味を示している。
+</li>
+</ul>
+
+<p>
+また、コンテナーにユーザー定義のstd::lessやstd::hashを与える場合は、その型も不完全型をサポートしていなければ、コンテナーは不完全型対応にはならない。対応しなければ、コンテナーが不完全型に対応しないだけなので、既存のコードが壊れることはない。
+</p>
+
+<p>
+libc++のコンテナーを不完全型に対応させた実験的実装が、GitHubで公開されている。
+</p>
+
+<h1>
+<a href="https://github.com/lichray/libcxx/tree/container_incomplete">lichray/libcxx at container_incomplete</a>
+</h1>
+
+<p>
+それにしても、一昔前は、C++の実験的実装といえばGCCだったのに、いまではすっかりLLVMにお株を奪われている。LLVMのコードは読みやすく、ハックしやすいからであるが、このままではGCCの牙城が危うい。
+</p>
+
+<h1><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3891.htm">[title要素と論文のタイトルが異なる悪く書かれたHTML] N3891: A proposal to rename shared_mutex to shared_timed_mutex</a></h1>
+
+<p>
+現行規格では、shared_mutexはtimed mutex(TimeLockable要件を満たす、すわなち、try_lock_for/try_lock_untilを提供している)かつ、shared mutex(同一の、例えばスレッドなどの実行媒体から、複数回ロックできる)である。
+</p>
+
+<p>
+とすれば、shared_mutexは、実際には、shared_timed_mutexとしたほうがいいのではないか。そうすることによって、timed mutexの要件は満たさないが、shared mutexとしての要件は満たすクラスを効率的に実装できる自由度を、C++実装に与えることになる。
+</p>
+
+<p>
+そういうわけで、現行のshared_mutexを、shared_timed_mutexに変更する提案。
+</p>
+
+<h1>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3892.html">N3892: C++ Ostream Buffers</a>
+</h1>
+
+<p>
+現行規格では、ストリームに対する出力操作は、競合を引き起こさないことが規定されている。しかし、其の出力がどうなるかについては規定されていない。したがって、複数の実行媒体(execution agent)からストリームに出力した場合の結果がどうなるかは、規定されていない。
+</p>
+
+<p>
+このため、C++利用者は、独自の方法で同期を取らなければならない。独立したソースコードは独立した同期方法を取るため、複数のソースコードを混在させることが難しい。そのため、ストリーム出力に対する同期方法は標準化されるべきである。
+</p>
+
+<p>
+ストリームの同期方法は、過去にも何度か提案された。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3535.html">N3535: C++ Stream Mutexes</a>は、ストリームに対するmutexを標準化しようという提案だった。2013年春の会議で、本格的なmutexではなく、バッファーに対する同期であるべきだとする合意がなされた。
+</p>
+
+<p>
+それを受けて、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3678.html">N3678: C++ Stream Guards</a>では、ストリームに対するバッチ処理という概念のライブラリが提案された。バッチ処理は、mutexでもバッファーでも、あるいは其の両方を組み合わせても実装できる。会議では、単にバッファーを扱うだけにしては、複雑で問題が多すぎると指摘された。
+</p>
+
+<p>
+なかなか決まらないので、後発の提案、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3665.html">N3665: Uninterleaved String Output Streaming</a>では、単に複数の実行媒体から出力操作されても、混ざらずに出力されることが規格上保証された最小バッファー長を規定しようという提案がなされた。これも否決された。
+</p>
+
+<p>
+そこで、今回の論文だが、バッファーに対する操作を明示的に行えるライブラリの提案となっている。以下のように使う。
+</p>
+
+<pre><code>// N3892提案の例
+#include <iostream>
+#include <sstream>
+
+int main()
+{
+
+
+{// ブロックスコープ
+  std::ostream_buffer bout(std::cout) ;
+  bout &lt;&lt; "Hello, " &lt;&lt; "World!" &lt;&lt; std::endl;
+}// ここで出力される。
+
+}
+</code></pre>
+
+<p>
+std::ostream_bufferは、自動変数として使う。出力をバッファーし、破棄されるタイミングで、混ざらずに一気に出力される。
+</p>
+
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3893.html">N3893: C++ Standard Library Active Issues List (Revision R86)</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3894.html">N3893: C++ Standard Library Defect Report List (Revision R86)</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3895.html">C++ Standard Library Closed Issues List (Revision R86)</a>
+</p>
+
+<p>
+標準ライブラリに指摘されている既知の問題点集。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3896.pdf">[今回最後の不快なPDF] N3896: LIBRARY FOUNDATIONS FOR ASYNCHRONOUS OPERATIONS</a>
+</p>
+
+<p>
+この論文は、futureのthenによって指定する継続は、コールバックで指定する継続に比べてパフォーマンスが悪いと指摘する
+</p>
+
+<p>
+futureは、処理を発行してfutureオブジェクトが返されたあとに、thenで継続をセットなければならない。thenで継続をセットする前に発行した処理が完了した場合、まず同期が発生してfutureの状態が変更され、しかし継続はセットされていないのでそのままで、そのあとにthenで継続がセットされて、この際にも同期が発生する。
+</p>
+
+<p>
+コールバックは、処理を発行する際に、同時に継続もセットするので、無駄な同期が発生しない。
+</p>
+
+<p>
+なぜ同期の発生回数にこだわるかというと、一回同期するのに、論文著者によれば、論文筆者の環境では、mutexやアトミック操作による同期は10-15ナノ秒かかる。また、std::futureによってブロックされていたスレッドにコンテキストスイッチして、ブロックから目覚めるのに、3マイクロ秒かかるとしている。
+</p>
+
+<p>
+一方、64バイトのUDPパケットをあるホストのユーザースペースのアプリケーションから、別のホストのユーザースペースのアプリケーションまで、10GbEネットワークで送るのにかかる時間は、2マイクロ秒である。
+</p>
+
+<p>
+論文筆者は、マイクロ秒単位のパフォーマンスの差が問題になる金融取引などの仕事をしているらしく、パフォーマンスの低いfutureではお話にならないとバッサリ切り捨てている。
+</p>
+
+<p>
+しかし、futureもfutureで、利用価値はある。いや、世の中の並列実行は、futureとコールバックだけではない。resumable functionやcoroutineと呼ばれている、函数の栃生で実行を中断、再会できるようなものや、さらにはファイバーなどと呼ばれている、通常のスレッドより軽い協調的なマルチタスクによる実行単位など、様々な方法がある。もちろん、ユーザーが独自実装した方法も使いたい。
+</p>
+
+<p>
+論文は、Boost 1.54のAsioを引き合いに出して、多様性があり、拡張性もあるasyncのインターフェースと実装方法を紹介している。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3897.html">N3897: Auto-type members</a>
+</p>
+
+<p>
+non-static data memberの宣言の型指定子にauto指定子を使えるようにする議論のまとめ論文。これは提案ではない。
+</p>
+
+<p>
+もし、議論されている内容が提案されて可決されたのならば、以下のようなコードが書けるようになる。
+</p>
+
+<pre><code>// N3897議論が提案されて可決された場合に書けるようになるコード
+struct Foo
+{
+    auto a = 0 ; // int
+    auto b = 0.0 ; // double
+    auto * c = this ; // Foo *
+    auto d = c ; // Foo *
+    auto &amp; e = *this ; // Foo &amp;
+} ;
+</code></pre>
+
+<p>
+さて、このようなコードを書きたいだろうか。筆者にはよくわからない。論文では、Faisal Valiが実験的な実装を行ったそうだ。
+</p>
+
+<p>
+このような機能を追加するには、様々な懸念が噴出しているので、これが提案されるかどうかはわからない。
+</p>
+
+<p>
+コンパイラー屋も含む、多くのC++標準化委員が懸念を示している機能なので、なにか説得力のある利用方法を示すとか、現場の利用者からネツレツに使いたいという意見でも上がらない限りは、この機能はこのままお蔵入になるだろう。
+</p>
+
+<p>
+もし、具体的な活用方法や、ぜひとも実務で使いたい、コレがなくては不便でならぬ。C++を使うかどうかはこの機能の有無にかかっているという強い意思があるのならば、筆者まで知らせてもらいたい。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3898.htm">N3898 HASHING AND FINGERPRINTING</a>
+</p>
+
+<p>
+これは提案ではなく、ハッシュ関数の設計と実装の紹介としての論文のようだ。
+</p>
+
+<p>
+ユーザー定義型のハッシュ値を簡単に計算できるようにするために、char, bool, longなどの基本型を複数突っ込めば、ハッシュ値を計算してくれるライブラリの設計と実行を紹介している。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3899.html">N3899: Nested Allocation</a>
+</p>
+
+<p>
+歴史的に、C++の実装では、automatic storageというものは、一般にスタックとよばれる確保済みのメモリ領域から確保している。スタックは環境によって様々ではあるが、かなり強い制限がある。しかし、スタックからメモリを確保するのは高速である。
+</p>
+
+<p>
+C++では、allocaなどの例外的な関数を除き、スタックから直接確保するための方法を提供してこなかった。
+</p>
+
+<p>
+C99はvariable length arrayを追加した。C++でも、似たような機能をruntime sized arrayとして提案中だ。
+</p>
+
+<p>
+また、C++では、non staticデータメンバーにruntime sized arrayを認める提案もしている。この場合、クラスはautomatic storage上に確保しなければならない。しかし、これはクラスのオブジェクトはどのストレージにも構築できるいう、C++の利点が損なわれてしまう。これは極めて例外的な提案だ。
+</p>
+
+<p>
+また、現在提案中のstd::dynarrayは、automatic storageに確保できる文脈では確保し、そうでない文脈ではヒープに切り替えるといった、柔軟な対応が可能なライブラリだ。しかし、これはいつスタック上に確保されるのかということが、規格ではなく、実装の都合で決まってしまう。およそ、スタックに確保されることを気にするC++ユーザーは、絶対にスタックに確保されるという保証が欲しいはずだ。
+</p>
+
+<p>
+さらに、これらの提案のすべてに、再構築という大問題が立ちはだかる。以下のような問題だ。
+</p>
+
+<pre><code>// 再構築
+void f( std::dynarray&lt;int&gt; &amp; r )
+{
+    r~dynarray&lt;int&gt;() ; // デストラクターの明示的呼び出し
+    new(r) dynarray&lt;int&gt;(2) ; // 再構築。いいのか？
+}
+
+int main()
+{
+    std::dynarray&lt;int&gt; a(1) ; // 構築
+    f( a ) ; // リファレンス渡し
+}
+</code></pre>
+
+<p>
+これはいったいどうなるのだろうか。このようなコードは認められなければならない。しかし、これを認める場合、オブジェクトの寿命がネストしてしまう。
+</p>
+
+<p>
+論文では、まずそもそも根本的に、オブジェクトの寿命のネストをサポートするための規格が必要であると主張している。
+</p>
+
+
+<h1>結び</h1>
+
+<p>
+とにかく、これで2014-01-Pre-Issaquah論文集をレビューし終えた。筆者がドワンゴに入社して二ヶ月近くたつが、C++WG論文をいつもより丁寧にレビューするぐらいしかしていない。ドワンゴ社内は、現場のC++利用者の意見が聞ける環境なので、提案の問題点の発見に役立つ。
+</p>
+
+<p>
+また筆者も、社内でC++に提案されている新機能について、論文をレビューしながらチャットという形で解説しているが、この提案というのは、仮に採択されるにしても、正式にドラフト規格に、取り入れられて、C++コンパイラーで実装されて、現場で使えるようになるまで、まず10年はかかる機能ばかりだ。今すぐに役立つ知識ではない。
+</p>
+
+<p>
+そして、2014-02-Post-Issaquah論文集もあるので、もうしばらくはこの状態が続く。たまっているC++WG論文をレビューし終えたら、他のC++啓蒙活動も始めようと思う。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+「C++11は十分に枯れて現場で使えてしまうので、もう飽きた。10年後に現場で使えるようになるかもしれないC++17の新機能の話がしたい」という君。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
