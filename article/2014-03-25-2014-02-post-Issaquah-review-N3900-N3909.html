@@ -1,0 +1,261 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-02-post-Issaquahのレビュー: N3900-3909
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合の宛先：<br>
+郵便番号：165-0027<br>
+住所：東京都中野区野方5-30-13 ヴィラアテネ401<br>
+宛名：江添亮
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/03/2014-02-post-issaquah-n3900-3909.html">2014-02-post-Issaquahのレビュー: N3900-3909</a></h1>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/#mailing2014-01">2014-02-post-Issaquah mailings</a>が公開された。
+</p>
+
+<p>
+最新のドラフトは、<a href="http://www.open-std.org/jtc1/sc22/wg21/prot/14882fdis/n3936.pdf">N3936</a>となった。
+</p>
+
+<h1><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3900.pdf">[一発目から気分の悪いPDF] N3900: WG21 2014-01-31 Telecon Minutes</a></h1>
+
+<p>
+2014年1月31日に行われた電話会議の議事録。
+</p>
+
+<h1>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3901.pdf">[二発目にも気分を害するPDF] N3901: Minutes (February 2014) WG21 Meeting No. 57</a>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3902.pdf">N3902: Minutes (February 2014) PL22.16 Meeting No. 62</a>
+</h1>
+
+<p>
+2014年2月15日に、米国ワシントン州Issaquahで開かれた国際会議の議事録。
+</p>
+
+<h1><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3903.html">N3903: C++ FCD Comment Status</a></h1>
+
+<p>
+FCDに対するNBコメントへの返答一覧。
+</p>
+
+<p>
+スイス(・∀・)＜ C++14はバグ修正リリースとマイナー新機能のはずだろ。標準規格の品質を下げる新機能を全部外せ。互換性をぶち壊す変更をいれんな。
+</p>
+
+<p>
+(´・ω・`)＜　すまんかった。std::dynarrayとstd::optionalはドラフトから外すわ。
+</p>
+
+<p>
+ああ、ああああ。std::optionalが消えてしまう。なんということだ。スイスのせいで・・・スイスのせいで・・・
+</p>
+
+<p>
+一方、std::dynarrayは、スタックからネストされた確保という概念に、もう少し議論が必要なので、外すのは妥当である。
+</p>
+
+<p>
+このように、国家を代表するNBコメントは、とても強い力を持っている。日本のC++WG JPがNBコメントを送れる状況ではないのは、残念でならない。
+</p>
+
+<p>
+イギリスからのNBコメントである、「u8"À"はu8"\u00c8"となり、これをUTF-8エンコードすると、char[3]が、{ 0xc3, 0x80, 0 }と初期化されることになる。しかし、charは0x80を表現可能であると保証されていない」というコメントに対しては、UTF-8のオブジェクト表現は、それぞれUTF-8エンコードのコードユニットの値をもち、0から255までの値は、charとunsigned charで、相互に変換可能な表現方法が存在するという規程が設けられることになった。
+</p>
+
+<p>
+最初からUTF-8文字型として、char8_tを規定していればよかったのに。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3914.html">1759</a>を参照。
+</p>
+
+<p>
+また、C++14では、連続したメモリ確保を、一括したメモリ確保に変えることを、実装に許す制限緩和が入った。問題は、そのような制限緩和を行った結果、従来は小さなメモリーリークだったコードが、大きなメモリーリークに変化してしまう可能性がある。
+</p>
+
+<pre><code>// 大きなメモリーリークになってしまう例
+class P {
+  int x;
+};
+class Q {
+public:
+   Q(){ throw 42; }
+private:
+   int x[LARGE_NUMBER];
+};
+{
+   P* p1 = new P();
+   Q* q1 = new Q(); // bang :-(
+   // don't get here
+   delete q1;
+   delete p1;
+}
+</code></pre>
+
+<p>
+このコードは、bangの時点で、例外が投げられる。C++11までのように、すべてのnew式で、独立してメモリ確保がされるのであれば、Qで確保されたメモリは、オブジェクトの構築中に例外が投げられたことにより解放されるはずである。しかし、もしPとQのメモリ確保がまとめられるのであれば、Qを構築する部分のメモリもPと一緒に確保されてくっついているので、そのままリークしてしまう。
+</p>
+
+<p>
+もちろん、このコードは、もともと間違いであるが、小さなメモリーリークを大きなメモリーリークにしてしまう変更はいかがなものか。そのため、そのような場合に対応するために、何やら変な条件が付け加えられた。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3914.html">1786</a>を参照。
+</p>
+
+<h1><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3905.html">[title要素のないHTML] N3905: Extending std::search to use Additional Searching Algorithms (Version 4)</a></h1>
+
+
+<p>
+現在、STLのアルゴリズムには、std::searchがある。しかし、検索アルゴリズムというのは、ひとつではない。特殊な文脈では、もっと効率的にうごく検索アルゴリズムがある。たとえば、Boyer-Mooreが有名だ。
+</p>
+
+<p>
+一般に、これらの検索アルゴリズムは、検索を行う前に、検索準備のためのパターン構築処理を行う。この前処理にはコストがかかるが、検索をかける現実のデータには、たいてい偏ったパターンが存在するので、うまくはまれば検索を高速ができる可能性があり、前処理のコストを考えても、通常の愚直な検索にくらべてお釣りがくることもあるのである。
+</p>
+
+<p>
+この論文では、このような検索アルゴリズムを、汎用的にサポートするために、std::searchに新しいオーバーロードを追加することを提案している。新しいオーバーロードされたsearchは、Search Objectという追加の実引数を取る。これは、検索に使われる前処理された結果生成される、何らかのオブジェクトだ。検索する際には、そのオブジェクトを使って検索を行う。
+</p>
+
+<p>
+論文では、デフォルトの追加検索アルゴリズムとして、Boyer-Mooreと、その改良版であるBoyer-Moore-Horspool（オリジナルよりメモリ使用量が低いが、worst-caseパフォーマンスでオリジナルに劣る）を追加する提案をしている。
+</p>
+
+<pre><code>// N3905提案の例
+
+// 従来の検索
+auto iter = std::search( corpus_first, corpus_last, pattern_first, pattern_last ) ;
+
+// 従来のコードの新しいインターフェース版
+auto iter = std::search( corpus_first, corpus_last, std::make_default_searcher( pattern_first, pattern_last ) ) ;
+
+// Boyer-Mooreによる検索
+auto iter = std::search( corpus_first, corpus_last, std::make_boyer_moore_searcher( pattern_first, pattern_last ) ) ;
+</code></pre>
+
+<p>
+Boyer-MooreとBoyer-Moore-Horspoolは、比較関数とハッシュ関数の両方を必要とする。
+</p>
+
+<p>
+論文筆者によるリファレンス実装が、GitHubに上がっている。
+</p>
+
+<p>
+<a href="https://github.com/mclow/search-library">mclow/search-library</a>
+</p>
+
+<h1>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3906.pdf">[PDF警告] N3906: ISO/IEC PDTS 18822, File System, National Body Comments</a>
+</h1>
+
+<p>
+Filesystemライブラリに対するNBコメント集。回答は次の会議の後以降になるだろう。
+</p>
+
+<h1>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3908.html">N3908: C++ Extensions for Library Fundamentals, Working Draft</a>
+</h1>
+
+<p>
+標準ライブラリのTS(Technical Specification)のドラフト。TSは正式な規格とは分離される。C++に対する実験的な拡張案を、すこし正式に提案する程度の位置づけという感じだ。これはC++標準規格とは別物で、実際にC++の正式な規格に入るわけではない。
+</p>
+
+<h1>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3909.pdf">[江添フレンドリーではないPDF] N3909: A SFINAE-Friendly std::iterator_traits, v2</a>
+</h1>
+
+<p>
+iterator_traitsをSFINAEフレンドリーにする提案。
+</p>
+
+<p>
+SFINAEフレンドリーの解説については、<a href="http://cpplover.blogspot.jp/2014/02/2014-01-pre-issaquah-mailing-part-1.html">本の虫: 2014-01-pre-Issaquah mailingの簡易レビュー Part 1</a>を参照。
+</p>
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+近況：社内IRCで、":q!"、と誤爆した人がいたが、幸い宗教戦争には発展しなかった。
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
