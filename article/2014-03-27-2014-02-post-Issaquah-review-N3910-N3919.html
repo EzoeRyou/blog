@@ -1,0 +1,547 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-02-post-Issaquahのレビュー: N3910-N3919 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合の宛先：<br>
+郵便番号：165-0027<br>
+住所：東京都中野区野方5-30-13 ヴィラアテネ401<br>
+宛名：江添亮
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/03/2014-02-post-issaquah-n3910-n3919.html">2014-02-post-Issaquahのレビュー: N3910-N3919</a></h1>
+
+<p>
+引き続き、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/#mailing2014-03">2014-02-post-Issaquahの論文集</a>を解説していく。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3910.html">N3910: What can signal handlers do? (CWG 1441)</a>
+</h2>
+
+<p>
+シグナルハンドラーの中で、アトミック変数を使えるように文面を変更した所、うっかりと、volatileでもatomicでもない変数が使えないように解釈できる分綿と鳴ってしまった。この文面を修正するにあたって、そもそも、既存の文面を厳密に解釈した所、色々と本来意図しない制限があることが判明した。その制限を緩和する提案。
+</p>
+
+<p>
+この文面変更は、もう少し継続した議論が必要だということで、C++14には入らない。
+</p>
+
+<p>
+シグナルハンドラーはロックフリーなアトミック操作を行うことができる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3911.pdf">[PDFにする必要が感じられないPDF] N3911: TransformationTrait Alias void_t</a>
+</h2>
+
+<p>
+エイリアステンプレート、void_tの提案
+</p>
+
+<p>
+void_tのリファレンス実装は以下の通り。
+</p>
+
+<pre><code>// N3911提案のvoid_tのリファレンス実装
+template &lt; typename ... &gt;
+using void_t = void ;
+</code></pre>
+
+<p>
+これだけである。「ハァ？　なんだそりゃ」と読者が思うのも無理はない。しかし、これだけなのだ。
+</p>
+
+<p>
+なんでこんな単純極まりないものを、標準ライブラリに入れなければならないのか。それは、この一件単純すぎるエイリアステンプレートが、テンプレートメタプログラミングでとても重宝するからだ。
+</p>
+
+<p>
+たとえば、ある型が、ネストされた型名typeを持つかどうか調べる、メタ関数を書いてみよう。
+</p>
+
+<pre><code>// has_typeの実装
+template &lt; typename ... &gt;
+using void_t = void ;
+
+template &lt; typename, typename = void &gt;
+struct has_type
+    : std::false_type { } ;
+
+template &lt; typename T &gt;
+struct has_type&lt; T, void_t&lt; typename T::type &gt; &gt;
+    : std::true_type { } ;
+</code></pre>
+
+<p>
+void_tは、任意個の型を受取、かならずvoidを返すので、とても使いやすい。いくらでも型を突っ込むことができる。そして、突っ込んだ型がすべてwell-formedならば、void_t自体もwell-formedになる。ひとつでもill-formedな型がまじっていれば、void_t自体もill-formedとなる。これはつまり、SFINAEのために悪用可能である。
+</p>
+
+<p>
+さて、実はこの単純極まりないvoid_tエイリアステンプレートではあるが、ひとつ問題が持ち上がっている。なんと、GCCとClangの間で、実装上の差異があるのだという。なぜそんな自体に陥ったかというと、規格の文面の問題である。なんと、エイリアステンプレートの未使用のテンプレート実引数の扱いをどうするか、規格上、まったく規定していなかったのだという。
+</p>
+
+<p>
+この問題は、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3952.html#1558">core issue 1558</a>で把握されていて、現在の議論による解決案は、未使用のテンプレート実引数であっても、SFINAEで考慮されるようになる方向で、変更されるように調整が進んでいる。したがって、この論文の利用方法に合致する。
+</p>
+
+<p>
+論文では、当面のworkaroundとして、未使用のテンプレート実引数を出さない、以下のようなマヌケな実装を提示している。
+</p>
+
+<pre><code>// 当面のマヌケなworkaround
+template&lt; class... &gt; struct voider { using type = void; };
+template&lt; class... T0toN &gt; using void_t = typename voider&lt;T0toN...&gt;::type;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3912.html">N3912: Auto and braced-init-lists, continued</a>
+</h2>
+
+<p>
+これは小さいが下位互換性をぶち壊す提案。
+</p>
+
+<p>
+C++11では、braced-init-listをauto指定子でうけると、型はinitializer_listになる。
+</p>
+
+<pre><code>// C++11のコード
+auto x{ 0 } ;       // std::initializer_list&lt;int&gt;
+auto x{ 0, 1 } ;    // std::initializer_list&lt;int&gt;
+auto x = { 0 } ;    // std::initializer_list&lt;int&gt;
+auto x = { 0, 1 } ; // std::initializer_list&lt;int&gt;
+</code></pre>
+
+<p>
+新しいlambdaキャプチャーの文法である、init-captureは、autoと同じ方法で型推定を行うので、これは問題になる。
+</p>
+
+<pre><code>// C++11の型推定ルールを使ったinit-capture
+[ x{0} ] (){} ;         // std::initializer_list&lt;int&gt;
+[ x{0, 1} ] (){} ;      // std::initializer_list&lt;int&gt;
+[ x = {0} ] (){} ;      // std::initializer_list&lt;int&gt;
+[ x = {0, 1} ] (){} ;   // std::initializer_list&lt;int&gt;
+</code></pre>
+
+<p>
+これはさすがに問題がある。
+</p>
+
+<p>
+このため、N3912は、なんと直接初期化の場合、initializer_listとはならない変更を提案している。
+</p>
+
+<pre><code>// N3912提案
+auto x{ 0 } ;       // int
+auto x{ 0, 1 } ;    // ill-formed
+auto x = { 0 } ;    // std::initializer_list&lt;int&gt;
+auto x = { 0, 1 } ; // std::initializer_list&lt;int&gt;
+</code></pre>
+
+<p>
+同様に、init-captureも以下のようになる
+</p>
+
+<pre><code>// N3912提案のinit-capture
+[ x{0} ] (){} ;         // int
+[ x{0, 1} ] (){} ;      // ill-formed
+[ x = {0} ] (){} ;      // std::initializer_list&lt;int&gt;
+[ x = {0, 1} ] (){} ;   // std::initializer_list&lt;int&gt;
+</code></pre>
+
+<p>
+これは、もちろん下位互換性をぶち壊す。しかし、Issaquah会議での投票により、この変更は好ましいとされた。
+</p>
+
+<p>
+この変更が、この最終段階で、C++14に入るかどうかは、未定である。ひょっとしたら入るかもしれないし、次に持ち越されるかも知れない。
+</p>
+
+<p>
+これは興味深い変更だ。下位互換性をぶち壊すという点がとても興味深い。
+</p>
+
+<p>
+これはもともと、シカゴ会議のときにフィンランドのNBコメントとして出ていて、その時には却下されているが、今回、init-captureという新たな問題が持ち上がったことにより、問題が再認識され、議論が再開された。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3913.pdf">[古典的に悲惨なPDF] N3913: Greatest Common Divisor and Least Common Multiple, v2</a>
+</h2>
+
+<p>
+最大公約数と最小公倍数を計算する関数テンプレート、gcdとlcmを&lt;numeric&gt;に追加する提案。
+</p>
+
+<p>
+前回の論文、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3845.pdf">[PDF注意] N3845</a>では、&lt;cstdlib&gt;に提案されていたが、議論の結果、合意が得られずに、ヘッダーが変更された。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3914.html">N3914: Additional Core Language Issue Resolutions for Issaquah</a>
+</h2>
+
+<p>
+コア言語のちょっとした文面上の解釈揺れなどを修正する提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3915.pdf">N3915: apply() call a function with arguments from a tuple (V3)</a>
+</h2>
+
+<p>
+tupleの全要素を関数オブジェクトの実引数に渡してくれるヘルパー関数テンプレート、applyの提案。
+</p>
+
+<p>
+前回の論文、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3829.pdf">[PDF注意] N3829</a>からは、ほとんど変更はない。
+</p>
+
+<h2><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3916.pdf">[PDFという多様性はいらない] N3916: Polymorphic Memory Resources - r2</a></h2>
+
+<p>
+この提案論文は、アロケーターに実行時ポリモーフィズムを実現するための、Polymorphic Memory Resourcesの提案である。
+</p>
+
+<p>
+従来のC++のSTLでは、アロケーターは、テンプレート実引数で指定する。たとえば、独自実装のアロケーターを使いたい場合、以下のように書く。
+</p>
+
+
+
+<pre><code>// アロケーターを指定する例
+#include &lt;memory&gt;
+#include &lt;string&gt;
+
+// 独自実装のアロケーター
+class super_fast_allocator ; 
+class awesome_allocator ;
+
+
+int main()
+{
+    std::basic_string&lt; char, std::char_traits&lt;char&gt;, super_fast_allocator &gt; s1 ;    
+    std::basic_string&lt; char, std::char_traits&lt;char&gt;, awesome_allocator &gt; s2 ;
+}
+</code></pre>
+
+<p>
+なるほど、これは動く。しかし、色々と問題がある。まず、s1とs2は、別の型になってしまう。s1とs2の違いは、その生のストレージがどのように確保されるかという違いだけで、その他は同じであるはずだ。それにも関わらず、型が異なってしまう。
+</p>
+
+<p>
+それに、このコードは、コンパイル時にアロケーターを指定子なければならない。しかし、多くの現実のプログラムは、実行時にメモリ確保の戦略を変えたいはずだし、メモリ確保の戦略を変えるためだけに、わざわざコンパイルし直すことはない。
+</p>
+
+<p>
+この問題は、古典的なオブジェクト指向で解決できる。すなわち、抽象基本クラスを指定して、そこから派生して具体的な実装をし、基本クラスへのポインターを経由して、virtual関数を呼び出すのだ。問題は、そのためのアロケーターの基本クラスを、標準ライブラリは定狂していない。そのため、これを実現しようとすると、利用者がそれぞれ独自に基本クラスを定義しなければならなくなる。他人の書いたコードを混在させるのが難しくなる。
+</p>
+
+<p>
+そもそも、メモリ確保の戦略をコンパイル時に決定できない状況で、わざわざアロケーターをテンプレート化する意味があるだろうか。コンパイル時に指定する必要のないもの、コンパイル時に汎用化できないものを、テンプレートにする意義は薄い。
+</p>
+
+<p>
+このため、N3916は、実行時ポリモーフィズムを実現するためのクラス、memory_resourceと、それを従来のアロケーターにするためのラッパークラス、polymorphic_allocatorを提供している。さらに、それ以上にも色々と提供している。
+</p>
+
+<p>
+注意：以下の解説は、まだ提案段階の論文、N3916を元に解説している。この提案のあらゆる内容は変わる可能性がある。
+</p>
+
+<h3>
+std::pmr名前空間
+</h3>
+
+<p>
+Polymorphic Memory Resourceのライブラリは、std::pmr名前空間スコープに配置される。pmr名前空間は、仮の名前で、いずれバイク小屋議論を巻き起こすであろう。
+</p>
+
+<h3>
+memory_resource
+</h3>
+
+<p>
+memory_resourceとは、抽象基本クラスで、バイト単位の生のストレージの確保、解放をするためのクラスである。このクラスには、allocate, deallocate, is_equalというメンバー関数があり、それぞれdo_allocate, do_deallocate, do_is_equalというpure virtual functionを呼び出す。
+</p>
+
+<pre><code>// memory_resourceの実装例
+namespace std { namespace pmr {
+
+class memory_resource
+{
+private :
+    static constexpr std::size_t max_align = alignof(maxalign_t) ;
+
+public :
+
+    virtual ~memory_resource() { }
+    void * allocate( size_t bytes, size_t alignment = max_align )
+    { return do_allocate( bytes, alignment ) ; }
+    void  deallocate( void * p, size_t bytes, size_t alignment = max_align )
+    { do_deallocate( p, bytes, alignment ) ; }
+
+    bool is_equal( const memory_resource &amp; other ) const noexcept
+    { do_is_equal( other ) ; }
+
+protected :
+
+    virtual void * do_allocate( size_t bytes, size_t alignment ) = 0 ;
+    virtual void do_deallocate( void * p, size_t, bytes, size_t alignment ) = 0 ;
+    virtual bool do_is_equal( const memory_resource &amp; other ) const noexcept = 0 ;
+} ;
+
+} }
+</code></pre>
+
+<p>
+独自のメモリ確保を実装する際には、このmemory_resourceから派生して、do_xxxをオーバーライドする。
+</p>
+
+<pre><code>// 独自のストレージ確保クラスを実装するひな形
+class super_fast_mr
+    : memory_resource
+{
+protected :
+    virtual void * do_allocate( std::size_t bytes, std::size_t alignment )
+    {
+        // サイズが少なくともbytes、でアライメント要求がalignmentを満たすストレージを確保して、そのストレージへのポインターを返す
+    }
+
+    virtual void * do_deallocate( void * p, std::size_t, bytes, std::size_t alignment )
+    {
+        // ストレージを解放
+    }
+
+    virtual bool do_is_equal ( const memory_resource &amp; other ) const noexcept
+    {
+        // *thisとotherを比較
+    }
+} ;
+</code></pre>
+
+<h3>
+polymorphic_allocator&lt;T&gt;
+</h3>
+
+<p>
+polymorphic_allocatorは、memory_resourceをラップして、std::allocatorと同等のインターフェースを提供するクラステンプレートである。std::allocatorのかわりに、共通の基本クラスとして使うことができる。
+</p>
+
+<pre><code>// 例
+class custom_resource : std::pmr::memory_resource
+{ /* 実装 */ } ;
+
+int main()
+{
+    custom_resource cr ;
+    using vec = std::vector&lt; int, std::pmr::polymorphic_allocator&lt;int&gt; &gt; ;
+    vec v( std::pmr::polymorphic_allocator&lt;int&gt;( &amp;cr ) ) ;
+}
+</code></pre>
+
+<p>
+ただし、いちいちアロケーターを指定するのは面倒だ。そのため、標準ライブラリで、エイリアステンプレートが用意されている。
+</p>
+
+<pre><code>// エイリアステンプレートが提供される
+namespace std { namespace pmr {
+
+template &lt; typename T &gt;
+using vector = std::vecotr&lt; T, polymorphic_allocator&lt;T&gt; &gt; ;
+
+// ... その他のコンテナー
+} }
+</code></pre>
+
+<h3>resource_adaptor&lt;Alloc&gt;</h3>
+
+<p>
+resource_adaptorは、従来のアロケーターをmemory_resourceのインターフェースに合わせるラッパークラステンプレートだ。
+</p>
+
+<pre><code>// 従来のアロケーター
+class custom_allocator { /* ... */ }
+
+int main()
+{
+    using custom_resource = resource_adaptor< custom_allocator > ;
+}
+</code></pre>
+
+
+<h3>その他</h3>
+
+<p>
+new_delete_resource関数は、allocateやdeallocateがグローバルなoperator new, operator deleteを呼び出すmemory resourceへのポインターを返す。
+</p>
+
+<p>
+null_memory_resourceは、allocateが必ず失敗してbad_alloc例外を投げるmemory resourceへのポインターを返す。このポインターは、memory resourceの集合の最後に番兵として配置するのに使うことができる。また、テストのために使うこともできる。
+</p>
+
+<p>
+get_default_resourceは、プログラムでデフォルトのmemory resourceへのポインターを返す。set_default_resourceは、デフォルトのmemory resourceへのポインターをセットする。
+</p>
+
+<p>
+標準のmemory resource
+</p>
+
+<p>
+論文では、二種類（細かく分けて三種類）の標準で提供されるmemory resource実装を提案している。
+</p>
+
+<h3>
+synchronized_pool_resource/unsyncronized_pool_resource
+</h3>
+
+<p>
+この二つのクラスは、確保したストレージを所有していて、デストラクターで一括して開放する。つまり、確保したストレージ片を個別に開放しなくても、このオブジェクトの破棄とともに、一括解放されるのだ。
+</p>
+
+<pre><code>// synchronized_pool_resourceの例
+int main()
+{
+    {
+        synchronized_pool_resource spr ;
+        spr.allocate( 100 ) ;
+        spr.allocate( 100 ) ;
+        spr.allocate( 100 ) ;
+    } // 一括解放される
+
+}
+</code></pre>
+
+<p>
+deallocateしなくても、synchronized_pool_resourceが破棄されるときに、そのオブジェクトから確保したメモリは、すべて解放される。
+</p>
+
+<p>
+unsynchronized_pool_resourceは、マルチスレッドから同時にアクセスして動くことが保証されていない。そのため、実装に酔っては、スレッド間の同期処理を省くなどして、より効率的な実装とすることを許している。
+</p>
+
+<p>
+実装例としては、メモリをチャンクと呼ばれる一定サイズごとに区切って、別々のチャンクごとの専用ヒープから確保するような方法が考えられる。
+</p>
+
+<p>
+pool_optionsで、色々と設定もできるようになっている。
+</p>
+
+<h3>
+monotonic_buffer_resource
+</h3>
+
+<p>
+これはかなり特殊なメモリ確保戦略を取る。このクラスのdeallocateメンバー関数は、何もしない。このクラスを用いて確保したメモリーを、個別に解放することはできない。確保したストレージは、クラスのオブジェクトに所有され、オブジェクトが破棄されるときに、一括して破棄される。
+</p>
+
+<p>
+このmemory resourceは、すぐに一括して破棄する小さなオブジェクト群のためのストレージを高速に確保するのに向いている。
+</p>
+
+<p>
+また、polymorphic memory resourceは、これまでstd::functionやstd::promiseが、実装上必要になっていた、アロケーターのtype erasureの実装を、標準化するという意味合いもある。polymorphic memory resourceが採択されれば、std::functionやstd::promiseは、polymorhpic memory resourceを使うと規定されるようになる。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3918.html">N3918: Core Issue 1299: Temporary objects vs temporary expressions</a>
+</h3>
+
+<p>
+temporary object(一時オブジェクト)という用語があり、temporary expression(一時式)という用語もある。ところで、exception object(例外オブジェクト)は、もはやtemporaryとは何の関係もない。しかし、現行規格の文面上、関係のあるようになってしまっている。このために、文面を修正して、明確に分離する提案。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3919.pdf">[C++論文フォーマットとしてPDFはサポートしなくてよい] N3919: Transactional Memory Support for C++</a>
+</h3>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3859.pdf">[PDF注意] N3859</a>の改訂版。どうもあまり違いが見られないようだが。
+</p>
+
+<p>
+Transactional Memoryの詳しい解説については、<a href="http://cpplover.blogspot.jp/2014/02/2014-01-pre-issaquah-mailing-part-1.html">本の虫: 2014-01-pre-Issaquah mailingの簡易レビュー Part 1</a>を参照。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
