@@ -1,0 +1,157 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: なんでGCCはa*a*a*a*a*a を (a*a*a)*(a*a*a) に最適化できないの？っと
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合の宛先：<br>
+郵便番号：165-0027<br>
+住所：東京都中野区野方5-30-13 ヴィラアテネ401<br>
+宛名：江添亮
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/03/gccaaaaaa-aaaaaa.html">なんでGCCはa*a*a*a*a*a を (a*a*a)*(a*a*a) に最適化できないの？っと</a></h1>
+
+<p>
+<a href="http://stackoverflow.com/questions/6430448/why-doesnt-gcc-optimize-aaaaaa-to-aaaaaa">c - Why doesn't GCC optimize a*a*a*a*a*a to (a*a*a)*(a*a*a)? - Stack Overflow</a>
+</p>
+
+<blockquote>
+<p>
+俺は科学技術計算の数値計算の最適化をしてたんだけどさ。GCCは<code>pow(a, 2)</code>を<code>a*a</code>にしてくれるんだな。うん。で、<code>pow(a, 6)</code>は最適化されずに、ライブラリ関数であるpowを呼んじゃうんだ。パフォーマンス的に最悪。(Intel C++ Compilerは<code>pow(a,6)</code>のライブラリ関数呼び出しを消し去ってくれるんだけどな)
+</p>
+
+<p>
+どうもよくわからんのが、<code>pow(a, 6)</code>を<code>a*a*a*a*a*a</code>で置き換えて、GCC 4.5.1をオプション"-O3 -lm -funroll-loops -msse4"で使ったら、mulsd命令を5個使う。
+</p>
+
+<pre><code>movapd  %xmm14, %xmm13
+mulsd   %xmm14, %xmm13
+mulsd   %xmm14, %xmm13
+mulsd   %xmm14, %xmm13
+mulsd   %xmm14, %xmm13
+mulsd   %xmm14, %xmm13
+</code></pre>
+
+<p>
+だが、<code>(a*a*a)*(a*a*a)</code>と書いたら、出力は、
+</p>
+
+<pre><code>movapd  %xmm14, %xmm13
+mulsd   %xmm14, %xmm13
+mulsd   %xmm14, %xmm13
+mulsd   %xmm13, %xmm13
+</code></pre>
+
+<p>
+これは、乗算命令が3個になっている。iccもGCCとほぼ同じだ。
+</p>
+
+<p>
+なんでコンパイラーはこれを最適化できないんだ？
+</p>
+</blockquote>
+
+<p>
+答え：浮動小数点数演算では、結果が変わってしまうおそれがあるから。
+</p>
+
+<blockquote>
+<p>
+それは、<a href="http://en.wikipedia.org/wiki/Floating_point#Accuracy_problems">浮動小数点数は結合法則を満たさないからだ</a>。浮動小数点乗算のオペランドの囲み方により、結果の数値精度に影響を及ぼすからだ。
+</p>
+
+<p>
+その結果、ほとんどのコンパイラーは、浮動小数点数演算のリオーダリングに対して極めて保守的なのだ。答えが変わらないと確信できるときや、数値精度を気にしない場合にしか最適化できない。たとえば、GCCの<a href="http://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html">-ffast-math</a>だ。
+</p>
+
+<p>
+<a href="http://stackoverflow.com/questions/6430448/why-doesnt-gcc-optimize-aaaaaa-to-aaaaaa/6430525#6430525">c - Why doesn't GCC optimize a*a*a*a*a*a to (a*a*a)*(a*a*a)? - Stack Overflow</a>
+</p>
+</blockquote>
+
+<p>
+GCCに-ffast-mathオプションを指定すると、浮動小数点数演算の誤差を気にしないとコンパイラーに伝えたことになる。このオプションを指定すると、GCCは浮動小数点数の演算に対して、大胆な最適化ができるようになる。もちろん、演算精度に注意しなければならない。
+</p>
+
+<p>
+<a href="http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html">What Every Computer Scientist Should Know About Floating-Point Arithmetic</a>(なぜすべてのコンピューター科学者は浮動小数点数演算について知っておくべきなのか)
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はC++とは直接関係がないが、ドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+ドワンゴはIEEE 754フォーマットを忘れたくても忘れられない本物のプログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
