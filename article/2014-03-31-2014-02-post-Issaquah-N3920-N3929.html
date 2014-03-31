@@ -1,0 +1,383 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-02-post-Issaquahのレビュー: N3920-N3929 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合の宛先：<br>
+郵便番号：165-0027<br>
+住所：東京都中野区野方5-30-13 ヴィラアテネ401<br>
+宛名：江添亮
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/03/2014-02-post-issaquah-n3920-n3929.html">2014-02-post-Issaquahのレビュー: N3920-N3929</a></h1>
+
+<p>
+前回同様、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/#mailing2014-03">2014-02-post-Issaquah</a>を引き続きレビューしていく。今回は、N3920からN3929までだ。N3966まであるので、すこし先が見えてきた。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3920.html">N3920: Extending shared_ptr to Support Arrays, Revision 2</a>
+</h3>
+
+<p>
+shared_ptrで配列を直接にサポートする拡張案。
+</p>
+
+<p>
+現在、shared_ptrで配列へのポインターを扱うには、カスタムデリーターを書いて指定する必要があった。そんな面倒なことをしなくても、shared_ptr&lt;T[]&gt;やshared_ptr&lt;T[N]&gt;を認識して、デリーターを適切に選択してくれるように変更する提案だ。
+</p>
+
+<p>
+前回の<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3869.html">N3869</a>からの変更点は、特筆すべきでもない細かな文面変更にとどまるようだ。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3921.html">N3921: string_view: a non-owning reference to a string, revision 7</a>
+</h3>
+
+<p>
+文字列を、実装の詳細を隠匿して、通過的に扱うためのライブラリ、string_viewの提案の文面案。
+</p>
+
+<p>
+文字列を表現する方法として一般的なのが、charなどの文字型の配列と、文字数のペアである。文字列クラスというのは、標準ライブラリにもあるし、また標準ライブラリが目的に合わない場合は、自作されるこのような文字列の実装の詳細を隠して、文字列にアクセスできるラッパークラスが、string_viewだ。
+</p>
+
+<p>
+string_viewは、std::basic_stringとほぼ互換のあるメンバーを備えていて、basic_stringのように扱うことができる。
+</p>
+
+<p>
+前回の論文からの変更点は、それほど特筆すべきものはない。興味のある読者は、直接論文を読んでもらいたい。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3922.html">N3922: New Rules for auto deduction from braced-init-list</a>
+</h3>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3912.html">N3912</a>の提案のための規格の文面案。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3923.pdf">[江添フレンドリーとは真逆の存在であるPDF] N3923: A SFINAE-Friendly std::iterator_traits, v3</a>
+</h3>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3909.pdf">[PDF注意] N3909</a>によるstd::iterator_traitsをSFINAEフレンドリーにする提案の規格文面案。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3924.pdf">[PDFの利用も非推奨扱いにするべき] N3924: Discouraging rand() in C++14, v2</a>
+</h3>
+
+<p>
+C++11で、新しい乱数ライブラリが導入されたことにより、既存のC時代から受け継いだrand, srand, RAND_MAXと、std::random_shuffleの使用を非推奨扱いにする提案の文面案。
+</p>
+
+<p>
+C++11では、より優れた乱数生成と乱数分布のためのライブラリが追加されたので、従来の使いづらく誤用されやすい劣ったrand, srand, RAND_MAXは、規格で使用を推奨しない強いNOTE(注記)を追記する。
+</p>
+
+<p>
+std::random_shuffleは、randに依存するオーバーロードがある。また、この関数に独自の乱数生成器を渡す際にも、そのインターフェースが極めて使いづらい。C++11では、新しく設計が洗練されたstd::shuffleが追加されたので、std::random_shuffleもdeprecated扱いにする。
+</p>
+
+<p>
+論文では、文面案も示している。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3925.pdf">[PDFは採取する必要がない] N3925: A sample Proposal, v4</a>
+</h3>
+
+<p>
+値の集合の中から、ランダムで標本を採取するアルゴリズム、std::sampleの提案。値がいくつあるかわからなくても正しく採取できる。
+</p>
+
+<p>
+もともと、SGI STLにsample, sample_nとして存在したアルゴリズム。提案では、別の名前に分けずに、オーバーロードで切り分ける設計になっている。
+</p>
+
+<p>
+そのリファレンス実装も論文に書かれているが、50行程度なので、ここに貼れるほど短い。
+</p>
+
+<pre><code>// リファレンス実装
+template&lt; class PopIter, class SampleIter, class Size, class URNG &gt;
+SampleIter
+sample( PopIter first, PopIter last
+      , SampleIter out
+      , Size n, URNG&amp;&amp; g
+)
+{
+    using pop_t = typename iterator_traits&lt;PopIter&gt;::iterator_category;
+    using samp_t = typename iterator_traits&lt;SampleIter&gt;::iterator_category;
+
+    return __sample( first, last, pop_t{}
+                   , out, samp_t{}
+                   , n, forward&lt;URNG&gt;(g)
+                   );
+}
+
+template&lt; class PopIter, class SampleIter, class Size, class URNG &gt;
+SampleIter
+__sample( PopIter first, PopIter last, input_iterator_tag
+        , SampleIter out, random_access_iterator_tag
+        , Size n, URNG&amp;&amp; g
+)
+{
+    using dist_t = uniform_int_distribution&lt;Size&gt;;
+    using param_t = typename dist_t::param_type;
+    dist_t d{};
+
+    Size sample_sz{0};
+    while( first != last &amp;&amp; sample_sz != n )
+        out[sample_sz++] = *first++;
+
+    for( Size pop_sz{sample_sz}; first != last; ++first, ++pop_sz ) {
+        param_t const p{0, pop_sz};
+        Size const k{ d(g, p) };
+        if( k &lt; n ) out[k] = *first;
+    }
+    return out + sample_sz;
+}
+
+
+template&lt; class PopIter, class SampleIter, class Size, class URNG &gt;
+SampleIter
+__sample( PopIter first, PopIter last, forward_iterator_tag
+        , SampleIter out, output_iterator_tag
+        , Size n, URNG&amp;&amp; g
+)
+{
+    using dist_t = uniform_int_distribution&lt;Size&gt;;
+    using param_t = typename dist_t::param_type;
+    dist_t d{};
+
+    Size unsampled_sz = distance(first, last);
+    for( n = min(n, unsampled_sz); n != 0; ++first ) {
+        param_t const p{0, --unsampled_sz } ;
+        if( d(g, p) &lt; n ) { *out++ = *first; --n;}
+    }
+
+    return out;
+}
+</pre></code>
+
+
+<p>
+前回の論文からの変更に、特筆すべきものはないようだ。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3926.pdf">[PDFはdefect] N3926: LWG Issue 2168 is NAD</a>
+</h3>
+
+<p>
+Library issue 2168はNAD(Not A Defect、問題ではない)と結論する論文。
+</p>
+
+<p>
+26.5.8.22 p1では、uniform_real_distributionは、\(a \leq x &lt; b\) の範囲に分布する乱数を生成するとある。
+</p>
+
+<p>
+26.5.8.22 p2では、uniform_real_distribution( RealType a = 0.0, RealType b = 1.0 ) ;とあり、\( a \leq b \) かつ \(b - a \leq \verb=numerix_limits&lt;RealType&gt;::max()=\) でなければならないとしている。
+</p>
+
+<p>
+この文面では、aとbの差が表現可能ではない場合（最もわかりやすい例はa == b）では、26.5.8.22を満たせないではないか。なぜ半開区間なのか。
+</p>
+
+<p>
+まず、この文面はもともと\(a &lt; x &lt; b\)だった。しかし、プログラマーというものは、 統計学者や数学者と違い、閉区間ではなく、半開区間を好むものであるので、\(a \leq x &lt; b\)に修正された。issue 2168はこの背景をしらずに追加されたというのがまず一点。
+</p>
+
+<p>
+\(a \neq b\)である理由は、\(1 / (b - a)\)を計算する必要があるためである。したがって、\(a \neq b\)である引数を与えるのは、利用者側の責任であるとのことだ。
+</p>
+
+<p>
+ただし、\(a \neq b\)が要求されるのは、operator ()を呼び出した時だ。uniform_real_distributionのオブジェクトを\(a = b\)の条件で初期化しても、問題はない。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3927.html">N3927: Definition of Lock-Free</a>
+</h3>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3893.html#2075">C++ Standard Library Active Issues 2075</a>を解決するための文面案。
+</p>
+
+<p>
+Library issue 2075は、規格の以下の文面を問題としている。
+</p>
+
+<blockquote>
+<p>
+1.10 [intro.multithread] p2
+</p>
+
+<p>
+Implementations should ensure that all unblocked threads eventually make progress.
+</p>
+
+<p>
+C++の実装は、ブロックされていないスレッドは、いずれ実行が進むことを保証したほうがよい。
+</p>
+</blockquote>
+
+<p>
+ちょっとまて。これを文字通り解釈して保証しようとすると、大変なことになるぞ。アトミック操作にロックフリー程度の保証では実現できないぞ。アトミック操作は、一部のスレッドの実行が進むことを保証するだけだからだ。
+</p>
+
+<p>
+そもそも、実行が進む(make progress)とはどういう意味だ。「ブロックされていないスレッド」には、現在ロックされているスレッドは含まれないのか（そうであれば、アトミック操作がロックフリーであるだけで十分なはずだが）
+</p>
+
+<p>
+29.4 [atomics.lockfree] p2で、ロックフリー(Lock-free)という用語が使われているが、ロックフリーなる用語の定義がないぞ。そして、議論の結果、どうやらC++規格の文面で使われているロックフリーという用語は、一般的なロックフリーとは意味が異なるものであるぞ。
+</p>
+
+<p>
+この問題を解決するために、「ロックフリー」という言葉を定義することにした。文面案は以下の通り
+</p>
+
+<blockquote>
+<p>
+Executions of atomic functions that are either defined to be lock-free (29.7 [atomics.flag]) or indicated as lock-free (29.4 [atomics.lockfree]) are lock-free executions.
+</p>
+
+<p>
+ロックフリーと規定されている、もしくはロックフリーであると示唆されているアトミック関数の実行はロックフリー実行である。
+</p>
+
+<ul>
+<li>
+If there is only one unblocked thread, a lock-free execution in that thread shall complete. [Note: Concurrently executing threads may prevent progress of a lock-free execution. For example, this situation can occur with load-locked store-conditional implementations. This property is sometimes called obstruction-free. —end note]
+</li>
+
+<li>
+When one or more lock-free executions run concurrently, at least one should complete. [Note: It is difficult for some implementations to provide absolute guarantees to this effect, since repeated and particularly inopportune interference from other threads may prevent forward progress, e.g. by repeatedly stealing a cache line for unrelated purposes between load-locked and store-conditional instructions. Implementations should ensure that such effects cannot indefinitely delay progress under expected operating conditions, and that such anomalies can therefore safely be ignored by programmers. This property is sometimes called lock-free outside this International Standard. —end note]
+</li>
+</ul>
+
+<ul>
+<li>
+ブロックされていないスレッドがひとつだけ存在する場合、そのスレッド内におけるロックフリー実行は完了しなければならない。[注：平行に実行されているスレッドはロックフリー実行を妨げるかもしれない。たとえば、load-locked store-conditionalな実装をしている場合におこる。このような特徴を、時に、obstruction-freeと言う。注終わり]
+</li>
+
+<li>
+ひとつかそれ以上のロックフリー実行が平行に実行する場合、少なくとも、ひとつは完了するべきである。[注：一部の実装では、この効果を完全に保証するのは難しい。というのも、他のスレッドからの連続して特に間の悪い干渉が、実行の進展を妨げるかもしれないからである。例えば、load-lockedとstore-conditional命令の間で、キャッシュラインを奪い合う場合。実装は、通常の実行の条件下において、このような効果が、永久に実行の進展を妨げないように保証すべきである。それにより、余りの異常な条件は、プログラマーは安全に無視できる。このような特徴を、時に、この国際規格の範疇の外では、ロックフリーと呼んでいる。注終わり]
+</li>
+</ul>
+</blockquote>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3928.pdf">[PDFを省略したい] M3928: Extending static_assert, v2</a>
+</h3>
+
+<p>
+static_assertの2つ目の文字列を省略できるようにする提案。
+</p>
+
+<pre><code>// N3928提案
+static_assert( true )
+</code></pre>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3929.pdf">[PDFで論文を公開すべきではない] N3929: Concepts Lite Specification</a>
+</h3>
+
+<p>
+Concept LiteのTSドラフト
+</p>
+
+<p>
+軽量コンセプトについては、TSが正式に出たときに、詳細な解説記事を書きたい。
+</p>
+
+<p>
+TSなので、たたき台に過ぎないのだが。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に鳩サブレーを食べながら書かれた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
