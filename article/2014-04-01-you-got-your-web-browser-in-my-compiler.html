@@ -1,0 +1,324 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: MSVC++コンパイラーの中に入っているWebブラウザー 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合の宛先：<br>
+郵便番号：165-0027<br>
+住所：東京都中野区野方5-30-13 ヴィラアテネ401<br>
+宛名：江添亮
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/04/msvcweb.html">C++コンパイラーの中に入っているWebブラウザー</a></h1>
+
+<p>
+<a href="http://randomascii.wordpress.com/2014/03/31/you-got-your-web-browser-in-my-compiler/">You Got Your Web Browser in my Compiler! | Random ASCII</a>
+</p>
+
+<blockquote>
+
+<p>
+筆者は最近、MicrosoftのVC++コンパイラーがmshtml.dll、すなわちInternet Explorerを読み込むことを発見した。/analyzeオプション(<a href="http://randomascii.wordpress.com/category/code-analysis/">静的コード解析</a>を指示）を使うとコンパイラーがこの挙動を示す。筆者はコンパイラーアーキテクチャの専門家ではないが、<a href="https://www.youtube.com/watch?v=DJLDF6qZUX0">インターネットエクスプローラーを読み込むコンパイラー</a>というのはいかにも奇妙だ。
+</p>
+
+<p>
+<iframe width="420" height="315" src="http://www.youtube.com/embed/DJLDF6qZUX0" frameborder="0" allowfullscreen></iframe>
+</p>
+
+<p>
+これは単なる気持ちの問題ではないのだ。筆者の環境で静的解析を並列コンパイルすると、コンピューターが数分間も反応が悪くなる。どうやらmshtmlウインドウが、その原因らしいのだ。
+</p>
+
+<p>
+いつも通り、筆者は<a href="http://randomascii.wordpress.com/category/xperf/">xperf</a>/ETWを使って原因を探った。
+</p>
+
+<h2>
+本当に問題なのか？
+</h2>
+
+<p>
+筆者は問題を探すために何日もの時間を浪費したりはしない。問題が私を見つけたのだ。この場合、筆者は新しいコードベースに/analyzeを使おうとしていた。
+</p>
+
+<p>
+(/analyzeの利用方法について学びたい場合は、<a href="http://randomascii.wordpress.com/2013/06/24/two-years-and-thousands-of-bugs-of-static-analysis/">Two Years (and Thousands of Bugs) of Static Analysis</a>を参照されたし)
+</p>
+
+<p>
+筆者は<a href="http://randomascii.wordpress.com/2014/03/22/make-vc-compiles-fast-through-parallel-compilation/">並列コンパイル</a>と、並列プロジェクトビルドを有効にしている。どちらの並列ビルドオプションも、デフォルトでプロセッサーの数だけの並列数設定になっているため、プロセッサーの数 * プロセッサーの数だけの数のコンパイラーが実行されることになり、私の環境では、144個の並列コンパイルが走ることになる。筆者は高速なSSDと32GBのRAMを有しているため、多少は遅くなるものの、メルトダウンを引き起こすほどではないと考えている。実際、通常のコンパイルでは、ちょっと遅いかな程度のものだ。ところが、/analyzeでコンパイルすると、筆者のコンピューターは30分ほど反応がなくなるのだ！　マウスクリックが処理されるのに、10秒もかかり、タスクマネージャーがウインドウをアップデートするのもまれにしか行われなくなる。これは筆者が並列/analyzeビルドを行うたびに発生する。筆者はこの問題をVS2010で発見していたが、VS2013を使うまで、この問題を真剣に調査することはなかった。
+</p>
+
+<h3>
+ハング解析
+</h3>
+
+<p>
+筆者のコンピューターでは、ETWトレーシングを24時間週7日走らせている。データーは300MBのリングバッファに記録されていて、Win+Aを押した時に、いつでもトレースが記録されるようにしてある。これは、ゲーム中にトレースの記録を取りやすいようにするためだが、デスクトップがろっくされたが、トレースだけは取りたい場合にも、都合がいい。Microsoftのwpruiにも、Ctrl+Win+Cというグローバルショートカットで、似たようなものがある。トレースを記録した後、筆者はなんとかビルドをキャンセルさせて、デスクトップのコントロールを取り戻した。そして、トレースを解析して、何が起こっているのかを確かめた。
+</p>
+
+<p>
+(wpruiでトレースを記録する方法については、<a href="http://randomascii.wordpress.com/2013/04/20/xperf-basics-recording-a-trace-the-easy-way/">Xperf Basics: Recording a Trace (the easy way)</a>を参照されたし)
+</p>
+
+<p>
+「なぜ俺のコンピューターは何重もの並列コンパイル中に反応が悪くなるのか」という質問は、答えにくい種類の質問だ。あまりにも範囲が広すぎる。数十個のコンパイラーがCPU時間を奪い合っているというのは、どのスレッドもCPU時間に飢えている状態になるわけだ。検証には、もっと狭い質問が必要だ。
+</p>
+
+<p>
+WPAには、UIハングの検証に役立つグラフがある。Windowsは各アプリケーションがメッセージを確認していない時間を把握していて、もし、アプリケーションがメッセージを確認していない時間が「長すぎる」場合、ETWイベントが発行される。適切なところ（Microsoft-Windows-Win32k）からデータを記録していれば、これらのイベントがトレースに入り、UIディレイグラフがSystem Activity areaに表示される。通常、このグラフは空であるが、筆者の反応しないシステムのトレースは、棒グラフの海となり、何十ものMsgCheckディレイイベントが、システムのあらゆるプロセスから発せされていた。これがその一部だ。
+</p>
+
+<p>
+[訳注：画像]
+</p>
+
+<p>
+興味深いことに、3/4ほどのハングしたプログラムは、cl.exeのインスタンスだ。Windowsはコンパイラーがメッセージポンプを実行していないと報告している。この事実は、ただちに、「なぜコンパイラーにメッセージポンプがあるのか！」という疑問を生じさせる。
+</p>
+
+<p>
+この疑問は、ひとまず無視しよう。その背景事情を考えるのだ。
+</p>
+
+<p>
+次のステップは、ハングしたアプリケーションをひとつ選び、なぜメッセージを処理できていないのかという原因を探ることだ。筆者はdwm.exe(Desktop Window Manager)を選択した。なぜならば、これは高優先度で実行されているからだ。このプロセスはシステムがオーバーロードした時もスムーズに動くべきであるので、何か悪いことが起こっているのは明らかである。
+</p>
+
+<p>
+UIディレイイベントには、メッセージポンプに失敗しているスレッドのプロセスIDとスレッドID、メッセージが処理されていない時間といった情報が含まれている。これにより、ようやくまともな疑問を構築することができる。
+</p>
+
+<p>
+なぜ、プロセスdwm.exe(4336)のスレッド19,308は、トレース開始から84847.551566180秒時点で、2.668秒もメッセージを処理できていないのか？
+</p>
+
+<p>
+このしっかりとした疑問があれば、この疑問に答えることができる。
+</p>
+
+<p>
+このまともな疑問の存在は重要である。なぜならば、適当にwait analysisをしても、多くのスレッドが何秒も実行されずに待っていることが判明するだけだからだ。wait analysisをするときは、アイドルスレッドは問題ではないという認識を持つことが重要である。コンピューター上のほとんどのスレッドは、たいていの時間はアイドルであるべきなのだ。問題なのは、反応していないスレッドだ。メッセージポンプを行うべきなのに行っていないスレッドだ。だからこそ、UIディレイイベントはとても重要なのだ。反応していないスレッドを抽出してくれる。
+</p>
+
+<p>
+(wait chainをたどる方法については、<a href="http://randomascii.wordpress.com/2012/05/05/xperf-wait-analysisfinding-idle-time/">Xperf Wait Analysis–Finding Idle Time</a>を参照されたし)
+</p>
+
+<p>
+反応の遅いdwmスレッドは、ExAcquireResourceExclusiveLiteを、何度も待っていた。時として、何百ミリ秒も待っている。<a href="http://randomascii.wordpress.com/2012/05/11/the-lost-xperf-documentationcpu-scheduling/">ここで解説されている</a>、ReadyingProcessなどのカラムにより、誰がdwmスレッドを準備可能な状態にするのがが判明する。誰がロックをリリースして、dwmスレッドを実行させるのかが判明する。筆者はこのチェインを手動でしばらく追っていたが、<a href="http://en.wikipedia.org/wiki/Hyperbole">数百回</a>ものコンテキストスイッチの後には、いい加減に飽きた。
+</p>
+
+<p>
+そこで、筆者は<a href="http://randomascii.wordpress.com/2013/11/04/exporting-arbitrary-data-from-xperf-etl-files/">wpaexporter</a>を使って、関心のある範囲のコンテキストスイッチをすべてエクスポートした。そして、結果をフィルターしてNewThreadStackの中のExAcquireResourceExclusiveLiteのある行だけ得て、Excelでコンテキストスイッチの時間差を計算した。これはlock chainのアタリをつけるためと、誰がロックを長い間握っているか調べるための、手っ取り早くて小汚い方法である。これらのロック所有は、通常はとてもすばやいものである。大方は、1ミリ秒以下である。しかし、大多数が、長い間ロックを握っていた。大方は、16ミリ秒か32ミリ秒だ。観測によれば、15ミリ秒以上もロック所有しているスレッドは全体の3%だというのに、この遅いロック所有は、全体の75%の時間を使っている。
+</p>
+
+<p>
+コンテキストスイッチのデータをより詳細にみると、どうやら、遅いロック所有の原因は、スレッドがロックを所有しているのに、CPU時間が割り当てられていないからであるように思われた。そのため、ロックは、OSの次のスケジューリング期間になってCPU時間を割り当てられるまで、未使用のままだ。もしくは、ひょっとしたら、スレッドがロックを所有した後に、タイムスライスを失っているのか。どちらとも言えない。とにかく、これは<a href="http://en.wikipedia.org/wiki/Priority_inversion">優先順位の逆転</a>のように思われる。もしくは、単にビジーなシステムで毎秒数千回もロックしたら必ず起こる現象なのだろうか。
+</p>
+
+<p>
+訳注：優先順位の高いスレッドがロックの解放を待っているが、そのロックを開放するのは、優先順位の低いスレッドであり、優先順位の低いスレッドにはCPU時間がなかなか割り当てられずに、ロックの解放に無駄に時間のかかる現象。
+</p>
+
+<p>
+ExAcquireResourceExclusiveLiteの呼び出しはすべて、SetWindowsPos, CreateWindowExなどの関数から生じているようだ。明らかに、奪い合っているリソースは、ウインドウシステムの重要な部分であるようだ。
+</p>
+
+<p>
+lock chainの筆頭に存在するスレッドは、VC++コンパイラーの一部である。CreateWindowExWから呼ばれている。CreateWindowExWとは、コンパイラーにとっては奇妙だ。それから、CreateWindowExWはmshtmlから呼ばれているが、これはさらに解せない。実際、65%のウインドウシステムのロックへのトラフィックは、VC++コンパイラー由来で、ほとんどがmshtml.dllからだ。
+</p>
+
+<p>
+つまり、/analyzeを実行すると、コンパイラーは多数のCPU時間をコード解析に費やすと同時に、ウインドウも開く（実際には二つひらく。COM目的にもうひとつ）というわけだ。コンパイラーを多数走らせると、多数のウインドウが開かれて、GPUに負荷がかかる。狂気お墨付き。
+</p>
+
+<p>
+コンパイラーのインスタンスは、Visual StudioとかOutlookといった通常のウインドウ付きプロセスより、すこし低い優先順位で実行される。そして、この低優先度と高CPU時間要求と、ウインドウシステムのロックの多用は、問題の根本的理由のようだ。優先順位の逆転を引き起こすのだ。
+</p>
+
+<p>
+技術的に、筆者はmshtmlと、ウインドウを開くといったことが、ハングの原因であるかどうかはわからない。筆者が分かるのは、ハングは/analyzeでコンパイルした時のみ起こること、/analyzeコンパイルはmshtml.dllをロードすること、mshtml.dllがwait chainに現れることである。相関と因果はちがうが、<a href="http://xkcd.com/552/">だいぶ怪しい</a>。
+</p>
+
+</blockquote>
+
+<blockquote>
+<p>
+<a href="http://xkcd.com/552/">xkcd: Correlation</a>
+</p>
+
+<p>
+<img title="相関は因果を意味しない。しかし、意味有りげな目配せと意味深な身振りと、「おいそこそこ、そこだってば」というつぶやきの因果ではある。" src="http://imgs.xkcd.com/comics/correlation.png"></img>
+</p>
+
+<p>
+男「いままで、相関関係があると、因果関係があると思っていたんだ」
+</p>
+
+<p>
+男「統計学の授業を取ったら、そうは思わなくなった」
+</p>
+
+<p>
+女「授業は役に立った様子ね」<br>
+男「うーん、たぶんね」
+</p>
+</blockquote>
+
+<blockquote>
+<p>
+もし、Microsoftがmshtml.dllをコンパイラーから取り除いたのならば、筆者は喜んで再びテストをして再報告する所存である。
+</p>
+
+<h3>
+でも、なんで？
+</h3>
+
+<p>
+ソースコードにアクセスできない以上、筆者には何が起こっているのか明らかではない。だが、これだけは分かる。コンパイラーを/analyzeで実行すると、コンパイラーはmspft120.dllをロードする。/analyzeのDLLだ。そして、mspft120はmsxml6.dllをロードして、XML設定ファイルを読み込む。そして、msxml6はurlmon.dllをロードして、ストリームを開く、そして最後に、urlmonはmshtml.dllをロードする。そして、mshtml.dllはウインドウを作成する。なぜならば、mshtml.dllはそうなっているからだ。
+</p>
+
+<p>
+読み込まれてるXMLファイルは、
+</p>
+
+<ul>
+<li>
+res://C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\BIN\mspft120.dll/213
+</li>
+
+<li>
+res://mspft120.dll/300
+</li>
+</ul>
+
+<p>
+この一連の処理は、ある場合においては当然のことであることは確かだ。ただしこの場合においてではない。思うに、だれもmshtml.dllがロードされていることに気がついていないのではないか。もしくは、問題が発覚するほど大規模な並列コンパイルを誰も実行したことがないのか。
+</p>
+
+<p>
+訳注：原文ではMSVCがmshtml.dllを読み込むことを検証する方法が書かれているが省略
+</p>
+
+<p>
+対処法
+</p>
+
+<p>
+Microsoftが、自社のコンパイラーがWebブラウザーを読み込む問題を修正するまでは、大規模な並列ビルドを行う際にこの問題は避けられないようだ。筆者の知る唯一の解決法は、並列数を下げることだ。最大の並列プロジェクトビルドを小さな値に設定することで、ハングの度合いを、まだマシなレベルに抑えられる。
+</p>
+
+<p>
+思うに、CPUコアが少なければ、問題を抑えられるのではないだろうか。自動的に過剰な設定が減るわけだから。しかし、筆者は多大な並列性がほしいのだ。やれやれ。
+</p>
+
+<p>
+Microsoftにグローバルなコンパイラースケジューラーがあれば、このCPU多使用は回避できたであろうに。
+</p>
+
+<h3>
+追記
+</h3>
+
+<p>
+筆者に対して、なぜに段階の並列プロジェクトビルドをやめることで問題解決にはならないのかという質問が寄せられた。その理由は、もちろん、コンパイラーがWebブラウザーを開くなどということは、依然として馬鹿げているからだ。もうひとつの理由は、12並列並行プロジェクトビルドは、12スレッドCPUのデフォルトだからだ。デフォルトの挙動はもっとマシであるべきだ。
+</p>
+
+<p>
+対処法が理想ではない最後の理由は、理想のビルド速度を得るためには、2並列並行プロジェクトビルド以上が必要な場合があるからだ。筆者が先週、<a href="http://randomascii.wordpress.com/2014/03/22/make-vc-compiles-fast-through-parallel-compilation/">並列コンパイルのブログ記事</a>で示したように、並列コンパイルはデフォルトで無効になっている。たとえ有効にしても、多くのプロジェクトは、かなりの時間を直列ビルドに使っている。そのため、並列コンパイルと並列プロジェクトビルドを組み合せることが適切なのだ。
+</p>
+
+<p>
+特に、我々はほとんどのプロジェクトでプリコンパイルドヘッダーを使っている。VC++はプロジェクトのビルドに際して、プリコンパイルドヘッダーをまずビルドする。プリコンパイルドヘッダーが用意できるまで何もコンパイルしない。そのため、プロジェクトビルドこそが、すべてのプロジェクトのフルビルドを開始時から並列できる方法なのだ。
+</p>
+
+<p>
+VC++/msbuildが、144個ものコンパイルを並列実行するのを止めるために、グローバルスケジューラーを持っていないのは残念である。グローバルなコンパイラースケジューラーこそが、プロジェクト外部、内部で、過剰にならずに完全な並列化を達成するための方法であるのに。
+</p>
+
+<p>
+それから、並列プロジェクトビルドはグローバル設定であるので、設定値を下げると、いくつかのソリューションが余計に遅くビルドされる。
+</p>
+</blockquote>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事は自宅とドワンゴ勤務中の両方で書かれた。MSVCが本物のC++コンパイラーかどうかは議論の分かれるところである。
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
