@@ -1,0 +1,277 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: Linus様がSystemdにぶちきれる
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合の宛先：<br>
+郵便番号：165-0027<br>
+住所：東京都中野区野方5-30-13 ヴィラアテネ401<br>
+宛名：江添亮
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/04/linussystemd.html">Linus様がSystemdにぶちきれる</a></h1>
+
+
+<p>
+systemdは、/proc/cmdlineをパースして、もし、その中に"debug"という文字列を発見した場合、大量の冗長なデバッグメッセージをdmsegに出力する。これは様々な問題を引き起こす。まず、"debug"というあまりに一般的すぎる文字列に勝手に反応してしまうことがひとつ。dmseg、すなわちカーネルのリングバッファーをsystemdの冗長なデバッグメッセージだけで溢れ返させてしまうことがひとつ。そして、なぜかLinuxカーネルのブートに失敗してしまうことがひとつ。
+</p>
+
+<blockquote>
+<p>
+<a href="https://bugs.freedesktop.org/show_bug.cgi?id=76935">Bug 76935 – Do not parse "debug" command line parameter</a>
+</p>
+
+<p>
+カーネルコマンドラインに"debug"を与えると、systemdによりパースされる。適当なassertに引っかかると、こんな風にぶっ放される。
+</p>
+
+<pre>[  150.308000] systemd-journald[1559]: Assertion 'dual_timestamp_is_set(&amp;e-&gt;timestamp)' failed at src/libsystemd/sd-event/sd-event.c:2191, function sd_event_get_now_monotonic(). Ignoring.
+[  150.308000] systemd-journald[1559]: Assertion 'dual_timestamp_is_set(&amp;e-&gt;timestamp)' failed at src/libsystemd/sd-event/sd-event.c:2191, function sd_event_get_now_monotonic(). Ignoring.
+</pre>
+
+<p>
+dmsegがあふれかえり、ログインすらできなくなる。ブートさせるためには、リブートしてコマンドラインから"debug"を取り除かなければならない。だがしかし！、俺はsystemdに邪魔されることなく、"debug"を与えてカーネルデバッグメッセージをみたいんだよ。
+</p>
+
+<p>
+systemdがやるべきなのは、"debug"をパースするんじゃなくて、何らかの名前空間を使うべきなんだ。たとえば、"systemd.debug"とかさ。"debug"はカーネルコマンドラインパラメーターであって、systemdのためじゃない。
+</p>
+
+</blockquote>
+
+<p>
+これに対し、Kay Sieversは、以下のように答えている。
+</p>
+
+<blockquote>
+<p>
+これは仕様だ。何かがぶっ壊れたときは、"debug"はすでに必要以上に大量のメッセージを出力するだろう。
+</p>
+
+<p>
+一般的な言葉である"debug"は、基本OSツールからも読み込まれている。
+</p>
+
+<p>
+俺は同意しない。一般名詞は一般名詞だ。最初に使った奴に権利が発生するものじゃない。
+</p>
+</blockquote>
+
+<p>
+この問題に対し、Linuxカーネル側で対応すべく、Steven Rostedtによって、/proc/cmdlineから"debug"を隠すパッチがMLに投下された。
+</p>
+
+<blockquote>
+<p>
+<a href="https://lkml.org/lkml/2014/4/2/415">LKML: Steven Rostedt: [RFC PATCH] cmdline: Hide "debug" from /proc/cmdline</a>
+</p>
+
+<pre>Date	Wed, 2 Apr 2014 14:42:19 -0400
+From	Steven Rostedt &lt;&gt;
+Subject	[RFC PATCH] cmdline: Hide "debug" from /proc/cmdline
+</pre>
+
+<p>
+どうやら、特定のユーザースペースのinitプログラムを利用しているシステムは、カーネルコマンドラインに"debug"という文字列があるとブートしないようである。何が起こっているかというと、このユーザースペースのツールはカーネルコマンドラインをパースし、もし"debug"なる文字列を発見したならば、システムがブートしないほど大量のメッセージを吐き出すためである。これにより、カーネルに対する"debug"というオプションが役に立たなくなるものである。
+</p>
+
+<p>
+このバグは同ツールの開発者に報告されたるも、
+</p>
+
+<p>
+<a href="https://bugs.freedesktop.org/show_bug.cgi?id=76935">https://bugs.freedesktop.org/show_bug.cgi?id=76935</a>
+</p>
+
+<p>
+返答は：
+</p>
+
+<p>
+「一般名詞は一般名詞だ。最初に使った奴に権利が発生するものじゃない」
+</p>
+
+<p>
+すなわち、「カーネル」のコマンドラインにある"debug"なる宣言は、カーネルが最初に使ったからという理由で、カーネルが所有しているものではないのだという。彼らは自分のバグの修正を拒んでいる。
+</p>
+
+<p>
+さて、吾輩の返答は、我々はカーネルコマンドラインを所有しているのであるからして、我々がそう望むのであれば、ユーザーから見せないことも可能であるということだ。すなわち、このパッチを提案する。このパッチは、"debug"を/proc/cmdlineから隠すものであり、その結果、ツールがパースして、その結果、カーネルのデバッグに支障をきたす懸念を取り除くものである。
+</p>
+
+<p>
+訳注:この後に続くパッチは、ユーザースペースに見せるカーネルコマンドライン、すなわち/proc/cmdline用の文字列から、"debug"という文字列を検索して、全て取り除く内容のコードである。
+</p>
+</blockquote>
+
+<p>
+さて、Linus Torvaldsの返信
+</p>
+
+<blockquote>
+<p>
+<a href="https://lkml.org/lkml/2014/4/2/420">LKML: Linus Torvalds: Re: [RFC PATCH] cmdline: Hide "debug" from /proc/cmdline</a>
+</p>
+
+<pre>Date	Wed, 2 Apr 2014 11:57:41 -0700
+Subject	Re: [RFC PATCH] cmdline: Hide "debug" from /proc/cmdline
+From	Linus Torvalds &lt;&gt;
+</pre>
+
+<p>
+その「奴ら」というのは、Kay Sieversのことだろう。
+</p>
+
+<p>
+Kay、テメーの書いたコードの問題をテメーで直さねーから、カーネルで対応しなきゃならねーのには、もういい加減うんざりだぜ。
+</p>
+
+<p>
+Greg、言っておくが、俺はこの毎度おなじみの問題が治るまで、Kayのコードはゼッテーにカーネルにマージしねぇ。
+</p>
+
+<p>
+この手の問題は、もう何年も何年も起きてて、よくなる気配がねぇ。お前、kdbusパッチのことを言ってたから、お前にも関係あることだぜ。お前のせいでもあるんだから、きっちりやれ。ディストリビューションが必要だと感じたら、奴らの方でマージさせろ。で、ディストロがこの手の開発者と十分に戯れた後で、実際安定しているとわかったなら、俺らもマージしてやるかもしれんな。
+</p>
+
+<p>
+だがな。俺は、バグやregressionを気にかけず、他のプロジェクトの連中に、自分のプロジェクトを修正させるようなメンテナー由来の門をマージしたいとは思わん。なぜかというと、俺は自分で問題を修正しないし、自分で修正すべき問題だとも認めない奴らのパッチを受けとりたくねーからだ。
+</p>
+
+<p>
+Kay、もう一度言っておく。オメーのせいだ。オメーが直せ。「俺の好きなようにやる。俺の尻拭いは他人がやれ」的なクソを持ち込むな。
+</p>
+
+<p>
+Linus
+</p>
+</blockquote>
+
+<p>
+その次に投稿した、Andrew Mortonの発言も、なかなか笑える。
+</p>
+
+<blockquote>
+<p>
+<a href="https://lkml.org/lkml/2014/4/2/422">LKML: Andrew Morton: Re: [RFC PATCH] cmdline: Hide "debug" from /proc/cmdline</a>
+</p>
+
+<pre>Date	Wed, 2 Apr 2014 12:04:40 -0700
+From	Andrew Morton &lt;&gt;
+Subject	Re: [RFC PATCH] cmdline: Hide "debug" from /proc/cmdline
+</pre>
+
+<p>
+日付を確認したが、どうやら発言は4月1日に行われていたらしいな。
+</p>
+
+
+<pre><code>--- a/fs/read_write.c~a
++++ a/fs/read_write.c
+@@ -513,6 +513,8 @@ SYSCALL_DEFINE3(read, unsigned int, fd,
+ 	struct fd f = fdget_pos(fd);
+ 	ssize_t ret = -EBADF;
+ 
++	BUG_ON(!strcmp(current-&gt;comm, "systemd"));
++
+ 	if (f.file) {
+ 		loff_t pos = file_pos_read(f.file);
+ 		ret = vfs_read(f.file, buf, count, &amp;pos);
+</code></pre>
+
+</blockquote>
+
+<p>
+上記のLinuxカーネルに対するパッチは、まずsystemdが実行されているかどうかを検出して、もし実行されていた場合は、BUG_ONマクロにtrueを与えるものである。BUG_ONマクロにtrueが与えられると、BUGマクロの中身が実行される。BUGマクロの中身は、直ちにカーネルパニックを起こすものである。すなわち、systemdが実行されていた場合は、かならずカーネルパニックとなるパッチとなっている。
+</p>
+
+<p>
+このパッチは、複数のカーネル開発者から賛同を得ているようだ。Thomas Gleixnerは、「strncmp(current-&gt;comm, "systemd", 7)にしてくれない？ systemd-xxx的なものも全部補足したいからさ」と改善案を出している。
+</p>
+
+<p>
+ところで、Linusによれば、ユーザースペースから/proc/cmdlineをパースするのは、特に問題はない。そもそも、/proc/cmdlineはそのためにある。ただし、あまりにもやりすぎて、dmsegをスパムで埋め尽くすのは問題である、とのことである。
+</p>
+
+<p>
+<a href="https://lkml.org/lkml/2014/4/2/580">LKML: Linus Torvalds: Re: [RFC PATCH] cmdline: Hide "debug" from /proc/cmdline</a>
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はC++とは関係がないがドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
