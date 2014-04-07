@@ -1,0 +1,468 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-02-post-Issaquah mailingsのレビュー:N3930-N3939 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合の宛先：<br>
+郵便番号：165-0027<br>
+住所：東京都中野区野方5-30-13 ヴィラアテネ401<br>
+宛名：江添亮
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/04/2014-02-post-issaquah-mailingsn3930.html">2014-02-post-Issaquah mailingsのレビュー:N3930-N3939</a></h1>
+
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/#mailing2014-03">2014-02-post-Issaquah mailing</a>が公開されているので、レビューを続ける。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3930.html">[title要素が残念すぎる] N3930: C++ Standard Library Immediate Issues</a>
+</p>
+
+<p>
+標準ライブラリに持ち上がっている問題の修正案。
+</p>
+
+<p>
+特に興味深いものを紹介すると。
+</p>
+
+<p>
+2112. User-defined classes that cannot be derived from
+</p>
+
+<p>
+あるクラスからの派生を禁止する機能は、finalとしてC++11に入った。
+</p>
+
+<pre><code>// finalの例
+class underivable final { } ;
+
+// ill-formed
+class try_derive : underivable { } ;
+</code></pre>
+
+<p>
+実は、C++03でも、クラスからの派生を禁止させる方法はあるにはあったが、あまりにもトリッキー過ぎて、それほど一般的に使われていない。
+</p>
+
+<p>
+<a href="http://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Final_Class">More C++ Idioms/Final Class - Wikibooks, open books for an open world</a>
+</p>
+
+<p>
+finalがC++に入ったことで、ユーザー定義型は、簡単に派生を禁止できるようになった。そこで、ひとつ重大な問題が持ち上がった。標準ライブラリに渡す型は、派生禁止を認めるのかどうか、である。
+</p>
+
+<p>
+C++の標準ライブラリは、テンプレートを用いて、ユーザーが定義した型を受け取る。標準ライブラリに渡す型には、規程によりいくつかの要件がある。
+</p>
+
+<p>
+また、C++には、EBCO(Empty Base Class Optimization)という技法がある。C++では規格上、空のクラスから派生したクラスは、空のクラス分のストレージを無視することが許されている。
+</p>
+
+<pre><code>// EBCOの例
+struct empty { } ;
+
+// EBCOが許されている
+struct is_a : empty
+{ char c ; } ;
+
+// EBCOの働く余地はない
+struct has_a
+{
+    char c ;
+    empty a ;
+} ;
+
+
+</code></pre>
+
+<p>
+上記のコードで、is_aは、empty分のストレージを割り当てるなくてもよいことが、規格上認められている。空の基本クラスに、わざわざ無駄なストレージを割り当てる必要がないということは、、容量効率をよくできる。
+</p>
+
+<p>
+このEBCOは、モダンなC++実装では広く使われているし、モダンなSTL実装でも、活用されている。たとえば、unique_ptrを考える。
+</p>
+
+<pre><code>// EBCOを使わないunique_ptr
+template &lt;class T, class D = default_delete&lt;T&gt; &gt;
+class unique_ptr
+{
+    // デリーターをメンバーとして持つ
+    deleter_type deleter ;
+
+public :
+    deleter_type &amp; get_deleter() noexcept
+    {
+        // メンバーを返す
+        return deleter ;
+    }
+
+// 略
+} ;
+</code></pre>
+
+<p>
+この実装は、deleterが空のクラスであった場合、容量的に非効率である。EBCOを使うと、以下のように書ける。
+</p>
+
+<pre><code>// EBCOを使うunique_ptr
+template &lt;class T, class D = default_delete&lt;T&gt; &gt;
+class unique_ptr : D // デリーターから派生する
+{
+public :
+    deleter_type &amp; get_deleter() noexcept
+    {
+        // 自分はデリーターから派生している
+        return *this ;
+    }
+} ;
+</code></pre>
+
+<p>
+このように、自分自身がテンプレート仮引数として与えられるデリーターから派生することで、デリーターが空クラスであった場合にも、容量効率が良くなる。
+</p>
+
+<p>
+問題は、C++11で派生を禁止できる機能が入ったことにより、ユーザー定義のデリーターは、finalである可能性がある。これは、EBCOを使っているSTL実装で問題になる。
+</p>
+
+<pre><code>// EBCOが使えないデリーター
+class custom_deleter final
+{
+    template &lt; typename Pointer &gt;
+    void operator () ( Pointer ) cosnt
+    {
+        // 実装
+    }
+} ;
+
+// 実装上の問題でill-formedになってしまう
+std::unique_ptr&lt; int, custom_deleter &gt; p ;
+</code></pre>
+
+<p>
+この問題が指摘された2011年11月30日当時、主要なSTL実装は、EBCOを多用していたので、派生不可能なクラスをテンプレート実引数として渡すと、軒並みコンパイルエラーになってしまった。
+</p>
+
+<p>
+また、std::tupleの実装も、派生による主流な実装方法では、動かない。
+</p>
+
+<p>
+ではいったいどうするのか。STLに渡す型はfinalであってはならないという要件を追加するのか。しかし、そのような要件を追加してしまうことは、明らかに邪道である。C++的ではない。finalな型も認めなければならない。
+</p>
+
+<p>
+この問題は、ある型がfinalであるかどうかを判定できるメタ関数、is_finalがあれば解決する。たとえば、以下のように書ける。
+</p>
+
+<pre><code>// is_finalがある場合
+
+// EBCO実装
+template &lt; typename D, typename = void &gt;
+class deleter_holder : public D
+{
+public :
+    D &amp; get_deleter() noexcept
+    {
+        return *this ;
+    }
+
+// コンストラクターなど
+} ;
+
+// 非EBCO実装
+template &lt; typename D &gt;
+class deleter_holder&lt; D, std::enable_if_t&lt; is_final&lt;D&gt; &gt;
+{
+    D d ;
+public :
+    D &amp; get_deleter() noexcept
+    {
+        return d ;
+    }
+
+// コンストラクターなど
+}
+
+template &lt; typename T, typename D = std::default_deleter &gt;
+class unique_ptr : public deleter_holder&lt; D &gt;
+{
+
+} ;
+</code></pre>
+
+<p>
+このように、簡単なメタプログラミングで対応できる。is_finalのようなコンパイラーマジックが標準化されない場合、ライブラリー実装の移植性がなくなるので、is_finalのようなメタ関数を標準化すべきである
+</p>
+
+<p>
+論文の修正案も、is_finalを規格に付け加えるものとなっている。
+</p>
+
+<p>
+2132. std::function ambiguity
+</p>
+
+<p>
+以下のコードは、オーバーロード解決が曖昧となる。
+</p>
+
+<pre><code>// オーバーロード解決が曖昧となる例
+#include &lt;functional&gt;
+
+void f(std::function&lt;void()&gt;) {}
+void f(std::function&lt;void(int)&gt;) {}
+
+int main() {
+  f([]{});
+  f([](int){});
+}
+</code></pre>
+
+<p>
+fの呼び出しが曖昧な理由は、std::functionの変換関数が、どのようなstd::functionの特殊化であっても、同一だからである。この問題を解決するには、std::functionの変換関数に与えられた実引数の型が、実際にstd::functionのテンプレート実引数の引数に対して呼び出し可能であるかどうかを調べ、もし呼び出し可能ではない場合、SFINAEなどの技法を使い、候補関数に現れないというメタプログラミングが必要になる。
+</p>
+
+<p>
+これを実装するにあたり、呼び出し可能かどうかを調べるには、result_ofだけで十分なのだが、意図を明確にするために、is_callableというメタ関数があったほうがいいのではないかという議論もされたようだ。
+</p>
+
+<p>
+最終的には、is_callableは追加しないという方向に向かっている。
+</p>
+
+<p>
+2263. Comparing iterators and allocator pointers with different const-character
+</p>
+
+<p>
+core issue 179という、大昔の問題が、掘り返されている。
+</p>
+
+<p>
+問題は、iterator とconst_iteratorは比較可能であるべきだが、保証する文面が見当たらない。また、pointerとconst_pointerも比較可能であるべきだが、やはり文面による保証が見当たらない、というもの。
+</p>
+
+<p>
+コレに対する文面の追加。
+</p>
+
+<p>
+その他、些細な文面上の誤りの修正が多い。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3931.html">N3931: Filesystem Study Group (SG3) Issues Resolved Directly In Issquah</a>
+</p>
+
+<p>
+Filesystemのドラフトの文面の小粒な修正集。重箱の隅をつつくような文面の訂正が多い。
+</p>
+
+<p>
+例えば、現行文面では、ファイル名の長さは、実装依存(implementation dependent)となっているが、規格ではそのような用語の意味を定義していない。規格で定義している用語には、実装定義(implementation defined)とオペレーティングシステム依存(operating system dependent)がある。ファイル名の長さは、明らかにOS依存であるので、OS依存という用語を使うようにする。などなど。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3932.htm">N3932: Variable Templates For Type Traits (Revision 1)</a>
+</h3>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3854.htm">N3854</a>で提案された、従来の、値を返すtraitsに対する、変数テンプレートのラッパーの、文面案。
+</p>
+
+<p>
+たとえば、
+</p>
+
+<pre><code>constexpr bool b = std::is_same&lt;T, U&gt;::value ;</code></pre>
+
+<p>
+というコードは、この提案を使えば、
+</p>
+
+<pre><code>constexpr bool b = std::is_same_v&lt;T, U&gt; ;</code></pre>
+
+<p>
+と書くことができる。スコープ解決演算子を使う必要がないので、簡潔に書くことができる。命名法則は、従来のtraitsに、_vを追加した名前になる。
+</p>
+
+<p>
+実装はとても簡単で、以下の通り。
+</p>
+
+<pre><code>// N3932の実装例
+template &lt; typename T, typename U &gt;
+constexpr bool is_same_v = is_same&lt;T, U&gt;::value ;
+</code></pre>
+
+<p>
+すでに、型を返すtraitsに対する同様のラッパーは、エイリアステンプレートを使ったものが、C++14に追加されている。
+</p>
+
+<pre><code>using pointer_type = std::add_pointer&lt;T&gt;::type ;</code></pre>
+
+<p>
+というコードが、
+</p>
+
+<pre><code>using pointer_type = std::add_pointer_t&lt;T&gt; ;</code></pre>
+
+<p>
+このように書ける。コレも、スコープ解決演算子を使う手間を省ける。
+</p>
+
+<p>
+この実装も、機械的に簡単だ。
+</p>
+
+<pre><code>// 実装例
+template &lt; typename T &gt;
+using add_pointer_t = add_pointer&lt;T&gt;::type ;
+</code></pre>
+
+<h3>
+N3933, N3934, N3935
+</h3>
+
+<p>
+欠
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/prot/14882fdis/n3936.pdf">[デブいPDF] N3936: Working Draft, Standard for Programming Language C++</a>
+</h3>
+
+<p>
+現在の最新のC++ドラフト。
+</p>
+
+<p>
+本物のC++プログラマーならば、常に最新のドラフトを参照しながらコードを書くはずである。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/prot/14882fdis/n3937.pdf">[もひとつデブいPDF] N3937: Programming Languages — C++</a>
+</h3>
+
+<p>
+内容はN3936とほぼ同じだが。ISO規格として発行する際の体裁が整えられているドラフト。いよいよC++14発行の日が近い。何事もなければ、今年末に発行される。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3938.html">N3938: Editor's Report</a>
+</h3>
+
+<p>
+ドラフト編集者の報告書。前回のドラフトN3797からの変更点を記載している。今回は、git logがついている。
+</p>
+
+<p>
+ちなみに、C++ドラフトは、現在GitHubで、ソースコード(tex)が公開されている。
+</p>
+
+<p>
+<a href="https://github.com/cplusplus/draft">cplusplus/draft</a>
+</p>
+
+<p>
+簡単な誤字脱字の修正程度ならば、pull requestも受け付けている。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3939.html">N3939: Extending make_shared to Support Arrays, Revision 2</a>
+</h3>
+
+<p>
+std::shared_ptrをネイティブに配列に対応させる提案論文の改訂版。わざわざカスタムデリーターを指定子なくても、shared_ptr&lt;T[]&gt;を認識して、自動的にdelete[]を使ってくれるようになる。
+</p>
+
+<p>
+前回の<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3870.html">N3870</a>からの変更点は、単一のT &amp;&amp;を受け取るmake_sharedが、議論の結果、取り除かれた。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事は恒例のドワンゴ勤務中に書かれた。
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
