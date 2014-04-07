@@ -1,0 +1,202 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-02-post-Issaquah-mailingsのレビュー: N3940-N3949 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合の宛先：<br>
+郵便番号：165-0027<br>
+住所：東京都中野区野方5-30-13 ヴィラアテネ401<br>
+宛名：江添亮
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/04/2014-02-post-issaquah-mailings-n3940.html">2014-02-post-Issaquah-mailingsのレビュー: N3940-N3949</a></h1>
+
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3940.html">N3940: Draft Filesystem Technical Specification</a>
+</h3>
+
+<p>
+ファイルやディレクトリの操作を行う標準ライブラリ、FilesystemのTS(Technical Specification)のドラフト
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3941.html">N3941: Filesystem Study Group (SG3) Active Issues List</a>
+</h3>
+
+<p>
+現在、標準化委員会で議論されている、Filesystemの文面に対する問題集
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3942.html">N3942: Filesystem Study Group (SG3) Closed Issues List</a>
+</h3>
+
+<p>
+かつてFilesystem active issuesリストに載っていたが、解決されたか、対応するコンセンサスが得られないと判断されたため閉じられた問題集。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3943.html">N3943: Filesystem Study Group (SG3) Defect Report List</a>
+</h3>
+
+<p>
+かつてFilesystem active issuesリストに載っていたが、実は問題ではなかったと判断された問題集。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3947.html">3947: URI - Proposed Wording (Revision 4)</a>
+</h3>
+
+<p>
+URIを処理するための標準ライブラリの文面案。URIをパースしたり、構築したりといったライブラリである。これは規格ではなくて、TSである。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3948.htm">N3948: Feature-testing for C++ Technical Specifications</a>
+</h3>
+
+<p>
+C++のTS用の、機能テスト用の標準マクロライブラリ。
+</p>
+
+<p>
+理想では、あるC++実装は、C++03, C++11, C++14を、完全に規格準拠にサポートしているか、していないかの二択であるべきである。しかし現実では、C++コンパイラーは、個々の機能を独立して実験的に実装を進めている。また、ドラフト時の挙動と、正式な規格の挙動が異なることもある。
+</p>
+
+<p>
+そして、現実では、複数のコンパイラーや、複数のバージョンのコンパイラー間で移植性のあるコードを書かなければならないことがよくある。その場合に、遺憾ながら多用されているのが、Cプリプロセッサーだ。
+</p>
+
+<pre><code>// よく使われているパターン
+
+// コンパイラーに合わせてマクロを定義しておく
+
+#if HAS_FEATURE_X
+// 機能Xを使った実装
+#else
+// 機能Xを使わない実装
+#endif
+</code></pre>
+
+<p>
+この論文は、そのような機能テスト用の標準のマクロの、TSに提案されている機能用のものを提案している
+</p>
+
+<p>
+必要悪だろうか。いやしかし・・・
+</p>
+
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3949.pdf">[せっかくいい気分でレビューしていたのをぶち壊すPDF] N3949: Scoped Resource - Generic RAII Wrapper for the Standard Library</a>
+</h3>
+
+<p>
+汎用RAII(Resource Acquisition is Initialization)ラッパーライブラリの提案の改定論文。
+</p>
+
+<p>
+指定したリソースを指定したデリーターに実引数として渡して実行する、unique_resource_t（実際に使用する際には、unique_resource関数テンプレートを利用する）、スコープを抜けた時にデリーターを実行してくれる、scoped_guard_t（とscoped_guard関数テンプレート）がある。
+</p>
+
+<pre><code>// 例
+int main()
+{
+    {
+        auto ur = std::unique_resource( new int, []( auto ptr ) { delete ptr ; } ) ;
+    }
+
+    {
+        auto ur = std::scope_guard( []{ std::cout &lt;&lt; u8"抜けたよ" &lt;&lt; '\n' ;}
+    }
+}
+</code></pre>
+
+<p>
+unique_ptrは、ポインター用に特化していて、deleteをするデリーターがデフォルトで動く。unique_resourceは、もっと汎用的な設計になっている。
+</p>
+
+<p>
+前回の提案からの変更点としては、
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。ところで、ドワンゴには4月から<a href="http://kmizu.hatenablog.com/entry/2014/03/29/083841">Scalaエヴァンジェリスト</a>がいる。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
