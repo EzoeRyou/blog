@@ -1,0 +1,519 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-02 post Issaquah mailingsのレビュー: N3950-N3966
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合の宛先：<br>
+郵便番号：165-0027<br>
+住所：東京都中野区野方5-30-13 ヴィラアテネ401<br>
+宛名：江添亮
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.com/2014/04/2014-02-post-issaquah-mailings-n3950.html">2014-02 post Issaquah mailingsのレビュー: N3950-N3966</a></h1>
+
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/#mailing2014-03">Post Issaquah論文集</a>のレビューも、これが最後。長かった。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3950.html">N3950: Defaulted comparison operators</a>
+</h3>
+
+<p>
+かつて、Alexander Stepanovは、regular typeを提唱した。regular型は、自動的にコピー、代入、比較できるべきであると。
+</p>
+
+<p>
+さて、C++では、コピーと代入は自動的にできるが、比較だけは自動的に出来ない。
+</p>
+
+<pre><code>
+class X
+{
+    int a ;
+    int b ;
+    int c ;
+    int d ;
+} ;
+
+X a, b ;
+a == b ; // ill-formed. 呼び出し可能なoperator ==は宣言されていない。
+a &lt; b ; // ill-formed. 呼び出し可能なoperator &lt;は宣言されていない
+</code></pre>
+
+<p>
+さて、このクラスXの比較を実装してみよう。
+</p>
+
+<pre><code>
+bool operator == ( X const &amp; l, X const &amp; r )
+{
+    return 
+        l.a == r.a &amp;&amp;
+        l.b == r.b &amp;&amp;
+        l.c == r.c &amp;&amp;
+        l.d == r.d ;
+}
+
+bool operator &lt; ( X const &amp; l, X const &amp; r )
+{
+    return
+        l.a &lt; r.a &amp;&amp; l.a != r.a &amp;&amp;
+        l.b &lt; r.b &amp;&amp; l.b != r.b &amp;&amp;
+        l.c &lt; r.c &amp;&amp; l.c != r.c &amp;&amp;
+        l.d &lt; r.d &amp;&amp; l.d != r.d ;
+}
+</code></pre>
+
+<p>
+なんと言う機械的なコードだ。このようなコードは、人間が書くべきコードではない。特に比較演算子はひどい。
+</p>
+
+<p>
+このような、基本クラスや非staticデータメンバーごとに比較は、自動生成できる。したがって、この論文は、C++に、デフォルトの比較演算子の定義を提案している。
+</p>
+
+<p>
+過去のコードの挙動を変えないために、デフォルトの定義を使うには、明示的なdefault化を行わなければならない。
+</p>
+
+<pre><code>
+struct Thing {
+    int a, b, c;
+    std::string d;
+
+    bool operator==(const Thing &amp;) const = default;
+    bool operator&lt;(const Thing &amp;) const = default;
+
+    bool operator!=(const Thing &amp;) const = default; 
+
+    bool operator&gt;=(const Thing &amp;) const = default; 
+    bool operator&gt;(const Thing &amp;) const = default; 
+    bool operator&lt;=(const Thing &amp;) const = default;
+};
+</code></pre>
+
+<p>
+すなわち、この提案されている機能は、opt-inである。opt-inであるために、既存のコードに影響を及ぼすことはない。
+</p>
+
+<p>
+比較の順序は、基本クラスが書かれている順番に比較され、非staticデータメンバーが、宣言されている順番に比較される。
+</p>
+
+<pre><code>
+struct D : A, B, C
+{
+    int a ;
+    int b ;
+    int c ;
+} ;
+</code></pre>
+
+<p>
+この例では、比較の順番は、A, B, C, a, b, cである。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3951.pdf">[理解に苦しむPDF] N3951: C++ type reflection via variadic template expansion</a>
+</h3>
+
+<p>
+これはどこまで本気なのか理解に苦しむ提案論文。
+</p>
+
+<p>
+この論文で提案されている機能は、コンパイル時リフレクションだ。Variadic Templatesのパック展開を流用して、パック展開できる部分に、型のメンバーを展開できる機能を追加する提案となっている。
+</p>
+
+<p>
+この提案は、パック展開を流用している。追加する文法は二つ。
+</p>
+
+<ol>
+<li>
+typename&lt;T&gt;...は、T型の名前と、T型のメンバーの識別子に展開される。0個目の展開結果にT型の名前、n個目の展開にn個目のメンバーの識別子の文字列が、UTF-8エンコードされたconst char *で展開される。
+</li>
+
+<li>
+typedef&lt;T&gt; ...は、T型のポインターと、T型のメンバーへのポインターに展開される。0個目の展開結果にTへのポインター型のnullポインター、n個目の展開にn個目のメンバーへのポインターが値として展開される。ただし、constexprメンバーは、値として展開される。
+</li>
+</ol>
+
+<pre><code>// 例
+namespace ns
+{
+
+struct X
+{
+    int x ;
+    int y ;
+} ;
+
+}
+
+// { "ns::X", "x", "y"}と展開される
+std::vector&lt;std::string&gt; identifiers{ typename&lt;ns::X&gt;... } ;
+
+// { static_cast&lt; ns::X * &gt;(nullptr), &amp;ns::x, &amp;ns::y }と展開される
+auto values = std::make_tuple( typedef&lt;ns::X&gt;... ) ;
+</code></pre>
+
+<p>
+新しいキーワードを必要としないし、ASTを弄くる必要もない。極めて質素な機能となっている。
+</p>
+
+<p>
+利用例としては、Serializationやdelegatesやgetter/setterの生成、その他が挙げられている。
+</p>
+
+<p>
+この論文では提案していないが、この機能を土台にしたサポート用のtratis(is_virtual_baseとかis_protected)などがあればよいと言及している。
+</p>
+
+<p>
+また、メンバーを全部列挙するのはパフォーマンス的にも厄介なので、たとえばコンパイル時のフィルターがあれば良いともしている。つまり、typename &lt; T requires U&gt;という形で、Uというboolを返すconstexpr関数で、型に対するフィルターができるようにするなどという機能も議論されている。
+</p>
+
+<p>
+また、文字列のエンコードはUTF-8だと明言しているのも興味深いところだ。
+</p>
+
+<p>
+当初の提案では、基本クラスやネストされたクラスとその中身や、クラス定義の中のtypedefやenumとその中身まで含めたあらゆる情報を列挙しようというものだったらしいが、それはカオスになるとのことで、いまのレベルに抑えられたらしい。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3883.html">N3883</a>の壮大な提案と比べると、だいぶ現実的で最小限の質素な提案だ。ただ、これを扱うには、やたらと面倒なテンプレートメタプログラミングの技法が必要になるため、あまり
+</p>
+
+<p>
+それにしても、typedef&lt;T&gt;...は、その質素な見た目とは裏腹に、強力すぎて難しい気がする。
+</p>
+
+<p>
+ただ、筆者にとっては、N3883を見たときのような心躍るほどの衝撃はない。あれば便利な機能という程度の印象だ。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3952.html">N3952: C++ Standard Core Language Active Issues</a>
+</h3>
+
+<p>
+コア言語によせられて、現在議論されている問題集
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3953.html">N3953: C++ Standard Core Language Defect Reports and Accepted Issues</a>
+</h3>
+
+<p>
+active issuesの中で、議論の結果、実際に問題であると判明した問題集と、その対応の一覧集。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3954.html">N3954: C++ Standard Core Language Closed Issues</a>
+</h3>
+
+<p>
+一度はactive issuesに載ったものの、議論の結果、実は問題ではなかったと判断され、取下げられた問題集の墓場。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3955.pdf">[PDF邪魔すぎる] N3955: Group Member Specifiers</a>
+</h3>
+
+<p>
+グループメンバー指定子(Group member Specifiers)の提案。
+</p>
+
+<p>
+virtualとかstaticなどのメンバー指定子(member specifiers)は、しばしば連続して複数のメンバーに指定子なければならない。例えば、以下のようなコードになる。
+</p>
+
+<pre><code>// 冗長なコード
+class foo : public bar
+{
+public:
+    explicit foo(int);
+    explicit foo(float);
+    explicit foo(double);
+
+protected:
+    virtual T f() const override ;
+    virtual U g() const override ;
+    virtual V h() const override ;
+    virtual W i() const override ;
+
+private :
+    static constexpr int X = 123 ;
+    static constexpr float Y = 42.0f ;
+    static constexpr double Z = 123.0 ;
+} ;
+</code></pre>
+
+<p>
+ここでいう、explicitとかvirtualなどは、極めて冗長である。これをひとつにまとめられないか。
+</p>
+
+<p>
+N3955提案では、アクセス指定子にメンバー指定子を記述する文法を新たに追加することで、メンバー指定子をグループ化することができる。
+</p>
+
+<pre><code>// N3955提案
+class foo : public bar
+{
+public explicit :
+    foo(int) ;
+    foo(float) ;
+    foo(double) ;
+
+protected virtual const override :
+    T f() ;
+    U g() ;
+    V h() ;
+    W i() ;
+
+private static constexpr :
+    int X = 123 ;
+    float Y = 42.0f ;
+    double Z = 123.0 ;
+} ;
+</code></pre>
+
+<p>
+これはどうだろうか。筆者には、机上の空論のように見える。教科書に載せるような短いサンプルコードはともかく、現実のコード（コメントやCプリプロセッサーなども含む）は、よりわかりにくくなってしまうような気がするのだが。
+</p>
+
+<p>
+どうやら、文法上、指定子なら何でも指定できるようで、以下のようなコードさえ通ってしまう。
+</p>
+
+<pre><code>// N3955提案
+struct X
+{
+public typedef :
+    int int_type ;
+    float float_type ;
+    double double_type ;
+} ;
+</code></pre>
+
+<p>
+文法上、以下のコードも通るはずだ。
+</p>
+
+<pre><code>
+struct X
+{
+public int :
+    x = 0 ;
+    y = 0 ;
+    z = 0 ;
+} ;
+</code></pre>
+
+<p>
+たしかに、冗長性は改善されるものの、うっかり間違いを増やすような気がするのだが。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3956.pdf">[とても見づらいPDF] N3956: ISO/IEC CD 14882, C++ 2014 Responses to National Body Comments</a>
+</h3>
+
+<p>
+NBコメントへの返答。特に目新しい回答はないようだ。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3957.html">N3957: C++ Standard Evolution Active Issues List</a>
+</h3>
+
+<p>
+Evolution、つまり、C++に提案されている新機能の文面案に対して議論されている問題集
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3958.html">N3958: C++ Standard Evolution Completed Issues List</a>
+</h3>
+
+<p>
+上記の問題集にかつて載っていた問題で、対応が完了した問題集。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3959.html">N3959: C++ Standard Evolution Closed Issues List</a>
+</h3>
+
+<p>
+議論の結果、実は問題ではなかったとか、重複であったと判断された問題集。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3960.pdf">[うんざりするほどPDF] N3960: Working Draft, Technical Specification for C++ Extensions for Parallelism</a>
+</h3>
+
+<p>
+C++に並列実行を付け加えるTS(Technical Specification)のドラフト。&lt;algorithm&gt;に実行ポリシーを指定して、並列実行やベクトル実行を行える機能を定義している。
+</p>
+
+<p>
+規格ではなくてTSなので、これを叩き台に、いずれはC++に取り入れられる合意が得られるような設計になる、かもしれない。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3961.htm">[不適切なtitle要素のHTML] N3961: A proposal to add shared_mutex (untimed)</a>
+</h3>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3891.htm">N3891</a>にあるように、現行のshared_mutexは、TimeLockable requirement(try_lock_for/try_lock_until)も満たすので、実は、shared_timed_mutexと命名されるべきである。そのように改名して、そして、TimeLockableではないuntimed shared mutexを、shared_mutexとして追加する提案。
+</p>
+
+<p>
+TimeLockable要件を満たさないことにより、実装により効率的な実装をさせる余地を提供する。
+</p>
+
+<p>
+つまりは、従来のshared_mutexを、shared_timed_mutex(try_lock_for/try_lock_untilをサポート)に改名した後釜に、新しいshared_mutex(try_lock_for/try_lock_untilをサポートしない)を提供する提案だ。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3962.html">N3962: File System TS Editor's Report</a>
+</h3>
+
+<p>
+Filesystem TSのドラフト編集者の報告書。前回の文面からの変更点が記載されている。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3963.pdf">[中身もフォーマットも気に食わないPDF] N3963: Centralized Defensive-Programming Support for Narrow Contracts (Revision 4)</a>
+</h3>
+
+<p>
+防衛的プログラミングを支援すると称するCプリプロセッサーマクロによるASSERTの変種の提案。
+</p>
+
+<p>
+筆者はCプリプロセッサーマクロを使ういかなる提案にも反対の立場である。Cプリプロセッサーはいずれdeprecated扱いされなければならないのだ。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3964.pdf">[二つ続けて悲惨なPDF] N3964: Library Foundations for Asynchronous Operations, Revision 1</a>
+</h3>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3896.pdf">N3896</a>の改訂版。futureは力不足だ。コールバックこそが最もパフォーマンスがよいことを示し、その上で、futureモデルとコールバックモデルを両方サポートできる設計が必要だと主張している論文。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3965.html">N3965: Proposal for Unbounded-Precision Integer Types</a>
+</h3>
+
+<p>
+上限を定めない制度の整数型の提案。いわゆるBigIntの系譜だ。提案は、integerという演算子オーバーロードを駆使して、整数のように振る舞うクラスを提案している。
+</p>
+
+<p>
+この手のライブラリは、何度も議論に上がるのだが、どうもなかなか議論が進まない。やはり、万人を満足させる多倍長整数演算ライブラリの設計は難しいのではないだろうか。
+</p>
+
+<p>
+もちろん、そのようなC++用のライブラリは、すでに独立した実装が多数ある。しかし、任意の精度の整数演算ができる機能は、モダンなプログラミング言語には標準で備わっている機能なので、C++でも標準化されて欲しいところだ。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3966.html">N3966: Fixes for optional objects</a>
+</h3>
+
+<p>
+Issaquah会議で指摘された、optionalの文面上の問題を修正する提案。
+</p>
+
+<p>
+今週が始まってから、まだ一度もドワンゴ社内でカタンをしていないので、ドワンゴ勤務中に論文レビューがはかどってしまった。なんということだ。
+</p>
+
+<p>
+とりあえずたまっているC++論文の解説は片付いたので、今月末まで、付け焼刃的にECMA-262 Edition 5.1でも読もうかと思う。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事は、ドワンゴ社内でボードゲームをしていない暇に書かれた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
