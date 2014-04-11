@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: OpenBSD、怒りのコミット 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合の宛先：<br>
+郵便番号：165-0027<br>
+住所：東京都中野区野方5-30-13 ヴィラアテネ401<br>
+宛名：江添亮
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/04/openbsd.html">OpenBSD、怒りのコミット</a></h1>
+
+<p>
+OpenSSLのheatbeatバグの対応のため、OpenBSDはOpenSSLのheatbeatを無効にするコミットをした。ただし・・・
+</p>
+
+<blockquote>
+<p>
+<a href="http://www.openbsd.org/cgi-bin/cvsweb/src/lib/libssl/ssl/Makefile?rev=1.29;content-type=text%2Fx-cvsweb-markup">src/lib/libssl/ssl/Makefile - view - 1.29</a>
+</p>
+
+<p>
+SegglemannのRFC520 heatbeatを無効化。
+</p>
+
+<p>
+あのまともなプロトコルひとつ制定できないIETFの無能集団が、超重要なプロトコルで64Kの穴をこしらえるとか、マジであきれてものも言えねーわ。奴らはマジこの問題を本気で検証すべきだろ。なんでこんなことをしでかしたのか。こんな事態を承認した責任ある連中を全員、意思決定プロセスから取り除く必要がある。IETF、てめーは信用なんねぇ。
+</p>
+</blockquote>
+
+<p>
+このコミットは、Makefileの中で、OpenSSLでheatbeatを無効にするマクロを定義するよう、コンパイラーオプションを指定するものだ。ただし、無効にするマクロは、OPENSSL_NO_HEARTBEATSなのに、このコミットで定義されているマクロは、OPENSSL_NO_HEARTBEATだ。なんと、typoをしている。これでは何の意味もない。
+</p>
+
+<p>
+すなわち、このパッチは、実際にheatbeatが無効化されているかの確認を一切せずしてコミットされたものである。
+</p>
+
+<p>
+はて、このコミットメッセージの論法で行くと、OpenBSDはこのパッチを書いた者と、このパッチをレビューして承認した者を、OpenBSDの意思決定プロセスから取り除かれるべきだろうか。
+</p>
+
+<p>
+ちなみに、この問題は2時間後に発見されて、続くコミットで直されている。
+</p>
+
+<blockquote>
+<p>
+<a href="http://www.openbsd.org/cgi-bin/cvsweb/src/lib/libssl/ssl/Makefile?rev=1.30;content-type=text%2Fx-cvsweb-markup">src/lib/libssl/ssl/Makefile - view - 1.30</a>
+</p>
+
+<p>
+やっべ、typoだ。Matthias Schelerが発見。
+</p>
+</blockquote>
+
+<p>
+このお話の教訓としては、人は誰でも間違いを犯すということだ。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
