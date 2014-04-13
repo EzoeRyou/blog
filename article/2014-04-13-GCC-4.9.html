@@ -1,0 +1,215 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: GCC 4.9リリース
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合の宛先：<br>
+郵便番号：165-0027<br>
+住所：東京都中野区野方5-30-13 ヴィラアテネ401<br>
+宛名：江添亮
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/04/gcc-49.html">GCC 4.9リリース</a></h1>
+
+<p>
+<a href="http://gcc.gnu.org/">GCC, the GNU Compiler Collection - GNU Project - Free Software Foundation (FSF)</a>
+</p>
+
+<p>
+GCC 4.9がリリースされた。少なくとも、公式Webサイトのトップページからは、リリースされたことになっている。ただし、なぜか<a href="http://gcc.gnu.org/gcc-4.9/">リンクをたどると</a>
+</p>
+
+<p>
+<a href="http://gcc.gnu.org/gcc-4.9/changes.html">GCC 4.9 Release Series — Changes, New Features, and Fixes - GNU Project - Free Software Foundation (FSF)</a>
+</p>
+
+<p>
+GCC 4.9がリリースされた。興味深い変更点を上げると。
+</p>
+
+<p>
+大昔の、もはや保守もテストもされていないようなプラットフォームのサポートがobsolete扱いになった。もし、活発な活動が行われない場合、次のリリースでは取り除かれるそうだ。特に、Solaris 9が挙げられている。
+</p>
+
+<p>
+Clangにある、AddressSanitizerが、ARM向けにも提供されるようになった。また、ClangにもあるUndefinedBehaviorSanitizerが、GCC 4.9にも実装された。これは、規格上の未定義動作を、実行時に検出して実行時エラーにしてくれるものである。
+</p>
+
+<p>
+LTOが改良されたらしい。
+</p>
+
+<p>
+Inter-procedural optimizationが改良された。これにより、virtual関数呼び出しをしなくてもいい文脈がよりよく判定できるようになったようだ。
+</p>
+
+<p>
+プロファイルによる最適化にも改良があったようだ。
+</p>
+
+<p>
+-fdiagnostics-colorオプションが追加され、Clangにもある、コンパイラーの出力する警告とエラーのメッセージに色を付ける機能が実装された。
+</p>
+
+<p>
+C++に目を向けると、C++14の新機能が実装されつつある。C++14の新機能はまだ実験段階で、、-std=c++1yオプションを与えることで、有効にできる。
+</p>
+
+<p>
+GCC 4.9では、通常の関数の戻り値の型推定機能が実装された。
+</p>
+
+<pre><code>// 戻り値の型はint
+auto f(){ return 0 ; }
+</code></pre>
+
+<p>
+もちろん、decltype(auto)も実装された。
+</p>
+
+<pre><code>// decltype(auto)の例
+int &amp; f() ;
+
+auto x = f() ; // int
+decltype(auto) y = f() ; // int &amp;
+</code></pre>
+
+<p>
+規格上、autoとdecltype(auto)は、ともにplaceholder typeと呼ばれている。autoは、初期化子から関数呼び出しのtemplate argument deductionのルールを使って、型を推定する。そのため、上記の例では、xの型はintになる。
+</p>
+
+<p>
+一方、関数の戻り値の型推定に伴って追加された新しいplaceholder typeであるdecltype(auto)は、あたかも初期化子の式をdecltype( 式 )の中にいれたかのように振る舞う。つまり、この場合はdecltype(f())と同じように振る舞う。したがって、yの型はint &amp;になる。
+</p>
+
+<p>
+GCC 4.9では、lambda capture initializerが実装された。
+</p>
+
+<pre><code>// lambda capture initializerの例
+auto f = [ x = 42 ](){ } ;
+<code></pre>
+
+<p>
+これにより、ムーブコンストラクターを呼び出すコピーキャプチャもできるようになった。
+</p>
+
+<p>
+GCC 4.9では、C++14に提案されているruntime sized arrayをサポートするようになった。この結果、実行時サイズ配列がラムダでキャプチャーできるようになった。
+</p>
+
+<pre><code>// 例
+void f( std::size_t size )
+{
+    int a[size] ;
+    [&amp;a](){} ;
+}
+</code></pre>
+
+<p>
+GCC 4.9は、deprecated attributeをサポートした。deprecated attributeに記述できる文字列リテラルは、コンパイラーの警告メッセージに含まれる実装となっている。
+</p>
+
+<pre><code>// deprecated attributeの例
+[[ deprecated ]] void foo() ;
+
+
+[[ deprecated("bar(int) is deprecated. Use bar(bool) instead.") ]] void bar( int use_super_fast_algorithm ) ;
+void bar( bool use_super_fast_algorithm ) ;
+
+int main()
+{
+    foo() ;
+    bar( 1 ) ;
+}
+</code></pre>
+
+<p>
+GCC 4.9では、数値区切り(digit separator)をサポートした。
+</p>
+
+<pre><code>// digit separatorの例
+int i = 123456789 ;
+int j = 123'456'789 ;
+int k = 0x10'000 ;
+
+// 区切りは1文字以上なら何文字でもよい
+int l = 1'22'333'4444'55555 ;
+</code></pre>
+
+<p>
+GCC 4.9では、ジェネリックラムダ、あるいはポリモーフィックラムダと呼ばれているC++14提案を実装した
+</p>
+
+<pre><code>// generic lambda
+int main()
+{
+    auto f = []( auto x ) { } ;
+    f( 0 ) ;
+    f( 0.0 ) ;
+    f( "hello" ) ;
+}
+</code></pre>
+
+<p>
+その他、libstdc++も、C++11の標準ライブラリをサポートしつつあるようだ。
+</p>
+
+
+
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
