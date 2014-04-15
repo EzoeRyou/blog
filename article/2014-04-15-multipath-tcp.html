@@ -1,0 +1,190 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: Multipath TCPについて 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合の宛先：<br>
+郵便番号：165-0027<br>
+住所：東京都中野区野方5-30-13 ヴィラアテネ401<br>
+宛名：江添亮
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/04/multipath-tcp.html">Multipath TCPについて</a></h1>
+
+
+
+<p>
+Multipath TCPとは、複数の経路を扱うためのTCP拡張である。実は、以前、<a href="http://cpplover.blogspot.jp/2013/04/multipath-tcplinux.html">本の虫: MultiPath TCPのLinuxカーネル実装</a>という記事で、その実装デモを紹介している。
+</p>
+
+<p>
+従来のTCPは、IPとの分離ができない。TCPヘッダーの中には、ひとつのIPアドレスとポートがある。経路ごとにIPアドレスが割り振られるので、経路を変えるには、別のTCPコネクションを貼り直さなければならない。
+</p>
+
+<p>
+しかし、複数の通信経路を持つという環境は、もはや珍しいものでも何でもなくなっている。たとえば、多くのラップトップにはEthernetとWiFiの二つの経路があるし、スマートフォンにも、WiFiと3G/4Gという複数の経路がある。特にスマートフォンの場合、経路が使えるかどうかが頻繁に切り替わる。
+</p>
+
+<p>
+過去に、TCPで複数のIPアドレスを扱う拡張はいくつも出されたが、いずれも、IPアドレスを隠すという点で、非効率的である。
+</p>
+
+<p>
+複数の経路を直接扱えれば、パフォーマンス的にも、冗長性的にも、利点がある。
+</p>
+
+<p>
+実は、トランスポート層で、複数のIPアドレスを扱うプロトコルは、すでに設計されている。SCTPだ。
+</p>
+
+<p>
+SCTPは単に複数のIPアドレスを使えるのみならず、ストリーム単位を混ぜあわせて送信し、受信側でストリーム単位に分解できたり、送信バイト数を通知して、全部受信するまで待機できたりと、従来ならアプリケーション層でやっていたことが、トランスポート層で面倒を見てくれるので、とても便利なのだ。
+</p>
+
+<p>
+問題は、SCTPのその他の利点は、とてもニッチな分野でしか需要がない。古い歴史を持つTCPには様々な問題があるとはいえ、既存のTCPからの移行コストを支払ってまで置き換えるほどの利点ではない。
+</p>
+
+<p>
+それに、既存のほとんどのルーターが、SCTPパケットを、単に破棄してしまう。卵と鶏の問題と同じで、SCTPの利用者がいないので、ルーターベンダーはSCTPをサポートしない。ルーターがSCTPをサポートしていないので、開発者はSCTPを使えない。
+</p>
+
+<p>
+必要とされているのは、既存のTCPパケットとして流せて、既存の機器でも問題なく動く、TCPの拡張だ。それが、Multipath TCPである。
+</p>
+
+<p>
+MTCPは、アプリケーションからは、従来のsocketによるTCPと同じように扱える。ただし、アプリケーションが従来のTCPと同じだと信じているものは、実はMTCPによるレイヤーを通した仮想的なもので、本物のTCPコネクションは、MTCPによって管理されている。MTCPは複数の経路をまとめて管理し、アプリケーション側には、従来のTCPのようにみせかける。
+</p>
+
+<p>
+MTCPの実装には、TCPオプションを使う。しかし、これは現実的に問題になる。
+</p>
+
+<p>
+今日のインターネットは、当初のインターネットとは大きく違う。経路上に、実に多数の、中間箱(middlebox)が存在する。ルーターやスイッチだけではなく、ファイヤーウォールやらNATやらロードバランサーやらDeep Packet Inspectionやらだ。多くの中間箱が、TCPパケットを書き換える。
+</p>
+
+<p>
+そもそも、モダンなNICは、効率化のために、勝手にTCPパケットを分割する。この際、TCPヘッダーは、単にコピーされてしまう。そのため、MTCPがTCPヘッダー内で予約して使うデータシーケンス番号が、コピーされてしまう。
+</p>
+
+<p>
+MTCPシーケンス番号のコピーは、従来のTCPシーケンス番号の範囲のマッピングにより対処した・・・つもりであった。しかし、これでも問題があった。なんと、多くのルーターが、シーケンス番号を書き換えているのだ。背景には、最初のシーケンス番号をランダムに開始しない脆弱性ある実装に対処するため、ルーター側でシーケンス番号を振り直すということが、広く行われているようなのだ。このため、マッピングを絶対的ではなく、相対的にすることで、対処した。
+</p>
+
+<p>
+さらに、active FTPなど、複数のTCPコネクションを貼り、ASCIIでIPアドレスをエンコードするような特定のプロトコルに対し、中身を書き換える（すなわち長さも変わる）などの改変を行うルーターすら存在する。
+</p>
+
+<p>
+Linuxカーネルに実装されたMTCPでは、チェックサムを使うことで、データの改変を検知し、従来のTCPにフォールバックする実装になっている。
+</p>
+
+<p>
+研究者がインターネット上の中間箱(middlebox)について調査を行ったところ、どうやら今日のインターネットでは、TCPパケットのあらゆる部分は、中間箱により改変される可能性があるということが判明した。これは、将来のTCP拡張を設計する上で考慮に入れなければならないことである。TCPヘッダーの中身のあらゆる箇所は、改変されないという保証がないのだ。
+</p>
+
+<p>
+さて、利用例であるが、Wifiと3G/4Gなどの複数の経路を持つスマートフォンやデータセンターが挙げられている。
+</p>
+
+<p>
+スマートフォンは、短期間で有効、無効が切り替わる複数の経路でも、TCPコネクションを維持するために使われる。
+</p>
+
+<p>
+今日、データセンターでは、複数の経路を使うことは当然になっている。ただしその実装は、複数の経路をロードバランサーなどでまとめて、ラウンドロビンで複数の経路にパケットを割り振り、あたかもひとつのMACアドレス、ひとつのIPアドレスを持つように見せかけている。これは非効率的である。また、通常の経路と、バックアップ用の待機経路を持って、冗長性を確保するという利用方法もある。MTCPならば、複数の経路がそれぞれ異なるMACアドレス、IPアドレスを持てる。直接MTCPが管理するので、パフォーマンス目的でも、冗長性目的でも、効率的に管理できる。
+</p>
+
+<p>
+Multipath TCPは、従来のTCPパケットのまま経路上を流せるということと、安全のために従来のTCPへのフォールバックがある、既存のアプリケーションの対応が必要ないという点で、移行しやすい拡張だと言える。
+</p>
+
+<p>
+現在、Linuxカーネルで実装されていて、FreeBSDでも実装する計画がある。
+</p>
+
+<p>
+さて、流行るだろうか。理想主義者の筆者としては、むしろ抜本的な解決方法として、SCTPのような全く新しいプロトコルが主流になって欲しいのだが。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事は、たまたま、ドワンゴ社内にCOMMUNICATIONS OF THE ACM 04/2014 VOL. 57 NO.04が転がっていたので、興味を引いたMultipath TCPについての論文を読んで、勤務時間中に書いた。
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
