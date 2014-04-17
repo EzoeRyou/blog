@@ -1,0 +1,249 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: JavaScriptの自動セミコロン挿入 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合の宛先：<br>
+郵便番号：165-0027<br>
+住所：東京都中野区野方5-30-13 ヴィラアテネ401<br>
+宛名：江添亮
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/04/javascript.html">JavaScriptの自動セミコロン挿入</a></h1>
+
+
+<p>
+JavaScriptでは、多くの文は、セミコロンという終端記号を明示的に記述して、文の終わりを示す。
+</p>
+
+<pre><code>var i = 0 ;
+++i ;
+--i ;
+</code></pre>
+
+<p>
+しかし、JavaScriptでは、一部の文脈で、セミコロンの省略が許されている。あたかも、セミコロンが自動的に挿入されたかのように振る舞う。これを、自動セミコロン挿入(Automatic Semicolon Insertion)
+</p>
+
+<p>
+ECMA-262 Edition 5.1 §7.9が規定する、自動セミコロン挿入の定義を、本記事では解説する。
+</p>
+
+<p>
+まず、三つの基本的なルールがある。
+</p>
+
+<ul>
+<li>
+<p>
+プログラムを左から右にパースした時に、文法上許されないトークン(反則トークン, offending token)があった場合、以下の二つの条件のうちどちらかひとつ、もしくは両方を満たせば、セミコロンが自動的に挿入される。
+</p>
+
+<ul>
+<li>
+<p>
+反則トークンと前のトークンが、ひとつ以上の行終端子で分かたれている場合
+</p>
+
+<pre><code>// 例
+var x
+x
+x
+x
+</code></pre>
+
+<p>
+これは、以下のようにセミコロンが自動挿入される。
+</p>
+
+<pre><code>// 自動セミコロン挿入後
+var x ;
+x ;
+x ;
+x ;
+</code></pre>
+
+
+</li>
+<li>
+<p>
+反則トークンが}である場合
+</p>
+
+<pre><code>// 例
+function f(){ var x }
+</code></pre>
+
+
+<pre><code>// 自動セミコロン挿入後
+function f(){ var x ; }
+</code></pre>
+</li>
+</ul>
+
+</li>
+
+<li>
+<p>
+プログラムを左から右にパースした時に、トークン列の最後に到達したが、正しい文法を構築できない場合、トークン列の最後にセミコロンが自動的に挿入される。
+</p>
+
+<pre><code>// 例
+var x
+</code></pre>
+
+<pre><code>// 自動セミコロン挿入後
+var x ;
+</code></pre>
+</li>
+
+<li>
+<p>
+インクリメント、デクリメント、continue、break, return, throwの間で、行終端子が許されていない場所に行終端子がある場合、セミコロンが自動的に挿入される。
+</p>
+
+<pre><code>LeftHandSideExpression [行終端子不許可] ++
+LeftHandSideExpression [行終端子不許可] --
+continue [行終端子不許可] Identifier ;
+break [行終端子不許可] Identifier ;
+return [行終端子不許可] Expression ;
+throw [行終端子不許可] Expression ;
+</code></pre>
+</li>
+
+</ul>
+
+<p>
+最後のルールは、たとえば以下のようになる。
+</p>
+
+<pre><code>var i = 0 ;
+
+i // 自動セミコロン挿入
+++ ; // 文法エラー
+i // 自動セミコロン挿入
+-- ; // 文法エラー
+
+function f()
+{
+    return // 自動セミコロン挿入、undefinedが返される。
+    {
+    // JSON的な何か
+    } ;
+}
+</code></pre>
+
+<p>
+ただし、自動挿入したセミコロンが空文に解釈される場合と、for文のヘッダーの中では、自動セミコロン挿入は行われない。
+</p>
+
+<pre><code>// 空文に解釈される場合
+if( cond )
+else
+</code></pre>
+
+<p>
+これは、もし自動セミコロン挿入が行われるとするならば、以下のようになる。
+</p>
+
+<pre><code>// 空文に解釈される場合
+if( cond ) ;
+else ;
+</code></pre>
+
+<p>
+このセミコロン挿入は、どちらも空文となるので、自動セミコロン挿入は行われない。
+</p>
+
+<p>
+for文のヘッダーとは、for ( ... ; ... ; ... )のことだ。これにも自動セミコロン挿入は行われない。
+</p>
+
+
+<p>
+さて、なぜ自動セミコロン挿入などという規則が存在するのか。思うに、ECMAScriptというのは、規格があって、しかる後にJavaScriptとして実装された言語でではない。JavaScriptという実装だけが先行して、あとからデファクトスタンダードとなった挙動を、ECMAScriptとして追認した形なのだ。したがって、既存の実装の挙動を、なるべく正確に規格に落としこんでいる。ECMA-262 Edition 5.1は、既存の実装の挙動を規格に落としこむという点で、非常にいい仕事をしたと思う。文面は読みやすい。JavaScriptは、C++より落とし穴が多い言語であるが、ECMA-262 Edition 5.1で、だいぶ救われている。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事は、ドワンゴで最も怠惰な社員である筆者が、出社早々To Court The Kingで遊んだあとに、<a href="http://cpplover.blogspot.jp/2014/04/blog-post_14.html">超チューニング祭</a>に向けて準備をするふりをして書いた。
+</p>
+
+<p>
+そういえば、昨日、珍しく時間の指定されて参加する必要のある社内会議があったので、予定時間の5分前に会議室に行った所、まだ誰も集まっていないどころか、会議室が別の会議で使用中であった。仕方がないので、一旦引き上げて、予定時間の2分後に会議室に行った所、前の会議の参加者は引き上げた上に、すでに全員集まって着席していた。一体、わずか7分間の間に何があったのか。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
