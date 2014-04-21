@@ -1,0 +1,185 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: JavaScriptの配列初期化子 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合の宛先：<br>
+郵便番号：165-0027<br>
+住所：東京都中野区野方5-30-13 ヴィラアテネ401<br>
+宛名：江添亮
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/04/javascript_21.html">JavaScriptの配列初期化子</a></h1>
+
+<p>
+ECMAScript Edition 5.1を§11まで読み進めた。§11は、式だ。ようやく面白くなってきた。
+</p>
+
+<p>
+§10は、この後の文面で使いまわすための、擬似的な処理を定義している。
+</p>
+
+<p>
+さて、いよいよ具体的にコードとして書く、式のセクションを読んでいる。なかなか楽しいが、配列初期化子の文法が興味深かった。
+</p>
+
+<p>
+配列初期化子、あるいは配列リテラルは、[ ]の中に要素を書く。
+</p>
+
+<pre><code>// 結果は要素数4の配列、[ 1, 2, 3, 4 ]
+[ 1, 2, 3, 4 ] ;
+</code></pre>
+
+<p>
+配列初期化子には、Elisionという文法があり、途中の要素を省略できる。省略した要素は、undefinedである。
+</p>
+
+<pre><code>// 結果要素数4の配列、[ 1, undefined, 3, 4 ]
+[ 1, , 3, 4 ] ;
+</code></pre>
+
+<p>
+なるほど、これはよく分かる。しかしよくわからないのは、「Elisionが配列の最後に使われた時には、配列の長さに寄与しない」という文面だ。つまり、最後のElisionは、無視されるのだ。
+</p>
+
+<pre><code>// 結果は3
+[ 1, 2, 3 ].length ; 
+// 結果は3
+[ 1, 2, 3, ].length ;
+</code></pre>
+
+<p>
+たいていの言語ならば、文法違反とするところだが、実に不思議で例外的な文法だ。
+</p>
+
+<p>
+しかし、それだけではない。要素が任意個のElisionだけの場合の文法も特別に定義されていて、その場合は、末尾のElisionも配列の長さに寄与するのだ。
+</p>
+
+<pre><code>[].length ; // 0
+[,].length ; // 1, [undefined]
+[1,].length ; // 1, [1, undefined]
+[,,].length ; // 2, [undefined, undefined]
+[1,,].length ; // 2, [1, undefined]
+</code></pre>
+
+<p>
+気持ち悪い。極めて気持ち悪い。例外に例外を重ねた文法で気持ち悪い。
+</p>
+
+<p>
+さて、次はオブジェクト初期化子だが、どうもこれも、文法が気持ち悪そうだ。
+</p>
+
+<p>
+文法の汚さ、パースしにくさでいえば、C++は悲惨なのだが、しかし、このような不思議な文法は多くない。JavaScriptの文法は気持ち悪い。
+</p>
+
+<p>
+それでも、JavaScriptの文法や思想は、いまさら言うことではないが、面白い。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告？
+</p>
+
+<p>
+この記事は<a href="http://cyoppaya.kunikiya.jp/">超チューニング祭</a>に向けてドワンゴ勤務中にECMAScript Edition 5.1を読みながら書いた。
+</p>
+
+<p>
+そもそも、この超チューニング祭というのは、ユーザーによる企画だそうである。実は筆者も詳しいことを知らない。公式サイトが更新されて、基本ルールが追加されたが、この更新情報も事前事後に知らさるような特別なはからいは一切ない。そのため当日は、ドワンゴ社員であることによる不公平な情報差は発生しないだろうから安心してよろしい。
+</p>
+
+<p>
+ところで、その更新されたルールによれば、当日編集できるソースコードは、HTML, CSS, JavaScriptだという。
+</p>
+
+<p>
+<a href="http://takehora.hatenadiary.jp/entry/2014/04/17/072838">「超チューニング祭 ～ニコニコを超快適にしてみた～　in ニコニコ超会議３」の問題点 - Webサイトパフォーマンスについて</a>で指摘されているように、ボトルネックの大半はフロントエンドにないというのは、実際その通りだろう。複数のCSSやJavaScriptを結合したり、最小化したりといった小手先の技術は、小さな最適化に過ぎない。
+</p>
+
+<p>
+では、勝利を狙うカギは、パフォーマンス以外の評価点、すなわちUIデザインだろうか。スマートフォン向けのデザインは、小さな画面サイズのため、とても単純にならざるを得ず、差別化を行いにくい。
+</p>
+
+<p>
+ところで、現在、自由なスマートフォンがないので、筆者は携帯電話を所有していない。当日は極めて厳しい戦いを強いられることになりそうだ。
+</p>
+
+<p>
+そして、そろそろ「広告」の定義について根本的な疑問が生じている。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
