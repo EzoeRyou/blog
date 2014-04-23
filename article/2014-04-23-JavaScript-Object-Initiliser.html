@@ -1,0 +1,245 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: JavaScriptのオブジェクト初期化子 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合の宛先：<br>
+郵便番号：165-0027<br>
+住所：東京都中野区野方5-30-13 ヴィラアテネ401<br>
+宛名：江添亮
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/04/javascript_23.html">JavaScriptのオブジェクト初期化子</a></h1>
+
+<p>
+JavaScriptでは、オブジェクトをリテラル風に式の中に書くことができる。これは、オブジェクト初期化子(Object Initialiser)とか、オブジェクトリテラル(Object Literal)と呼ばれている。その文法は、{ }の中にプロパティを記述する。
+</p>
+
+<pre><code>var a = {} ;
+var b = { PropertyName : AssignmentExpression } ;
+var c = { A : 1, B : 2, C : 3 } ;
+</code></pre>
+
+<p>
+オブジェクト初期化子は、{}内の最後をカンマで終わらせることもできる。
+</p>
+
+<pre><code>{ A : 1, } ;
+</code></pre>
+
+<p>
+やや気持ち悪い文法だ。
+</p>
+
+<p>
+PropertyNameには、識別子と文字列リテラルと数値リテラルを書くことができる。
+</p>
+
+<pre><code>var x = {
+// 識別子
+IdentiferName : 0,
+// 文字列リテラル
+"StringLiteral" : 0,
+// 数値リテラル
+3.14 : 0 
+} ;
+</code></pre>
+
+<p>
+さて、オブジェクト初期化子のプロトタイプに文法には、もうひとつ、getter/setter、あるいは、アクセッサーなどと呼ばれているものを記述する文法がある。文法は関数式に似ているが、functionキーワードのかわりに、get/setを用いる。
+</p>
+
+<pre><code>function X( val )
+{
+    this.value = val ;
+}
+
+X.prototype = {
+    get value() { return this._value ; }
+    set value( val ) { this._value = val ; }
+} ;
+
+var x = new X(0) ;
+x.value ; // 0
+x.value = 10 ;
+x.value ; // 10
+x.value += 10 ;
+x.value ; // 20 
+</code></pre>
+
+<p>
+アクセッサーは、通常の関数呼び出しの文法を使わずに、同じ識別子で、値の設定と取得を、単なる参照と代入というわかりやすい文法で行うことができる機能である。これは、例えば以下のように書くより、格段にコードがわかりやすくなる。
+</p>
+
+<pre><code>
+function X( val )
+{
+    this.value = val ;
+}
+
+X.prototype = {
+    function get_value() { return this.value ; }
+    function set_value( val ) { this.value = val ; }
+} ;
+
+var x = new X(0) ;
+x.get_value() ;
+x.set_value(10) ;
+x.get_value() ;
+x.set_value( x.get_value + 10 ) ;
+x.get_value() ;
+</code></pre>
+
+<p>
+ちなみに、<a href="http://whereswalden.com/2010/04/16/more-spidermonkey-changes-ancient-esoteric-very-rarely-used-syntax-for-creating-getters-and-setters-is-being-removed/">Where's Walden? » More SpiderMonkey changes: ancient, esoteric, very rarely used syntax for creating getters and setters is being removed</a>によれば、アクセッサーの文法には、実に様々な歴史的な非標準の方言があったようだ。特にMozillaのものだが。
+</p>
+
+<p>
+まず、__defineGetter__/__define_Setter__がある。これは、Object.definePropertyを使うべきである。
+</p>
+
+<p>
+かつて、SpiderMonkeyのJavaScriptのパーサーに問題があったため、以下のようなコードが通ってしまっていた。
+</p>
+
+<pre><code>var x = { get a b() { return "get" ; } } ;
+</code></pre>
+
+<p>
+また、アクセッサーの生みの親であるNetscapeの当初の文法は、以下のものであったらしい。
+</p>
+
+<pre><code>function g() { print("gotten!"); return "get"; }
+var o1 =
+  {
+    property getter: g,
+    property setter: function(v) { print("sotten!  " + v); }
+  };
+var v1 = o1.property; // prints "gotten!", v1 === "get"
+o1.property = "new"; // prints "sotten!"
+</code></pre>
+
+<p>
+SpiderMonkeyはこれをしばらくサポートしていた。
+</p>
+
+<p>
+また、アクセッサープロパティを付け加えるSpiderMonkey独自の文法として、以下のようなものもあったらしい。
+</p>
+
+<pre><code>var o = {};
+o.property getter = function() { print("gotten!"); return "get" };
+o.property setter = function() { print("sotten!"); };
+var v = o.property; // prints "gotten!", v === "get"
+o.property = "new"; // prints "sotten!"
+</code></pre>
+
+<p>
+うーん・・・。
+</p>
+
+<p>
+SpiderMonkeyの独自文法はまだある。
+</p>
+
+<pre><code>getter function foo() { return "foo getter"; };
+var v = foo; // "foo getter"
+var q = setter function bar(v) { };
+</code></pre>
+
+<p>
+うーむ。
+</p>
+
+<p>
+そういえば、strict modeのとき、PropertyAssignmentの中のPropertySetparameterListの識別子として、"eval"と"arguments'が現れると文法エラーというのは、どういうことだろう。コード例で言えば、以下のようなものだが。
+</p>
+
+<pre><code>"use strict" ;
+
+// SyntaxError
+var x = { set setter( eval ) { } } ;
+</code></pre>
+
+<p>
+なぜ、数あるキーワードの中でevalとargumentsだけが特別に禁止されているのか。ちょっと調べただけでは出てこない。もうすこし規格を読み進める必要がありそうだ。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に、十分な昼寝とカタンをした後に、書かれた。睡眠は重要である。カタンも重要である。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
