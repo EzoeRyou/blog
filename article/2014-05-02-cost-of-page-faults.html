@@ -1,0 +1,228 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: Linux Torvalds、最近のCPUのPage Faultのコストにご不満の様子
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合の宛先：<br>
+郵便番号：165-0027<br>
+住所：東京都中野区野方5-30-13 ヴィラアテネ401<br>
+宛名：江添亮
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/05/linux-torvaldscpupage-fault.html">Linux Torvalds、最近のCPUのPage Faultのコストにご不満の様子</a></h1>
+
+
+<p>
+<a href="https://plus.google.com/+LinusTorvalds/posts/YDKRFDwHwr6">Linus Torvalds - Google+ - One of the things I end up doing is do a lot of performance…</a>
+</p>
+
+<p>
+Linus Torvaldsが、最近のIntelのCPUは、通常以外の処理のコスト、つまりPage faultのコストが上がっているので、問題であるとしている。
+</p>
+
+<blockquote>
+
+<p>
+俺はよくカーネルコードのパフォーマンスプロファイリングをやる。特に、VMとかファイルシステム周りに対してだ。
+</p>
+
+<p>
+俺がよくやるのは、「うまくいってるとき」に対する計測だ。つまり、だいたいほぼ完璧にキャッシュされてる状況だな。というのも、俺はもちろんIOのことは気にかけているが、俺の個人的なワークロードはたいてい、うまくきゃっしゅされてるからだ。たとえば、俺にとってよくあるロードは、pullした後のフルカーネルビルドだ。これにどのくらいの時間がかかるかが問題になる。というのも、俺はまず取り込んだものが、基本的なテストをパスするのを確認した後でなければ、次のpullをしたくないからだ。
+</p>
+
+<p>
+さて、カーネルビルドシステムは、実際の所、けっこう賢い。ほとんどのドライバーやアーキテクチャーのpullでは、コアヘッダーを書き換えないので、「全カーネルを再コンパイル」というのは、それほど大規模なビルドではない。大方は、「オッケー、依存してるヘッダーとファイルは変更されてないな。何もする必要がねーぜ」というチェックだけだ。
+</p>
+
+<p>
+だが、これを何千ものヘッダーファイルと、何万ものCファイルで行うわけで、けっこう時間がかかる。フルビルドカーネル（"allmodconfig"なので、まあ大体フルビルド）で、「終わったぜ。pullは何もコンパイルする必要のある変更をしてなかったぜ」と言うだけでも、俺の普通のデスクトップでは、30秒はかかる。
+</p>
+
+<p>
+まあ、30秒のallmodconfigは、それほどってわけでもない。だが、次のpullを始めるまでの待ち時間としては長すぎるし、コーヒーでも1杯といくには短すぎる。
+</p>
+
+<p>
+要するに、うざいということだ。
+</p>
+
+<p>
+そこで、俺はこのクソをぶっ殺すためにプロファイルしたが、半分ぐらいは、"make"が遅かった。これは、実際には、珍しいことに、カーネル由来のロードである。なぜならば、makeは大量のpathname lookupをしていて、けっこうな量の短命なプロセス（短いシェルスクリプトとか、"make"がfork/exitするとか）もやっているからだ。
+</p>
+
+<p>
+従来、この手の問題の原因は、VFS pathname lookupで、もちろんいまだに大きな問題ではあるのだが、最近はそれだけの問題ではなくなっている。
+</p>
+
+<p>
+最も大きいコストは何か？　CPUによるPage fault handlingさ。
+</p>
+
+<p>
+この「CPUによる」という部分に注目してもらいたい。カーネルVMはよくやってるのだ。問題はPage faultのコストそのものと、（小規模だが）、page faultから戻る"iret"のコストだ。
+</p>
+
+<p>
+この問題を特定するために、ちょっとしたテストプログラムを書いたが、その結果が興味深い。俺のHaswell CPUでは、page fault一回のコストは、約715サイクルだ。"iret"で戻るのは330サイクルだ。そのため、page faultとreturnは、約1050サイクルだ。このコストは多少の誤差があるかもしれないが、近い値だ。他のテストでは、1150サイクルあたりに計測された。だが、これにもっとノイズが大きいので、1050は最小コストとしてはありえるだろう。
+</p>
+
+<p>
+なんでこれが興味深いかって？　カーネルソフトウェアが、ページを見つけてページテーブルに設定するためのコストは、はるかに小さいからさ。最悪の状況で（固定のzero-pageをマップしたばかりという、あからさまに作り上げた状況だが）、この1050サイクルは、全CPU時間の実に80.7%を占めるのだ。これは、カーネルもユーザースペースもpageをfaultさせるのにほとんど何もしていないという極端な例だが、俺の実際のカーネルビルドでは、全CPU時間の5%を占める。
+</p>
+
+<p>
+古い32bitのCore DUoでは、俺のテストプログラムは、page faultオーバーヘッドは、80%ではなく、「たった」の58%だと計測している。これは、page faultが遅くなっているからだ（Core Duoのコストは、「たった」の700 + 240サイクルだ）
+</p>
+
+<p>
+この問題の理由の一つとしては、Haswellは通常のコードでは改良されている（ので、faultオーバーヘッドが相対的に意識されやすい）が、コストが明後日の方向に向かっているのは、なんだかなぁ。
+</p>
+
+<p>
+Intelエンジニアと話つけて、これを改良できるかやってみるか。
+</p>
+
+</blockquote>
+
+<p>
+G+や<a href="https://news.ycombinator.com/item?id=7679822">Hacker News</a>のコメント欄では、ユーザースペースのビルドシステムの問題が指摘されている。
+</p>
+
+<p>
+そもそもいまだに旧態依然のMakeを使っているのが問題なのだ。ビルドシステムに大量の小さなシェルスクリプトや、fork/exitのようなものが発生するから遅いのだ。例えばChromiumを見よ。規模はLinuxカーネルと同程度だが、まともなビルドシステムを使っているため、何もしないビルドは、数秒で終わるぞ。
+</p>
+
+<p>
+といった意見だ。これに対しLinus Torvaldsは、
+</p>
+
+<blockquote>
+<p>
+いや、そりゃ確かに、makeはブタでやりすぎだが、GNU makeの拡張機能や複雑な変数やらその他のよくわからんシェルエスケープやら何やらを駆使したところで、状況は改善しない。
+</p>
+
+<p>
+だから、いわゆるmakefileコンパイラーが、この状況を最適化できるのは確かだ。だが、make代替品は自分でいくつも試してみた。imake, cmake, qmake, こいつらは問題の一部は解決しているが、やはり特有のクソさがある。
+</p>
+
+<p>
+makeが超効率的になるのはありがたいが、俺としては、makeが必要とする部分のカーネルを最適化をしたいし、CPUに手間取ってもらいたくない。
+</p>
+
+<p>
+というのも、まあ考えてみろ。たといカーネルビルドひとつ、超効率的になったとしてもだ、現実はそうじゃない。言っておくが、カーネルビルドでやっている「大量の小さなシェルスクリプトとか何とか」というのは、よそでもやっている現実のワークロードだ。page faultを最適化するのは、他のワークロードのためにも役立つのだ。
+</p>
+</blockquote>
+
+<p>
+この話は、Old New Thingの記事を思い出した。
+</p>
+
+<blockquote>
+<p>
+<a href="http://blogs.msdn.com/b/oldnewthing/archive/2004/12/15/313250.aspx">The hunt for a faster syscall trap - The Old New Thing - Site Home - MSDN Blogs</a>
+</p>
+
+<p>
+syscallトラップのパフォーマンスは興味深いものだ。
+</p>
+
+<p>
+15年前[訳注：この記事が書かれたのは2004年なので、1989年頃]、IntelとMicrosoftと会議があった（残念ながら、私はこの会議に参加していなかったので、この話は伝聞なのだが）
+</p>
+
+<p>
+Microsoftというのは、Intelの最大の顧客のひとつなので、Intelの代表はよくMicrosoftを訪問して、最新のプロセッサーを紹介したり、カーネル開発部に新しいプロセッサーの機能をサポートするようロビーしたり、どのような機能を追加すれば、もっとも役立つかという知見を吸い上げたりしていた。
+</p>
+
+<p>
+この会議で、Intelの代表がたずねた。「でさ、たったひとつだけ、速くして欲しいところがあるとすれば、どこ？」
+</p>
+
+<p>
+躊躇なく、カーネルの開発主任が答えた。「無効命令のfaultingの高速化」
+</p>
+
+<p>
+Intel社員は笑い転げた。「いやぁ、Microsoftのエンジニアは愉快でいらっしゃる」というわけで、会議は冗談で締めくくられた。
+</p>
+
+<p>
+研究所に戻った後、IntelのエンジニアがWindowsカーネルのプロファイルをしたところ、驚くなかれ、彼らはWindowsがかなりの時間を、無効命令例外をさばくためにつかっていることを発見したのである。何だと！　ひょっとして、Microsoftのエンジニアは冗談を言ったのではなかったのか？
+</p>
+
+<p>
+冗談じゃない。
+</p>
+
+<p>
+この当時の80386チップで、V86モードからカーネルモードに移行する最速の方法は、無効命令を実行することだったのだ！　そのため、Windows/386は、無効命令をsyscall trapに使っていたのであった。
+</p>
+
+<p>
+この話の教訓？　よくわからない。たぶん、何か物を作ったならば、それが作成者の意図しない方法で使われるだろうということか。
+</p>
+
+</blockquote>
+
+<p>
+立っている者は親でも使えとは、それこれこれを謂か。
+</p>
+
+
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
