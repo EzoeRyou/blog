@@ -1,0 +1,158 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: Matthew Garrett、開発者にMacユーザーが多いことについて語る 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/05/matthew-garrettmac.html">Matthew Garrett、開発者にMacユーザーが多いことについて語る </a></h1>
+
+
+<p>
+<a href="http://mjg59.dreamwidth.org/31714.html">mjg59 | The desktop and the developer</a>
+</p>
+
+<p>
+Matthew GarrettがGNU/Linux上で動くソフトウェアの開発者であっても、不自由なOSであるMacユーザーが多いことについて記事を書いている。
+</p>
+
+<p>
+Matthew Garrettは、今や開発者の作業環境は、ターミナルとWebブラウザーなので、作業環境という点で、GNU/LinuxがプロプライエタリなMacに対して十分な利点を提供できていないとしている。
+</p>
+
+<p>
+開発には、単にコードを書く以外の作業も多い。Webブラウザーで複数のWebサービス間を行き来して情報をコピペしたりするのは、極めて非効率的であるし、開発者の好む作業ではない。とはいえ、開発者がやらなければならない作業であることには変わりない。
+</p>
+
+<p>
+このため、デスクトップ環境に、一般的な開発ワークフローを支援する組み込み機能を増やすなどして、GNU/Linuxを、開発者にとって魅力的な環境にする必要があると主張している。
+</p>
+
+<blockquote>
+<p>
+今週、<a href="https://www.openstack.org/summit/openstack-summit-atlanta-2014/">OpenStack Summit</a>に参加した。OpenStackの主要デプロイ先はLinuxベースであるにもかかわらず、カンファレンスにおける主要なラップトップベンダーは、Appleであった。参加者は、Linuxにデプロイするためにコードを書いているにも関わらず、コーディングは全く別のOSで行っているわけだ。
+</p>
+
+<p>
+興味深いのは、Macユーザーが作業に使っているツールだ。肩越しに覗きこんでみると、ターミナルとWebブラウザーが見える。開発者がMacを使っているのは、Macでしか動かないツールがあるからではない。Macを使っているのは、他の理由だ。デザインがかっこいいOSであるとか、iTunesだとか、市場最高品質のトラックパッドハードウェアとそのドライバーだとかだ。彼らは、家と仕事とで、同じラップトップを使っているのだ。通勤途中にも、動画を再生するだとか、仕事をさっさと終わらせて帰るための準備だとかに、このラップトップを使っている。Appleを使う理由は、仕事と趣味とで、別々のハードウェアを使いたくないためである。
+</p>
+
+<p>
+私の周りにいた開発者は、10年前のテクニカルカンファレンスにいた連中ではない。彼らはユーザーエクスペリエンスを重視した時代で育った世代であり、より詳細な改造が可能であるという理由でLinuxを選ぶことに価値を見出していない。仕事で自由ソフトウェアを使う（多くの場合、自由ソフトウェアに貢献や保守もしている）人が、自分にとって価値あるものを犠牲にしなければならないという理由で、自由ソフトウェアOSを使っていないのだ。Linuxでも、同じターミナルとWebブラウザーが使えるが、Linuxの貧弱なマルチタッチ処理は、作業の妨げになるのだ。Linuxに移行するのは開発効率が落ちる。
+</p>
+
+<p>
+だが、たとえこの問題に対処したとしてもだ、なぜ移行しなければならないのかという疑問がある。我々が提供できる利点としては、同じような操作性に加えて、ソフトウェアの改変が可能な自由だけだ。これは、それほど魅力的な利点ではない。なぜならば、もしそれが魅力的であるならば、単に技術的優位に立つだけで市場シェアを得られるはずだからだ。我々は別の視点から考える必要がある。
+</p>
+
+<p>
+開発者のユーザーエクスペリエンスについて議論するとき、Linuxのデスクトップ環境における開発者のユーザーエクスペリエンスについて話が及びがちである。開発にたまたまLinuxを使っている人は話に上がらない。この手の人は、よりよりAPIドキュメントを必要としているわけではない。よりよいIDEを必要としているわけでもない。必要としているのは、毎日使うサービスにアクセスできるためのデスクトップ環境である。現在、もし誰かが、ある開発者に責任があるところのバグを報告したとしたら、その開発者はメールを受け取る。メールをクリックして、バグを確認するWebページを辿らなければならない。もし、そのバグ報告が、すでに別のブランチで修正済みのものであれば、開発者はおそらく、githubに移って問題を修正したバグ番号を見つけだし、またバグトラッカーに戻って、番号をコピペし、重複であるとマークする。面倒で、いやで、気が散る。
+</p>
+
+<p>
+もし、デスクトップにバグトラッカーを監視する機能が組み込まれていて、わざわざクリックせずとも、複数の別々のアプリケーションを使わずとも、必要な情報やオプションが表示されるのであればどうだろうか。もし、gitコミットがローカルでインデックスされていて、開発者は関連するコミットを、わざわざWebブラウザーでたどったり、新しいターミナルを開いてローカルのチェックアウトを探さずに済むのであれば、どうだろうか。現在、何度もコンテキストスイッチを行わなければならない、本来は単純な作業が、とても素早く行えるではないか。
+</p>
+
+<p>
+これはほんの一例だ。問題はもっと深い。Webサービスを使って開発プロセスの多くの部分を担わせるのは、自前のインフラを保守する必要がなくなる。とはいえ、その過程で、開発者に複数のWebサイトの全く異なるUI間を行ったり来たりさせるし、直接情報を共有する方法がない。時間が浪費される。開発者が不幸になる。
+</p>
+
+<p>
+デスクトップを開発することと、開発者のワークフローを最適化することは、Webブラウザーに浪費する時間を少なくし、もっと開発に割く時間が多くなるという保証によって、開発者をOS Xからこちらがわに引き寄せることになるだろう。また、これはLinuxと他のプロプライエタリな代替品との差別化につながる。AppleやMicrosoftは開発者ツールを改良するために多大な労力を割いているかも知れないが、彼らは、単に自社のプラットフォームをターゲットにしている開発者のためにやっているのだ。一般的なカイアh津をやりやすくするデスクトップ環境というのは、彼らにないセールスポイントとなるだろう。
+</p>
+
+<p>
+サミットで、筆者はこのことを多くの人に持ちかけてみたが、どうやら同じように考えている人は、すでにいるようで安心した。頼もしいことだが、ユーザーをないがしろにせずに、開発者の作業を簡単にする方法について、もっと関心が集まってほしい。これは、面白い挑戦になりそうだ。
+</p>
+</blockquote>
+
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+ドワンゴのワークフローは、残念ながらWebブラウザーを多用する。
+</p>
+
+<p>
+時に、ドワンゴ社内の新しい支給コンピューターのメモリ容量が、16GBになっている。ようやく3年も前に発売された筆者の化石ラップトップのメモリ容量に追いついたようだ。この現状を批判するために、筆者は早急にメモリを32GB搭載したラップトップを入手する必要に迫られている。それまでは、ドワンゴの支給品は、メモリ容量的には、遺憾ながら十分であると言わざるを得ない。ドワンゴの支給品のディスプレイに関しては、まだ筆者の批判を免れない。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
