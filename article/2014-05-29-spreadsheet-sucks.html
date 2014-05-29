@@ -1,0 +1,204 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 表計算をマジなことに使わないほうがいいよ（マジで） 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/05/blog-post_29.html">表計算をマジなことに使わないほうがいいよ（マジで）</a></h1>
+
+<p>
+<a href="http://lemire.me/blog/archives/2014/05/23/you-shouldnt-use-a-spreadsheet-for-important-work-i-mean-it/">You shouldn’t use a spreadsheet for important work (I mean it)</a>
+</p>
+
+<blockquote>
+<p>
+経済学者はうらやましいね。コンピューター科学者とは違って、革新的な研究で、ベストセラー本をだせるときている。たとえば、
+<a href="http://www.amazon.co.jp/gp/product/067443000X/ref=as_li_ss_tl?ie=UTF8&camp=247&creative=7399&creativeASIN=067443000X&linkCode=as2&tag=boostcpp-22">Capital in the Twenty-First Century</a><img src="http://ir-jp.amazon-adsystem.com/e/ir?t=boostcpp-22&l=as2&o=9&a=067443000X" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />だ。この本はマルクス経済を再認識させる本だ。本を読んでいない人のために要約すると、資本の増加は賃金の増加よりも高いので、資本を持つ者はますます富み、ますます強大になる。大多数は貧する。少数のエリート達が、富のすべてをかき集める。一般人には富は残らない。この見方は、彼の専売特許ではない。<a href="http://en.wikipedia.org/wiki/Wealth_condensation">富の集中</a>という概念には、<a href="http://en.wikipedia.org/wiki/The_rich_get_richer_and_the_poor_get_poorer">富める者はますます富み、貧するものはますます貧す</a>というキャッチフレーズまである。
+</p>
+
+<p>
+同じ主張をするものはいくらでもいる。しかし、証明するのは難しいし、一部の経済学者は、反証すら見つけている（<a href="http://www.foreignaffairs.com/articles/141431/wojciech-kopczuk-and-allison-schrager/the-inequality-illusion">Wojciech Kopczuk and Allison Schrager | The Inequality Illusion | Foreign Affairs</a>）。今日、高額な遺産相続によって大金持ちのリストに乗るのは、1970年より難しい（更に詳しくは、<a href="http://www.nber.org/papers/w13162">Women, Wealth and Mobility</a>, <a href="http://qje.oxfordjournals.org/content/125/1/91.abstract">Earnings Inequality and Mobility in the United States: Evidence from Social Security Data Since 1937</a>, <a href="http://www.nber.org/papers/w10399">Top Wealth Shares in the United States: 1916-2000: Evidence from Estate Tax Returns</a>を参照）
+</p>
+
+<p>
+Pikettyの研究で興味深いのは、彼は自分の主張の裏付けとして、膨大なデータと解析を元にしていることだ。残念ながら、実に多くの人間がそうするように、Pikettyはまともなソフトウェアを書く代わりに、表計算を使った。高評価できる点としては、彼はコードを公開した。低評価としては、Pikettyのコードには誤りがあったということだ。
+</p>
+
+<blockquote>
+<p>
+表計算には、オリジナルのソースの打ち込み間違いや、間違った数式が使われていた。中略。ファイナンシャル・タイムズが修正したところ、ヨーロッパの数字は、1970年以降、資産の不公平な増加傾向は見られなかった。外部の専門家も、ファイナンシャル・タイムズと同じ懸念を表明している（<a href="http://www.ft.com/cms/s/2/e1f343ca-e281-11e3-89fd-00144feabdc0.html#ixzz32p4JiZA2">ファイナンシャル・タイムズ、2014-05-23</a>）
+</p>
+</blockquote>
+
+<blockquote>
+<p>
+その結果として出たのは、中略、他のデータからの解析結果でも、新しいデータによる数字の更新でもなく、泥水で滑ることで、人為的な傾向が、潤滑油により「滑らか」に修正され、中略、その結果は、解析に申告な問題があるにも関わらず、主要な学術誌によって印刷された（<a href="http://philmagness.com/?p=809">Phillip W. Magness » Piketty Tricketty & Historical US Wealth Data</a>）
+</p>
+</blockquote>
+
+<p>
+驚きはしない。去年、筆者は<a href="http://lemire.me/blog/archives/2013/04/23/share-your-software-early-the-reinhart-rogoff-case/">Reinhart-Rogoffの事例</a>を検証した。二人の著名な経済学者は、過去のデータに基づく複雑な統計解析に基づき、多額の負債は経済発展率の低下につながると結論づけた。残念ながら、彼らも<a href="http://lemire.me/blog/archives/2013/04/24/you-probably-shouldnt-use-a-spreadsheet-for-important-work/">表計算</a>を使ってしまったのだった。
+</p>
+
+<p>
+だいたい、表計算というものは手早いやっつけ仕事には向いているものの、真面目で重要な作業には向いていないのだ。
+</p>
+
+<ul>
+<li>
+まともなソフトウェアには詳細なテストが付随するべきである。テストなしで、どうして自分の書いた機能が、自分が意図する通り正しく動作すると言えるのだ？　表計算は、テストをサポートしていない
+</li>
+
+<li>
+表計算は、コードレビューを困難にする。コードは何十、何百もの小さなセルの中に散らばっている。コードを自分で注意深く検証できず、また他人による検証も難しい状況で、どうして信頼できようか？
+</li>
+
+<li>
+表計算はコピペプログラミングとやっつけ仕事を自然と行わせてしまう。コードの検証、テスト、保守を難しくする。
+</li>
+
+</ul>
+
+<p>
+筆者は、生徒の成績処理とか、退職後の貯金推定とか、去年支払った税金の計算などの作業には、表計算で満足だ。しかし、筆者は、銀行運営とかスペースシャトルの軌道計算に、Microsoft Excelは絶対に使わない。表計算はお手軽だが、間違いやすい。表計算は、間違いがそれほど問題にならないか、問題が簡単な場合にのみ適しているのだ。Pikettyは複雑な処理を行っていたし、彼のキャリアの進展は、結果の正確性にかかっていたようだ。
+</p>
+
+<p>
+<a href="http://blogs.ft.com/money-supply/2014/05/23/piketty-response-to-ft-data-concerns/?Authorised=false">ReinhartとRogoff</a>のように、Pikettyは問題があることを否定しなかった。しかし（ReinhartとRogoffのように）、彼は自身の誤りは些細なものであり結論に影響するものではないと主張した。
+</p>
+
+<p>
+反論に対する第一声で、Pikettyは相手に証明を押し付けた。「もちろん、ファイナンシャル・タイムズの統計と資産ランキングが逆の結果を出したのならば、私としてもその統計を検証するし、もちろん結論を変えるよ」と
+</p>
+
+<p>
+Pikettyは問題を正しく認識していない。正しい答えがでることだけでは十分ではないのだ。バグだらけのソフトウェアを搭載した飛行機に乗りたいと思うかね。プログラマーはバグが飛行に影響するものではないと主張しているとしてもだ。そりゃ、飛行機は安全に着地するかもしれん。だが、それは単に運がよかっただけであるかもしれんだろう？
+</p>
+
+<p>
+Pikettyは、自分はコードを公開したという事実を強調するという点でも、問題を認識していない。そりゃ、解析に悪意があったわけではなかろう。だが、正しいとも限らん。
+</p>
+
+<p>
+人は間違いを犯すものだ。表計算にしろ何らかのアプリにしろ、何かソフトウェアをリリースしたとしたら、確実に何らかのバグが含まれているのだ。どうしようもない。しかし、バグを防ぎ、見つけ、悪影響の範囲を制限するために努力したはずだ。筆者は毎日プログラミングする。少なくとも、筆者のプログラミング時間の半分は、バグを探すことに費やされている。Pikettyは、Reinharは、Rogoffは、一体どれだけ解析結果の精度の検証をしたというのだ？　彼らが表計算を用いたという事実が、精度にそれほど気を使っていなかったという事実を如実に物語っている。そりゃ、優秀な外科医は、タキシードを着たままキッチンナイフで腫瘍切除ができるかもしれん。しかし、いったい手術が正しく行われるという自信はいかほどか。データ解析に基づいて600ページもの本を書くのであれば、何ヶ月もの間、解析の検証、テスト、ドキュメント化に費やすべきだ。
+</p>
+
+<p>
+これがPikettyのキャリアのどれだけ影響を与えるのか、興味深いことではある。先週、何十人もの経済学者が、Pikettyはノーベル賞確実だと話すのを聞いた。果たして今もノーベル賞を取れるのか？　解析がどれだけ間違っていたのかと、論文にある解析の品質によるだろうとしか言えん。
+</p>
+
+<p>
+Pikettyは、経済学者としては膨大なデータを扱った。思うに、経済学者もこれからは複雑で莫大なデータを扱わなければならなくなる。より一層複雑な解析が必要となる。彼らがまともなツールと技術を使うこと覚えるといいのだがな。
+</p>
+
+<p>
+参考文献：
+</p>
+
+<ul>
+<li>
+<a href="http://www.slate.com/blogs/moneybox/2014/05/23/financial_times_on_piketty_his_data_is_wrong.html">Piketty’s Data Is Full of Errors</a> (Slate)
+</li>
+<li>
+<a href="http://www.nytimes.com/2014/05/24/upshot/did-piketty-get-his-math-wrong.html?_r=0">Did Piketty Get His Math Wrong?</a> (New York Times)
+</li>
+<li>
+<a href="http://www.huffingtonpost.com/2014/05/23/piketty-data-flaw_n_5380947.html">Thomas Piketty&#8217;s Inequality Data Contains &#8216;Unexplained&#8217; Errors</a> (Huffington Post)
+</li>
+<li>
+<a href="http://qz.com/213081/are-there-major-mistakes-in-the-bombshell-economics-book-of-the-year/">Are there major mistakes in the bombshell economics book of the year?</a> (Quarz)
+</li>
+</ul>
+
+<p>
+追記：Richard Tolも、<a href="http://andrewgelman.com/2014/05/27/whole-fleet-gremlins-looking-carefully-richard-tols-twice-corrected-paper-economic-effects-climate-change/">最近間違ったデータ解析のしっぽを掴まれた</a>経済学者の一人だ。彼もまた、Excelを使っていた。
+</p>
+
+<p>
+追記2：経済学者がExcelを使うというのがどれほど一般的なのか、筆者は知らない。そんなに一般的ではないのかも知れない。経済学者のSergio Salgadoは書いている。「まともな統計解析は、STATAかSASか、まあ、最低でもRかFORTRANを使うものだ。Excelなんて使う奴はいない」と。
+</p>
+
+
+
+</blockquote>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+ドワンゴ社内のデータマイニングに使われているツールについて、筆者は詳しく知らない。本人が最も使いやすいと思うツールを使えばいいのではないかと思う。ドワンゴでは、優秀なデータマイニングのエンジニアは大歓迎であると聞いているが、現在の所、表立って中途の募集はないようだ。本物のデータマイニングエンジニアは、本物C++プログラマーより希少かもしれない。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーも募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
