@@ -1,0 +1,217 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 池袋バイナリ勉強会に行ってきた 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/06/blog-post_1.html">池袋バイナリ勉強会に行ってきた</a></h1>
+
+
+<p>
+「kernelvmの発表者に、プログラミングを学んでわずか半年にして、PDP-11エミュレーターを実装した強者がいる」
+</p>
+
+<p>
+kernelvmに参加した<a href="https://twitter.com/minamiyama1994">南山まさかず</a>君は筆者に言った。なんと、プログラミング初心者が半年でPDP-11エミュレーターを実装し得ただと？　いったい我々は何をやっていたのだ。その強者と話がしてみたい。きっとまだプログラミングの基礎を覚える過程を記憶していて、<a href="http://cpplover.blogspot.jp/2014/05/blog-post_22.html">プログラミングを学ぶ方法がわからない</a>筆者として、興味深い話が聞けることであろうし、半年でPDP-11エミュレーターを実装できたのであれば、本物のプログラマーの素質を持っているであろうから。
+</p>
+
+<p>
+聞けば、その強者は、<a href="https://twitter.com/7shi">七誌</a>氏の主催する、池袋バイナリ勉強会なる勉強会で学んだという。一体どのような勉強会なのだろうか。ひとまず、その勉強会に参加してみよう。幸い、今週の土日に、初心者向けの講座が開かれる。
+</p>
+
+<p>
+池袋バイナリ勉強会の会場は、東京都豊島区池袋 2-12-11 三共池袋ビルであった。Google Mapsで確認したところ、池袋駅からそれほど迷わずに行けるように思われた。当日、筆者は悠々と洗濯をし、弁当を作り、会場に向かった。
+</p>
+
+<p>
+ところが、現地は思いの外に入り組んでおり、30分以上迷った末に、ようやく、数時間単位で部屋を貸す変わったホテルに囲まれた会場を発見した。
+</p>
+
+<p>
+中に入ると、ちょうど、勉強のための環境を構築中であった。
+</p>
+
+<p>
+<a href="https://bitbucket.org/7shi/i8086tools/wiki/Home">環境構築</a>
+</p>
+
+<p>
+なんと、七誌氏はこの勉強会のために、8086向けのUNIX v6とそのコンパイラー、インタプリターを用意したのだという。しかも、導入は以下のように、とても簡単だ。
+</p>
+
+<pre><code>$ hg clone https://bitbucket.org/7shi/i8086tools
+$ cd i8086tools
+$ make
+$ sudo make install
+</code></pre>
+
+<p>
+筆者は事前に何も準備をしてこなかったので、まずMercurialをインストールした。
+</p>
+
+<pre><code>sudo apt-get install mercurial</code></pre>
+
+<p>
+そして、インストールしたものをパッケージ管理したかったので、checkinstallを使おうとしたが、なんと、今使っているラップトップには、checkinstallが入っていなかったので、それもいれた。そういえば、最近Ubuntuでパッケージ化されているClangも、なかなか使えるようになってきたので、もう独自ビルドしていないのであった。
+</p>
+
+<p>
+実に、GNU/Linuxの有名なディストロは、筆者のような情弱にも優しいOSであると言える。筆者は遅刻をしたものの、即座に環境を構築することが出来た。
+</p>
+
+<p>
+勉強会の参加者の多くは、不自由なWindowsや不自由なMacを使っていたが、極めて苦労していた。午前中は環境構築だけで潰れたようだ。
+</p>
+
+<p>
+しかし、不自由なWindows上でこの環境構築をするというのは、極めて不思議な状況だ。まず、不自由なWindowsで、UNIXの極めて薄いレイヤーである自由なMinGWを動かし、その上に8086インタプリターやUNIX v6を動かすのであるから、レイヤーにレイヤーを重ねた環境である。なぜGNU/Linuxを使わないのか理解に苦しむ。
+</p>
+
+<p>
+そして、この環境は、なかなか素晴らしい。思えば、今の環境は、バイナリの入門用には、複雑になりすぎた。PEフォーマットやELFフォーマットをパースするのは一苦労だし、x64は相当に複雑になった。この環境は、a.outフォーマットなので、16バイトのヘッダーとtextセクションとdataセクションだけという、実に単純な構成だ。
+</p>
+
+<p>
+さて、ひと通り環境を理解した筆者は、8086の逆アセンブラを実装しようとした。それには、まずIntelの資料を理解しなければならない。さっそく資料の読解にとりかかった筆者であったが、8086のバイナリは、想像を絶するほどに汚かった。
+</p>
+
+<p>
+筆者は、x86アセンブリはある程度経験している。そのため、8086のバイナリの理解は、それほど苦労しないであろうとたかをくくっていた。ところが、である。8086のバイナリは、想像をはるかに上回る汚さであった。
+</p>
+
+<p>
+これまで、筆者は、x86は、アセンブラー、逆アセンブラーが提供する、親切なニーモニック経由でしか触れていなかった。MOVはMOVであって、それより先を考える必要はなかった。
+</p>
+
+<p>
+ところが、である。Intelの資料による8086のビット列を参照すると、MOVはてんでばらばらな複数のビット列から成り立っていることがわかった。しかも、オペランドの組み合わせにより、ビット列は、お互いに何の規則性もないビット列にエンコードされるではないか。何と言うことだ。
+</p>
+
+<p>
+しかも、そのビット列の構造たるや、極めて汚らしく、綺麗なコードで逆アセンブラを書くことが出来ない。そもそも、コードがなかなか書けない。
+</p>
+
+<p>
+筆者はここ何年も、規格の文面の解釈に力を入れてきた。その間に書いたコードといえば、言語の文法を説明するための数行のコードぐらいなもので、なにか本格的な動くコードは、しばらく書いていなかった。これは極めてまずいことである。筆者の役割には、C++の教育も入っているはずであるのだが、肝心の教育者が、まともなコードを書けないのでは問題だ。<a href="http://cacm.acm.org/magazines/2010/1/55760-what-should-we-teach-new-software-developers-why/fulltext">コードを書かないCSの教授は間違っている</a>とBjarne Stroustrupは言った。筆者もその考えには同意しながらも、規格ばかりにかまけていて、動くコードを書かずにいた。
+</p>
+
+<p>
+ただ、8086の逆アセンブラを実装するのは、動くコードを書くいい機会であるように思う。
+</p>
+
+<p>
+それにしても興味深いのは、七誌氏だ。彼はOSやコンパイラーに興味があり、教育のためのこのような環境を用意するだけのちからがありながら、バイナリエディターとはなんであるかとか、エンディアンとはなんであるかと言った、基礎的な知識の教育を行うのにも躊躇しない。<a href="http://cpplover.blogspot.jp/2014/05/blog-post_22.html">基礎的な知識を教えるのに躊躇している筆者</a>と比べて、なんと意欲的なことか。
+</p>
+
+<p>
+そういえば、この勉強会には、女も来ていたという点でも、興味深かった。一体、プログラマーの不自然な男女比は、どうして生じるのであろうか。肉体的な違いのためであろうか。社会的な要因のためであろうか。筆者がこの話題を持ちかけると、相手は男女とも、社会的な要因であろうと断言する。果たしてそうであろうか。
+</p>
+
+<p>
+例えば、生物の科学者には女が多いと聞く。生物と言っても広いが、中には研究のほとんどが、プログラミングであるという生物学者もいる。いまや、あらゆる分野で、プログラミングは必要である。何故、不自然な男女比が存在するのであろうか。
+</p>
+
+<p>
+この勉強会には、<a href="https://twitter.com/chomado">ちょまど</a>氏が来ていた。筆者は、てっきり氏はネカマであろうと勝手な推測をしていたが、実は女であったため、驚きのあまり、第一声が極めて失礼な物言いになってしまった。聞けば、SEをしているという。その仕事は・・・いや、何も言うまい。いまさら始まった話ではないのだ。
+</p>
+
+<p>
+さて、二日間かけて、8086の複雑怪奇なMOV命令のバイナリを、ある程度理解した筆者は、さっそく逆アセンブラを書き始めたいのだが、あいにくと、2014-05-pre-Rapperswil mailingが出ている。明日からは、また論文読解とレビューの忙しい日々が待っている。
+</p>
+
+<p>
+池袋バイナリ勉強会には、ちょくちょく顔を出そうと思う。
+</p>
+
+<p>
+そういえば、この勉強会で、C++を深く学ぶ道を進もうか、統計解析の道に進もうかと迷っている学生に出会った。筆者は統計解析の事情はよくわからないのだが、統計解析でC++を使うことはあまり一般的ではないようなので、おそらくC++が使われにくい事情があるのであろう。そもそも、規模があまりにも大きいので、単一のプログラムをカリカリに最適化して数倍の性能を出すよりも、何百台、何千台もの大規模な分散型の実行環境で力任せにぶん回すほうが効率的な分野ではないのかとも思う。筆者は、所謂フルスタック（笑）は幻想であり、そろそろ、なにか一つのものに注力したほうがいいであろうと言っておいた。それがC++であれ、統計解析であれ。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴの勤務外に書かれた。
+</p>
+
+<p>
+この前に書いた、ドワンゴはデータマイニングエンジニアの中途採用募集をしていないというのは誤りで、実は積極的に募集しているし、採用情報にも常に記載があるそうだ。
+</p>
+
+<p>
+<a href="https://progres05.jposting.net/pgdwango/u/job.phtml?job_code=820">【ドワンゴ】データマイニングエンジニア／リーダー・メンバー（正社員） | 株式会社ドワンゴ</a>
+</p>
+
+<p>
+ドワンゴはその他の分野でも本物のエンジニアを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
