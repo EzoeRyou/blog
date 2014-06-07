@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: もしlambda式がconstexprだったら 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/06/lambdaconstexpr.html">もしlambda式がconstexprだったら</a></h1>
+
+<p>
+lambda式がconstexprでない理由、いや、より正確には、クロージャーオブジェクトの変換関数がconstexpr関数ではない理由。
+</p>
+
+<p>
+もし、constexprの場合は、SFINAEの文脈で使えてしまうからだ。lambda式の本体には任意の文を書けるので、以下のような記述が可能だ。
+</p>
+
+<pre><code>template &lt; typename T,
+    void (*)() = [](){
+// write whatever expressions that depends on T.
+// if any expression is ill-formed for T, substitution fails.
+}
+&gt;
+void f( T ) ;
+</code></pre>
+
+<p>
+C++11の規格策定の最終段階で、クロージャーオブジェクトの関数ポインターへの変換関数をconstexprにしようという議論がでたが、当時、筆者はこのコードを示して、SFINAEの文脈で悪用可能であると示し、もって変換関数をconstexpr関数にするのを差し止めた。
+</p>
+
+<p>
+これはノドから手が出るほど欲しい魅力的な悪用方法ではあるが、このような機能は、コンセプトのようなもっと洗練された言語機能で解決すべき問題だ。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
