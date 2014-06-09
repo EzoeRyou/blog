@@ -1,0 +1,584 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-05 pre Rapperswil mailingのレビュー: N3967-N3979
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/06/2014-05-pre-rapperswil-mailing-n3967.html">2014-05 pre Rapperswil mailingのレビュー: N3967-N3979</a></h1>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/#mailing2014-05">2014-05 pre Rapperswil mailing</a>が公開された。ざっとタイトルを眺めると、今回も面白そうな論文がちらほらある。早速レビューしていこう。
+</p>
+
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3967.html">N3967: C++ Standard Library Active Issues List</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3968.html">N3968: C++ Standard Library Defect Report List</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3969.html">N3969: C++ Standard Library Closed Issues List</a>
+</p>
+
+<p>
+標準ライブラリに存在が認知されている既存の問題集、修正済みの問題集、議論の結果実は問題ではなかったとされた問題集。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3970.html">N3970: Technical Specification for C++ Extensions for Concurrency, Working Draft</a>
+</h2>
+
+<p>
+新しい並列実行ライブラリを含むConcurrencyのTechnical Specification。歴史的にTSとして出た機能が、そのまま標準規格に入ることはないが、これを叩き台に、将来の規格入りを目指して、今後も並列実行ライブラリが議論されるだろう。内容としては、スレッドよりも高級な並列実行ライブラリである、ExecutorとShcedulerと、std::futureにis_readyとかthenとかwhen_allなどの便利なメンバー関数を追加する文面が入っている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3971.html">N3971: Concurrency TS Editor's Report, February 2014</a>
+</h2>
+
+<p>
+今回のConcurrency TSに加えられた変更に対する、TS編集者の報告書。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3972.pdf">[嫌気のするPDF] N3972: Source-Code Information Capture</a>
+</h2>
+
+<p>
+リフレクションのひとつとして、ソースコード情報取得ライブラリの提案。
+</p>
+
+<p>
+C++では、__LINE__とか__FILE__とか__func__といったCプリプロセッサーマクロにより、ソースコードファイルのその文脈における行番号とかファイル名とか関数名を取得することができる。
+</p>
+
+<p>
+しかし、Cプリプロセッサーは醜悪である。筆者はその臭いに耐えられぬ。このような情報は、もっとまともな方法で取得できるべきだ。
+</p>
+
+<p>
+そういうわけで、C++17向けに議論されているリフレクション機能のひとつとして、ソースコード情報取得ライブラリが提案されている。
+</p>
+
+<p>
+N3972提案の設計では、source_context型のオブジェクトは、構築された文脈におけるソースコード情報を保持するのだそうだ。
+</p>
+
+<pre><code>// N3972提案
+int main()
+{
+    std::source_context sc ;
+
+    std::cout
+        &lt;&lt; u8"行番号: "  &lt;&lt; sc.line_number() &lt;&lt; '\n'
+        &lt;&lt; u8"行頭からの文字数: " &lt;&lt; sc.column() &lt;&lt; '\n'
+        &lt;&lt; u8"ファイル名: " &lt;&lt; sc.file_name() &lt;&lt; '\n'
+        &lt;&lt; u8"関数名: " &lt;&lt; sc.function_name() &lt;&lt; '\n' ; 
+}
+</code></pre>
+
+<p>
+この情報が、どのような文字列で表現されるかは、実装定義(implementation-defined)である。
+</p>
+
+<p>
+また、この提案は興味深いことに、source_contextをデフォルト実引数で初期化した場合や、クラスのデータメンバーとして初期化した場合に、その構築を呼び出した文脈の情報をキャプチャすると書いてある。つまり、以下のようになる。
+</p>
+
+<pre><code>// N3972提案
+void f( std::source_context a = std::source_context() )
+{
+    std::cource_context b ; // bはこの場所の情報を補足する
+}
+
+void g()
+{
+    f() ; // aはこの場所の情報を補足する
+
+    std::source_context c ;
+    f( c ) ; // aはcのコピー
+}
+
+struct S
+{
+    S() { }
+    S( std::source_context ) : d(sc) { }
+    std::source_context d ;
+} ;
+
+void h()
+{
+    S s1 ; // s1.dはこの場所の情報を補足する
+
+    std::source_context e ;
+    S s2(e) ; // s2.dはeのコピー
+}
+</code></pre>
+
+<p>
+デフォルト実引数がどの文脈で評価されるかということについて、規格上の定義はないし、今後も規定するかどうかはわからないが、source_contextの構築においては、そのように規定するということだ。
+</p>
+
+<p>
+なぜ、デフォルト実引数やデータメンバーの構築について、わざわざ規定するかというと、これを使って、ロギングライブラリなどを実装できるようにするためだ。
+</p>
+
+<p>
+論文で、議論で要望が高かったものの、今回の提案には含めなかった機能に、比較関数とstd::hashがある。これは、set/map/unordered_set/unordered_mapのようなコンテナーにstd::source_contextを格納する際に必要になる。そのような需要は当然あるだろう。問題は、いったいどうやってファイル名や関数名といった情報を比較すればいいのだろうか。いったい何が「等しい」のだろうか。簡単に意見の一致は見られないだろう。このことはもっと議論されるべきであるので、今回の提案には、比較関数やハッシュ関数は定義されていない。
+</p>
+
+<p>
+他にも要望が高かった機能としては、ソースファイル先頭からの文字数を取得する方法がある。これは、コンパイラー実装の都合上、どの程度困難であるのかを見極めるために、今回の提案には含まれていない。
+</p>
+
+<p>
+function_nameは、コンパイラー向けの関数名と、開発者向けの関数名の二つに分割すべきだという要望もあった。これは、「コンパイラー向け」とか「開発者向け」というものの定義が出来ない時、ひどく実装定義な機能であるとして、この提案には含めなかったそうだ。
+</p>
+
+<p>
+これは泥臭い機能である。しかし、現実に必要とされている機能であることは確かだ。Cプリプロセッサーマクロよりもまともな方法であるので、筆者はこの提案を気に入っている。ただし、もっと議論が必要だろう。
+</p>
+
+<p>
+ちなみに、std::source_contextのコンストラクターとメンバー関数はconstexprであるので、中3女子も一安心していることだろう。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3973.pdf">[吐き気のするPDF] N3973: A Proposal to Add a Logical Const Wrapper to the Standard Library Technical Report</a>
+</h2>
+
+<p>
+論理的なconst性を伝播させるのライブラリ、logical_constの提案
+</p>
+
+<p>
+論理的なconst性は、クラスのメンバーを超えて受け継がれない。論文筆者によると、以下のコードは、経験あるC++erも驚くという。
+</p>
+
+<pre><code>// 驚くか？
+struct A
+{
+    void bar() const
+    {
+        std::cout &lt;&lt; "bar (const)" &lt;&lt; std::endl;
+    }
+
+    void bar()
+    {
+        std::cout &lt;&lt; "bar (non-const)" &lt;&lt; std::endl;
+    }
+};
+struct B
+{
+    B() : m_ptrA(std::make_unique&lt;A&gt;()) {}
+    void foo() const
+    {
+        std::cout &lt;&lt; "foo (const)" &lt;&lt; std::endl;
+        m_ptrA-&gt;bar();
+    }
+
+    void foo()
+    {
+        std::cout &lt;&lt; "foo (non-const)" &lt;&lt; std::endl;
+        m_ptrA-&gt;bar();
+    }
+
+    std::unique_ptr&lt;A&gt; m_ptrA;
+};
+
+int main()
+{
+    B b;
+    b.foo();
+    const B const_b;
+    const_b.foo();
+}
+</code></pre>
+
+<p>
+実行結果は以下の通り。
+</p>
+
+<pre><code>foo (non-const)
+bar (non-const)
+foo (const)
+bar (non-const)
+</code></pre>
+
+<p>
+筆者は、この挙動に驚かないし、むしろこの挙動以外であれば驚くのだが、どうやら、論文筆者によれば、この挙動は驚きらしい。たとえクラスのオブジェクトはconstであったとしても、データメンバーのポインター型はconstでない以上、何が驚きなのかわからない。
+</p>
+
+<p>
+ただし、constメンバー関数を呼び出すのに、いちいち型キャストをするのは面倒だ。論文筆者は、const性を伝播させるために、-&gt;などの演算子をオーバーロードして、const版のポインターを経由して呼び出すというクラスを標準ライブラリに提案している。
+</p>
+
+<pre><code>
+struct B
+{
+    B();　              // unchanged
+    void foo() const;   // unchanged
+    void foo();         // unchanged
+
+    std::logical_const&lt;std::unique_ptr&lt;A&gt;&gt; m_ptrA;
+};
+</code></pre>
+
+<p>
+これによって、const版のメンバー関数がよばれるようになり、実行結果も、以下のようになる。
+</p>
+
+<pre><code>foo (non-const)
+bar (non-const)
+foo (const)
+bar (const)
+</code></pre>
+
+
+<p>
+constではないポインターを取り出す、cast_away_logical_constメンバー関数も用意されている。長ったらしい名前なのは、コードレビューでの発見を容易にするためだという。
+</p>
+
+<p>
+まあ、あっても困らないライブラリではある。
+</p>
+
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3974.pdf">[めまいのするPDF] N3974: Polymorphic Deleter for Unique Pointers</a>
+</h2>
+
+<p>
+ゼロ原則と、ゼロ原則をサポートするためのunique_ptr拡張案。
+</p>
+
+<p>
+かつて、C++には三原則があった。三原則、すなわち、コピーコンストラクター、コピー代入演算子、デストラクターのうち、どれかひとつでもユーザー提供されたのならば、残りの二つも、おそらくユーザー提供する必要があるだろうという原則である。
+</p>
+
+<p>
+C++にムーブセマンティクスが導入されてから、これは五原則に変わった。三原則に加えて、ムーブコンストラクターとムーブ代入演算子が加わった。
+</p>
+
+<p>
+五原則は、すでに一年前のことだ。2013-03-15の<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3578.pdf">N3578</a>で提唱されて、2014-01-01の<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3839.pdf">N3839</a>でも改定されている。
+</p>
+
+<p>
+今回は、それとは別に論文著者でもあるPeter Sommerladが提唱したゼロ原則の話だ。
+</p>
+
+<p>
+ゼロ原則、すなわち、何もユーザー提供する必要なないのならば、コンパイラーの生成したデフォルトのコンストラクター、代入演算子、デストラクターが動くべきという原則だ。
+</p>
+
+<p>
+しかし、既存の多くのC++教科書では、このゼロ原則に反することを教えている。virtualデストラクターだ。
+</p>
+
+<p>
+デストラクターがvirtualでなければ、基本クラス経由でデストラクターを呼び出した時に、正しい実行時の型のデストラクターが呼ばれない。
+</p>
+
+<pre><code>struct Base { } ;
+
+struct Derived : Base
+{
+    Derived()
+    { std::cout &lt;&lt; "constructed" &lt;&lt; '\n' ; }
+    ~Derived()
+    { std::cout &lt;&lt; "destructed" &lt;&lt; '\n' ; }    
+} ;
+    
+
+int main( int argc, char ** argv  )
+{
+    std::unique_ptr&lt;Base&gt; p = std::make_unique&lt;Derived&gt;() ;
+}
+</code></pre>
+
+<p>
+実行結果は、以下のようになる。
+</p>
+
+<pre><code>constructed</code></pre>
+
+<p>
+なんと、デストラクターが呼び出されていない。これは、デストラクターがvirtual関数でないためである。
+</p>
+
+<p>
+ためしにvirtualを付けてみよう。
+</p>
+
+<pre><code>
+struct Base
+{
+    virtual ~Base() { }
+} ;
+</code></pre>
+
+<p>
+こうすると、デストラクターが呼ばれる。デストラクターがvirtual関数となったので、実行時の型に応じて、基本クラスのポインターやリファレンスを経由しても、正しくデストラクターが呼ばれるようになる。
+</p>
+
+<p>
+このため、既存のC++教科書は、派生する場合はかならず基本クラスのデストラクターを、たとえ空であっても、virtual関数にしようと推奨している。そのようなボイラープレートコードを自動生成するするIDEまである。
+</p>
+
+<p>
+しかし、これはおかしくないだろうか。デストラクターで何もする必要がなければ、なぜわざわざ書く必要があるのだろうか。デフォルトは適切に動くべきである。
+</p>
+
+<p>
+じつは、shared_ptrを使えば、デリーターがポリモーフィックに振る舞うために、非virtualデストラクターでも実行時にポリモーフィックに呼び出されてくれるのだ。
+</p>
+
+
+<pre><code>
+std::shared_ptr&lt;Base&gt; ptr = std::make_shared&lt;Derived&gt;() ;
+</code></pre>
+
+<p>
+しかし、shared_ptrはリファレンスカウントというコストがかかる。リファレンスカウントが必要ない場合、これはコストである。
+</p>
+
+<p>
+一方、そのようなコストのかからないunique_ptrのデリーターは、ポリモーフィックではない。ポリモーフィックなデリーターはコストがかかるので、unique_ptrではデフォルトではないのは当然だ。しかし、ゼロ原則のためには、ポリモーフィックなunique_ptr用のデリーターが欲しい。そこで、そのようなデリーターの提案。
+</p>
+
+<p>
+デリーター、safe_deleteは、基本クラスのデストラクターがvirtualでなくても、派生クラスのunique_ptrから基本クラスのunique_ptrに変換された場合に、実行時の型にしたがって、正しくデストラクターを呼び出してくれる。
+</p>
+
+<pre><code>// N3974提案
+struct Base { } ;
+struct Derived : Base
+{
+    ~Derived() { } 
+} ;
+
+int main()
+{
+    std::unique_safe_ptr&lt;Base&gt; ptr = std::make_unique_safe&lt;Derived&gt;() ;
+
+    // Derived::~Derivedが呼ばれる
+}
+</code></pre>
+
+<p>
+unique_safe_ptr、make_safe_ptrは、safe_deleteがデフォルトになったテンプレートエイリアスである。
+</p>
+
+<pre><code>
+template &lt; typename T &gt;
+unique_safe_ptr = unique_ptr&lt; T, safe_delete &gt; ;
+
+template &lt;typename T, typename... Args &gt;
+unique_safe_ptr&lt;T&gt; make_unique_safe( Args &amp;&amp; ... args ) ;
+</code></pre>
+
+<p>
+実は、もうひとつ、checked_deleteというデリーターも入っている。これは、基本クラスのデストラクターがvirtualではない場合に、ill-formed、つまりコンパイルエラーになるデリーターだ。ill-formedとならない場合は、従来のデリーターであるdefault_deleteと同じ挙動になる。
+</p>
+
+<pre><code> // N3974提案
+struct B1 { } ;
+struct D1 : B1 { } ;
+
+struct B2 { virtual ~B2 { } } ;
+struct D2 : B2 { } ;
+
+int main()
+{
+    // ill-formed
+    std::unique_checked_ptr&lt;B1&gt; ptr = std::make_unique_checked&lt;D1&gt;() ; 
+
+    // well-formed
+    std::unique_checked_ptr&lt;B2&gt; ptr = std::make_unique_checked&lt;D2&gt;() ; 
+}
+</code></pre>
+
+<p>
+論文には、リファレンス実装も含まれている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3975.html">N3975: URI - Proposed Wording (Revision 5)</a>
+</h2>
+
+<p>
+URIライブラリの文面案。この提案は標準規格ではなく、TSとして発行されることを目指している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3976.html">N3976: Multidimensional bounds, index and array_view, revision 2</a>
+</h2>
+
+<p>
+連続したストレージを、あたかも多次元配列であるかのように見せかけて操作できるarray_viewライブラリの文面案。
+</p>
+
+<pre><code>// N3976提案
+int main()
+{
+    std::vector&lt;float&gt; v( 32 * 32 ) ;
+    auto view = std::array_view&lt; float, 2 &gt;{ { 32, 32}, v } ;
+
+    // std::index&lt;2&gt;
+    for ( auto idx : view.bounds() )
+    {
+        view[ idx ] ; // アクセス
+    }
+}
+</code></pre>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3977.pdf">[再開すべきではないPDF] N3977: Resumable Functions</a>
+</h2>
+
+<p>
+中断可能関数(resumable function)の文面案。これは標準規格ではなく、TSとして発行されることを目指している。
+</p>
+
+<p>
+文法を簡単に解説すると、中断可能関数をresumableキーワードで宣言し、途中で処理を返したいところで、awaitキーワードを使う。中断可能関数は、戻り値の型にfuture&lt;T&gt;かshared_future&lt;T&gt;を返さなければならない。中断可能関数の呼び出し元が、戻り値のfutureのオブジェクトにセットされた値を取り出そうとすると、中断可能関数の実行が再開される。
+</p>
+
+<pre></code>// N3977提案
+// 時間のかかる処理
+int slow() ;
+
+std::future&lt;int&gt; f() resumable
+{
+    // 実行中断されて呼び出し元に帰るかも
+    auto result = await slow() ;
+    return result ;
+}
+
+void g()
+{
+    auto f = f() ; // 実行中断されているかも
+    auto value = f.get() ; // 実行再開するかも
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3978.html">N3978: C++ Ostream Buffers</a>
+</h2>
+
+<p>
+マルチスレッドからのストリーム出力で、結果を保証するためのバッファーの提案。規格上、ストリーム出力は競合しないことは保証されているが、その出力については保証されていない。そのため、複数のスレッドから同時に出力する場合でも、出力が細切れにならないことを保証するバッファーライブラリを提案している。
+</p>
+
+<pre><code>// N3978提案
+void f()
+{
+
+    {
+        std::ostream_buffer buf( std::cout ) ;
+        buf &lt;&lt; "hello, " &lt;&lt; "world!" &lt;&lt; std::endl ;
+    } // bufが破棄されるタイミングで一気に出力される
+
+}
+</code></pre>
+
+<p>
+ostream_bufferは、自動ストレージ上に構築して使う。通常のストリームのように使うとバッファーされ、、オブジェクトが破棄されるタイミングで、一気に競合せずに出力される。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3979.pdf">[予定にないPDF] N3979: AGENDA, PL22.16 Meeting No. 63, WG21 Meeting No. 58, June 16-21, 2014 -- Rapperswil, Switzerland</a>
+</h2>
+
+<p>
+スイスのRapperswilで6月16日から21日にかけて開催される国際会議の予定表。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+C++WG論文集が出たので、ようやく、ドワンゴ社内で仕事をしているふりができるようになった。いや、正確にはこれも仕事ではないのだが。
+</p>
+
+<p>
+今回は最初からTS発行を目指す提案が多い。これは、実用化されるまであと10年ないし20年はかかることを意味している。ドワンゴ社内で論文の概要を紹介すると興味を示すC++エンジニアはいるが、残念ながら、近い将来に使えるようにはならない機能だ。まだまだ議論と設計が必要なのだ。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
