@@ -1,0 +1,316 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 8086のバイナリが汚すぎる 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<style scoped="scoped">
+table, th, td {
+    border: thin solid black ;
+    border-collapse : collapse ;
+}
+</style>
+
+<h1><a href="http://cpplover.blogspot.jp/2014/06/8086.html">8086のバイナリが汚すぎる</a></h1>
+
+
+
+<p>
+<a href="http://connpass.com/series/182/">池袋バイナリ勉強会</a>に参加して、8086の逆アセンブラーを作成しようとしているのだが、これが思いの外に難しい。いや、めんどくさい。
+</p>
+
+<p>
+筆者は、これまでx86アセンブリには、ニーモニック経由でしか触れてこなかった。movはmovであり、それ以外の何者でもなかった。
+</p>
+
+<pre><code>mov ax, bx</code></pre>
+
+<p>
+などと書いたら、これをアセンブラーにビット列に変換させて、その後は何も考えなかった。
+</p>
+
+<p>
+既存のバイナリを逆アセンブラーにかけて読む場合でも、やはり逆アセンブラーがバイナリをニーモニックに変換してくれるので、やはりビット列による表現方法に関しては、考えたこともなかった。
+</p>
+
+<p>
+さて、池袋バイナリ勉強会に参加したので、この機会に、逆アセンブラーでも実装しようと思い立った。そこで、Intelの当時の8086の資料を読んでみた。
+</p>
+
+<p>
+<a href="http://datasheets.chipdb.org/Intel/x86/808x/datashts/8086/">Index of /Intel/x86/808x/datashts/8086</a>
+</p>
+
+<p>
+そして、絶望した。8086のビット列は汚い。汚すぎる。我々はこんなに汚いバイナリの上に成り立っていたのかと思うと、愕然とする。
+</p>
+
+<p>
+8086のバイナリは、最初の1バイトを読めば命令を判定できる。その後にオペランドが続く。問題は、ニーモニック上からはひとつの命令だと普段我々が認識している命令は、8086バイナリでは、複数のビット列で表現されるのだ。
+</p>
+
+<p>
+例えば、8086のバイナリからみると、movというのは、7種類のバイナリ列で表現されている。レジスタ同士、レジスタとメモリのmovや、即値からレジスタやメモリといった操作で、ビット列が違うし、アキュムレーターとかセグメントレジスターといった特別なレジスターを操作するためにも、専用のビット列が用意されている。
+</p>
+
+
+<table>
+<thead>
+<tr>
+<td>
+MOV亜種
+</td>
+<td>
+ビット列
+</td>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>
+Register/Memory to/from Register
+</td>
+<td>
+100010
+</td>
+</tr>
+
+<tr>
+<td>Immediate to Register Memory</td>
+<td>1100011</td>
+</tr>
+
+<tr>
+<td>Immediate to Register</td>
+<td>1011</td>
+</tr>
+
+<tr>
+<td>Memory to Accumulator</td>
+<td>1010000</td>
+</tr>
+
+<tr>
+<td>Accumulator to Memory</td>
+<td>1010001</td>
+</tr>
+
+<tr>
+<td>Register/Memory to Segment Register</td>
+<td>10001110</td>
+</tr>
+
+<tr>
+<td>Segment Register to Register/Memory</td>
+<td>10001100</td>
+</tr>
+
+</tbody>
+</table>
+
+
+
+<p>
+それだけではない。一つのバイナリ列にしても、複雑なビットフラグで、レジスタ間の操作や、あるいはメモリーへの操作であるなどを指定している。しかもそのビットフラグは、命令を表現する1バイトの一部を使っていることもあるのだ。そう、上の表で8bit使っていないのは、単に使われていないだけではない。フラグとして使っているのである。
+</p>
+
+<table>
+<thead>
+<tr>
+<td>
+MOV亜種
+</td>
+<td>
+ビット列
+</td>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>
+Register/Memory to/from Register
+</td>
+<td>
+100010dw
+</td>
+</tr>
+
+<tr>
+<td>Immediate to Register Memory</td>
+<td>1100011w</td>
+</tr>
+
+<tr>
+<td>Immediate to Register</td>
+<td>1011w reg</td>
+</tr>
+
+<tr>
+<td>Memory to Accumulator</td>
+<td>1010000w</td>
+</tr>
+
+<tr>
+<td>Accumulator to Memory</td>
+<td>1010001w</td>
+</tr>
+
+<tr>
+<td>Register/Memory to Segment Register</td>
+<td>10001110</td>
+</tr>
+
+<tr>
+<td>Segment Register to Register/Memory</td>
+<td>10001100</td>
+</tr>
+
+</tbody>
+</table>
+
+<p>
+dは1bitのフラグで、d = 1のとき、レジスターがdestinationであり、d = 0のときは、 レジスターがsourceとなる。つまり、sourceとdestinationを、このフラグによってひっくり返す必要がある。
+</p>
+
+<p>
+wは1bitのフラグで、w = 1のとき、命令はワードサイズ(2バイト、16bit)で処理し、w = 0のときは、バイトサイズで処理する。つまり、レジスターやオペランドのサイズを変えなければならない。
+</p>
+
+<p>
+regというのは3bitのレジスターを指定する識別番号である。wフラグによって、ワードサイズのレジスター(AX, BXなど)とバイトサイズのレジスター(AL, BLなど)を切り替えなければならない。
+</p>
+
+<p>
+また、今回は違うが、regにはセグメントレジスターを指定する2bit版のものもある。
+</p>
+
+<p>
+そして、これに続くオペランドがまたひどい。mov以外でもよく使われるオペランドに、
+</p>
+
+<table>
+<tr>
+<td>mod</td> <td>reg</td> <td>r/m</td>
+</tr>
+</table>
+
+<p>
+というものがある。これは1バイトを、2bit, 3bit, 3bitに区切り、オペランドとして使うレジスターやメモリを指定している。
+</p>
+
+<p>
+mod(mode)は2bitのフラグで、オペランドがどのようなものかのモードを指定する。これによって、r/mがレジスターになったりメモリーアドレッシング・モード指定になったりする。
+</p>
+
+<p>
+メモリーアドレッシング・モード。これが、厄介だ。
+</p>
+
+<p>
+8086では、やたらに複雑なメモリーアドレッシング・モードがある。これでも、まだ少ない方なのだ。8086の系譜は、この後ますますこのアドレッシング・モードを拡張していったのだ。とにかく、アドレッシング・モードとは、単にメモリを指し示すアドレスをそのまま用いるのではなく、SI + アドレスとか、DI + アドレスとか、BX + SI + アドレスとか、とにかくやたらに組み合わせがある。
+</p>
+
+<p>
+このアドレスを、Intelの仕様書ではdisp(displacement)と書いている。
+</p>
+
+<p>
+dispというのは基本的にバイトサイズだ。mod = 00のときは、dispは存在しない。ところが、である。mod = 00かつr/m = 110のときのみ、dispはワードサイズとなり、アドレッシング・モードはdispのみとなるのだ。ひどい例外的ルールもあったものだ。
+</p>
+
+<p>
+さて、ビット列の文法はだいたい理解した。しかし、これはいったいどうすればいいのだろうか。どう考えても汚いコードしか思い浮かばない。どうせたかだか1バイトで命令を判定できるのだから、256個の配列や256個のswtich caseを書くのが一番手っ取り早いのだろうか。しかし、命令にもフラグが入っている都合上、極めて汚いコードになってしまう。
+</p>
+
+<p>
+そして、オペランドのmod reg r/mだ。めんどくさい。極めてめんどくさい。
+</p>
+
+<p>
+とりあえず書こうと思っては何か、ビット列に対してこのようなパースを簡単にできるライブラリや言語機能が欲しい。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴの勤務時間を極端に減らして捻出した余裕で休日に池袋バイナリ勉強会に参加して書いた。
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
