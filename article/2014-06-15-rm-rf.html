@@ -1,0 +1,347 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: rm -rfしちゃったけどどうする 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/06/rm-rf.html">rm -rfしちゃったけどどうする</a></h1>
+
+<p>
+<a href="http://lambdaops.com/rm-rf-remains">rm -rf remains</a>
+</p>
+
+<blockquote>
+<h2>
+rm -rfの後に残りしもの
+</h2>
+
+<p>
+遊びのために、筆者は新しいLinuxサーバーを立ち上げて、rootでrm -rf /を実行して、何が残るかをみてみた。どうやら、今のrmというのは筆者のようなアホを相手にしなければならない未来に生きているようなので、実際に実行するには、--no-preserve-rootをつける必要があった。
+</p>
+
+<pre><code># rm -rf --no-preserve-root /</code></pre>
+
+<p>
+かかるおろかなる行為の後では、
+</p>
+
+<ul>
+<li>/bin/ls</li>
+<li>/bin/cat</li>
+<li>/bin/chmod</li>
+<li>/usr/bin/file</li>
+</ul>
+
+<p>
+のような、偉大なるツールのたぐいはみな消え失せてしまった。まだ、ssh接続とbashセッションは生きているはずだ。つまり、bashの組み込みコマンドであるechoとかは残っているということだ。
+</p>
+
+<h2>
+Bashマクガイバーたれ
+</h2>
+
+<pre><code>root@rmrf:/# ls
+-bash: /bin/ls: No such file or directory
+</code></pre>
+
+<p>
+lsは存在しないが、echoとfileglobは残っている。どう使えばいいものか。
+</p>
+
+<pre><code>root@rmrf:/# echo *
+dev proc run sys
+# echo /dev/pts/*
+/dev/pts/0 /dev/pts/3 /dev/pts/ptmx
+</code></pre>
+
+<p>
+おや、/dev, /proc, /run, /sysは残ってたぞ。さて、我々はlsを手に入れた。もう少し読みやすくしてみよう。
+</p>
+
+<pre><code>root@rmrf:/# for file in /dev/pts/*; do echo $file; done
+/dev/pts/0
+/dev/pts/3
+/dev/pts/ptmx
+</code></pre>
+
+<p>
+<a href="http://www.reddit.com/r/programming/comments/27j311/rm_rf_remains/ci1gc4i">何人か</a>の<a href="http://www.reddit.com/r/programming/comments/27j311/rm_rf_remains/ci1gpli">Redditor</a>が、printfも生きているとレスしてくれた。
+</p>
+
+<pre><code>root@rmrf:/# ls() { printf '%s\n' ${1:+${1%/}/}*; }
+</code></pre>
+
+<p>
+「printfは引数がなくなるまでフォーマット文字列を適用しようとする」 -camh-
+</p>
+
+<p>
+bashでは関数を定義できるため、いささか制限的ではあるが、lsを作り出すこともできる。
+</p>
+
+<pre><code>root@rmrf:/# ls() { printf '%s\n' ${1:+${1%/}/}*; }
+-bash: syntax error near unexpected token `('
+</code></pre>
+
+<p>
+ハァ？　間違いなんてないはずだろ。lsがハッシュされてたりエイリアスされてたりすんのか？
+</p>
+
+<pre><code>root@rmrf:/# type ls
+ls is aliased to `ls --color=auto'
+</code></pre>
+
+<p>
+なるほど。つまり、ls--color=auto () { printf '%s\n' ${1:+${1%/}/}*; }と展開されるわけか。やれやれ、まあ、unaliasするか。
+</p>
+
+<pre><code>root@rmrf:/# unalias ls
+root@rmrf:/# ls() { printf '%s\n' ${1:+${1%/}/}*; }
+root@rmrf:/# ls
+/dev
+/proc
+/run
+/sys
+root@rmrf:/# ls /dev
+/dev/pts
+</code></pre>
+
+<p>
+そしてセーブっと。
+</p>
+
+<pre><code>root@rmrf:/# echo 'ls() { printf '%s\n' ${1:+${1%/}/}*; }' &gt;&gt; utils.sh
+root@rmrf:/# source utils.sh
+</code></pre>
+
+<p>
+catはどうだ。組み込みコマンドのreadにパイプとリダイレクトを組み合わせれば、ぎこちないもののcatになる。
+</p>
+
+<pre><code>root@rmrf:/# (while read line; do echo "$line"; done) &lt; utils.sh
+ls() { printf '%s\n' ${1:+${1%/}/}*; }
+</code></pre>
+
+<p>
+ここまで揃えれば、echoで任意のバイト列を書き込めることにより、環境を再構築して、curlとかwgetとかで必要なバイナリを引っ張ってこれる。筆者の最初の選択は、<a href="http://eusebeia.dyndns.org/bashcp">他でも言われているように</a>、<a href="http://www.busybox.net/about.html">BusyBox</a>をゲットすることだ。Busyboxは組み込みLinuxにおけるスイスアーミンーナイフであり、組み込みのwgetやddやtarや、多くの機能がある。<a href="http://eusebeia.dyndns.org/bashcp">Eusebeîa君がこのことについてはよく書いている</a>ので、ここでは書かない。
+</p>
+
+<p>
+問題はある。
+</p>
+
+<p>
+望みのバイト列をechoしてバイナリを作ったとしても、そのファイルには実行権限がない。busyboxを始動させることはできない。この問題に対する最も簡単な対処法としては、なにか実行できるファイルをみつけて、echoで上書きするということだ。しかし、現時点で、/usrと/binはぜんぶ破壊してしまった。そういうわけで、結構めんどくさい。
+</p>
+
+<p>
+シェルglobとbashを使って、実行ビットが立っているファイルを探すことができる。ディレクトリはもちろん無視する。
+</p>
+
+<pre><code>executable () { if [[ ( ! -d $1 ) &amp;&amp; -x $1 ]] ; then echo "$1"; fi }
+</code></pre>
+
+<h2>
+実行可能ファイルを探せ！
+</h2>
+
+<pre><code>root@rmrf:/# for file in /*; do executable $file; done
+root@rmrf:/# for file in /*/*; do executable $file; done
+root@rmrf:/# for file in /*/*/*; do executable $file; done
+/proc/1107/exe
+/proc/1136/exe
+/proc/1149/exe
+/proc/1179/exe
+/proc/1215/exe
+/proc/1217/exe
+/proc/1220/exe
+/proc/1221/exe
+/proc/1223/exe
+/proc/1248/exe
+/proc/1277/exe
+/proc/1468/exe
+/proc/1478/exe
+/proc/1625/exe
+/proc/1644/exe
+/proc/1/exe
+/proc/374/exe
+/proc/378/exe
+/proc/471/exe
+/proc/616/exe
+/proc/657/exe
+/proc/self/exe
+</code></pre>
+
+<p>
+やったね。いや、でもまてよ。こいつぁ、もうディスク上には存在しない実行ファイルへのシンボリックリンクじゃねーか。executable()を書き換えて、シンボリックリンクは無視するようにしよう。
+</p>
+
+<pre><code>root@rmrf:/# executable () { if [[ ( ! -d $1 ) &amp;&amp; ( ! -h $1 ) &amp;&amp; -x $1 ]] ; then echo "$1"; fi }
+root@rmrf:/# for file in /*/*/*; do executable $file; done
+root@rmrf:/# for file in /*/*/*/*; do executable $file; done
+root@rmrf:/# for file in /*/*/*/*/*; do executable $file; done
+root@rmrf:/# for file in /*/*/*/*/*/*; do executable $file; done
+</code></pre>
+
+<p>
+さてと、やれやれ。何かカーネルに使えるものがあるかも知れないな。まあ少なくとも、sysrqマジックで再起動はできるわけだ。
+</p>
+
+<pre><code>root@rmrf:/# echo 1 &gt; /proc/sys/kernel/sysrq
+root@rmrf:/# echo "b" &gt; /proc/sysrq-trigger
+</code></pre>
+
+<p style="text-decoration: line-through ;">
+さて、マシンから完全に締め出しを食らったので、この金曜日は何かもっと別の有意義なことをするとするかな。ご愛読ありがとうございました。筆者のさらなるご活躍にご期待下さい。あと、実行ビットを立てる方法があったら知らせてくれよな。
+</p>
+
+<p>
+追記、Redditorのthrow_away5046が、<a href="http://www.reddit.com/r/linux/comments/27is0x/rm_rf_remains/ci199bk">詳細な、美しい、解決方法をレスしてくれた</a>。
+</p>
+
+<h2>
+同じアーキテクチャのぶっ壊してないマシン上で
+</h2>
+
+<pre><code>$ mkdir $(xxd -p -l 16 /dev/urandom)
+$ cd $_
+$ apt-get download busybox-static
+$ dpkg -x *.deb .
+$ alias encode='{ tr -d \\n | sed "s#\\(..\\)#\\\\x\\1#g"; echo; }'
+$ alias upload='{ xxd -p | encode | nc -q0 -lp 5050; }'
+$ upload &lt; bin/busybox
+</code></pre>
+
+<p>
+訳注： ncでTCPの5050ポートで待ち受けて、接続してきたリモートホストにbusyboxのバイナリを送りつける
+</p>
+
+<h2>
+rmrfしたマシン上で
+</h2>
+
+<pre><code># cd /
+# alias decode='while read -ru9 line; do printf "$line"; done'
+# alias download='( exec 9&lt;&gt;/dev/tcp/{IP OF NON HOSED BOX}/5050; decode )'
+# download &gt; busybox
+</code></pre>
+
+<p>
+訳注：pseudo file経由でぶっ壊してないマシンのIPのTCPの5050ポートに接続して、返ってきたbusyboxのバイナリをファイルに書き込む。
+</p>
+
+<h2>
+busyboxのパーミッションを変更するshared objectを作る
+</h2>
+
+<pre><code>$ cat &gt; setx.c &lt;&lt;EOF
+extern int chmod(const char *pathname, unsigned int mode);
+
+int entry(void) {
+
+        return !! chmod("busybox", 0700);
+}
+char *desc[] = {0};
+
+struct quick_hack {
+
+        char *name; int (*fn)(void); int on;
+        char **long_doc, *short_doc, *other;
+
+} setx_struct = { "setx", entry, 1, desc, "chmod 0700 busybox", 0 };
+EOF
+$ gcc -Wall -Wextra -pedantic -nostdlib -Os -fpic -shared setx.c -o setx
+$ upload &lt; setx
+</code></pre>
+
+<p>
+訳注：busyboxというファイルの実行ビットを立てるコード(setx)をshared objectとしてコンパイルして、busyboxを送信したのと同様の方法で送信。
+</p>
+
+<h2>
+setxをenableして、setxを組み込み関数とし、busyboxを実行可能にする
+</h2>
+
+<pre><code># ( download &gt; setx; enable -f ./setx setx; setx; )
+# /busybox mkdir .bin
+# /busybox  --install -s .bin
+# PATH=/.bin
+</code></pre>
+
+<p>
+訳注：GNU bashの組み込みコマンド、enableの-fオプションは、shared objectを読み込んで、ファイル名と同じ組み込みコマンドとして実行できる。<br>
+<a href="http://www.gnu.org/software/bash/manual/html_node/Bash-Builtins.html">Bash Reference Manual: Bash Builtins</a>
+</p>
+
+<p>
+結果
+</p>
+
+<p>
+<img src="http://img.svbtle.com/wwijp23ztne0tw.gif"></img>
+</p>
+
+</blockquote>
+
+<p>
+なんともマクガイバー的だ。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
