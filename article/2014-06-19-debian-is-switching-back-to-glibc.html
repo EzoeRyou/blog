@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: Debianがeglibcからglibcに戻る 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/06/debianlibcglibcglibcforkeblicglibc.html">Debianがeglibcからglibcに戻る</a></h1>
+
+<p>
+Debianはしばらく、libcとして、glibcではなく、glibcと互換性を維持したforkであるeblicを使っていたが、このたび、glibcに戻る決定をしたそうだ。
+</p>
+
+<p>
+glibcを使っていた理由はいろいろあるが、Debianにとって重要なパッチが、glibcでは開発体制の問題により受け入れられないという政治的な理由もあったそうだ。その問題が解決されたのと、eglibcがプロジェクトとして死んだので、戻るのだそうだ。
+</p>
+
+<blockquote>
+<p>
+<a href="http://blog.aurel32.net/175">Debian is switching (back) to GLIBC | Aurelien's weblog</a>
+</p>
+
+
+<p>
+5年前、<a href="http://www.debian.org">Debian</a>と多くの派生ディストロは、標準である<a href="http://www.gnu.org/s/libc/libc.html">GNU C Library (GLIBC)</a>から、<a href="http://www.eglibc.org">Embedded GLIBC (EGLIBC)</a>に<a href="http://blog.aurel32.net/47">乗り換えた</a>。Debianは、GLIBCに再び乗り換えることにする。EGLIBCの最後のリリースは<a href="http://www.eglibc.org/archives/patches/msg01327.html">2.19</a>と、プロジェクトとして死んでいるからだ。現時点で、glibcパッケージがexperimentalにアップロードされ、 <a href="https://ftp-master.debian.org/new.html">NEW queue</a>にある。
+</p>
+
+
+<p>
+EGLIBCが死んだのは、物事が良い方向に変わってきたからだ。GLIBCの開発体制は、ここ数年で、二つの大きな事件により、大きく変わった。Ulrich Drepperが<a href="http://www.linkedin.com/in/ulrichdrepper">Red Hatを辞めて</a>、GLIBC開発から手をひいたのと、<a href="https://sourceware.org/ml/libc-alpha/2012-03/msg01038.html">GLIBC steering committeが自然消失</a>したからだ。この結果、協力的なチームワークによる友好的な開発体制に変わった。開発は今やピアレビューを基本とし、結果として不具合が減少した（人間は誤りを犯すものである）。昔ならば不可能であったことも可能になった、例えば、すべてのアーキテクチャで、<a href="https://sourceware.org/ml/libc-alpha/2012-07/msg00063.html">同じレポジトリ</a>を使うとか、<a href="https://sourceware.org/ml/libc-alpha/2014-01/msg00373.html"><code>ports/</code>ディレクトリを廃止する</a>とかだ。かつては、二つのアーキテクチャー群に分かれていた。x86とかSuperHとかSPARCなどの主要アーキテクチャーは、主要レポジトリである<a href="https://sourceware.org/git/?p=glibc.git">glibcレポジトリ</a>で、ARMとかMPSなどのアーキテクチャーは、副レポジトリである<a href="https://sourceware.org/git/?p=glibc-ports.git;a=summary">glibc-portsレポジトリ</a>でサポートされていた。明らかに、分離には明確な理由はなく、変更が副レポジトリに適用され忘れることも多かった。それから、定期的な修正が行われる、本物の安定ブランチもできた。
+</p>
+
+<p>
+ほとんどの重要なEGLIBCの機能はGLIBCにマージされた。例えばbashではなくPOSIXシェルを使うとか、予約語を変えるとかだ。まだマージされていないのは、設定可能なコンポーネントだ。これは、 <a href="http://www.debian.org/devel/debian-installer/">Debian-インストーラー</a>で使う予定で、NISとｋ
+PRCをサポートせず、-Osを使った軽量版を作るとかだ。結局、そういう開発はしなかったし、Debianの対象となるハードウェアは、GLIBCのサイズより早く発展していったので、それほどの損失ではない。最終的に、EGLIBCのツリーから取り込まれなかったパッチは、5個だ。
+</p>
+
+<ul>
+<li><a href="http://anonscm.debian.org/viewvc/pkg-glibc/glibc-package/branches/glibc-2.19/debian/patches/any/local-libpic.diff?view=markup">Installation of *_pic.a files for use of mklibs in debian-installer</a></li>
+<li><a href="http://anonscm.debian.org/viewvc/pkg-glibc/glibc-package/branches/glibc-2.19/debian/patches/any/local-dynamic-resolvconf.diff?view=markup">Dynamic reload of /etc/resolv.conf</a></li>
+<li><a href="http://anonscm.debian.org/viewvc/pkg-glibc/glibc-package/branches/glibc-2.19/debian/patches/any/local-bootstrap-headers.diff?view=markup">Installation of headers during bootstrapping</a></li>
+<li><a href="http://anonscm.debian.org/viewvc/pkg-glibc/glibc-package/branches/glibc-2.19/debian/patches/powerpc/local-powerpc8xx-dcbz.diff?view=markup">Workarounds for PowerPC 8xx CPUs</a></li>
+<li><a href="http://anonscm.debian.org/viewvc/pkg-glibc/glibc-package/branches/glibc-2.19/debian/patches/sh4/local-fpscr_values.diff?view=markup">Access to FPSCR on SH4</a></li>
+</ul>
+
+
+<p>
+パッケージ名は変更されない（ソースパッケージとソースを含むバイナリパッケージは除く）ので、ユーザーからは変更は意識されない。
+</p>
+
+<p>
+EGLIBCのために働いてくれた<a href="http://www.codesourcery.com">CodeSourcery</a>社員と、EGLIBCの主要な変更をGLIBCにマージするために多大な時間を割いてくれた上に、マージ状態に関する<a href="http://www.eglibc.org/archives/patches/msg01318.html">メール</a>を<a href="http://www.eglibc.org/archives/patches/msg01299.html">定期的</a>に<a href="http://www.eglibc.org/archives/patches/msg01321.html">送って</a>くれた、<a href="http://www.polyomino.org.uk/">Joseph Myers</a>感謝する。そして、GLIBCの改革を実現してくれたGLIBC側の人々と、GLIBC開発に関わったすべての<a href="https://sourceware.org/glibc/wiki/MAINTAINERS">人々</a>に感謝する。
+</p>
+</blockquote>
+
+<p>
+ちなみに、Red Hatを辞めたUlrich Drepperは、ゴールドマン・サックスに移ったのだが、<a href="http://www.reddit.com/r/linux/comments/zzhd9/strfry_the_gnu_c_library/c69camq">Reddit上では、これは2008年の経済問題を引き起こした張本人を罰するために移ったのだ</a>というジョークが書かれている。
+</p>
+
+<p>
+<a href="https://news.ycombinator.com/item?id=7913558">Debian is switching back to GLIBC | Hacker News</a>
+</p>
+
+<p>
+結局、独裁者の存在は、長期的に見れば損失が大きい。
+</p>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
