@@ -83,8 +83,7 @@ GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
 N3980では、ハッシュ計算に対応させたいクラスに、friend関数hash_appendを定義させる。そして、hash_appendをADL経由で呼び出す。
 </p>
 
-<pre>
-class X
+<pre><code>class X
 {
     int i ;
     std::vector&lt;int&gt; v ;
@@ -103,7 +102,7 @@ public :
         hash_append( h, x.i, x.v ) ;
     }
 } ;
-</pre>
+</code></pre>
 
 <p>
 このように、std::hash_appendをusing宣言で関数のブロックスコープに引っ張りこんでおいた上で、unqualified lookupでhash_appendを関数呼び出しする。すると、ADLで発見されるhash_appendと、std::hash_appendが等しくオーバーロード解決の候補となり、最適な関数が呼び出される。
