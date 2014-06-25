@@ -1,0 +1,565 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-05-pre-Rapperswil mailingのレビュー: N3980-N3989
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/06/2014-05-pre-rapperswil-mailing-n3980.html">2014-05-pre-Rapperswil mailingのレビュー: N3980-N3989</a></h1>
+
+
+<p>
+引き続き、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/#mailing2014-05">2014-05-pre-Rapperswil mailing</a>をレビューしていく。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3980.html">N3980: Types Don't Know #</a>
+</h2>
+
+<p>
+「型はハッシュのことなんざ知ったこっちゃねえんだよ」という挑発的なタイトルの論文
+</p>
+
+<p>
+ある型をunorderedコンテナーに対応させるには、ハッシュ値が計算できなければならない。ユーザー提供したクラスは、ユーザーが自力でstd::hashを特殊化してハッシュ値の計算を実装しなければならない。問題は、適切なハッシュの計算というのは、極めて難しい技術であり、そんじょそこらの並のプログラマーは正しく書くことが出来ない（我は書けるなどと豪語するのはバカの証拠である）
+</p>
+
+<p>
+これまで、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3333.html">N3333</a>や<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3876.pdf">N3876</a>で、バカでもユーザー定義型をハッシュ対応させられるようにしようという提案が出ていたが、これはどちらも、std::hashに既存の対応した型を放り込んでハッシュ値を生成するのを楽にしようというライブラリであって、汎用性に欠ける。
+</p>
+
+<p>
+そこで、ハッシュアルゴリズムをテンプレートで変えられるようにし、また、演算子を定義するかのようにクラスをハッシュ計算に対応させられる新たなライブラリ、std::uhashを提案している。
+</p>
+
+<p>
+「型はハッシュの事情など知らぬ」というのは、型はハッシュ値がどのように計算されるかという事情など知ったことではないし、知るべきでもないということだ。型が知っているのは、型のオブジェクトを区別化するための情報だ。ハッシュ値計算に必要な、オブジェクトが等しいか状態にあるかどうかに関わる情報を、ハッシュ値計算に混ぜ込む方だ。ハッシュ値がどのように計算されるかという内部事情を知る必要はない。
+</p>
+
+<p>
+N3980では、ハッシュ計算に対応させたいクラスに、friend関数hash_appendを定義させる。そして、hash_appendをADL経由で呼び出す。
+</p>
+
+<pre>
+class X
+{
+    int i ;
+    std::vector&lt;int&gt; v ;
+
+public :
+    template &lt; typename HashAlgorithm &gt;
+    friend
+    void
+    hash_append( HashAlgorithm &amp; h, X const &amp; x ) noexcept
+    {
+        // unqualified lookupでADLを発動させ、
+        // ADL経由で見つからなかった時にstd::hash_appendを発見できるようにするための
+        // 小汚いテクニック
+        using std::hash_append ; 
+
+        hash_append( h, x.i, x.v ) ;
+    }
+} ;
+</pre>
+
+<p>
+このように、std::hash_appendをusing宣言で関数のブロックスコープに引っ張りこんでおいた上で、unqualified lookupでhash_appendを関数呼び出しする。すると、ADLで発見されるhash_appendと、std::hash_appendが等しくオーバーロード解決の候補となり、最適な関数が呼び出される。
+</p>
+
+<p>
+クラス定義内でfriend関数定義をしているので、このhash_appendは、ADL経由でしか呼び出すことが出来ない。
+</p>
+
+<p>
+実際にハッシュを計算するのは、テンプレート引数HashAlgorithmによって、ハッシュ計算に必要な情報を指示する部分から切り離している。
+</p>
+
+<p>
+最終的に、ハッシュ計算はビット列をhashAlgorihmに渡すところにまで落とされる。
+</p>
+
+<p>
+さて、hash_appendは、operator ==と密接に関係している。すなわち、
+</p>
+
+<ol>
+<li>x == y ならば、xとyは、hash_appendに同じメッセージを送る</li>
+<li>x != y ならば、xとyは、hash_appendに異なるメッセージを送る</li>
+</ol>
+
+<p>
+オブジェクトが等しいならば、同じハッシュ値が計算されて欲しいので、同じ情報が送られなければならない。オブジェクトが等しくないのであれば、異なる情報が送られなければならない。ということだ。
+</p>
+
+<p>
+たとえば、vectorを考える。vectorのoperator ==は、size()を比較してから、要素を比較すると定義されている。このため、vectorのhash_appendは、size()をハッシュ計算のメッセージとして送るべきである。
+</p>
+
+<p>
+なぜか。もし、size()がハッシュ計算に使われなければ、以下の二つのオブジェクトが、ハッシュ計算では等しいメッセージとして見えてしまう。
+</p>
+
+<pre><code>std::vector&lt;std::vector&lt;int&gt;&gt; v1{};
+std::vector&lt;std::vector&lt;int&gt;&gt; v2{1};
+</code></pre>
+
+<p>
+もしsize()をハッシュ計算に使わないと、v1は空なので何もメッセージを送らない。v2は内側のvectorを送るが、内側のvectorは空なので、ハッシュ計算に使うべき情報を送らない。したがって、どちらも同じメッセージになってしまう。
+</p>
+
+<p>
+このため、size()をハッシュ値計算に混ぜ込む必要がある。問題は、size()は先に送るか後に送るかということだ。先に送る場合、std::forward_listのようなコンテナは、size()を計算するのにコストがかかるため、コンテナーは後に送るということで統一しようと論文は提案している。
+</p>
+
+<p>
+ハッシュ値の計算には、contiguously hashableという概念がでてくる。これは、あるT型の任意の値x, yに対して、x == yならば、memcmp(addressof(x), addressof(y), sizeof(T)) == 0 がtrueとなることである。つまり、x == yならば、xとyは全く同一のビットパターンを持たねばならない。また、パディングビットのような、任意の値を取れるようなビットがあってはならない。
+</p>
+
+<p>
+論文では、ある型Tがcontiguously hashableかどうかを調べるtraits、is_contiguously_hashable&lt;T&gt;を提案している。
+</p>
+
+<p>
+整数が2の補数表現の環境の場合、intはcontiguously hashableである。
+</p>
+
+<p>
+IEEE浮動小数点数は、contiguously hashableではない。なぜならば、0 == -0ではあるが、0と-0のビットパターンは同一ではないからだ。したがって、IEEE浮動小数点数を使う環境では、ハッシュ計算には特別なはからいをしなければならない。
+</p>
+
+<p>
+boost::hash_combineとの違いは、hash_appendはビット列をそのまま送り込むのに対し、hash_combineは、個々にハッシュ値を計算し、複数のハッシュ値から、そこそこ使えるハッシュ値を計算するものである。hash_appendの方がハッシュ値計算をネイティブにサポートしている。
+</p>
+
+<p>
+hash_appendはVariadic Templatesで実装されていて、引数をいくつも渡せる。
+</p>
+
+<p>
+現在、ハッシュ計算としてよく使われているアルゴリズムで、N3980提案で効率的に実装できないものに、<a href="https://code.google.com/p/cityhash/">CityHash</a>がある。これはCityHashは、後ろから計算していくためである。
+</p>
+
+<p>
+とはいっても、CityHashと同等の計算速度や品質をもったアルゴリズムは他にもあるので、CityHashを考える必要はないとしている。
+</p>
+
+<p>
+また、このライブラリは、SHA-2などのセキュアなハッシュ値計算に使うためにも転用できる。
+</p>
+
+<p>
+pimplにどのように対応するかという問題は、HashAlgorithmをstd::functionでラッパーしてtype erasureすることにより、仮想関数呼び出しで実行時に呼び出し先を決定することができるとしている。
+</p>
+
+<p>
+また、unorderedコンテナーのハッシュ計算は、同じ数と値の要素をもつコンテナー同士で同一のハッシュ値を計算する方法は、ないこともないが、どれも一長一短で、汎用的な方法がないため、この提案では規定しないとしている。
+</p>
+
+<p>
+この論文を読むのは時間がかかった。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3981.html">N3981: Removing trigraphs??!</a>
+</h2>
+
+<p>
+トライグラフを規格から削除する提案。タイトルが面白い。??!はトライグラフで|に置換される。
+</p>
+
+<p>
+ある巨大なコードベースに対して、トライグラフ風の文字列を検索した所、
+</p>
+
+<ul>
+<li>
+<p>
+923件のトライグラフ置換を防ぐためにエスケープされた?
+</p>
+
+<pre><code>string pattern() const { return "foo-????\?-of-?????"; }
+</code></pre>
+</li>
+
+<li>
+4件のトライグラフが、意図的にテストコードで使われていた。コンパイラーのためのテストコード2件と、boostのプリプロセッサーライブラリのテストコード2件。
+</li>
+
+<li>
+0件のトライグラフが、意図的にプロダクションコードで使われていた。
+</li>
+</ul>
+
+<p>
+明らかに、トライグラフはC++の足かせになっている。
+</p>
+
+<p>
+論文は、規格からトライグラフを削除する提案をしていて、そのための文面も提示している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3982.html">N3982: Rvalue reference overloads for optional</a>
+</h2>
+
+<p>
+optionalのメンバー関数、valueとoperator *にref-qualifierがrvalueリファレンス版のオーバーロードを追加する提案。これはむしろ、バグフィクスと言える。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3983.pdf">[せっかくやる気になっていたのに忌々しいPDF] Hashing tuple-like types</a>
+</h2>
+
+<p>
+N3980とは違って控えめな提案。
+</p>
+
+<p>
+std::pair, std::tuple, std::arrayをstd::hashに対応させる提案。これにより、tupleなどをunorderedコンテナーに突っ込める。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3984.pdf">[嫌気が差すPDF] N3984: Adding attribute reflection to C++.</a>
+</h2>
+
+<p>
+よくわからない変な提案。TSへの提案のようだが、あまりに違和感を覚える機能のためだろうか。また、どうもサンプルコードに誤りが多い。
+</p>
+
+<p>
+どうも論文の記述が詳細ではないので、よく理解しにくいが、この提案は、クラスに、初期化子が書かれたattributeをクラスに付加し、typedefキーワードを使った文法でconstexprインスタンスとして取り出す機能である。typedefキーワードを使った文法は、N3951提案を拡張している。
+</p>
+
+<pre><code>
+struct serializable { } ;
+
+struct getter { std::string name ; } ;
+struct setter { std::string name ; } ;
+
+struct [[serializable]] X
+{
+private :
+    int index_ ;
+
+public :
+    [[ getter{"index"} ]] int index() const { return index_ ; }
+    [[ setter{"index"} ]] void set_index( int value ) { index_ = value ; }
+} ;
+
+// std::make_tuple( serializable() )  
+auto t1 = std::make_tuple( typedef&lt;[[X]]&gt;... ) ;
+
+// std::make_tuple( getter{"index"} ) 
+auto t2 = std::make_tuple( typedef&lt;[[&amp;X::index]]&gt;... ) ;
+
+// std::make_tuple( setter{"index"} )
+auto t2 = std::make_tuple( typedef&lt;[[%X::set_index]]&gt;... ) ;
+</code></pre>
+
+<p>
+このように、クラスやメンバーにattributeを付加し、またtypedefを使って、constexprインスタンスとして取り出すことができる。
+</p>
+
+<p>
+また、typedefにはrequires Cという文法で、取り出すattributeをフィルターできる。Cはテンプレート型引数ひとつとり、typedefでattrributeが返されるか否かをboolを返すconstexpr関数である。
+</p>
+
+<pre><code>
+struct Bogus { std::string str ; } ;
+struct FuckingWhat { std::string str ;} ;
+struct this_attribute_is_bullshit { std::string str ; } ;
+struct awesome { std::string str ; } ;
+
+template &lt; typename T &gt;
+constexpr bool is_awesome
+{
+    return std::is_same_v&lt;T, awesome&gt; ;
+}
+
+struct [[
+    Bogus{"Don't mind me."},
+    FuckingWhat{"Seriously, I am useless attribute."},
+    this_attribute_is_bullshit{"What did you expect huh?"},
+    awesome{"I am just awesome."} ]]
+X { } ;
+
+/*
+    std::make_tuple(
+        Bogus{"Don't mind me."},
+        FuckingWhat{"Seriously, I am useless attribute."},
+        this_attribute_is_bullshit{"What did you expect huh?"},
+        awesome{"I am just awesome."}  ) 
+*/
+auto t = std::make_tuple( typedef&lt;[[X]] &gt;... ) ;
+
+// std::make_tuple( awesome{"I am just awesome."} ) 
+auto t = std::make_tuple( typedef&lt;[[X]] requires is_awesome &gt;... ) ;
+</code></pre>
+
+<p>
+また、has_attribute&lt;X, A&gt;というtype tratisが追加される。これは、ある型XがattributeとしてA型、もしくはAから派生する型を持っている場合trueを返す。
+</p>
+
+<pre><code>
+struct Base { } ;
+struct Derived { } ;
+
+struct [[ Derived ]] X { } ;
+
+std::has_attribute_v&lt;X, Base&gt; ; // true
+std::has_attribute_v&lt;X, Derived&gt; ; // true
+</code></pre>
+
+<p>
+まあ、使い方はいろいろあるだろう。しかし、どうも個人的に、あまりにも文法や意味がわかりにくいコードに思えてならない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3985.pdf">[PDF注意] N3985: A proposal to add coroutines to the C++ standard library (Revision 1)</a>
+</h2>
+
+<p>
+コルーチンライブラリの提案。Boost.coroutineを土台にしている。
+</p>
+
+<p>
+とても重たい論文なので、軽く紹介するだけにとどめるが、std::asymmetric_coroutine&lt;T&gt;とstd::symmetric_coroutine&lt;T&gt;が追加される。
+</p>
+
+<p>
+asymmetricなコルーチンとは、コルーチンが呼び出し元を把握していて、特別な操作によって、呼び出し元に実行を返すものである。
+</p>
+
+<p>
+symmetricなコルーチンとは、呼び出し元だけではなく、任意のsymmetricなコルーチンに実行を移せる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3986.pdf">[PDFは切り詰められるべき] N3986: Adding Standard support to avoid padding within structures</a>
+</h2>
+
+<p>
+クラスのパディングを無効にする文法を追加する提案。
+</p>
+
+<p>
+C++では、クラスのサイズがいくつになるかは、規定されていない。
+</p>
+
+<p>
+以下のようなコードを考える。
+</p>
+
+<pre><code>struct SomeDataStructure
+{
+    uint8_t type ;
+    uint32_t data ;
+} ;
+</code></pre>
+
+<p>
+ここで、sizeof(SomeDataStructure)は、1 + 4とはなる保証はない。たとえば、あるアーキテクチャでは、メモリは適切にアラインされていなければならないという制約があるかも知れない。そこで、コンパイラーはパディングと呼ばれる詰め物を挿入して、アラインを合わせようとする。
+</p>
+
+<pre><code>// このコードはパディングがないものとする
+struct SomeDataStructure
+{
+    uint8_t type ;
+    uint32_t : 24 ;
+    uint32_t data ;
+} ;
+</code></pre>
+
+<p>
+また、以下のようなコードを考える。
+</p>
+
+<pre><code>struct SomeHeader
+{
+    uint8_t : 4 ;
+    uint8_t valid : 1 ;
+    uint8_t : 1 ;
+    uint8_t id : 2 ;
+} ;
+</code></pre>
+
+<p>
+この場合、sizeof(FogFrameHeader)が1になる保証はない。なるほど、4 + 1 + 1 + 2は8ビットだが、コンパイラーがパディングを挿入しないという保証は、規格上存在しない。
+</p>
+
+<p>
+しかし、このようなコードは、ビット列とその位置が重要なのであって、パディングを挿入してもらいたくないのだ。現実のコードでは、ディスク上のフォーマットや、ネットワークパケットのフォーマット、あるいはメモリを節約するハックなど、ビット列をパディングなしで明示的に指定したい需要が多くある。
+</p>
+
+<p>
+このため、主要なC++コンパイラーには、パディングを無効にする独自の機能が提供されている。したがって、パディングを無効にする機能は、標準で存在すべきである。
+</p>
+
+<p>
+N3986提案では、既存のビットフィールドの文法を拡張して、-1が指定された場合、次のビットフィールドをアラインせず、すなわちパディングを無効にする意味を持つ。
+</p>
+
+<pre><code>struct SomeDataStructure
+{
+    uint8_t type ;
+    uint8_t : -1 ;
+    uint32_t data ;
+} ;
+
+struct SomeHeader
+{
+    uint8_t : 4 ;
+    uint8_t : -1 ;
+    uint8_t valid : 1 ;
+    uint8_t : -1 ;
+    uint8_t : 1 ;
+    uint8_t : -1 ;
+    uint8_t id : 2 ;
+} ;
+</code></pre>
+
+<p>
+もし、クラスSの-1ビットフィールドの次のメンバーtがビットフィールドではない場合、そのメンバーのオフセットは、offsetof(S, t) % sizeof(t) == 0を満たす必要がある。
+</p>
+
+<pre><code>struct S
+{
+    uint8_t c ;
+    char : -1 ;
+    uint32_t t ;
+} ;
+
+static_assert( offsetof( S, t ) % sizeof(t) == 0, "This shall not be asserted" ) ;
+</code></pre>
+
+<p>
+これはTS行きなのかもしれないが、パディングを無効にする機能は、標準で欲しいところだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3987.pdf">[Yet another goddamn PDF] N3987: Yet another set of C++ type traits.</a>
+</h2>
+
+<p>
+小粒だが有益な型情報を得るtype traitsを多数追加する提案。
+</p>
+
+<p>
+is_default, is_delete, is_extern, is_explicit, is_export, is_final, is_friend, is_inline, is_mutable, is_noexcept, is_override, is_private, is_private_base_of, is_protected, is_protected_base_of, is_public, is_public_base_of, is_thread_local, is_virtual, is_virtual_base_of.
+</p>
+
+<p>
+is_defaultとis_deleteは、default化やdeleted定義されたメンバー関数ならばtrueを返す。暗黙にdefault化やdelete定義された特別メンバー関数の場合はどうなるのだろうか。他にも、デストラクターは例外指定を基本クラスから暗黙に受け継ぐ。クラス定義内で定義されたメンバー関数は暗黙にinlineになる。こういう暗黙の型情報はどうなるのだろうか。
+</p>
+
+<p>
+論文筆者に問い合わせたところ、明示的であろうが暗黙であろうが、結果には影響を及ぼすべきではないとの回答を得た。論文ではこの問題について明示的に考察していないが、するべきだと思われるので、次の改定版では言及するとのこと。また、暗黙的に指定されたかどうかを調べるis_implicitが必要かもしれないと言っていた。
+</p>
+
+<p>
+また、ローカルクラスかどうかを返すis_localや、is_pure_virtual, is_ovberload, is_direct_base_ofなどといったtype traitsも挙げられている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3988.pdf">[PDFだ・・・] N3988: Towards restrict-like aliasing semantics for C++</a>
+</h2>
+
+<p>
+C++にC99のrestrictの機能を入れるにあたっての議論をまとめた論文。
+</p>
+
+<p>
+C99のrestrictを単純にC++に入れられない理由は、thisポインターを経由するクラスメンバーへのアクセス、リファレンスへのrestrict、restrictの有無がオーバーロード解決やテンプレート実引数推定に影響するかどうか、またlambdaキャプチャーなど、C99にはない問題を考える必要があるからである。
+</p>
+
+<p>
+しかし、現実の主要なC++コンパイラーを観察すると、すべての主要なコンパイラーは、restrictキーワード、あるいは同等機能を、何らかの方法で実装している。明らかに需要がある。これは標準化が必要だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3989.html">N3989: Technical Specification for C++ Extensions for Parallelism, Working Draft</a>
+</h2>
+
+<p>
+&lt;algorithm&gt;にタグディスパッチで並列実行版とベクトル実行版を加えるTS(Technical Specification)への提案。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書いた。これを書いている最中に、筆者の近くの席から、「ああ！　一瞬死んでもらえばいいのか！」という会話が聞こえてきた。実に、プログラマーの会話というのは、文脈を離れると物騒になるものである。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
