@@ -1,0 +1,182 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: ドワンゴC++勉強会#1を開催した 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/06/c1.html">ドワンゴC++勉強会#1を開催した</a></h1>
+
+<p>
+去る6月28日に、歌舞伎座タワーのドワンゴのセミナールームで、<a href="http://connpass.com/event/6560/">ドワンゴC++勉強会 #1</a>を開催した。
+</p>
+
+<p>
+今回は、<a href="https://twitter.com/decimalbloat">でちまるさん（実際かわいい） (decimalbloat)</a>と、<a href="https://twitter.com/bolero_MURAKAMI">狂える中３女子ボレロ村上／陶芸C++er (bolero_MURAKAMI)</a>を発表者として招いて、最強の勉強会を行った。
+</p>
+
+<p>
+ボレロ村上は、コンパイル時メタプログラミングで、レイトレーシングや波形生成などを行っている。本職は岡山の陶芸家である。
+</p>
+
+<p>
+この日の発表は、テンプレートの再帰深度を下げる話や、コンパイル時レイトレーシング、波形生成、またC++の標準ライブラリのうち、constexprに対応できるものがまだまだあるという話であった。
+</p>
+
+
+<p>
+でちまるさんは、Cプリプロセッサーでメタプログラミングを行っている。本職は艦これプレイと艦これ関連のコンテンツ収集である。
+</p>
+
+<p>
+この日の発表は、いかにして数値というものを解しないCプリプロセッサーで四則演算を行うかとか、再帰もないのに現実的な回数のループを実現するかという、Cプリプロセッサーメタプログラミングにおける基本的な考え方から発表した。結局は、すべてをマクロ名の結合と置換で強引に行ってしまえばいいのだ。
+</p>
+
+<p>
+Cプリプロセサーメタプログラミングに使われている極めて強引な手法を、彼はかの有名なニンジャスレイヤーのレッドゴリラ＝サンの名言、「何事も暴力で解決するのが一番だ」を引いて説明した。言語というものは、以下に制限を加えようとも、必ず乱用されるものである。
+</p>
+
+<p>
+なお、でちまるさんは今回のCプリプロセッサーメタプログラミング発表のまとめとして、「PHPを使え」というありがたい結論を提示した。
+</p>
+
+<p>
+今回は、C++界で異彩を放つ強力な二人の発表者を呼んだので、発表内容は極めて濃くなった。二人の発表内容は、いったい何の役に立つのかと思った人もいるかもしれぬ。しかし、これらの技法は、C++の新機能を設計する上で、非常に参考になっているのだ。
+</p>
+
+<p>
+筆者は、C++の歴史と題して、C++が作られた経緯や、最近の日本のC++標準化委員会の事情を説明した。
+</p>
+
+<p>
+<a href="http://ezoeryou.github.io/cpp-history/index.html#/">C++の歴史スライド資料</a>
+</p>
+
+<p>
+さて、LT発表は5人。
+</p>
+
+<p>
+最初の発表者、<a href="https://twitter.com/minamiyama1994">南山まさかず@東京 (minamiyama1994)</a>君は、テンプレートと依存型（C++の規格用語の依存型ではない）として扱う方法について発表していた。残念ながら、筆者には理解できない世界の話であった。
+</p>
+
+<p>
+次の発表者、<a href="https://twitter.com/fimbul11">抹茶ココア (fimbul11)</a>さんは、C++14にライブラリとしても追加されたinteger sequenceの技法や、テンプレートの再帰深度を線形増加より押さえる技法について発表した。
+</p>
+
+<p>
+<a href="https://twitter.com/ponkotuy">ぽんこつ@MyFleetGirls開発中 (ponkotuy)</a>さんは、いかにCocos2dxがC++的ではないかということについて発表した。発表を聞く限り、Cocos2dxはクソであるという認識を得た。
+</p>
+
+<p>
+<a href="https://twitter.com/karupanerura">かるぱねるら (karupanerura)</a>さんの発表は、なぜか記憶に残っていない。たしかCocos2dxについてクソであると言っていた気がするが、はて。
+</p>
+
+<p>
+<a href="https://twitter.com/tikal">ψ（プサイ） (tikal)</a>ちゃんは、かわいい狐のコスプレをしていた。なんでも、いなり、こんこん、恋いろは。に出てくる、コンというキャラクターであるようだ。コンちゃんはvalgrindという、実行時メモリチェッカーについて発表した。Cocos2dxは非常にクソであると言っていた。また、AMDやnVidiaの不自由なドライバーの中のクソコードがよくvalgrindのチェックに引っかかったりしてムカつくということも言っていた。
+</p>
+
+<p>
+ドワンゴC++勉強会は、ドワンゴらしく、ニコ生による配信も行った。
+</p>
+
+<p>
+<a href="http://live.nicovideo.jp/gate/lv183986593">ドワンゴC++勉強会 #1 - 2014/06/28 14:00開始 - ニコニコ生放送</a>
+</p>
+
+<p>
+問題は、当日使っていたケーブルに不備があったので、急遽ドワンゴ社員が買いに走るなどという障害に見舞われたそうだ。
+</p>
+
+
+<p>
+今回、connpassにて参加者を募集したところ、90人枠が一日と立たずに埋まってしまった。どうやら、C++勉強会には相当の需要があるようだ。今回、参加できなかった人達のためにも、これからも頻繁に開催していきたい。
+</p>
+
+<p>
+筆者がドワンゴに入社してから、セミナールームを使って勉強会を積極的に開いてほしいとは言われていたものの、他の社員への負担などを考えて、今まで勉強会を開くことはなかった。今回、勉強会を開いてみたところ、予想以上の応募数があったので、これからは積極的に勉強会を開催したい。
+</p>
+
+<p>
+今回の勉強会は、だいぶ重い内容であったので、次の勉強会は、バランスを取るために軽くしたい。そもそも、勉強会は自分で発表してこそ勉強になるので、次回の勉強会は、一般の発表者を多く募集したいところだ。とにかくC++WG論文を早く読まねばならない。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務外に書かれた。この勉強会がドワンゴ勤務に当たるのかどうかまだ分からない。仕事であるとすれば、休日出勤となるので、振替休日がもらえるはずである。しかし、今は読むべきC++WG論文が大量にたまっているし、それにサボろうと思えばいくらでもサボれるので、どうでもいいことである。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
