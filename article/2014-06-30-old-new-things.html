@@ -1,0 +1,359 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: Old New Thing: 未定義動作はタイムトラベルを引き起こす（他にもいろいろあるけど、タイムトラベルが一番ぶっ飛んでる） 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/06/old-new-thing.html">Old New Thing: 未定義動作はタイムトラベルを引き起こす（他にもいろいろあるけど、タイムトラベルが一番ぶっ飛んでる）</a></h1>
+
+
+<p>
+<a href="http://blogs.msdn.com/b/oldnewthing/archive/2014/06/27/10537746.aspx">Undefined behavior can result in time travel (among other things, but time travel is the funkiest) - The Old New Thing - Site Home - MSDN Blogs</a>
+</p>
+
+<p>
+久しぶりに紹介するRaymond Chenのブログ記事。
+</p>
+
+<blockquote>
+<p>
+C言語とC++では、様々な部分が、<a href="http://en.wikipedia.org/wiki/Here_be_dragons">ドラゴンの住まう地</a>というレッテルを貼られている。いや、正式には、未定義動作とされている。
+</p>
+
+<p>
+未定義動作が発動した場合、何でもありだ。例えば、<a href="http://markshroyer.com/2012/06/c-both-true-and-false/">変数は同時にtrueでもfalseでもありえる</a>。John Regehrは<a href="http://blog.regehr.org/archives/759">興味深い例のリスト</a>をまとめて、<a href="http://blog.regehr.org/archives/767">未定義動作コンテストの受賞者</a>もある。
+</p>
+
+<p>
+以下の関数を考える。
+</p>
+
+<pre><code>int table[4];
+bool exists_in_table(int v)
+{
+    for (int i = 0; i &lt;= 4; i++) {
+        if (table[i] == v) return true;
+    }
+    return false;
+}
+</code></pre>
+
+<p>
+<a href="http://blogs.msdn.com/b/oldnewthing/archive/2013/10/11/10455907.aspx#10456678">これがタイムトラベルと何の関係があるんだ</a>、と読者は疑問に思うであろう。ちょっと待て、あわてんぼうさん。
+</p>
+
+<p>
+まず、ループの処理に間違いがあることに気がつくはずだ。結果として、関数はループを終了する前に、table配列の最後の一つ後ろを読んでしまう。古典的なコンパイラーは、特にこれを気にしない。単に、（それが言語のルールに違反するものであるにも関わらず）配列の要素の範囲を超えた領域を読むコードを生成するだけだし、配列の最後の一つ後の要素が条件にあうならばtrueを返す。
+</p>
+
+<p>
+一方、古典的ではないコンパイラーは、以下のような解析を行うかもしれない。
+</p>
+
+<ul>
+<li>
+ループの最初の4回の実行で、関数はtrueを返すかもしれない
+</li>
+
+<li>
+iが4のとき、コードは未定義動作を行う。未定義動作は何をしてもよいので、我輩としてはそんなの無視して、iは決して4にはならないものとして話を進める。（もし、この仮定が破られた場合、何か予期せぬことが起こるであろうが、まあ、そんなことはどうでもよい。未定義動作は、我輩にとっては何をしてもいいことなのだからな）
+</li>
+
+<li>
+iが5の場合は、決して発生しない。なぜならば、iが5に到達するには、iはまず、4に到達しなければならない。吾輩は、すでにiが4には到達しないと看過しておるからだ。
+</li>
+
+<li>
+故に、すべての合法なコードパスはtrueを返すものである。
+</li>
+</ul>
+
+<p>
+この結果、非古典的コンパイラーは、関数を以下のように最適化できる。
+</p>
+
+<pre><code>bool exists_in_table(int v)
+{
+    return true;
+}
+</code></pre>
+
+<p>
+やれやれ、こいつはちっと変だな。関数は未定義動作によって最適化されたため、何もしなくなってしまった。たとえ値がtableに存在しなくても（アクセスするのが違法な5番目の要素にすらなくても）、関数はtrueを返すのだ。
+</p>
+
+<p>
+さて、この非古典的挙動をもっと推し進めてみよう。コンパイラーは、未定義動作は決して起こらぬものと看過できる（なぜならば、もし起こった場合、コンパイラーは何でもすることが許されている）のであるから、コンパイラーは未定義動作を最適化の助けとできる。
+</p>
+
+<p>int value_or_fallback(int *p)
+{
+ return p ? *p : 42;
+}
+</p>
+
+<p>
+上記の関数は、int型へのポインターを取り、ポイントしている値か、（もしポインターがnullの場合は）、フォールバック値である42を返す。ここまではいい。
+</p>
+
+<p>
+さて、この関数にデバッグ用のコードを挿入してみよう。
+</p>
+
+<pre><code>int value_or_fallback(int *p)
+{
+ printf("The value of *p is %d\n", *p);
+ return p ? *p : 42;
+}
+</code></pre>
+
+<p>
+この新しい行には、バグがある。ポインターpをnullであるかどうか確認せずにデリファレンスしているのだ。この些細なバグは、様々な結果を引き起こす。非古典的なコンパイラーは、この関数を以下のように最適化する。
+</p>
+
+<pre><code>int value_or_fallback(int *p)
+{
+ printf("The value of *p is %d\n", *p);
+ return *p;
+}
+</code></pre>
+
+<p>
+なぜならば、コンパイラーは、nullポインターチェックは必要ないと看過するからだ。もし、ポインターがnullであれば、どうせprintfは未定義動作を引き起こすのであるからして、コンパイラーはポインターがnullの場合は、何でもすることが出来るのだ（これにはポインターがnull出ないがごとく振る舞うことも含まれる）
+</p>
+
+<p>
+さて、これまだまだ驚くに当たらない。読者の中には、コンパイラーの最適化としてむしろ期待している仁もいるだろう（例えば、もし三項演算子がマクロの中に隠されていた場合、それがおそらくはfalseの場合、コンパイラーに除去して欲しいと思うだろう）
+</p>
+
+<p>
+しかし、非古典的なコンパイラーは、このバグ関数を利用して、タイムトラベルを始めるのだ。
+</p>
+
+<pre><code>void unwitting(bool door_is_open)
+{
+ if (door_is_open) {
+  walk_on_in();
+ } else {
+  ring_bell();
+
+  // wait for the door to open using the fallback value
+  fallback = value_or_fallback(nullptr);
+  wait_for_door_to_open(fallback);
+ }
+}
+</code></pre>
+
+<p>
+非古典的なコンパイラーは、この関数全体を、以下のように最適化できる。
+</p>
+
+<pre><code>void unwitting(bool door_is_open)
+{
+ walk_on_in();
+}
+</code></pre>
+
+<p>
+ハァ？
+</p>
+
+<p>
+value_or_fallback(nullptr)という呼び出しは、すべてのコードパスで未定義動作を引き起こすとコンパイラーは認識する。この解析を前方に持ってくると、door_is_openがfalseであった場合、else分岐はすべてのコードパスで未定義動作であると認識する。つまり、else分岐全体が、到達不可能である。[2]
+</p>
+
+<p>
+さて、タイムトラベルの時間だ。
+</p>
+
+<pre><code>
+void keep_checking_door()
+{
+ for (;;) {
+  printf("Is the door open? ");
+  fflush(stdout);
+  char response;
+  if (scanf("%c", &amp;response) != 1) return;
+  bool door_is_open = response == 'Y';
+  unwitting(door_is_open);
+ }
+}
+</code></pre>
+
+<p>
+非古典的なコンパイラーは、解析結果を持ってきて、「もし、door_is_openがfalseであれば、挙動は未定義である」とし、函数を以下のように書き換えるかもしれない。
+</p>
+
+<pre><code>void keep_checking_door()
+{
+ for (;;) {
+  printf("Is the door open? ");
+  fflush(stdout);
+  char response;
+  if (scanf("%c", &amp;response) != 1) return;
+  bool door_is_open = response == 'Y';
+  if (!door_is_open) abort();
+  walk_on_in();
+ }
+}
+</code></pre>
+
+<p>
+これをみると、オリジナルのコードは、クラッシュする前にドアベルを鳴らすが、書き換えられた関数は、ベルを鳴らすのをスキップして即座にクラッシュする。これは、コンパイラーは過去に戻ってベルを鳴らさないようにしたともとれる。
+</p>
+
+<p>
+この、「過去にさかのぼる」というのは、ファイルのような外部にみえるオブジェクトでも起こりうる。なぜならば、標準規格は未定義動作を引き起こした時、何でもありなことを認めているからだ。その何でもありというのは、タイムマシンに飛び乗って、fwriteを呼び出さなかったかのように振る舞うことも含まれる。
+</p>
+
+<p>
+コンパイラーはタイムトラベルを引き起こすなど許されないと主張したとしても[1]、先行する処理がなかったことにされることはある。例えば、未定義の操作により、ファイルバッファーが破壊され、データは実際に書き込まれないということが起こりうる。たとえ、バッファーがフラッシュされたとしても、未定義の操作はftruncateを呼び出して、論理的に書き込んだデータを除去することがありうる。あるいは、作ったはずのファイルにDeleteFileを呼び出してファイルをデリートすることもあり得る。
+</p>
+
+<p>
+これらの挙動はすべて、同じ観測効果を持つ。特に、先行する処理が発生しなかったようにみえる。それが実際に起きてなかったことにされたのか、最初から起こらなかったのかは、コンパイラー理論の上からは、どうでもいいことである。
+</p>
+
+<p>
+コンパイラーは未定義処理の結果を時間をさかのぼって適用することもできるということだ。
+</p>
+
+<p>
+[1] 標準規格は、明示的に未定義動作によるタイムトラベルを認めている。
+</p>
+
+<blockquote>
+<p>
+しかし、もしそのような実行が未定義の操作を含む場合、この国際標準規格は実装に対し、そのような入力に対し、いかなる実行上の制約をも課すことはない（未定義操作に先行する操作をも含む）
+</p>
+</blockquote>
+
+<p>
+[2] この変換を考える別の視点としては、コンパイラーはelse分岐はすべてのコードパスで未定義の挙動を引き起こすので、コードを以下のように書き換えるとみることもできる。
+</p>
+
+<pre><code>void unwitting(bool door_is_open)
+{
+ if (door_is_open) {
+  walk_on_in();
+ } else {
+  walk_on_in();
+ }
+}
+</code></pre>
+
+<p>
+未定義動作では何が起こっても許されるというということを利用した例だ。この例では、「walk_on_inを間違って呼ぶ」という何かになる。
+</p>
+
+<p>
+ボーナス小ネタ：未定義動作には、一見すると明らかではない場合もある。例えば、nullポインターをデリファレンスするのは、何か危険なことをする前にデリファレンスの対策をしたとしても、依然として未定義動作になる。
+</p>
+
+<pre><code>int *p = nullptr;
+int&amp; i = *p;
+foo(&amp;i); // undefined
+</code></pre>
+
+<p>
+&amp;と*は、お互いに打ち消しあい、あたかもfoo(p)と書いたかのようになると考えるかもしれないが、存在しないオブジェクトへのリファレンスを作った時点で、使わなくても、未定義動作を引き起こすのだ(§8.5.3(1))
+</p>
+
+<p>
+参考文献：なぜすべてのCプログラマーは未定義動作について知らねばならないのか。<a href="http://blog.llvm.org/2011/05/what-every-c-programmer-should-know.html">Part 1</a>, <a href="http://blog.llvm.org/2011/05/what-every-c-programmer-should-know_14.html">Part 2</a>, <a href="http://blog.llvm.org/2011/05/what-every-c-programmer-should-know_21.html">Part 3</a>
+</p>
+
+</blockquote>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+ところで、6月28日に土曜日に開催したドワンゴC++勉強会#1は、あまりにも本物のC++プログラマーを呼んでしまった。本物のプログラマーは怠惰を美徳とするものである。また、本当に必要になるまで行動しないものである。そのため、二人とも、勉強会の前日、当日にスライド資料を作成するという、エクストリーム資料作成を敢行していた。
+</p>
+
+<p>
+また、にわかにでっち上げたドワンゴC++勉強会#1は、どうやら出勤扱いになるらしく、筆者には振替休日が与えられた。振替休日となるべき日は筆者が自由に設定できるので、もちろん、図々しくも今度の月曜日に設定して申請しておいた。
+</p>
+
+<p>
+今後も勉強会は積極的に開催していきたい。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
