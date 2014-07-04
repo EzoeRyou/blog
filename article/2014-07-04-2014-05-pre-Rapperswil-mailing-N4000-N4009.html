@@ -1,0 +1,373 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-05-pre-Rapperswil mailingのレビュー: N4000-N4009
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/07/2014-05-pre-rapperswil-mailing-n4000.html">2014-05-pre-Rapperswil mailingのレビュー: N4000-N4009</a></h1>
+
+<p>
+さて、さくさくC++WG論文を解説していく。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4000.pdf">[記念すべきキリ番がPDF] N4000: Towards a Transaction-safe C++ Standard Library: std::list</a>
+</h2>
+
+<p>
+STLコンテナーをトランザクションセーフにするための研究の一環として、std::listをトランザクションセーフに書き直してみた実験の報告。STLコンテナー自体をトランザクションセーフにすることで、ユーザーが明示的にトランザクショナルメモリーのコードを書かなくてもすむ。
+</p>
+
+<p>
+実験は、現在提案されているTransactinal Memoryを実験的に実装したGCC 4.9とそのstd::listの実装に対して行われた。
+</p>
+
+<p>
+論文によると、十分に実装可能であり、変更は最小限ですんだという。変更の大半は、メモリ確保と解法、swap関数にtransaction_safeキーワードを使うだけだという。
+</p>
+
+<p>
+論文では、実装経験の結果持ち上がった問題についても論じている。
+</p>
+
+<p>
+size()が定数時間
+</p>
+
+<p>
+C++11では、すべてのコンテナーのsize()のオーダーは低数時間であると定められた。これは、std::listをトランザクショナルセーフにする際に、scalableではなくなるという問題を引き起こす。ライブラリ拡張WGのメンバーは、C++11で軽々しくsize()を低数時間にしたのは誤りであったと認めた。議論の結果、この問題に対処するためにsize()のcomplexityを再び変更するなどということは行わないことで合意したそうだ。
+</p>
+
+<p>
+size()がconst noexcept
+</p>
+
+<p>
+トランザクショナルメモリーは、ロールバックを認めている。ロールバックを行うには、副作用を一時的に保持しておくストレージを確保する必要がある。ストレージを確保しようとして、確保できない場合が発生すると、bad_allocがthrowされるが、それはconst noexceptであるsize()の中で起こる。しかし、const noexceptな関数の中からそれはできない。これに対処するためには、もっと安全な方法で実装を余儀なくされる。
+</p>
+
+<p>
+議論の結果、実装に内部的な静的ストレージをロックやトランザクションで保護できる自由を与えればよかろうという方向に向かったようだ。
+</p>
+
+<p>
+非安全な処理を行う要素型への対応
+</p>
+
+<p>
+std::listの要素型が、コンストラクターや代入の歳に、ロールバックできない副作用(I/Oなど)を引き起こす場合、いったいどうすればいいのか。
+</p>
+
+<p>
+議論と経験の結果、実装はそのような非安全な要素型のインスタンス化を阻害すべきではないが、トランザクションのなかでそのようなメンバー関数を呼び出すことを、コンパイラーは禁止すべきであるという。
+</p>
+
+<p>
+論文では、GCCでは、多少の変更でこの挙動を実現可能であるとしている。
+</p>
+
+<p>
+論文では、この後、std::listに施した具体的な変更内容の説明が続いている。実験的実装をしたstd::listは、以下のGitHubレポジトリにおいてある。
+</p>
+
+<p>
+<a href="https://github.com/mfs409/tm_stl">mfs409/tm_stl</a>
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4001.pdf">[テキストのみのPDFにする理由が一切感じられないPDF] N4001: SG5: Transactional Memory (TM) Meeting Minutes 2014/02/03-2014/05/19</a>
+</h2>
+
+<p>
+トランザクショナルメモリーに関する会議の議事録
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4002.pdf">[PDFも消毒だ] N4002: Cleaning-up noexcept in the Library</a>
+</h2>
+
+<p>
+標準ライブラリにnoexceptを着ける基準を見直す提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4003.html">File System TS Active Issues List (Revision R1)</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4004.html">File System TS Closed Issues List (Revision R1)</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4005.html">File System TS Defect Report List (Revision R1)</a>
+</h2>
+
+<p>
+Filesystem TSに持ち上がっている問題、解決済みの問題、議論の結果問題ではなかったと判断された既存の問題のリスト。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4006.html">N4006: An improved std::{unordered_,}map::emplace</a>
+</h2>
+
+<p>
+std::mapとstd::unordered_mapのemplaceにムーブ可能な値を渡すと、実際にムーブされるかどうかは、未規定である。
+</p>
+
+<pre><code>
+std::map&lt;std::string, std::unique_ptr&lt;Foo&gt;&gt; m;
+m["foo"] = nullptr;
+
+std::unique_ptr&lt;Foo&gt; p(new Foo);
+auto res = m.emplace("foo", std::move(p));
+</code></pre>
+
+<p>
+上記のコードを実行した結果、pがムーブされるかどうか、つまりassertに引っかかるかどうかは、規格上、未規定である。emplaceはひょっとしたらpをムーブせずにコピーするかもしれない。
+</p>
+
+<p>
+emplace自体を修正するのは難しいので、挙動を保証した、emplace_stableとemplace_or_updateを新たに追加しようという提案をしたのが、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3873.html">N3873</a>だ。
+</p>
+
+<p>
+Issaquah会議で議論した結果、emplaceは動くべき(Just Work)だという意見が大勢を占めたので、この提案では、従来ひとつだったemplaceを三つに分割する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4007.htm">N4007: Delimited iterators (Rev. 2)</a>
+</h2>
+
+<p>
+ostream_iteraterの改造版、ostream_jointerの提案。
+</p>
+
+<p>
+ostream_iteraterは、以下のように使いたくなる。
+</p>
+
+<pre><code>
+std::vector&lt;int&gt; v = { 1, 2, 3 } ;
+std::cout &lt;&lt; "(" ;
+std::copy( v.begin(), v.end(), std::ostream_iterator&lt;int&gt;( std::cout, ", " ) ) ;
+std::cout &lt;&lt; ")"
+</code></pre>
+
+<p>
+なるほど、これは汎用的なアルゴリズムを適用できて便利だ。しかし、この出力は、以下のようになる。
+</p>
+
+<pre><code>(1, 2, 3, )</code></pre>
+
+<p>
+実は、ostream_iteraterのデリミターは、実はデリミターではなくて、サフィックスとでもいうべき動きをするのだ。
+</p>
+
+<p>
+そこで、本当にデリミターとして働くostreamのイテレーターラッパーが提案されている。ostream_jointerだ。ostream_jointerを作るためのmake_ostream_jointerもあって、以下のように使う。
+</p>
+
+<pre>
+std::copy( v,begin(), v.end(), std::make_ostream_jointer( std::cout, ", " ) ) ;
+</pre>
+
+<p>
+これを実行すると、出力は、(1, 2, 3)となる。
+</p>
+
+<p>
+なお、この論文筆者は、学生に課題としてこれの実装を毎年課しているという。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4008.pdf">[PDFは同時に粉砕されるべき] N4008: SIMD polymorphism</a>
+</h2>
+
+<p>
+コンパイル時に最適なSIMD関数を型システムによって選ぶ、SIMDポリモーフィズムの提案。
+</p>
+
+<p>
+ある関数があって、その関数に対して、特定の条件に対しては効率的なSIMD関数を生成できるとする。条件というのは、例えば、ループの中で、関数の引数が、固定、線形に変化、不定といった条件だ。これらの条件に対して、最適なSIMD関数を生成する。
+</p>
+
+<p>
+論文は、OpenMPなどの既存のSIMD用の実装による経験を元に書かれている。論文では、上記のような条件を記述するための、何らかの文法があるものと仮定して話を進めている。
+</p>
+
+<p>
+さて、あるひとつの関数に対して、条件ごとに最適な複数のSIMD関数コードと、安全にフォールバックするための通常関数コードを生成したとする。この複数の関数から、どのようにして、特定の条件に会う最適な関数を選べばいいのだろうか。
+</p>
+
+<p>
+コンパイル時条件分岐というと、まずまっさきに思い浮かぶのが、テンプレート実体化とオーバーロード解決だ。残念ながら、この二つのコンパイル時条件分岐は、あまりにも選択が早すぎる。最適なSIMD関数を選ぶための条件は、テンプレート実体化やオーバーロード解決が終わった後、コンパイラーによるデータフロー解析の結果、判明する。したがって、条件が判明した時には、すでに選択が行われてしまっている。
+</p>
+
+<p>
+論文では、この選択には、型システムを使うべきだと主張している。関数の集合を、ひとつの型として認識する。もちろん、関数へのポインターも、通常の関数ポインターとは異なる型で、しかもひとつの型として認識する。その実態は、複数の関数が、条件に従って適切に選ばれるのだ。実装は複数の関数の中から、適切なSIMD関数にディスパッチする。適切なSIMD関数を選択するのは、ループの外で行われるので、virtual関数呼び出しのようなパフォーマンスの問題はない。
+</p>
+
+<p>
+ひとつの関数から生成される複数のSIMD関数と通常関数のコードは、ユーザーからは完全に一つの型、SIMDポリモーフィズムな型としてみえる。ユーザーが特定のひとつのSIMD関数を個別に参照することはできない（特定の条件で呼び出せば、間接的に選択可能ではあるが）
+</p>
+
+<p>
+論文では、通常の関数へのポインターとSIMDポリモーフィズムな関数へのポインターを、相互に型変換できるべきであるとしている。また、相互に等価を比較できるべきであるとしているが、等価比較には、色々とコストがかかり、最適な実装方法がないとしている。
+</p>
+
+<p>
+また、複数のアーキテクチャが混在するヘテロコンピューター環境が珍しくない現代、このSIMDポリモーフィズムの機構を使って、実行時に最適なコードを選ぶといった将来性もあるであろうが、この論文では、今回はそれを考察しないと結んでいる。
+</p>
+
+<p>
+ただでさえわかりにくい型シムテムを、さらにわかりにくくする提案だ。そして、まだ具体的なSIMD条件を記述するための文法が提案されていない以上、この論文だけではどうしようもない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4009.htm">N4009: Uniform Container Erasure</a>
+</h2>
+
+<p>
+コンテナーから条件を満たした要素をすべて消し去り、サイズも変えるerase_if(container, pred)の提案。
+</p>
+
+<p>
+以下のように使う。
+</p>
+
+<pre><code>
+std::vector&lt;int&gt; v = { 1231, 132, 2321 , 222, 35, 6643, 11, 2, 890, 33} ;
+
+std::erase_if( v, [](auto &amp;&amp; elem ){ return elem &gt; 100 } ) ;
+
+// vは{1231, 132, 2321, 222, 6643, 890}
+</code></pre>
+
+<p>
+従来、これをするには、以下のように書く必要があった。
+</p>
+
+<pre><code>
+v.erase(
+    std::remove_if(v.begin(), v.end(),
+        [](auto &amp;&amp; elem ){ return elem &gt; 100 }
+    )
+    , v.end()
+    ) ;
+</code></pre>
+
+<p>
+しかし、もし以下のように書いてしまった場合、意図通りには動かない上に、コンパイルが取ってしまい、実行できてしまう。
+</p>
+
+<pre><code>
+v.erase(
+    std::remove_if(v.begin(), v.end(),
+        [](auto &amp;&amp; elem ){ return elem &gt; 100 }
+    ) ) ;
+</code></pre>
+
+<p>
+これは、STLコンテナーのeraseメンバー関数には、イテレーターをひとつだけ取るオーバーロードと、イテレーターの範囲を取るオーバーロードがあるからだ。コンパイラーはこのミスを警告すらできない。
+</p>
+
+<p>
+このため、erase_ifを提案する。
+</p>
+
+<p>
+なぜerase_ifはメンバー関数ではないのか。このようなコンテナーごとに最適な実装が異なるアルゴリズムは、従来ならばメンバー関数として実装していたではないか。この理由としては、basic_stringがやりすぎてカオスなことになってしまっているのを反省してのことらしい。
+</p>
+
+<p>
+また、名前がややこしいという問題もある。eraseとremoveは意味が似通っていてわかりにくい。論文ではこの疑問に対して、eraseというのは、listとforward_listのような例外を除けば、コンテナーのサイズを変更する場合に一貫して使われている。コンテナーのサイズを変更するremoveはない。また、eraseという非メンバー関数は使われていないとしている。
+</p>
+
+<p>
+ただし、やはりわかりにくいとは思う。バイク小屋議論は尽きないものだ。
+</p>
+
+<p>
+なぜpredicateだけなのか。なぜ削除すべき値を指定するオーバーロードはないのか。問題は、連想コンテナーとunordered連想コンテナーには、erase(key)というメンバー関数があり、混同しやすいからだとしている。
+</p>
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+この記事を執筆中に、社内の筆者の近所の席から、何やらダースベイダーの呼吸音のような音が聞こえると思ったら、ビーダマン後期の製品、コバルトブラスタードライブキャノンとデストロイドラゴンで遊ぶエンジニアがいた。リモコンで前身と旋回操縦可能な上に、ビー玉単発や連写までできるすぐれものだ。ただし、シメ撃ちはできそうにない。シメ撃ちできないと滝をぶち破ったりできないと思うのだが、いったいどうするのだろうか。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
