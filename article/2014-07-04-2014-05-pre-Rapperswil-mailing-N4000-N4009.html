@@ -205,9 +205,9 @@ std::cout &lt;&lt; ")"
 そこで、本当にデリミターとして働くostreamのイテレーターラッパーが提案されている。ostream_jointerだ。ostream_jointerを作るためのmake_ostream_jointerもあって、以下のように使う。
 </p>
 
-<pre>
+<pre><code>
 std::copy( v,begin(), v.end(), std::make_ostream_jointer( std::cout, ", " ) ) ;
-</pre>
+</code></pre>
 
 <p>
 これを実行すると、出力は、(1, 2, 3)となる。
@@ -276,7 +276,7 @@ std::copy( v,begin(), v.end(), std::make_ostream_jointer( std::cout, ", " ) ) ;
 <pre><code>
 std::vector&lt;int&gt; v = { 1231, 132, 2321 , 222, 35, 6643, 11, 2, 890, 33} ;
 
-std::erase_if( v, [](auto &amp;&amp; elem ){ return elem &gt; 100 } ) ;
+std::erase_if( v, [](auto &amp;&amp; elem ){ return elem &lt; 100 } ) ;
 
 // vは{1231, 132, 2321, 222, 6643, 890}
 </code></pre>
