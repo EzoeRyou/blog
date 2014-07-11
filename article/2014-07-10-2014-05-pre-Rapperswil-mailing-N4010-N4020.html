@@ -248,8 +248,8 @@ expectedのメンバー関数valueは、値がある場合は値を、そうで�
 <pre><code>
 double f1 ( double i, double j, double k )
 {
-    auto s1 = safe_divide( i, k ).value() ;
-    auto s2 = safe_divide( j, k ).value() ;
+    auto s1 = safe_divide( i, k ) ;
+    auto s2 = safe_divide( j, k ) ;
 
     if ( s1 &amp;&amp; s2 )
     {
