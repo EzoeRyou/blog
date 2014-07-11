@@ -1,0 +1,440 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-05-pre-Rapperswil mailingのレビュー
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/07/2014-05-pre-rapperswil-mailing.html">2014-05-pre-Rapperswil mailingのレビュー</a></h1>
+
+<p>
+すでに2014-07 post-Raperswil mailingsが公開されているので、レビューを急ぎたいが、さっと読んで終わりにも出来ぬのが辛いところだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4010.html">C++ Standard Evolution Active Issues List</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4011.html">C++ Standard Evolution Completed Issues List</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4012.html">C++ Standard Evolution Closed Issues List</a>
+</h2>
+
+<p>
+C++の新機能の議論の場である。C++ Evolution Working Group(EWG)で、現在既知の問題、解決済みの問題、議論の結果問題ではないと結論された問題のリスト。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4013.html">N4013: Atomic operations on non-atomic data</a>
+</h2>
+
+<p>
+非アトミック型に対するアトミック操作を可能とする提案。
+</p>
+
+<p>
+C++11とC11で標準化されたアトミック操作は、アトミック型のオブジェクトに対してしか行えない。オブジェクトはアトミック型であると明示的に宣言する必要がある。
+</p>
+
+<p>
+アトミック操作できるオブジェクトを、型システムで管理するのは理にかなっている。標準規格で厳密に制定された挙動の保証を受けられるし、うっかり非アトミック操作してしまうことをふせぐことができるからだ。また、アトミック操作が不可能な場合をなくせる。例えば、アトミック操作をするオブジェクトは適切にアライメントされていなければならないアーキテクチャで、アトミック型ではないために、アトミック操作に必要な厳格なアライメントがされていない場合、アーキテクチャの制約上、アトミック操作はできない。何らかのロックを使って実装しなければならないが、それではアトミック操作の意味がない。
+</p>
+
+<p>
+しかし、現実のコードは、C++11、C11以前から書かれているレガシーコードばかりである。ほとんどの既存のコードは、環境依存の方法（gccの__syncやMSVCのInterlockedなど）でアトミック操作を行っている。アトミック操作するオブジェクトは、宣言時に明示的にアトミック型であると宣言されてはいない。このような既存の莫大なレガシーコードを、すべてC++11やC11のアトミック型に移植するのはいかにも無理だ。
+</p>
+
+<p>
+具体的な例としては、Linuxカーネルが挙げられる。リーナスはC11のアトミック操作モデルに対して反感を持っている。
+</p>
+
+<p>
+ではどうするか。もちろん、一部の環境では、以下のようなコードが動くかもしれない。
+</p>
+
+<pre><code>
+int x;
+reinterpret_cast&lt;atomic&lt;int&gt;&amp;&gt;(x).fetch_add(1);
+</code></pre>
+
+<p>
+しかし、動くという保証はどこにもない。
+</p>
+
+<p>
+そこで、この論文では、非アトミック型Tから、atomic&lt;T&gt;に変換できるかどうかを調べられる機能と、実際に変換する機能を、ライブラリとして追加する提案となっている。変換可能かどうか調べる機能は、type traitsで提供され（C11向けにヘンテコなプリプロセッサーマクロでも提供されるかもしれない）、変換機能は、関数テンプレートで提供される（C11向けにヘンテコなプリプロセッサーマクロでも提供されるかもしれない）
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4014.pdf">[論文のフォーマットはプレインテキストかHTMLに統一されて欲しい] N4014: Uniform Copy Initialization</a>
+</h2>
+
+<p>
+この論文は、=に続く{ ... }という形の初期化子を、コピー初期化ではなく、直接初期化にする提案をしている。
+</p>
+
+<p>
+以下の例を考える。
+</p>
+
+<pre><code>struct name
+{
+    explicit name( std::string const &amp;, std::string const &amp; ) { }
+} ;
+
+name n1 { "Nobuo", "Kawakami" } ; // OK
+name n2 = { "Nobuo", "Kawakami" } ; // エラー
+</code></pre>
+
+<p>
+なんで？
+</p>
+
+<p>
+n2がn1より危険であるという理由はどこにもない。n1が認められるのならば、n2も認められるべきである。
+</p>
+
+<p>
+C++規格から言えば、n1は直接初期化なので合法だが、n2はコピー初期化なので違法となる。しかし、ソースコード上は=がついているかどうかという些細な違いでしかない。
+</p>
+
+<p>
+ほぼすべてのプログラマーは、厳密な文法を理解した上でコードを書かないし、当然そうあるべきだ。その上で、多くのプログラマーが、上記のn2がコンパイルエラーになるという問題に出くわし、原因を調べるのに、無駄に時間を浪費している。この問題は、C++にリスト初期化が追加される以前から存在する問題である。C言語畑からやってきたプログラマーは初期化で{ }を使う前には=が必要だという先入観があるので、当然のように=を書いて、この問題にぶち当たる。
+</p>
+
+<p>
+プログラマーの貴重な時間を、このような些細な文法上の問題で浪費させるべきではない。
+</p>
+
+<p>
+この論文は、= { ... }という形のコピー初期化を、直接初期化と同じように扱う提案をしている。この提案の元では、上記のn2は合法となる。{ }以外の初期化子の挙動は変わらない。
+</p>
+
+<p>
+explicitの機能が損なわれることはない。explicitは暗黙の型変換を防ぐ目的で、依然として機能し続ける。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4015.pdf">[PDFは予期していない] N4015: A proposal to add a utility class to represent expected monad</a>
+</h2>
+
+<p>
+optional&lt;T&gt;をより汎用化して、Haskellのモナド風味にしたライブラリ、Expected&lt;E, T&gt;の提案。
+</p>
+
+<p>
+optional&lt;T&gt;は、T型か、あるいはT型を格納していないかというライブラリである。これはもう少し深く考えると、T型とT型を格納していないというエラーを示す型とのenumとなる。ということは、もっと汎用化できるではないか、すなわち、T型か、エラー型のどちらかを格納しているenumのような、もっと汎用的なライブラリがあればよいのだ。
+</p>
+
+<p>
+ところで、エラー処理について考えてみよう。プログラムを実行中にエラーが起き、そのエラーを上位の呼び出し元に伝える場合の方法について考える。C++では、エラー処理の方法として、関数の戻り値と例外という、二つの方法がある。
+</p>
+
+<p>
+関数の戻り値はC言語からある伝統的な方法だ。しかし、関数の戻り値という通信経路をエラー通知に専有されてしまうのは問題だ。しかも、関数の戻り値をいちいちにチェックしなければならず、甚だ面倒である。通常の処理とエラー処理を綺麗に分けることができない。
+</p>
+
+<p>
+例外は、エラー通知専用の別の通信経路である。しかし、ある関数がどんな例外を投げるかどうかというのは、関数の宣言や呼び出しからでは分からず、コードを追っていかなければならない。さらに、例外は一旦エラー情報を保存していくとか、スレッドを超えて伝播させることが面倒だ。
+</p>
+
+<p>
+この問題は、関数の戻り値と例外を両方使うライブラリによって解決できる。すなわち、結果を通知する値であるT型か、エラーを通知する値であるE型か、そのどちらかを格納するクラス、Expected&lt;E, T&gt;の提案となる。
+</p>
+
+<p>
+より正確には、T型か、std::unexpected&lt;E&gt;型のどちらかを格納する。unexpectedというのは、TとEが同じ型であることを許容するためのタグ型である。
+</p>
+
+
+<p>
+以下のコードは、典型的な、エラー通知を例外で行う関数である。
+</p>
+
+<pre><code>double safe_divide(double i, double j)
+{
+    if (j==0) throw DivideByZero();
+    else return i / j;
+}
+</code></pre>
+
+<p>
+となる。ゼロ除算を防ぐコードである。これを使う側のコードは、例えば以下のようなものになるだろう。
+</p>
+
+<pre><code>
+double f1 ( double i, double j, double k )
+{
+    return safe_divide( i, k ) + safe_divide( j, k ) ;
+}
+</code></pre>
+
+<p>
+これをexpectedを使って書き直すと、
+</p>
+
+<pre><code>enum class arithmetic_errc
+{
+    divide_by_zero, // 9/0 == ?
+    not_integer_division // 5/2 == 2.5 (which is not an integer)
+};
+
+std::expected&lt;std::error_condition, double&gt; safe_divide(double i, double j)
+{
+    if (j==0) return make_unexpected(arithmetic_errc::divide_by_zero); // (1)
+    else return i / j; // (2)
+}
+</code></pre>
+
+<p>
+となる。これを使う側のコードは以下のようになる。
+</p>
+
+<pre><code>
+double f1 ( double i, double j, double k )
+{
+    return safe_divide( i, k ).value() + safe_divide( j, k ).value() ;
+}
+</code></pre>
+
+<p>
+expectedのメンバー関数valueは、値がある場合は値を、そうでない場合は例外を投げる。
+</p>
+
+<p>
+値があるかどうか、明示的に確認することもできる。
+</p>
+
+<pre><code>
+double f1 ( double i, double j, double k )
+{
+    auto s1 = safe_divide( i, k ).value() ;
+    auto s2 = safe_divide( j, k ).value() ;
+
+    if ( s1 &amp;&amp; s2 )
+    {
+        return *s1 + *s2 ;
+    }
+    else
+    {
+    // エラー処理
+    }
+
+}
+</code></pre>
+
+<p>
+さて、これをmonad風に書くとこうなるそうだ。
+</p>
+
+<pre><code>
+expected&lt;error_condition, int&gt; f(int i, int j, int k)
+{
+    return safe_divide(i, k).bind([=](int q1) {
+        return safe_divide(j,k).bind([=](int q2) {
+            return q1+q2;
+            });
+        });
+}
+</code></pre>
+
+<p>
+これで、値がある場合は値を、値がない場合はexpectedをそのまま呼び出し元に返すようにできる。Haskell厨も大満足。めでたしめでたし。
+</p>
+
+<p>
+C++では、lambda式の文法があまりにも冗長すぎるために、悲惨なコードになってしまっている。論文ではこの問題を解決するために、いくつか方法を提示している。
+</p>
+
+<p>
+ひとつは、外部の関数としてmapを定義すること
+</p>
+
+<pre><code>
+expected&lt;exception_ptr,int&gt; f(int i, int j, int k)
+{
+    return map(plus,
+        safe_divide(i, k),
+        safe_divide(j, k) );
+}
+</code></pre>
+
+<p>
+ただし、これは遅延評価されないし、何より評価順序が未規定である。
+</p>
+
+<p>
+これを完全に解決するには、コア言語にHaskellのdo記法風の文法、do式を導入して、以下のように書けるようにすればよい。
+</p>
+
+<pre><code>
+expected&lt;error_condition, int&gt; f2(int i, int j, int k)
+{
+    return (
+        auto s1 &lt;- safe_divide(i, k) :
+        auto s2 &lt;- safe_divide(j, k) :
+        s1 + s2
+    );
+</code></pre>
+
+<p>
+これはexpected以外にも広く役に立つ。
+</p>
+
+<p>
+この論文を読むのは疲れた。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4016.pdf">[本記事最後のPDF] N4016: Light-Weight Execution Agents Revision 2</a>
+</h2>
+
+<p>
+OSの提供するネイティブなスレッドよりは軽い実行単位を提供するライブラリの提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4017.htm">N4017: Non-member size() and more</a>
+</h2>
+
+<p>
+タイトル通り、非メンバー関数としてのstd::size, std::empty, std::front, std::back, std::dataの提案。
+</p>
+
+<p>
+たとえば、std::sizeは以下のように使える。
+</p>
+
+<pre><code>
+std::vector&lt;int&gt; v(10) ;
+std::size(v) ; // v.size() == 10
+</code></pre>
+
+<p>
+なぜ必要なのか。可読性と安全性と効率と汎用性のためである。
+</p>
+
+<p>
+このように非メンバー関数であれば、たとえば、配列にも使える。
+</p>
+
+<pre><code>
+int a[10] ;
+std::size(a) ;
+</code></pre>
+
+<p>
+配列の場合は、以下のような関数テンプレートを書くことで、サイズを返すことができる。
+</p>
+
+<pre><code>template &lt;class T, std::size_t N&gt;
+constexpr std::size_t size(const T (&amp;array)[N]) noexcept
+{
+    return N;
+}
+</code></pre>
+
+<p>
+これは、醜悪なマクロよりも安全だ。
+</p>
+
+<p>
+非メンバー関数を使うことにより、様々な型が、共通の方法で操作できることになる。
+</p>
+
+<p>
+std::sizeはstd::forward_list向けのオーバーロードがない。これは、多くの利用者はsizeが低数時間であることを期待しているが、定数時間で実装できないためである。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4018.html">N4018: C++ Standard Core Language Active Issues</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4019.html">N4019: C++ Standard Core Language Defect Reports and Accepted Issues</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4020.html">N4020: C++ Standard Core Language Closed Issues</a>
+</h2>
+
+<p>
+C++のコア言語で既知の問題、解決済みの問題、議論の結果、問題ではないと判断された問題の一覧。
+</p>
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+今日は台風なのでさっさと帰る。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+cc by-nd 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_us">creative commons — attribution-noderivatives 4.0 international — cc by-nd 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+unless otherwise noted,<br>
+<br>
+copyright (c) 2014 江添亮<br>
+<br>
+permission is granted to copy, distribute and/or modify this document under the terms of the gnu free documentation license, version 1.3 or any later version published by the free software foundation; with no invariant sections, no front-cover texts, and no back-cover texts.
+</p>
+</footer>
+</body>
+</html>
