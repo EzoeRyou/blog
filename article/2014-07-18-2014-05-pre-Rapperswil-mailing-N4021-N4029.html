@@ -1,0 +1,569 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-05-pre-Rapperswil-mailingのレビュー: N4021-N4029
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/07/2014-05-pre-rapperswil-mailing-n4021.html">2014-05-pre-Rapperswil-mailingのレビュー: N4021-N4029</a></h1>
+
+<p>
+5月分の論文集も、これで残すところあと21本だ。ただし、7月分の論文集が69本控えている。
+</p>
+
+<h2><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4021.pdf">[重量級PDF] N4021: A Proposal to Add 2D Graphics Rendering and Display to C++</a></h2>
+
+<p>
+C++1yに2Dグラフィックライブラリを入れる提案論文。
+</p>
+
+<p>
+グラフィックは今や日常のプログラミングに必要である。グラフィックを描画する方法は、標準で用意されているべきである。
+</p>
+
+<p>
+現在の提案では、既存のcairoの設計を元に、C++風の変換をして、またインターフェースを現代的なC++に手直しして使うことになっている。
+</p>
+
+<p>
+新規のAPIを設計するのはとても手間がかかる。実験的な実装をして、実際に検証する手間は莫大だ。そこで、既存の、すでに実装されていて、実績もあるcairoライブラリを土台にする。
+</p>
+
+<p>
+あらゆるプラットフォーム向けのすべての機能を規格化することはできない。そこで、std::threadと同じ手法を取り、ネイティブなハンドルを取得する方法を規定することにした。これにより、C++利用者は、実行環境に依存する機能も使うことができる。これは、すべてが実行環境に依存するライブラリを使うよりよほどいい。
+</p>
+
+<p>
+context型とsurface型を統一することにした。surfaceというのは、描画ターゲットであり、画面とか純粋なメモリ領域とか、あるいはファイルや出力ポートといったたぐいのものだ。surfaceへの描画は、contextを経由して行われる。これは、古典的なグラフィックAPIによくある設計だ。しかし、果たして現代でも理にかなった設計であろうか。
+</p>
+
+<p>
+contextは、リソースを共有でき、大昔は、メモリの節約に役立つ設計であっただろう。しかし、今では事情が異なっている。
+</p>
+
+<p>
+cairoでは、contextは、既存の別のsurfaceに関連付けることはできない。surfaceからcontextを作成すると、contextの寿命は、その作成元のsurfaceに一生紐付けられる。つまり、利用者の視点からすると、わざわざsurface型とcontext型が分離している意味がない。surface型を直接操作すればいいのだ。
+</p>
+
+<p>
+そこで、この論文では、context型とsurface型を統一することを提案している。
+</p>
+
+<p>
+論文では、ほとんどの型はムーブしかできず、またimmutableな設計を提案している。これは、土台となるcairoが、Cによる明示的なリファレンスカウントという設計であるためで、しかも、GPUリソースというのは極めてコピーが高くつくので、ディープコピーは推奨できない。このライブラリは初心者でも簡単に使えるようになるべきで、そのためには最初からコピーが禁止されていたほうがよいとしている。
+</p>
+
+<p>
+なお、この論文では、提案は現時点ではTSを目指しているとのことだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4022.html">N4022: A proposal to add a generalized callable negator (Revision 2)</a>
+</h2>
+
+<p>
+Negator、つまり、任意個の実引数を転送して、結果を否定する関数オブジェクトのラッパーである、not_fnの提案。
+</p>
+
+<p>
+従来のnegatorであるnot1やnot2は、一個、二個の実引数しか転送できなかった。しかも、予め定められたネストされた型名が必要などの制限が強かった。
+</p>
+
+<pre><code>// 従来の使いづらいわけのわからない意味不明なコード
+struct Yes : std::unary_function&lt; int, bool &gt;
+{
+    bool operator ()( int ) const
+    {
+        return true ;
+    }
+} ;
+
+int main( )
+{
+    auto f = std::not1( Yes{} ) ;
+    std::cout &lt;&lt; f(0) &lt;&lt; '\n' ;
+}
+</code></pre>
+
+<p>
+これが、以下のように書ける。
+</p>
+
+<pre><code>// まともでわかりやすくてモダンなC++風のコード
+bool yes( int, int, int, int, int )
+{
+    return true ;
+}
+
+
+int main( )
+{
+    auto f = std::not_fn( &amp;yes ) ;
+    std::cout &lt;&lt; f( 1, 2, 3, 4, 5 ) &lt;&lt; '\n' ;
+}
+</code></pre>
+
+<p>
+ああ、可変引数とムーブセマンティクス万歳。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4023.html">N4023: C++ Extensions for Library Fundamentals, Working Draft</a>
+</h2>
+
+<p>
+C++の標準ライブラリに対する拡張的な変更の文面ドラフト。これはTechnical Specificationのようなので、これが規格に直接反映されるよう提案されているわけではない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4024.pdf">[PDFとそれ以外のまともなフォーマットも区別すべき] N4024: Distinguishing coroutines and fibers</a>
+</h2>
+
+<p>
+コルーチンとファイバーの違いを解説している論文。
+</p>
+
+<p>
+これから提案されるファイバーとはなにか。コルーチンとはどう違うのかをわかりやすく簡潔にまとめている。
+</p>
+
+<p>
+知っている人にはイマサラ何を初歩的なことを言うかという論文のようにみえるかもしれないが、フルスタックエンジニアなど幻想であり、プログラミングの分野があまりにも広いので、C++WG論文にはよく、提案されている技術の初歩的な解説論文も上がる。とてもわかりやすく書かれているので、読むといい。
+</p>
+
+<p>
+ファイバーとは、カーネルスレッドの上に構築されるユーザースペースの実行単位のことで、その設計は、可能な限りstd::threadに似せている。ファイバー用のmutexやcondition variableもある。ひとつのスレッドの上で動く複数のファイバーは、協調的なマルチタスクを実現する。
+</p>
+
+<p>
+ファイバーのスレッドに対する優位点は、コンテキストスイッチにカーネルを経由しないので、スレッドより高速に実行できる。
+</p>
+
+<p>
+しかも、同じひとつのスレッド上で動く複数のファイバーは、同時に実行されることはないので、お互いに競合しない。これは、ひとつのスレッド上の複数のファイバーで共有するデータをロックしなくてもいいということを意味する。
+</p>
+
+<p>
+もちろん、欠点もある。スレッドは規格上、いずれ必ず実行が進むという強い保証を与えられている、ファイバーには、そのような強い保証はない。あるファイバーが実行を握ってしまえば、同じスレッドの他のファイバーは実行できない。また、ファイバーがスレッドをブロックする操作を行った場合も同様だ。
+</p>
+
+<p>
+これに比べて、コルーチンとは、関数を拡張したものである。したがってそのインターフェースはスレッドに似ておらず、関数の拡張である。コルーチンは中断した関数の実行を継続させるだけで、ユーザースペースのスケジューラーなどはない。
+</p>
+
+<p>
+将来提案される予定のファイバーは、Boost.Fiberを元にしている。これは、Boost.Coroutineを使って実装されている。論文では、ファイバーを使ってコルーチンを実装する形もありだとしている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4025.pdf">[PDFを探求する気はない] N4025: Exploring classes of runtime size</a>
+</h2>
+
+<p>
+さて、これをどこから解説すればいいものか。
+</p>
+
+<p>
+この提案論文は、実行時束縛配列データメンバー(runtime bound array data member)という、クラスのデータメンバーとして実行時にサイズが決まる配列を宣言できるようにする提案である。N3875提案とは異なり、そのようなクラス（実行時サイズ型）は、動的ストレージ上にも確保できる。
+</p>
+
+<pre><code>
+struct runtime_size_type
+{
+    std::size_t const array_bound_size sizeof ;
+    char array[ array_bound_size ] ;
+
+    runtime_size_type( std::size_t size )
+        : array_bound_size( size ) 
+    { }
+} ;
+
+int main()
+{
+    runtime_size_type t1(10) ; // OK
+    new runtime_size_type(10) ; // OK
+}
+</code></pre>
+
+<p>
+動的ストレージにも確保できるようにするためには、実装可能な方法で設計しなければならない。今日のC++では、クラスサイズというのは、固定である。sizeof(T)の結果はコンパイル時に決定でき、実行時に必要な処理は何もない。しかし、クラスのサイズが実行時に決まる場合、この常識は忘れなければならない。
+</p>
+
+<p>
+論文では、実行時にサイズがきまる型(runtime-size type)を動的ストレージ上に確保する方法として、三段階の手順を提案している。
+</p>
+
+<ol>
+<li>
+オブジェクトが必要とするストレージのサイズを決定する
+</li>
+
+<li>
+メモリーを確保する
+</li>
+
+<li>
+コンストラクターを呼び出す
+</li>
+</ol>
+
+<p>
+提案論文では、コンパイラーがオブジェクトのサイズを返す最小の「size関数」を生成できるようにしている。
+</p>
+
+<p>
+実行時にサイズが決まる配列のデータメンバーを、実行時束縛配列データメンバー(runtime bound array data member)という。実行時束縛配列データメンバーの添字に与える式を、束縛式(bound expression)という。実行時束縛配列データメンバーの束縛を決めるために使われるデータメンバーを、配列束縛データメンバー(array bound data member)という。
+</p>
+
+<pre><code>
+struct X
+{
+    const std::size_t a sizeof ; // 配列束縛データメンバー
+    char b // 実行時束縛配列データメンバー
+    [ a ] // 束縛式
+    ;
+} ;
+</code></pre>
+
+<p>
+配列束縛データメンバー、実行時束縛配列データメンバー、束縛式には、それぞれ厳しい制約がある。
+</p>
+
+<p>
+束縛式に使えるデータメンバーは、配列束縛データメンバーしか認められない予定で、配列束縛データメンバーは、配置アドレスの低いほうが高い方にアクセスすると未定義とか、配列束縛データメンバーや束縛式が複数回の評価で結果が変わると未定義とか、とにかく制限が多い。
+</p>
+
+<p>
+このような厳しい制限によって、コンパイラーはコンストラクターからオブジェクトのサイズを決定するためだけのsize関数を切り離して生成できる。size関数は未規定の回数呼ばれる。
+</p>
+
+<p>
+実行時サイズ型をデータメンバーとすることはできる。実行時サイズ型の実行時束縛配列は違法である。
+</p>
+
+<p>
+sizeofは、実行時サイズ型に使うと違法である。実行時サイズ型のオブジェクトに対して使うと、そのオブジェクトの実行時のサイズを返す。
+</p>
+
+<p>
+実行時サイズ型へのポインターと整数との間の演算は、単項+演算子を除いて、禁止される。単項+演算子が許されている理由は、特に実装上の問題がなく、また禁止する理由もないためだ。
+</p>
+
+<p>
+unionをサポートするべきかどうか議論があるが、std::dynarryの自然な実装には実行時サイズ型であるunionを使うので、サポートされていたほうがいいのではないかとしている。
+</p>
+
+<p>
+実行時サイズ型をplacement newすることは、当然可能である。もちろん、利用者は十分なサイズのストレージを提供する責務を追っているわけだから、自己責任だ。ただし、すでにコンパイラーによってsize関数が通常のコンストラクターとは分離して生成されているわけだから、あらかじめ必要なサイズを計算するために、size関数を呼び出す方法が提供されていてしかるべきではないか。たとえば、sizeofに実行時サイズ型の直接初期化式を書けば、実行時にsize関数だけが呼び出されるなどの文法はどうか、と論文は書いている。
+</p>
+
+<p>
+グローバル変数に実行時サイズ型は、実装可能であるが、より深い考察が必要であるとしている。
+</p>
+
+<p>
+テンプレートの存在は、実行時サイズ型に特に影響しない。ただし、従来、あらゆる型に対して合法であった、sizeof(T)という式が、実行時サイズ型の出現によって、違法になってしまう。そのため、型が実行時サイズ型かどうかを調べるtraitsが必要だろう。なお、このtraitsは、そもそもsizeofが違法になるのだから、コンパイラーマジックを必要とせずに、SFINAEによって容易に書くことができる。
+</p>
+
+<p>
+なぜこんなややこしく、明示的に配列束縛データメンバーを書かせるのかというと、配列のサイズを格納するデータメンバーを暗黙に生成すると、ユーザーの自由度が損なわれるからだ。例えば、二つの同じサイズの実行時束縛配列データメンバーが欲しい場合、以下のように書ける。
+</p>
+
+<pre><code>
+struct X
+{
+    const std::size_t bound sizeof ;
+
+    char a[bound] ;
+    char b[bound] ;
+
+    X( std::size_t size )
+        bound( size )
+    { }
+} ;
+</code></pre>
+
+<p>
+もしコンパイラーが愚直にそれぞれの実行時束縛配列データメンバーに対して、暗黙にboundのようなサイズ情報を格納するデータメンバーを定義してしまうと、このような自由度が損なわれてしまう。
+</p>
+
+<p>
+この論文を読み終えた筆者の脳内に思い浮かんだセリフとしては、「C++はエキスパートに優しくなりすぎた」というあのBSの発言だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4026.html">N4026: Nested namespace definition</a>
+</h2>
+
+<p>
+ネスト名前空間定義の提案。
+</p>
+
+<pre><code>// N4026提案
+namespace A::B::C 
+{
+// ...
+}
+</code></pre>
+
+<p>
+このコードは、以下のコードに等しい。
+</p>
+
+<pre><code>// 現在のC++
+namespace A {
+    namespace B {
+        namespace C {
+// ...
+        }
+    }
+}
+</code></pre>
+
+<p>
+論文は、既存のC++ユーザーがstack overflowのような質問サイトで、ネストされた名前空間をもっと簡単に書く方法はないのかという質問が複数あることを引用して、この文法は、現実にプログラマーの要求があることを示している。また、大きなプロジェクトでは、名前空間が深くネストするのはよくあることである。
+</p>
+
+
+<p>
+これによく似た文法は、C#に存在して、実際に活用されている。
+</p>
+
+<p>
+<a href="http://msdn.microsoft.com/en-us/library/dfb3cx8s.aspx#code-snippet-7">Using Namespaces (C# Programming Guide)</a>
+</p>
+
+<p>
+また論文では、現時点でこれを実装しているコンパイラーは知らないものの、<a href="http://www.lazycplusplus.com/">Lazy C++</a>という既存のツールが、この変換を行うとして紹介している。
+</p>
+
+<p>
+lzzはなかなか面白そうなツールだが、そのような外部ツールの変換に頼ると、ビルドプロセスが複雑になるため、やはり言語に取り入れることが望ましい。
+</p>
+
+<p>
+これは一見小粒にみえるシンタックスシュガーだが、ドワンゴ社内でこの提案を紹介したところ、ドワンゴ社員は欲しいと言っていた。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4027.pdf">[やる気をそがれるPDF] N4027: Type Member Property Queries (rev 2)</a>
+</h2>
+
+<p>
+静的リフレクションとして使えるtraitsの具体的な設計の提案。全部を紹介していてはキリがないが、たとえば、
+</p>
+
+<pre><code>// N4027提案
+enum struct E { hoge, hage, fuga } ;
+
+int main()
+{
+    // 3
+    std::enumerator_list_size&lt;E&gt;::value ;
+
+    // "hoge"
+    std::enumerator_identifer&lt;E, 0&gt;::value ;
+
+    // hageの値
+    std::enumerator_value&lt;E, 1&gt;::value ; 
+}
+</code></pre>
+
+<p>
+文字列は、text_constantという、定数式で文字列を返すクラステンプレートによって返される。
+</p>
+
+<p>
+他にも、クラスのアクセス指定やメンバーの数や名などを得ることができる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4028.pdf">[PDFは扱いづらい] N4028: Defining a Portable C++ ABI</a>
+</h2>
+
+<p>
+ポータブルABIを規定しようという提案。
+</p>
+
+<p>
+これは・・・微妙。いかにもMicrosoftらしい提案と言える。
+</p>
+
+<p>
+C++には安定したABIがない。バイナリから外部に公開するインターフェースとしてC++のコア言語機能や標準ライブラリを使うことは、様々な問題がある。
+</p>
+
+<p>
+たとえ同じプラットフォームであっても、同じコンパイラーの同じバージョンの互換性のあるコンパイルオプションでなければ、バイナリに正常にリンクできる保証はないからだ。
+</p>
+
+<p>
+このために、未だに公にするAPIとしては、C言語を使うことが一般的である。これは極めて悲惨なことだ。Cは型安全でもメモリ安全でもないため、プログラマーはポインターとサイズのペアなどを直接扱わねばならず、極めて間違いの発生しやすい非人間的な作業を強いられる。
+</p>
+
+<p>
+COMやCORBAのようなヘンテコな独自仕様が蔓延しているのも、結局、クラスとかvirtual関数を、なんとか安定したABIで使いたいからである。
+</p>
+
+<p>
+そこで、ABI安定なコア言語と標準ライブラリを実装依存として規程しようではないか。ABI互換なコア言語は、extern "abi"{ ... }で囲むことで得られる。また、ABI互換な標準ライブラリは、std::abi下に用意しよう。std::abiはstdとほぼ同じであるが、今後のABI非互換な変更はない。
+</p>
+
+<p>
+これは、ひとつのコンパイラーの中にバージョンの異なる二つのコンパイラーを内在させ、またバージョンの異なる二つの標準ライブラリを切り替えられることと、何が違うのか。
+</p>
+
+<p>
+今はいい。いまのstd::abiは、現在の最新のスナップショットだから、stdとの差はない。しかし、今後標準ライブラリに変更が加えられるにつれ、どんどん差が開いていく。断絶していく。
+</p>
+
+<p>
+この提案は、長期的に見れば、確実に負債になる筋の悪い提案である。昔のバージョンのソフトウェアをそのまま使い続けるのと同じ愚行である。
+</p>
+
+<p>
+そもそも、バイナリ互換性などそこまでして必要なものか。ソースコード互換性さえあれば足りるではないか。
+</p>
+
+<p>
+GCCは、ABI互換性を重視し過ぎるあまりに、GCCは4.9になってもstd::stringがいまだにCopy On Writeだそうだが、それはGCCの意思決定プロセスの問題に思われる。Microsoftがメジャーアップデートごとに互換性を壊してDLL地獄に陥っているのも、やはり彼らの戦略上の問題だ。
+</p>
+
+<p>
+中庸を取れないからと言って、この提案は筋が悪すぎる。このような提案に賛同する者は、Visual C++ 6.0でも使っていればいいのではないだろうか。少なくとも安定したABIは得られるであろう。
+</p>
+
+<p>
+筋が悪すぎる。長期的にみれば確実に負債になる。何を考えているんだこの提案は。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4029.pdf">[最後までPDF] N4029: Let return Be Direct and explicit</a>
+</h2>
+
+<p>
+何やら格調高い題名の提案論文。
+</p>
+
+<p>
+return文は特別である。return文のオペランドから関数の戻り値の型への変換は、暗黙に明示的変換にしようという提案。
+</p>
+
+<p>
+以下のコードが合法になる。
+</p>
+
+<pre><code>
+struct X
+{
+    explicit X( int ) ;
+} ;
+
+X f()
+{
+    // 現在のところill-formed
+    // N4029提案ではwell-formed
+    return 0 ; 
+}
+</code></pre>
+
+<p>
+これ以上言うことがない。return文に限り、暗黙に明示的変換される。
+</p>
+
+<p>
+論文では、戻り値の型はすでに関数宣言に明示的に記述されているのだし、return expr ; という式は、明らかに、戻り値の型をexprで初期化するものであるので、returnは特別扱いしてもよいとしている。
+</p>
+
+<p>
+また、上記のコードのコンパイルエラーは、「俺はお前が何をやりたかったのか知ってるよ。俺のエラーメッセージはほれ、何を書けばよかったのかすら出力してるよ。でも、お前が手で書け」となるので、プログラマーはそんな忌々しいエラーメッセージなど見たくはないだろうと、論文には書かれている。
+</p>
+
+<p>
+筆者としては、どうもこれは筋が悪いように思われる。やはり明示的な型変換が必要な場合は、明示的に型変換を書かせるべきであると思う。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+先日、ドワンゴが主催した社内ポーカー大会で、宗教戦争を引き起こす悪意ある目的で、きのこの山とたけのこの里を設置したところ、たけのこの里が多数派であり、実際にたけのこの里の方が先になくなった。これは解せないことである。きのこの山はパリパリ香ばしいクラッカーと塊のチョコレートが魅力的である。一方、たけのこの里はパサパサとした舌触りの悪いクッキーに申し訳程度にコーティングされたチョコレートという始末。どう考えてもきのこの山に圧倒的軍配が上がるべきものであるはずなのだが、世の中は不条理に満ちている。
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
