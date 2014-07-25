@@ -1,0 +1,142 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: Linuxカーネルのバグをgit bisectで特定する話 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/07/linuxgit-bisect.html">Linuxカーネルのバグをgit bisectで特定する話</a></h1>
+
+
+<p>
+<a href="http://blog.oddbit.com/2014/07/21/tracking-down-a-kernel-bug-wit/">Odd Bits - Tracking down a kernel bug with git bisect</a>
+</p>
+
+<p>
+Linuxカーネルのバージョンを3.15に上げたところ、Docker内でのsuやrunuserが謎のシステムエラーで動かなくなった。カーネルのバージョンを3.14に下げると問題なく動作する。明らかにカーネルが影響を及ぼしている。
+</p>
+
+<p>
+よろしい、ならばgit bisectだ。git bisectは良いコミットと悪いコミットの間をバイナリサーチして、問題を引き起こしたコミットを見つけてくれる。
+</p>
+
+<p>
+しかし、Linuxカーネル3.14と3.15の間には、約15000件のコミットがあるので、git bisectを手動で回すのは現実的ではない。
+</p>
+
+<p>
+git bisectには、自動化のための仕組み、git bisect runがある。これは、コミットをチェックアウトした後に、自動でスクリプトを実行して、現在のコミットが良いか悪いか判断してくれる。したがって、自動化するスクリプトさえ書けば、あとは自動でgit bisectを走らせておけるはずだ。
+</p>
+
+<p>
+とはいえ、結構面倒だったという。
+</p>
+
+<p>
+まず、コミットが良いか悪いか判断するには、現在のコミットのLinuxカーネルをコンパイルして、実行して、Dockerを実行できるほどには構築されたシステムを立ち上げ、Dockerを実行してその中でテストを実行し、その結果を何とかしてビルド環境まで伝えなければならない。docker pullも行うので、ネットワークも必要だ。
+</p>
+
+<p>
+元記事の筆者は、何とかしてその自動化環境を作り上げた。
+</p>
+
+<p>
+さて、しばらく実行すると、git bisectは悪いコミットを特定したのだが、残念ながら、そのコミットは多数の変更を含むマージコミットだった。確かに、問題をもたらしたコミットには違いないのだが、まだ本当のコミットを特定できたわけではない。
+</p>
+
+<p>
+そんなわけで、そのマージに含まれるコミットに対してさらにgit bisectをかけると、問題のコミットが見つかった。
+</p>
+
+<p>
+問題の詳細としては、これはユーザースペースのソフトウェアの挙動に変化をもたらすものではあるが、権限の有無の問題であるので、Docker側を直すほうが望ましいとのことらしい。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+N4036があまりにも読みづらい自己満足レイアウトを利用しているので読む意欲が保てず、気分転換に最近読んで面白かった記事を紹介した次第。
+</p>
+
+<p>
+そういえば、Ubuntuにはrunuserがないのだな。suで代用できるか。
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
