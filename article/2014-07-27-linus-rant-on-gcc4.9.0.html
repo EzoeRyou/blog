@@ -1,0 +1,214 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: Linus Torvalds、 GCC 4.9.0のコード生成にブチ切れる
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/07/linus-torvalds-gcc-490.html">Linus Torvalds、 GCC 4.9.0のコード生成にブチ切れる</a></h1>
+
+<p>
+<a href="http://www.phoronix.com/scan.php?page=news_item&px=MTc1MDQ">Phoronix</a>で知ったが、Linus TorvaldsがGCC 4.9.0のコード生成にブチ切れている。
+</p>
+
+<p>
+問題はLinuxカーネルのload_balance()がランダムにパニックを起こすというもので、その原因は、報告者の使っているコンパイラーであるGCC 4.9.0のコード生成がおかしかったという話だ。
+</p>
+
+<p>
+Linus様は御自ら生成されたコードを読み給い、平生と変わらぬ調子で物事の道理を示された。
+</p>
+
+<blockquote>
+<p>
+<a href="http://lkml.iu.edu/hypermail/linux/kernel/1407.3/00650.html">Linux-Kernel Archive: Re: Random panic in load_balance() with 3.16-rc</a>
+</p>
+
+<p>
+From: Linus Torvalds<br>
+Date: Thu Jul 24 2014 - 14:47:25 EST
+</p>
+
+<p>
+On Wed, Jul 23, 2014 at 6:43 PM, Michel DÃnzer &lt;michel@xxxxxxxxxxx&gt; wrote:
+</p>
+<p>
+&gt;&gt; マイケル、<br>
+&gt;&gt; make kernel/sched/fair.s<br>
+&gt;&gt; やった結果のファイルを送ってくれないか？<br>
+&gt;<br>
+&gt; はいよ。gzipした。これでいいといいんだけど<br>
+&gt; ところで、俺のツリーは3.16-rc6だ。
+</p>
+
+<p>
+オッケー、コード生成みてるんだが、お前のコンパイラはマジで最高にクソだな。
+</p>
+
+<p>
+Jakubをccに追加。gcc-4.9.0は致命的にぶっ壊れてるみたいだぜ。
+</p>
+
+<p>
+見ろよコレ。お前のコンパイラーはなんか完全にトチ狂ったもの吐いてるぜ。定数とかな。マジで、このコンパイラーは幼稚園を卒園するのすら認められるべきじゃねーだろオイ。マジで「赤ん坊んときに落っこちて頭を打ったナマケモノ」レベルのアホレベルだぜ、コレは。
+</p>
+
+<pre><code>movq $load_balance_mask, -136(%rbp) #, %sfp
+subq $184, %rsp #,
+movq (%rdx), %rax # sd_22(D)-&gt;parent, sd_parent
+movl %edi, -144(%rbp) # this_cpu, %sfp
+movl %ecx, -140(%rbp) # idle, %sfp
+movq %r8, -200(%rbp) # continue_balancing, %sfp
+movq %rax, -184(%rbp) # sd_parent, %sfp
+movq -136(%rbp), %rax # %sfp, tcp_ptr__
+#APP
+add %gs:this_cpu_off, %rax # this_cpu_off, tcp_ptr__
+#NO_APP
+</code></pre>
+
+<p>
+定数の-136(%rbp)を見ろよ。マジかよ。コンパイラーが吐いてるのは　即　値　だぜ。
+</p>
+
+<p>
+誰かGCCにバグ報告しろよ。こりゃマジでぶっ飛んだクソだからな。
+</p>
+
+<p>
+だが、定数を吐くのは「バカすぎて耐えられん」程度のことでしかない。本当のバグはこれだ。
+</p>
+
+<pre><code>movq $load_balance_mask, -136(%rbp) #, %sfp
+subq $184, %rsp #,
+</code></pre>
+
+<p>
+gccはスタックフレームを作ってるんだが、すでにスタックフレームの奥底に定数を保存した後でやってやがる。
+</p>
+
+<p>
+x86-64 ABIはスタックポインターの後に128バイトのレッドゾーンを規定してて、これはその規程の元ならばセーフだ。どうもよくない気がするが(136 &gt; 128)、だが問題は、フレームポインターを読み込むために、"pushq"を4つ%rspを更新するために使っているので、これはレッドゾーンギリギリのかろうじてセーフだ。
+</p>
+
+<p>
+しかし、カーネルは-mno-red-zoneでビルドされている。ここではx86-64 ABIのレッドゾーンには従わない。というのも、カーネルモードでは割り込み不可能だし、スタックはレッドゾーンなしで使う。だから、"-mno-red-zone"は「推奨事項」なんかじゃなくて、カーネルに絶対必要な要件なんだよ。にもかかわらずgcc-4.9はバグだらけの一本グソなので無視しやがる。お前がこのバグにぶち当たった理由は、たまたま一命令を実行中に都合よく割り込みにひっかかったからだ（もしくは、似たようなことがすでに何度か起きていて、カーネルのデータ構造をすでにぶっ壊したか）
+</p>
+
+<p>
+さて、俺が思うに、このレッドゾーンバグと、GCCがアホすぎて定数を吐くバグは、なんか関係していると思うね。なんか生存解析(liveness analysis)かなにかで、スタックデクリメントをいつ挿入するのかを決定しているが、定数には生存もクソもあったものじゃねーから無視されるとかさ。つまり二つのバグ（「アホみたいな定数吐くバグ」と「レッドゾーンスタックの不正な利用」）がうまく組み合わさったんじゃないかな。よくわかんねーけど。
+</p>
+
+<p>
+とにかく、これはカーネルのバグじゃない。お前のコンパイラーが完全にぶっ壊れたコードを生成してる。gcc-4.9.0で誰かがコンパイルしないように警告すべきだし、Debianの奴らはピカピカの新しいコンパイラーをダウングレードするだろうよ。
+</p>
+
+<p>
+Jakub、どう思う？
+</p>
+
+<p>
+Linus
+</p>
+
+</blockquote>
+
+<p>
+そして、Linus様は御自らGCCにバグ報告なされた。
+</p>
+
+
+
+<blockquote>
+<p>
+<a href="https://gcc.gnu.org/bugzilla/show_bug.cgi?id=61904">Bug 61904 – Incorrect stack red-zoning on x86-64 code generation</a>
+</p>
+
+<p>
+Linus Torvalds 2014-07-25 19:01:36 UTC
+</p>
+
+<p>
+(In reply to Andrew Pinski from comment #9)
+</p>
+
+<p>
+&gt; 問題のあるコンパイラーのバージョンは4.5.0(debug_insnが使われた時)から4.8.3までと、4.9.0と4.9.1だ。
+</p>
+
+<p>
+なるほど、問題のあるコンパイラーのバージョンを避ける方法はないわけだ。4.9.0/1には警告を出せるだろうけどな。まだあまり一般的じゃないから。
+</p>
+
+<p>
+やれやれ、コンパイル後にテストパスを追加する提案があるんだよ。だが、今のところ、手のひらをかざす（objdump + perl-script）程度のことだ。あまりイケてない。
+</p>
+
+<p>
+問題は、こういうのはめちゃくちゃデバッグしにくいということだ。絶対ありえないはずのkernel oopsや破損を引き起こす。今回の問題はたまたまある二人にとって再現性があって特定箇所だったというだけの話だ。他にもあるのか？　それを知る方法はない。
+</p>
+
+<p>
+とにかく、素早く対応してくれてありがとよ。ただこの分だと既存のコンパイラーもちょっと心配になってきたんだがな。
+</p>
+</blockquote>
+
+<p>
+さすがはLinus様だ。
+</p>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
