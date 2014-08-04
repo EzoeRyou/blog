@@ -1,0 +1,167 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: ループカウンタを64bitにしたり、 バッファのサイズを定数にしたらパフォーマンス激落ちなんだけど何で？
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/08/64bit.html">ループカウンタを64bitにしたり、 バッファのサイズを定数にしたらパフォーマンス激落ちなんだけど何で？
+</a></h1>
+
+<p>
+<a href="http://stackoverflow.com/questions/25078285/replacing-32bit-loop-count-variable-with-64bit-introduces-crazy-performance-devi">c++ - Replacing 32bit loop count variable with 64bit introduces crazy performance deviations - Stack Overflow</a>
+</p>
+
+<p>
+stackoverflowで、興味深い質問が行われている。
+</p>
+
+<p>
+簡単にまとめるとこうだ。std::uint64_t型の配列の各要素にx86-64のpopcnt(1になっているビット数を数える命令)を適用したい。
+</p>
+
+<p>
+コードの肝心の部分を書くと、以下のようになる。
+</p>
+
+<pre><code>for (unsigned i=0;i&lt;size/8;i+=4) {
+    count+=_mm_popcnt_u64(buffer[i]);
+    count+=_mm_popcnt_u64(buffer[i+1]);
+    count+=_mm_popcnt_u64(buffer[i+2]);
+    count+=_mm_popcnt_u64(buffer[i+3]);
+}
+</code></pre>
+
+<p>
+ループの中で、バッファーの要素を4個づつ、Compiler Intrinsicに渡して、popcntを実行している。
+</p>
+
+<p>
+さて、ここで奇妙な事実がある。Sandy/Ivy BridgeやHaswellで、ループカウンター用の変数であるiの型をunsigned int型とstd::uint64_t型とでベンチマークを取ってみると、質問者の環境で、unsigned int型の処理速度は26GB/sだが、std::uint64_t型では、13GB/sと、速度が激減するのだ。
+</p>
+
+<p>
+これはGCCのバグなのだろうか。しかし、Clangで実験してみても、やはりunsigned intが26GB/sに対し、uint64_t型は15GB/sと、明らかに処理速度が違う。
+</p>
+
+<p>
+更に良くわからないことがある。バッファーのサイズを保持するsize変数であるが、バッファーサイズは実行時の入力により決定されるため、定数ではない。しかし、バッファーサイズを決め打ちにしてsizeを定数にしてみると、なんと性能はunsignt intもuint64_tも共に20GB/sになる。Clangでは、どちらも15GB/sになる。
+</p>
+
+<p>
+size変数をstaticにしてみると、uint64_t型でも、20GB/sにまで速度が改善する。
+</p>
+
+<p>
+いったい何なのだ。
+</p>
+
+<p>
+最も投票数の多い回答が興味深い。
+</p>
+
+<p>
+この不思議なパフォーマンスの変化の理由は、IntelのSnady/Ivy Bridge, Haswellのpopcnt命令の、不必要なデータ依存によるものだという。
+</p>
+
+<pre><code>popcnt src, dest</code></pre>
+
+<p>
+とあったとき、なぜかIntelのCPUは、結果を出力する先のレジスターにデータ依存が発生するのだという。そのため、destに指定されたレジスターの値が定まるまで、後続のpopcntを並列実行できず、スループットが落ちるのだという。しかし、destはどうせ上書きしてしまい、直前の値は何の意味も持たないので、データ依存もクソもないはずなのだが。
+</p>
+
+<p>
+現時点で、GCCはこのIntelのCPUの奇妙な挙動をまだ把握していない。コンパイラーはCPUごとのこのような特性を把握して、事前にxor reg, regなどしてデータ依存をそぎ落としておくべきなのだという。
+</p>
+
+<p>
+AMDのCPUにはこのような不必要なデータ依存はないそうだ。
+</p>
+
+<p>
+なぜループカウンター用の変数の型を64bitにしたり、バッファーサイズを保持する変数を定数にしたりするだけで結果が劇的に変わるかというと、コンパイラーのレジスタ割り当てが変わるためだという。
+</p>
+
+<p>
+一体、何故こんな不必要なデータ依存が発生するのかという疑問であるが、回答者は、IntelのCPUはオペランドを二つ取る似通った命令を共通の方法で処理していて、popcntと何らかの命令を同じ枠組みで処理しているためではないかとしている。このようにすることで、プロセッサーの設計を簡単にできるのだとか。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
