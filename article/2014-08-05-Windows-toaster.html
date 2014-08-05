@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 何でWindowsは俺のワイヤレスキーボードをトースターだと認識するんだ？ 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/08/windows.html">何でWindowsは俺のワイヤレスキーボードをトースターだと認識するんだ？</a></h1>
+
+<p>
+<a href="http://superuser.com/questions/792607/why-does-windows-think-that-my-wireless-keyboard-is-a-toaster">device manager - Why does Windows think that my wireless keyboard is a toaster? - Super User</a>
+</p>
+
+<blockquote>
+<p>
+俺は彼女の父親から古いPCを相続したんだが、プリンターを設定していると、ちょっとおどろきのものが現れた。
+</p>
+
+<p>
+画像
+</p>
+
+<p>
+さて、二つの疑問がある。
+</p>
+
+<ol>
+<li>
+なんでWindowsは俺のワイヤレスキーボードをトースターだと認識するんだ？
+</li>
+<li>
+なんでWindowsはデバイスメニューにトースターのアイコンを持っているんだ？
+</li>
+</ol>
+</blockquote>
+
+<p>
+なぜか、質問者のワイヤレスキーボードに、トースターのアイコンが表示されている。Windowsはなぜそんなアイコンを用意しているのだろうか。
+</p>
+
+<p>
+答えは。
+</p>
+
+<blockquote>
+<p>
+理由1
+</p>
+
+<p>
+Microsoftは<a href="http://msdn.microsoft.com/en-us/library/windows/hardware/ff550727%28v=vs.85%29.aspx">トースター用ドライバー</a>というサンプルを作っている。このサンプルでは、&lt;DeviceIconFile&gt;Toaster.ico&lt;/DeviceIconFile&gt;という行があり、おそらく、お前のキーボードの製造業者は、このサンプルをそのまま使ったのだろう。
+</p>
+
+<p>
+理由2
+</p>
+
+<p>
+キーボードの裏に、食パンを差し込む口は見当たらないか？
+</p>
+</blockquote>
+
+<p>
+どうやら、Microsoftがサンプル用に作ったトースター用のドライバーのデバイス情報のXMLファイルをそのまま使ったずぼらなキーボードメーカーがいるらしい。サンプルのアイコンがトースターなのは、Microsoftのユーモア精神なのか、そのままコピペして使うずぼらなハードウェア製造業者を防ぐためなのか。それでもコピペはされる。
+</p>
+
+<p>
+それにしても、USBトースターはあまり実用になりそうにない。一般的なトースターの消費電力は1000Wはある。一方、USBは3.0でもせいぜい100W程度の電力しか供給できない。USB3.0ポートを制御用に1ポート、電力供給用に9ポート必要とするトースターだろうか。電源ユニットも相当によい物を使う必要がありそうだ。
+</p>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
