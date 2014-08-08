@@ -1,0 +1,423 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-05-pre-Rapperswil-mailingのレビュー: N4040-N4051
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/08/2014-05-pre-rapperswil-mailing-n4040.html">2014-05-pre-Rapperswil-mailingのレビュー: N4040-N4051</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4040.pdf">[PDFとはお先真っ暗] N4040: Working Draft, C++ Extensions for Concepts</a>
+</h2>
+
+<p>
+軽量コンセプトのドラフト文面案
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4041.html">Concerns with changing existing types in Technical Specifications</a>
+</h2>
+
+<p>
+Issaquah会議で、TSはstd名前空間のライブラリを変更してよいと決定された。つまり、std::experimentalなどの実験的な別の名前空間の中にそっくりライブラリをコピーして変更し、またTSの文面もすべてをコピーした上で変更ではなく、TS文面は差分だけで良くなったし、std名前空間を直接書き換えてよくなった。
+</p>
+
+<p>
+これは、色々と懸念事項もある。
+</p>
+
+<p>
+ある実装がTSの実験的実装をしたとして、コンパイラーオプションなどで有効にできるようにしていたとする。TS機能を有効にした場合、ライブラリがABI互換性を静かに壊してしまう可能性がある。
+</p>
+
+<p>
+また、std名前空間は標準ライブラリの実装にしか使う権利がないので、TSに完全準拠したサードパーティ実装ができなくなる。
+</p>
+
+<p>
+TSの機能は、実際に実装されて、現実の利用者による利用経験が積まれなければ、規格に正式に取り入れるかどうかの判断ができない。
+</p>
+
+<p>
+論文では、この懸念に対する明確な結論を出していない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4042.pdf">[PDFからまともなフォーマットへの安全な変換が望まれる] N4042: Safe conversions in unique_ptr&lt;T[]&gt;</a>
+</h2>
+
+<p>
+現在、提案されているunique_ptr&lt;T[]&gt;は、派生クラスへのポインターから基本クラスへのポインターの変換は、危険なので禁止している。
+</p>
+
+<pre><code>struct base { } ;
+struct derived { } ;
+
+int main()
+{
+    // ill-formed
+    std::unique_ptr&lt;base[]&gt; p( new derived[10] ) ;
+}
+</code></pre>
+
+<p>
+しかし、この制限は強すぎて、以下のような安全な型変換も禁止してしまう。
+</p>
+
+<pre><code>
+unique_ptr&lt; Foo const [] &gt; ptr1( new Foo[10] ) ; // ill-formed
+unique_ptr&lt; Foo [] &gt; ptr2( new Foo[10] ) ;
+unique_ptr&lt; Foo const [] &gt; ptr3 = move( ptr2 ) ; // ill-formed
+unique_ptr&lt; Foo const [] &gt; ptr4 ;
+ptr4.reset( new Foo[10] ) ; // ill-formed
+</code></pre>
+
+<p>
+これは明らかに安全であるので、これは認めようという提案。
+</p>
+
+<p>
+このような細かい条件でill-formedにするかどうかを切り替える方法には、static_assertを使う方法と、SFINAEを使う方法がある。static_assertはエラーメッセージも読みやすくはなるのだが、ハードエラーになってしまうという問題がある。そのため、論文では、規格の他の場面でもよく使われている、SFINAEによる方法を提案している。
+</p>
+
+<p>
+この制限緩和は然るべきであると思う。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4043.html">N4043: Dynarray Allocation Context</a>
+</h2>
+
+<p>
+dynarrayで問題になったように、明示的なデストラクターの呼び出しとplacement newは問題になる。この論文はその問題に対処するために、デストラクター呼び出しとplacement newで再構築されない自動ストレージに関しては、実装依存の最適化を許す文面を追加することで解決しようとしている。
+</p>
+
+<p>
+そういうここからここまでは実装依存と定義するだけの簡単な問題ではないと思うのだが。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4044.html">N4044: A Three-Class IP Address Proposal, Revision 1</a>
+</h2>
+
+<p>
+IPアドレスを表現するライブラリの提案
+</p>
+
+<p>
+前回の論文からの変更点で、特にある人物の興味を引きそうな変更：「多くの関数がnoeceptと指定された」
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4045.pdf">[またPDFだ] N4045: Library Foundations for Asynchronous Operations, Revision 2</a>
+</h2>
+
+<p>
+コールバックとfutureの両モデルをサポートする設計の紹介論文。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4046.pdf">[PDFで書かれた論文の価値は低い] N4046: Executors and Asynchronous Operations</a>
+</h2>
+
+<p>
+タスク単位を自動的に並列実行してくれる並列実行ライブラリの論文。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4047.pdf">[暗い未来を予感させるPDFフォーマット] N4047: A Module System for C++</a>
+</h2>
+
+<p>
+#includeの代替機能、モジュールの提案。
+</p>
+
+<p>
+C++にはライブラリをコンポーネント化する近代的な機能が欠けている。C++にあるのは、Cから受け継いた#includeである。#includeとは単なるテキストデータをその位置に挿入するものである。コンパイラーからしてみればコピペだ。
+</p>
+
+<p>
+#includeはC++の長いビルド時間の原因にもなっている。#includeされるソースコードの意味は、すでに定義されているマクロによって変わるし、#includeの後に続くソースコードの意味も、#includeされるソースコードで定義されているマクロによって変わる。
+</p>
+
+<p>
+C++には、もっと近代的なライブラリの分離のための機能が必要だ。その機能はモジュールと名付けられ、設計が進んでいる。
+</p>
+
+<p>
+この論文の提案は、既存のプリプロセッサー自体には何も変更を加えない。過去に、プリプロセッサーに付け焼刃的な変更を加えて害悪を軽減しようという提案はいくつもあったが、どれも失敗に終わっている。ぷりプロセッサーには長い歴史があり、短期的に廃止できるものではない。したがって、新しい機能は、プリプロセッサーと共存しなければならない。
+</p>
+
+<p>
+提案では、新しいキーワードとして、moduleとimportのふたつを追加する。
+</p>
+
+<p>
+モジュールを使うソースコードは、モジュールをimportする。
+</p>
+
+<pre><code>// N4047提案
+import std.vector ;
+
+int main()
+{
+    std::vector&lt;int&gt; v ;
+}
+</code></pre>
+
+<p>
+モジュールは、最初の宣言でモジュール名を宣言する
+</p>
+
+<pre><code>// N4047提案
+module std.vector ;
+
+export
+{
+// 外部に見せる名前の宣言
+}
+</code></pre>
+
+<p>
+export { }で囲まない名前は、外部に公開されない。ローカルな定義になり、他の翻訳単位でその名前を使った定義があったとしても、ODR違反にはならない。
+</p>
+
+<pre><code>// 1.cpp
+module one ;
+
+export { void f() { } }
+
+void g() { }
+</code></pre>
+
+<pre><code>// 2.cpp
+module two ;
+
+export { void g() { } }
+
+void f() { }
+</code></pre>
+
+<pre><code>// main.cpp
+import one ;
+import two ;
+
+int main()
+{
+    f() ; // oneのf
+    g() ; // twoのg
+}
+</code></pre>
+
+<p>
+この三つの翻訳単位からなるプログラムをコンパイルしてもODR違反とはならない。モジュールでは、export { ... } で囲んだ名前のみが外部に公開され、それ以外の名前は外部に公開されず、ODR違反にもならないようになるからだ。
+</p>
+
+<p>
+モジュールは相互の参照もヘンテコな前方宣言なしに書くことができる。
+</p>
+
+<pre><code>// A.cpp
+module A ;
+
+export {
+
+import B ;
+
+class A
+{
+    B * ptr ;
+} ;
+}
+</code></pre>
+
+<pre><code>// B.cpp
+module B ;
+
+export {
+import A ;
+
+class B
+{
+    A * ptr ;
+} ;
+
+}
+</code></pre>
+
+<p>
+早くモジュールが実用化されて欲しい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4048.pdf">[PDFも改良してほしい] N4048: More Improvements to std::future&lt;T&gt; - Revision 1</a>
+</h2>
+
+<p>
+N3865の改訂版。optionalのより汎用なライブラリ、expectedに対応した変更があるようだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4049.pdf">[無PDF原則も提案したいところ] N4049: 0-overhead-principle violations in exception handling </a>
+</h2>
+
+<p>
+例外において、ゼロオーバーヘッドの原則が尊重されていない例の提示。
+</p>
+
+<p>
+例外にはオーバーヘッドがある。標準ライブラリは例外に強く依存しているので、例外を使ったコードを吐く。また、生成されるコードも、例外に対応するためのバッファーなどを持っている。これらはたとえ例外を使わなかったとしてもメモリ使用量を増加させる。そして、既存のリンク時コード除去やLTOは、これらのコードやバッファーを取り除くほど賢くない。
+</p>
+
+<p>
+GCCには例外を使わないオプション-fno-exceptionsがある。しかし、これはフロントエンドで例外を使わないという指定だけであって、ライブラリは依然として例外を使うし、バックエンドが吐くコードも、例外のコードを吐くし、例外をサポートするためのコードや、例外が緊急時に使うバッファーなども確保する。これらはメモリ使用料を増加させる。
+</p>
+
+<p>
+これらのオーバーヘッドを取り除くにはツールチェインに手を入れて、本当に例外を使わないようにするしかない。
+</p>
+
+<p>
+論文は、現時点でのGCCの実装を示して、問題提起をするだけで、何も結論を出していない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4050.html">N4050: Dynarray Semi-Editorial Issues</a>
+</h2>
+
+<p>
+dynarrayに対する文面上の些細な修正。とはいっても、単なる文法ミスや誤字脱字よりはすこし真面目な問題を修正している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4051.html">N4051: Allow typename in a template template parameter</a>
+</h2>
+
+<p>
+テンプレートテンプレートパラメーターにtypenameキーワードを利用できるようにする提案。
+</p>
+
+<p>
+今までは、
+</p>
+
+<pre><code>// 現状
+template &lt; 
+    template &lt; typename T &gt;
+    class U // classキーワードが必要
+    &gt;
+class C ;
+</code></pre>
+
+<p>
+このように、テンプレートテンプレートパラメーターは、文法上の制約でclassキーワードを使わなければならなかったが、この提案では、typenameキーワードも使えるようになる。
+</p>
+
+<pre><code>// N4051提案
+template &lt; 
+    template &lt; typename T &gt;
+    typename U // typenameキーワードが使える
+    &gt;
+class C ;
+</code></pre>
+
+<p>
+些細な変更だが、プログラマーの無用の混乱を防ぐために、入って欲しい変更だ。
+</p>
+
+<p>
+ちなみに、Clangが-std=c++1zでN4051提案の実験的実装をしている。
+</p>
+
+<p>
+<a href="http://clang.llvm.org/cxx_status.html">Clang - C++1z, C++14, C++11 and C++98 Status</a>
+</p>
+
+<p>
+これで、2014年5月分の論文集が終わった。次は7月分だ。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+来週は遠慮無く有給休暇を取ったので丸々休みだ。久しぶりに京都に帰省する。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
