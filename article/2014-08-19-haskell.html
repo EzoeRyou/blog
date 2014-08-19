@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: Haskellの入門書を読んだ 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/08/haskell.html">Haskellの入門書を読んだ</a></h1>
+
+<p>
+先週、一週間丸々有給とリフレッシュ休暇を取って、都合9日間の休暇を作り出し、京都の吉田寮に遊びに行った。まだまだ読むべき論文がたまっているが、たまにはプログラミングもネットも一切忘れて息抜きをしてもよいだろう。吉田寮でだらだらと過ごすうちに、ふと、吉田寮に転がっていたHaskell入門書を読んでみた。
+</p>
+
+<p>
+その結果、Haskellは、なかなか興味深い言語であることがわかった。
+</p>
+
+<p>
+ここ数年、C++に提案されている新機能の多くに、Haskellにすでに存在する機能を強く連想させるものがある。なるほど、知り合いのC++プログラマーが、数年前にHaskellに手を出していたのは、そういう理由があったのか。
+</p>
+
+<p>
+Haskellという言語に対する感想であるが、あまりに理想的すぎる印象を持った。なるほど、確かにコンパイラーの最適化が究極に賢ければ、Haskellのパフォーマンスは素晴らしい物になるだろう。しかし、現実にはコンパイラーがそこまで賢くなることは、近い将来には期待できない。
+</p>
+
+<p>
+かつ、Haskellの入門書にかかれているサンプルコードは、極めて簡潔で理論的で言語的に美しいものであるが、その処理方法をよく考えてみれば、極めて効率が悪い処理である。
+</p>
+
+<p>
+プログラミングの世界は、理論が数十年先行している。理論的には決着がついているものを、メモリやアドレスやキャッシュやパイプラインや同期といった制約のある現実のハードウェアに落としこむ必要がある。かつては、オブジェクト指向もそのような理論の一つだった。
+</p>
+
+<p>
+Haskellの実用度は疑問ながら、その理論には痛く感心した私に、吉田寮にいる生物博士が言うのである。「次はCommon Lispの番だよ。遅かれ早かれC++はマクロを取り入れなければならないから、Common Lispはやらなければならない」と。C++風にまともなマクロを取り入れるのであれば、静的リフレクション機能として入るだろう。
+</p>
+
+<p>
+完全にプログラミングから離れて遊ぶための休暇だったが、何の制約もない時間を確保できたことによって、かえって普段は手を出すことのない分野を学ぶことができた。やはり休暇は重要だ。
+</p>
+
+<p>
+さて、Haskellの入門書を一冊読んだものの、まだ実際にコードを書いてはいない。やはりコードも書かねばなるまい。しかし、GNU/Linux環境でのx86-64アセンブリも書いてみたいし、C++の論文もたまっているし、C++の入門書も執筆してみたい。そういえば、勉強会のスライド資料作成もしなければならない。やることは多いが、とりあえず論文を片付けよう。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴの仕事をサボるために書いた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
