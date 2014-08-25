@@ -1,0 +1,514 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-07 post Rapperswil mailingのレビュー: N4060-N4069
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/08/2014-07-post-rapperswil-mailing-n4060.html">2014-07 post Rapperswil mailingのレビュー: N4060-N4069</a></h1>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4060.pdf">[PDFも変更されるべき] N4060: Changes to vector_execution_policy</a>
+</p>
+
+<p>
+Parallelism TSに対する、ベクトル実行の定義を変更する提案。
+</p>
+
+<p>
+並列実行とベクトル実行は、ループの個々の繰り返し単位を、順不同で実行するものである。このため、コードが実行される順序という保証がなくなる。また、例外や同期などの処理も行えないという制約がある。
+</p>
+
+<p>
+並列実行ポリシー(parallel_execution_policy)とは、スレッド風の実行エージェントよりループを並列に実行するものである。ベクトル実行ポリシー(vector_execution_policy)とは、SIMDやGPUによる実行エージェントによりループを並列に実行するものである。
+</p>
+
+<p>
+しかし、現実のアーキテクチャが提供するSIMD命令を考えると、SIMDによる1スレッド内のベクトル実行による実行エージェントとしては、現在のベクトル実行ポリシーの定義は、必要以上に制約が強すぎる。制約というのは、順序の無保証だ。1スレッド内のSIMD命令による並列実行では、先のループ単位の実行が、後のループ単位を追い越さないという保証を与えることができる。
+</p>
+
+<p>
+当時、parallelism TSを議論している際には、実行ポリシーを、シーケンシャル、パラレル、ベクトル、パラレル＋ベクトルに分類していた。しかし、純粋なベクトル実行に与えられるこの順序保証の需要があるのかどうか不明であったため、標準化委員会は、純粋なベクトルを廃して、パラレル＋ベクトルを、ベクトルと称した。これにより、現在のベクトル実行はパラレル実行の制約をさらに強くする形で定義され、GPUなどの実行エージェントもサポートできるようになった。
+</p>
+
+<p>
+ところが、Intelが最近、顧客のコードを検証したところ、ベクトル実行の順序保証を活用したコードが、すでに数多く書かれていることが判明した。コードが存在する以上、需要はある。そこで、この論文は、現在のパラレル＋ベクトルとなっているベクトルの定義の変更を提案している。また、この変更は、もはやTSを変更する時間的余裕が無いため、TS本体への適用ではなく、TSに対する参考として公開する形をとっている。
+</p>
+
+<p>
+提案は二つある。
+</p>
+
+<p>
+最小限の変更による提案は、現在のベクトルは、実際にはパラレル＋ベクトルなので、vector_execution_policyをparallel_vector_execution_policyに、vecをparvecに改名するものである。
+</p>
+
+<p>
+理想の提案は、ベクトル実行を純粋にベクトル実行として、並列実行とは別に、最小限度の制限で定義するものである。
+</p>
+
+<p>
+結局、こんなことになったのも、コードが表に出ないからだ。情報が表に出ないからだ。公開されていない情報は、存在しないも同義である。存在しないものには需要があるわけがない。標準化委員会が新機能を設計するにあたって需要を認識できるわけがない。C++は、長年、C++に利害関係を持つものが標準化委員会に参加し、知見を出し、規格に貢献して今の位置に至ったのだ。標準化委員会に参加しないどころか、情報すら表に出さないのでは、その分野は永久に標準化されることはない。
+</p>
+
+<p>
+お前ら表にでろ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4061.pdf">[PDFを最小公倍数にするな] N4061: Greatest Common Divisor and Least Common Multiple, v3</a>
+</h2>
+
+<p>
+最大公約数と最小公倍数を求める関数、gcdとlcmを&lt;numerical&gt;に追加する提案論文の第三版。
+</p>
+
+<p>
+ちなみに、constexpr関数であり、さらに任意の整数型に対して使える関数テンプレートとなっている。
+</p>
+
+<p>
+実装は短いが、標準でほしい関数ではある。
+</p>
+
+<pre><code>// 実装例
+template&lt; class T &gt;
+constexpr auto abs( T i ) -&gt; std::enable_if_t&lt; std::is_integral&lt;T&gt;{}(), T &gt;
+{ return i &lt; T(0) ? -i : i; }
+
+template&lt; class M, class N = M &gt;
+using common_int_t = std::enable_if_t&lt; std::is_integral&lt;M&gt;{}() and std::is_integral&lt;N&gt;{}()
+, std::common_type_t&lt;M,N&gt;
+&gt;;
+
+template&lt; class M, class N &gt;
+constexpr common_int_t&lt;M,N&gt; gcd( M m, N n )
+{ return n == 0 ? abs(m) : gcd(n, abs(m) % abs(n)); }
+
+template&lt; class M, class N &gt;
+constexpr common_int_t&lt;M,N&gt; lcm( M m, N n )
+{ return m == 0 or n == 0 ? 0 : (abs(m) / gcd(m,n)) * abs(n); }
+
+int main()
+{
+    gcd( 2, 3 ) ; // 1
+    gcd( 10, 15 ) ; // 3
+
+    lcm( 2, 3 ) ; // 6
+    lcm( 8455, 99 ) ; // 837045
+}
+</code></pre>
+
+<p>
+前回の論文からの変更はそれほど特筆するものはないようだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4063.pdf">[PDFは平行世界に飛ばされるべき] N4063: On Parallel Invocations of Functions in Parallelism TS</a>
+</h2>
+
+<p>
+Parallerism TSで、sortなどのユーザーの提供する関数オブジェクトを取るアルゴリズムを並列実行した時に、その関数を並列に呼び出せるのかどうかということについて、文面は何も規定していないということを、Hans Boehmが指摘した。この問題を議論するために、論文を書き、Rapperswil会議で議論した結果の改訂版。
+</p>
+
+<p>
+BinaryPredicate, Compare, BinaryOperationは、実引数を変更してはならないという文面が付け加えられる。これにより、安全に並列に呼び出すことができる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4064.html">N4064: Improving Pair and Tuple (Revision 2)</a>
+</h2>
+
+<p>
+tupleとpairで、以下のようなコードが動かないので、動くように変更する提案。
+</p>
+
+<pre><code>std::tuple&lt;int, int&gt; pixel_coordinates() 
+{
+  return {10, -15};  // Oops: Error
+}
+
+struct NonCopyable { NonCopyable(int); NonCopyable(const NonCopyable&amp;) = delete; };
+
+std::pair&lt;NonCopyable, double&gt; pmd{42, 3.14};  // Oops: Error
+</code></pre>
+
+<p>
+これは当然動いてもいいコードで、実際、このコードが動くようにtupleやpairを実装することが可能である。なぜ動かないのか。
+</p>
+
+<p>
+実は、当時ライブラリを設計していた時の議論で、危険な暗黙の型変換を防止するために、必要以上に制約を加えてしまったのだ。
+</p>
+
+<p>
+更に調査を進めると、tupleは、TR1の複数のテンプレート仮引数を使う設計から、標準規格のVariadic Templatesを使う実装に変更する際に、極めて重要な規程が抜け落ちてしまっていた。
+</p>
+
+<pre><code>template &lt;class T1 = unspecified ,
+          class T2 = unspecified ,
+          ...,
+          class TM = unspecified &gt;
+class tuple
+{
+public:
+  tuple();
+  explicit tuple(P1, P2, ..., PN); // iff N &gt; 0
+  […]
+};
+</code></pre>
+
+<p>
+コメント部分の、"iff N &gt; 0"という制約が、tupleのVariadic Template版の文面を作成する際に、抜け落ちてしまったのだ。
+</p>
+
+<p>
+そして、論文では、危険すぎる暗黙の型変換は防ぎつつ初期化が行える、Pefect Initializationというテクニックを紹介している。
+</p>
+
+<pre><code>#include &lt;type_traits&gt;
+#include &lt;utility&gt;
+
+template&lt;class T&gt;
+struct A {
+  template&lt;class U,
+    typename std::enable_if&lt;
+      std::is_constructible&lt;T, U&gt;::value &amp;&amp;
+      std::is_convertible&lt;U, T&gt;::value
+    , bool&gt;::type = false
+  &gt;
+  A(U&amp;&amp; u) : t(std::forward&lt;U&gt;(u)) {}
+
+ template&lt;class U,
+    typename std::enable_if&lt;
+      std::is_constructible&lt;T, U&gt;::value &amp;&amp;
+      !std::is_convertible&lt;U, T&gt;::value
+    , bool&gt;::type = false
+  &gt;
+  explicit A(U&amp;&amp; u) : t(std::forward&lt;U&gt;(u)) {}
+  
+  T t;
+};
+</code></pre>
+
+<p>
+非explicitコンストラクターとexplicitコンストラクターを、SFINAE技法で制約を加えることにより、以下のように、危険な暗黙の型変換は防ぎつつ、自然に初期化ができるようになる。
+</p>
+
+<pre><code>struct Im{ Im(int){} };
+struct Ex{ explicit Ex(int){} };
+
+A&lt;Im&gt; ai1(1); // OK
+A&lt;Im&gt; ai2{2}; // OK
+
+A&lt;Im&gt; ai3 = 3;   // OK
+A&lt;Im&gt; ai4 = {4}; // OK
+
+A&lt;Ex&gt; ae1(1); // OK
+A&lt;Ex&gt; ae2{2}; // OK
+
+A&lt;Ex&gt; ae3 = 3;   // Error
+A&lt;Ex&gt; ae4 = {4}; // Error
+</code></pre>
+
+<p>
+なぜ複数の引数を取るコンストラクターがexplicitではないとまずいのかということを、以下のような面白いコードで説明している。
+</p>
+
+<pre><code>
+#include &lt;tuple&gt;
+#include &lt;chrono&gt;
+#include &lt;iostream&gt;
+
+using hms_t = std::tuple&lt;std::chrono::hours, std::chrono::minutes, std::chrono::seconds&gt;;
+
+void launch_rocket_at(std::chrono::seconds s)
+{
+  std::cout &lt;&lt; "launching rocket in " &lt;&lt; s.count() &lt;&lt; " seconds!\n";
+}
+
+void launch_rocket_at(hms_t times)
+{
+  using namespace std;
+  launch_rocket_at(get&lt;0&gt;(times) + get&lt;1&gt;(times) + get&lt;2&gt;(times));
+}
+
+int main()
+{
+  using namespace std;
+  launch_rocket_at(make_tuple(1, 2, 3)); // #1: ヤバイ
+  launch_rocket_at({1, 2, 3});           // #2: もっとヤバイ
+  using namespace std::chrono;
+  launch_rocket_at(make_tuple(hours(1), minutes(2), seconds(3))); // #3: すっげーわかりやすい
+  launch_rocket_at({hours(1), minutes(2), seconds(3)});           // #4: これもわかりやすい
+  launch_rocket_at(hms_t{1, 2, 3});                               // #5: これでもいい
+}
+</code></pre>
+
+<p>
+explicitではないと、暗黙の型変換が仕事をしすぎてしまうので、型による警告ができない。
+</p>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4065.html">N4065: make_array, revision 2</a>
+</h2>
+
+<p>
+arrayを返すmake_arrayの提案
+</p>
+
+<pre><code>// N4065提案
+// std::array&lt; int, 4 &gt;
+auto a = std::make_array( 1, 2, 3, 4 ) ;
+</code></pre>
+
+<p>
+前回のN4031からの変更点として、型を明示的に指定する場合、make_arrayではなく、array_ofを使うようになった。
+</p>
+
+<pre><code>// N4031提案
+auto a = std::::make_array&lt;long&gt;( 1L, 2L ) ;
+
+// N4065提案
+auto b = std::array_of&lt;long&gt;( 1L, 2L ) ;
+</code></pre>
+
+<p>
+文字列リテラルをcharのarrayにするto_arrayに変更はない。
+</p>
+
+<pre><code>// N4065提案
+// std::array&lt; char, 6 &gt;
+auto a = std::to_array("hello") ;
+</code></pre>
+
+
+<p>
+実装例がGitHubに上がっている。
+</p>
+
+<p>
+<a href="https://gist.github.com/lichray/6034753">Factory function of std::array</a>
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4066.htm">N4066: Delimited iterators (Rev. 3)</a>
+</h2>
+
+<p>
+ostream_iteratorにはデリミターを指定できる。ただし、このデリミターは、実際にはサフィックスというべきである。
+</p>
+
+<pre><code>std::vector&lt;int&gt; v = { 1, 2, 3 } ;
+
+std::copy( v.begin(), v.end(), std::ostream_iterator&lt;int&gt;( std::cout, ", " ) ;
+</code></pre>
+
+<p>
+このコードを実行した結果の出力は、"1, 2, 3, "となる。
+</p>
+
+<p>
+この論文は、正しくデリミターとして働く、つまり要素の間にしかデリミターを出力しない、ostream_joinerというライブラリを提案している。上記コードでostream_iteratorの代わりに使うと、"1, 2, 3"となるクラスだ。
+</p>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4067.html">N4067: Experimental function etc.</a>
+</h2>
+
+<p>
+標準ライブラリに対する拡張TSである、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4023.html">N4023: Working Draft, C++ Extensions for Library Fundamentals</a>では現在、std::functionなど、標準規格の標準ライブラリを直接参照している。これはTSをサードパーティが実装するのに都合が悪い。そのため、function, promise, packaged_taskと同等のものを、std::experimental名前空間に存在させるための文面変更案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4068.html">N4068: Toward More Expressive Iterator Tags</a>
+</h2>
+
+<p>
+Rapperswil会議で、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3976.html">N3976</a>で提案されている多次元配列ビューを議論したところ、この論文で提案されているイテレーターの一部は、random access iteratorであると自称しながらも、実はforward iteratorの要件すら満たしていないことが指摘された。
+</p>
+
+<p>
+これは、現在のイテレーターカテゴリーの要件が粒度が荒すぎるのが問題である。もっと細かい要件に分割して、要件を組み合わせて指定できるべきである。そのための方法としては、議論ではコンセプトが最適であるという方向で一致したが、とりあえずイテレータータグで対応する提案。
+</p>
+
+<p>
+論文で提案されている細かい粒度のイテレータータグは以下の通り。
+</p>
+
+<pre><code>struct referene_tag { } ;</code></pre>
+
+<p>
+*iterがプロクシーではなく、実際にvalue_type&amp;であり、その値はイテレーターによりキャッシュされたものではないこと。
+</p>
+
+<pre><code>struct lvalue_tag { } ;
+struct rvalue_tag { } ;
+</code></pre>
+
+<p>
+*iterが変更可能なlvalue、もしくはrvalueであること（両方であることもあり得る）
+</p>
+
+<pre><code>struct equality_comparable_tag { } ;
+</code></pre>
+
+<p>
+iter1 == iter2がwell-formedであること
+</p>
+
+<pre><code>struct multipass_tag { } ;
+</code></pre>
+
+<p>
+iter1 == iter2であれば、++iter1 == ++iter2、かつ、&amp;*iter1 == &amp;*iter2であること
+</p>
+
+<pre><code>struct decrementable_tag { } ;
+</code></pre>
+
+<p>
+--iterがwell-formedであること。
+</p>
+
+<pre><code>struct random_move_tag { } ;
+</code></pre>
+
+<p>
+iterが任意の距離を移動でき、less-than comparableであること
+</p>
+
+<p>
+さらに、これらのタグをまとめて指定できるbasic_iterator_tagを以下のように定義する。
+</p>
+
+<pre><code>template &lt; typename ... Tags &gt;
+struct basic_iterator_tag { } ;
+</code></pre>
+
+<p>
+すると、既存のイテレータータグは、以下のように定義できる。
+</p>
+
+<pre><code>    typedef basic_iterator_tag&lt;lvalue_tag&gt; output_iterator_tag;
+
+    typedef basic_iterator_tag&lt;rvalue_tag, equality_comparable_tag&gt;
+              input_iterator_tag;
+
+    typedef basic_iterator_tag&lt;reference_tag,
+                               lvalue_tag,
+                               rvalue_tag,
+                               equality_comparable_tag,
+                               multipass_tag&gt;
+              forward_iterator_tag;
+
+    typedef basic_iterator_tag&lt;reference_tag,
+                               lvalue_tag,
+                               rvalue_tag,
+                               equality_comparable_tag,
+                               multipass_tag,
+                               decrementable_tag&gt;
+              bidirectional_iterator_tag;
+
+    typedef basic_iterator_tag&lt;reference_tag,
+                               lvalue_tag,
+                               rvalue_tag,
+                               equality_comparable_tag,
+                               multipass_tag,
+                               decrementable_tag,
+                               random_move_tag&gt;
+              random_access_iterator_tag;
+</code></pre>
+
+<p>
+これを使えば、例えばvector&lt;bool&gt;のイテレータータグは以下のように定義できる。
+</p>
+
+<pre><code>    typedef basic_iterator_tag&lt;lvalue_tag,
+                               rvalue_tag,
+                               equality_comparable_tag,
+                               multipass_tag,
+                               decrementable_tag,
+                               random_move_tag&gt;
+              vector_bool_iterator_tag;
+</code></pre>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
