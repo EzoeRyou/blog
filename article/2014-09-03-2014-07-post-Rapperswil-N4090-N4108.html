@@ -1,0 +1,331 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-07-post-Rapperswilのレビュー: N4090-N4108
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/09/2014-07-post-rapperswil-n4090-n4108.html">2014-07-post-Rapperswilのレビュー: N4090-N4108</a></h1>
+
+<p>
+N4090からN4108までの論文は、問題集であったり、文面案だったりするので、特に詳細に解説することはない。概要だけ紹介する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4090.pdf">[概要すら解説する気が失せるPDF] N4090: The Maladies of All Member Templates: An Incomplete Biography of Specialization (DR727 + DR1755)</a>
+</h2>
+
+<p>
+すでに上がっている問題に、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_active.html#727">DR727</a>と<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_active.html#1755">DR1755</a>とがある。これは、現在の文面の解釈が曖昧なため、コンパイラーごとにテンプレートの明示的特殊化（論文では、わかりやすさのために完全特殊化という言葉を使っている）、部分的特殊化の挙動が微妙に違う。この問題を解決するためにIssaquah会議で話し合った結果、意見の一致するルールが浮かび上がってきたので、そのルールを記載し、テストコードを示す。合意したルールの挙動にするClangのパッチも書かれたようだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4091.html">N4091: C++ Standard Core Language Active Issues</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4092.html">N4092: C++ Standard Core Language Defect Reports and Accepted Issues</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4093.html">N4093: C++ Standard Core Language Closed Issues</a>
+</h2>
+
+<p>
+C++のコア言語で認知されている問題、解決済みの問題、議論の結果、問題ではないとされた問題の一覧。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4094.html">N4094: Response To: Let return Be Explicit</a>
+</h2>
+
+<p>
+N4074で、return {expr}はexplicitを無視することが提案された。つまり、以下のようなコードが合法になる。
+</p>
+
+<pre><code>struct X
+{
+    explicit X(int) { }
+} ;
+
+X f()
+{
+    // C++14では違法
+    // N4094提案では合法
+    return {0} ;
+}
+</code></pre>
+
+<p>
+N4094は、この提案に反論する論文である。
+</p>
+
+<p>
+反論に用いている例がいろいろある。この解説ではかなり簡略化して解説するが、論文ではすこし違う例を出している。例えば、chronoライブラリだ。std::chrono::secondsで、ある数値を秒、分、時の単位で解釈して秒数を返す関数を考える。
+</p>
+
+<pre><code>enum struct unit { seconds, minutes, hours } ;
+
+std::chrono::seconds
+convert( unit u, int count )
+{
+    switch( u )
+    {
+        case unit::seconds :
+            return { u } ;
+        case unit::minutes :
+            return { u } ;
+        case unit::hours :
+            return hours{ u } ;
+    }
+}
+</code></pre>
+
+<p>
+このコードは、enumによって、数値の単位を切り替えて秒数を返す関数である。しかし、このコードにはバグがある。case unit::minutesのところで、return { u }としてしまっている。std::chrono::secondsのコンストラクターはexplicitなので、C++14では、このバグはコンパイル時に検出可能である。しかし、N4074提案では、このコードはコンパイルが通ってしまう。そして、実行時に期待しない結果をもたらすだろう。
+</p>
+
+<p>
+C++11が発行されてから、まだ3年しかたっていない。return {expr}という形は、まだ今から挙動を変更してもいいほど使われていないのだろうか。
+</p>
+
+<p>
+しかし、ネット上で検索しただけで、実際に使っている例が見つかる。実際に使われているものの挙動を変更するのは危険だ。
+</p>
+
+<p>
+N4074の発端になったtupleだが、return { 1, 2 }に対して、std::tuple&lt; std::chrono::seconds, std::chrono::nanoseconds &gt;が戻り値の型の場合、どうするのか。
+</p>
+
+<pre><code>std::tuple&lt; std::chrono::seconds, std::chrono::nanoseconds &gt;
+test1()
+{
+    // 危険、単位が不明
+    return { 1, 2 } ;
+}
+
+std::tuple&lt; std::chrono::seconds, std::chrono::nanoseconds &gt;
+test2()
+{
+    // 安全、単位が分かっているので正しく変換される。
+    return { 1h, 2ms } ;
+}
+</code></pre>
+
+<p>
+N3739では、Perfect Initializationと呼ばれる技法を利用したtuple側による対応により、test1は弾くがtest2は通すようにできる。これは理想的である。N4074提案は危険である。
+</p>
+
+<p>
+そもそも、戻り値の型とreturn文とが、どちらも同じプログラマーの管理下にあるということは断定できない。
+</p>
+
+<pre><code>// 誰か他人が書いた関数
+SafeData GetSomeData() ;
+
+// 安全なデータは暗黙の型変換を許し
+// 非安全なデータは明示的な型変換を要求するクラス
+struct SomeClass
+{
+    SomeClass( SafeData ) ;
+    explicit ( UnsafeData ) ;
+} ;
+
+SomeClass f()
+{
+    return { GetSomeData() }  ;
+}
+</code></pre>
+
+<p>
+この場合、GetSomeDataという関数の戻り値の型が変えられたとすると、C++14ならばコンパイルエラーになってくれるが、N4074提案では、コンパイルが通ってしまう。そして、実行時に期待しない結果をもたらすだろう。
+</p>
+
+<p>
+スマートポインターと組み合わせるのも危険だ。そもそも、C++14では、newなど使わない。make_uniqueやmake_sharedを使う。そういうレガシーなコードとのやりとりのために、型安全性を犠牲にしてよいわけがない。
+</p>
+
+<p>
+そもそも、{}を使うと暗黙に型変換するというのは、一貫性に欠ける。リスト初期化では、narrowing conversionを禁止しているではないか。
+</p>
+
+<pre><code>char f()
+{
+    int x = 0 ;
+    return { x } ; // ill-formed、intからcharへのnarrowing conversion
+}
+</code></pre>
+
+<p>
+このように、{}を使う文法で暗黙の型変換に制限しておきながら、他方で緩めるとは一貫性に欠ける。
+</p>
+
+<p>
+論文ではこれらの例を挙げて、N4074提案に反対している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4095.html">N4095: File System TS Active Issues List (Revision R2)</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4096.html">N4096: File System TS Closed Issues List (Revision R2)</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4097.html">N4097: File System TS Defect Report List (Revision R2)</a>
+</h2>
+
+<p>
+File System TSに持ち上がっている問題、議論の結果問題ではないとされた問題、解決された問題の一覧。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4098.html">N4098: File System TS Editor's Report</a>
+</h2>
+
+<p>
+File System TSの編集者による最新のドラフト、N4099に対する変更報告書。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4099.html">N4099: Draft Filesystem Technical Specification</a>
+</h2>
+
+<p>
+File System TSの現時点での最新のドラフト文面。
+</p>
+
+<p>
+File Systemは、ファイルシステム、つまりファイルやディレクトリなどの列挙や操作を行うライブラリである。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4100.pdf">[PDF注意] N4100: Programming Languages — C++ — File System Technical Specification</a>
+</h2>
+
+<p>
+File System TS。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4101.html">N4101: C++ Standard Evolution Active Issues List</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4102.html">N4102: C++ Standard Evolution Completed Issues List</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4103.html">N4103: C++ Standard Evolution Closed Issues List</a>
+</h2>
+
+<p>
+C++の新機能に持ち上がっている問題、解決済みの問題、議論の結果問題ではないとされた問題の一覧。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4104.html">N4104: Technical Specification for C++ Extensions for Parallelism, Working Draft,</a>
+</h2>
+
+<p>
+STLのアルゴリズムに並列実行版を追加するParallelism TSのドラフト。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4105.pdf">[PDF注意] N4105: Information technology – Programming languages, their environments and system software interfaces – Technical Specification for C++ Extensions for Parallelism</a>
+</h2>
+
+<p>
+Parallelism TS。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4106.html">N4106: Parallelism TS Editor's Report, post-Rapperswil</a>
+</h2>
+
+<p>
+Parallelism TSの編集者による変更報告書。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4107.html">N4107: Technical Specification for C++ Extensions for Concurrency, Working Draft</a>
+</h2>
+
+<p>
+std::futureの機能を拡張するConcurrency TSのドラフト。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4108.html">N4108: Concurrency TS Editor's Report, February 2014</a>
+</h2>
+
+<p>
+Concurrency TSの編集者による変更報告書。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+今日は、社内でビブリオスというドラフトゲームを行った。社内にビブリオスをインストできる人間がいたので助かった。このビブリオスはドワンゴの社内同好会であるボドゲ部の部費で購入したそうだ。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
