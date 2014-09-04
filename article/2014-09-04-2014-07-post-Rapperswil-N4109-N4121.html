@@ -1,0 +1,562 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-07-post-Rapperswilのレビュー: N4109-N4121 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/09/2014-07-post-rapperswil-n4109-n4121.html">2014-07-post-Rapperswilのレビュー: N4109-N4121</a></h1>
+
+<p>
+2014年7月の論文集の最後。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4109.pdf">[一発目からPDF] N4109: A proposal to add a utility class to represent expected monad - Revision 1</a>
+</h2>
+
+<p>
+HaskellのEitherに似たライブラリ、expected&lt;T, E&gt;の提案。expectedは、T型か、あるいはエラー通知のためのE型を格納するクラスである。
+</p>
+
+<p>
+前回からの変更点で最も大きなものは、テンプレート仮引数の順番を変えた。expected&lt;E, T&gt;だったものを、expected&lt;T, E&gt;にした。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4110.pdf">[論文のpreconditionとしてPDFを禁止したい] N4110: Exploring the design space of contract specifications for C++</a>
+</h2>
+
+<p>
+C++のコア言語で契約(contract)をサポートする提案。
+</p>
+
+<p>
+関数の宣言に契約を指定して、契約に違反した場合、std::terminateを呼び出す。
+</p>
+
+<p>
+用語の説明。
+</p>
+
+<dl>
+<dt>
+エラー状態
+</dt>
+<dd>
+プログラムが復帰できるかできないかにかかわらずエラーとなる状態
+</dd>
+
+<dt>
+Precondition
+</dt>
+<dd>
+関数を実行する前に満たしている必要のある状態
+</dd>
+
+<dt>
+postcondition
+</dt>
+
+<dd>
+関数を実行後に満たしているべき状態
+</dd>
+
+<dt>
+invariant
+</dt>
+
+<dd>
+関数の実行前、実行後に満たしているべき条件のkと
+</dd>
+
+<dt>
+契約(contract)
+</dt>
+
+<dd>
+ある関数に指定された一連のprecondition, postcondition, invariantのこと。
+</dd>
+
+<dt>
+契約違反
+</dt>
+
+<dd>
+関数を実行前にそのpreconditionかinvariantが満たされていないこと、もしくは、関数実行後にpostconditionかinvariantが満たされていないこと。
+</dd>
+</dl>
+
+<p>
+契約をコア言語でサポートするために、関数の宣言として、precondition, postcondition, invariantを記述できるようにし、契約違反であれば、std::terminateを呼び出す。あるいは契約違反ハンドラーを設定できるようにする。
+</p>
+
+<p>
+論文では、すでに契約をサポートしている言語として、Eiffiel, Ada2012, Dを挙げ、サンプルコードを示している。
+</p>
+
+<p>
+またC++にはすでに、防衛的プログラミングという名前で高級なassertマクロが提案されている。
+</p>
+
+<p>
+論文は、ライブラリによる契約の実装では、ツールによる解析や、コンパイラーが契約条件を把握することによるよりよいコードの生成などができないとしている。
+</p>
+
+<p>
+だいぶ野心的な提案だが、すでにサポートしている言語は複数あるので、机上の空論というわけでもない。ただ、記述するのは面倒そうだが。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4111.pdf">[PDFバリヤー、PDFは跳ね返る] N4111: Static reflection (rev. 2)</a>
+</h2>
+
+<p>
+静的リフレクション機能の提案の一つ。クラスのメンバーなどといったプログラムの構造をテンプレートメタプログラミングの要領で取得できるライブラリの提案。論文としてはN3996の改訂版だが、内容的には全面的に書きなおしになっている。
+</p>
+
+<p>
+ただ問題は、テンプレートメタプログラミングの延長線上でプログラムの構造を取得するようになっているので、設計がBoost.MPLもびっくりの複雑なものになっているし、実際に使うのも冗長なコードを書かねばならないだろう。
+</p>
+
+<p>
+個人的には、機能的には面白いものの、文法が悲惨すぎて破綻する印象しかない。たしかに、テンプレートメタプログラミングの要領で操作できるのは魅力的でもあるのだが、その文法があまりにも冗長すぎる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4112.pdf">[論文にPDFフォーマットを使うなというNBコメントを出したい] N4112: File System PDTS National Body Comments Record of Response</a>
+</h2>
+
+<p>
+File System TSに対するNBコメント。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4113.pdf">[静的リフレクションの前にPDFを何とかして欲しい] N4113: Reflection Type Traits For Classes, Unions and Enumerations (rev 3)</a>
+</h2>
+
+<p>
+静的リフレクション機能として、テンプレートメタプログラミングの要領でプログラムの構造を取得できるライブラリの提案。こちらはN4027の改訂版。
+</p>
+
+<p>
+これはまだ小規模で理解可能な範囲だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4114.htm">N4114: Defaulted comparison operators</a>
+</h2>
+
+<p>
+クラスの演算子==, !=, &lt;, &gt;, &lt;=, &gt;=をデフォルト生成する機能を追加する提案。明示的なデフォルト演算子。
+</p>
+
+<p>
+クラスのメンバーの等号や大小比較ができるとき、メンバーごとの比較をして等価か大小を決定する演算子オーバーロードを書くのは、極めて機械的で面倒な作業である。いちいちメンバーを手で列挙しなければならないし、特に大小比較の場合は、極めて面倒なコードを書かなければならない。そのような作業は、コンパイラーにデフォルトの実装として生成させてしまえばよい。
+</p>
+
+<p>
+この演算子を自動生成させるには、明示的に指定する必要がある。なぜならば、いままで存在しなかった演算子が勝手にデフォルト定義されてしまっては、既存のコードを壊す恐れがあるからである。
+</p>
+
+<p>
+会議の結果、以下の二つの文法が提案されている。
+</p>
+
+<pre><code>struct Thing
+{
+    int a, b, c;
+    std::string d;
+};
+
+bool operator==(const Thing &amp;, const Thing &amp;)= default;
+bool operator!=(const Thing &amp;, const Thing &amp;)= default;
+</code></pre>
+
+<p>
+このように、explicited defaultedの文法を流用して、明示的に実装を生成するように指示する。
+</p>
+
+<p>
+メンバーがprivateの場合は、演算子はfriendを指定子なければならない。その場合は、以下のように書く。
+</p>
+
+<pre><code>class AnotherThing
+{
+    int a, b;
+
+public:
+    // ...
+
+    friend bool operator&lt;(Thing, Thing) = default;
+    friend bool operator&gt;(Thing, Thing) = default;
+    friend bool operator&lt;=(Thing, Thing) = default;
+    friend bool operator&gt;=(Thing, Thing) = default;
+};
+</code></pre>
+
+<p>
+会議による議論では、このように演算子を個別に冗長に指定するのは面倒であるので、もっと短く書きたいという意見が多かった。会議で提案された短い文法は以下の通り。
+</p>
+
+<pre><code>struct Thing
+{
+    int a, b, c;
+    std::string d;
+
+    default: ==, !=, &lt;, &gt;, &lt;=, &gt;=;
+};
+</code></pre>
+
+<p>
+この簡潔な文法は、冗長でコピペを誘発する文法に比べて優れているし、最適な引数の型などは、コンパイラーがよきにはからって正しく、パフォーマンス上優位になるよう、決定してくれる。
+</p>
+
+<p>
+その他の演算子も同様に生成できるのではないかという点については、論文では、それほど役に立たないとしている。
+</p>
+
+<p>
+論文では、mutableメンバーの扱いをどうするかで、議論が沸かれているとしている。解決方法としては、mutableメンバーは比較対象から除外するか、除外せずに対等に扱うかだ。論文著者は除外する方を好むとしている。標準化委員会のデッドロックを避けるために何らかの決定をせねばならず、提案では、mutableメンバーを含むクラスの場合は、デフォルト実装の生成は行われないとするそうだ。こうすることで、将来解決するために保留できる。
+</p>
+
+<p>
+totally orderedではない型はどうすればいいのだろうか。例えば、ポインターの値の大小比較は、同じ連続したストレージ上から確保されたメモリーでなければ意味をなさない。IEEE浮動小数点数にはNaNがあり、NaNの比較はかなり特殊な定義がなされている。
+</p>
+
+<p>
+議論の結果として、
+</p>
+
+<ol>
+<li>
+浮動小数点数型のメンバーが存在する場合、明示的なデフォルト演算子は生成は生成できない。
+</li>
+
+<li>
+ポインター型のメンバーが存在する場合、等価比較の明示的なデフォルト演算子は生成できる。
+</li>
+
+<li>
+ポインター型のメンバーが存在する場合、大小比較の明示的なデフォルト演算子は生成できない。
+</li>
+</ol>
+
+<p>
+筆者が思うに、この決定はどうかと思う。結局この機能は、一般的な比較演算子を簡単に生成する機能なのだから、浮動小数点数やポインターといったありふれた型の存在によって、明示的なデフォルト演算子が使えないとあっては、とても使い道が制限される。
+</p>
+
+<p>
+そういう責任はユーザー側にまかせて、コンパイラーはユーザーが指定したならば生成するべきであると思う。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4115.html">N4115: Parameter Pack Searching</a>
+</h2>
+
+<p>
+パラメーターパックの中に指定の型が含まれているかどうかを調べるtraits、is_contained_in&lt;T, P&gt;と、パラメーターパックが別のパラメーターパックの中の型をすべて含むかどうかを調べるcontains_type&lt; T, P &gt;の提案。
+</p>
+
+<p>
+まず、パラメーターパックを格納するクラステンプレート、packer。
+</p>
+
+<pre><code>template &lt;class... T&gt; struct packer { };
+</code></pre>
+
+<p>
+packerはtupleに似ているが、tupleのようにメンバーを持たないので、必ずインスタンス化できる。
+</p>
+
+<p>
+パラメーターパックPにT型が含まれているかを調べるis_contained_in traits。
+</p>
+
+<pre><code>template &lt;class T, class... P&gt; struct is_contained_in;
+
+template &lt;class T, class... P&gt;
+  constexpr bool is_contained_in_v = is_contained_in&lt;T,P&gt;::value;
+</code></pre>
+
+<p>
+その実装例
+</p>
+
+<pre><code>template &lt;class T&gt; struct is_contained_in&lt;T&gt; : false_type { };
+
+template &lt;class First, class... Rest&gt;
+  struct is_contained_in&lt;First, First, Rest...&gt; : true_type { };
+
+template &lt;class T, class First, class... Rest&gt;
+  struct is_contained_in&lt;T, First, Rest...&gt;
+    : is_contained_in&lt;T, Rest...&gt; { };
+</code></pre>
+
+<p>
+あるpacker Tのパラメーターパックが、別のpacker Uのパラメーターパックをすべて含んでいるかどうかを調べるcontaines_type。
+</p>
+
+<pre><code>template &lt;class T, class U&gt; struct contains_types;
+
+template &lt;class T, class U&gt;
+  constexpr bool contains_types_v = contains_types&lt;T,U&gt;::value;
+</code></pre>
+
+<p>
+その実装例
+</p>
+
+<pre><code>
+template &lt;class... TPack&gt;
+  struct contains_types&lt;packer&lt;TPack...&gt;, packer&lt;&gt;&gt; : true_type { };
+
+template &lt;class... TPack, class UFirst, class... URest&gt;
+  struct contains_types&lt;packer&lt;TPack...&gt;, packer&lt;UFirst, URest...&gt;&gt;
+    : integral_constant&lt;bool,
+        is_contained_in&lt;UFirst, TPack...&gt;::value &amp;&amp;
+        contains_types&lt;packer&lt;TPack...&gt;, packer&lt;URest...&gt;&gt;::value&gt; { };
+</code></pre>
+
+<p>
+まあ、あっても困らない小粒なライブラリだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4116.pdf">[PDFは消え去るべき] N4116: Nested Namespace Definition (rev 1)</a>
+</h2>
+
+<p>
+名前空間のネスト。
+</p>
+
+<pre><code>namespace A { namespace B { namespace C {
+} } }
+</code></pre>
+
+<p>
+という冗長なコードを、
+</p>
+
+<pre><code>
+namespace A::B::C {
+}
+</code></pre>
+
+<p>
+と書けるようになる。
+</p>
+
+<p>
+議論ではnamespaceのinlineや別名をどうするかという問題も出たそうだが、とりあえずそれは保留して、最小限の提案だけをする。つまりinline namespaceには対応しない。
+</p>
+
+<p>
+別名の問題というのは、以下のようなコードが通らないということだ。
+</p>
+
+<pre><code>namespace A::C {} 
+    using namespace B = A; 
+    namespace B::C {} // ill-formed
+</code></pre>
+
+<p>
+ただし、もともと名前空間の別名は、このようには使えなかった。
+</p>
+
+<pre><code>namespace A { } 
+    using namespace B = A; 
+    namespace B { } // ill-formed
+</code></pre>
+
+<p>
+つまり、現状維持ということになる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4117.html">N4117: C++ Standard Library Active Issues List</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4118.html">N4118: C++ Standard Library Defect Report List</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4119.html">N4119: C++ Standard Library Closed Issues List</a>
+</h2>
+
+<p>
+標準ライブラリに持ち上がっている問題、解決された問題、議論の結果問題ではないとされた問題の一覧。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4120.pdf">N4120: Null Coalescing Conditional Operator</a>
+</h2>
+
+<p>
+ある値を使う前に、値のnullチェックをするような処理は、プログラミングで頻出する処理である。これは、現在のC++14の文法では、条件式を使うことで実現できるが、条件式を使うのは色々とめんどくさい。
+</p>
+
+<pre><code>x ? x : y ;</code></pre>
+
+<p>
+という形になるのだが、xが長い複雑な式である場合、二度重複して書かなければならない。また、このままではxは二回評価されてしまうので、評価されることによる副作用を避けたいのであれば、まず一時オブジェクトに式を評価した結果を格納しなければならない。
+</p>
+
+<pre><code>auto &amp;&amp; temp = x ;
+temp ? temp : y ;
+</code></pre>
+
+<p>
+このため、他の言語にも存在し、またGCCの独自拡張で、Clangにも実装されている文法を、標準に提案する。この文法を使えば、以下のように書ける。
+</p>
+
+<pre><code>
+x ? : y ;
+</code></pre>
+
+<p>
+これは、以下のコードとほぼ同じ意味を持つ。
+</p>
+
+<pre><code>auto &amp;&amp; temp = x ;
+temp ? temp : y ;
+</code></pre>
+
+<p>
+違いは、tempはxと同じ値カテゴリーだとみなされるということだ。
+</p>
+
+<p>
+なかなか小粒ではあるが便利であれば嬉しい提案だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4121.pdf">N4121: Compile-Time String: std::string_literal&lt;n&gt;</a>
+</h2>
+
+<p>
+Library Fundamentals TSに、std::string_literal&lt;n&gt;を追加する提案。
+</p>
+
+<p>
+このライブラリは、コンパイル時の文字列を扱うためのライブラリである。リテラル型なのでコンパイル時に扱える。つまり、constexprオブジェクトにできるし、constexpr関数で使うこともできる。
+</p>
+
+<p>
+コンパイル時に文字列を扱うクラステンプレートの実装方法としては、二つの方法がある。この論文で提案されているのは、
+</p>
+
+<pre><code>template &lt; std::size_t n &gt;
+struct string_litera
+{
+    char data[n] ;
+} ;
+</code></pre>
+
+<p>
+という形だ。文字数をテンプレート引数で受け取って、配列で文字列を持つ。これはリテラル型なので、コンパイル時に扱える。
+</p>
+
+<p>
+もうひとつの実装方法としては、非型テンプレートパラメーターパックで文字を受け取ることだ。
+</p>
+
+<pre><code>tempalte &lt; char ... data &gt;
+struct string_literal
+{ } ;
+</code></pre>
+
+<p>
+まず、両方共、相互に簡単に変換可能である。
+</p>
+
+<p>
+この二つの利点と欠点を考えると、パラメーターパックを使う実装は、文字列ごとに別のインスタンス化が必要で、文字列を名前マングリングで受け取り、りんカーを酷使する、スケールしない実装方法である。パラメーターパックによるコンパイル時文字列の実装、またテンプレートメタプログラミングは、たまたまチューリング完全であったために酷使された利用法であって、近代的なC++14では、constexprオブジェクトのほうが使いやすい。
+</p>
+
+<p>
+静的リフレクションを入れるにも、何はともあれコンパイル時文字列は必要になるので、いずれ必要になるライブラリである。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+今日は不自由なソフトウェアであるスーパーマリオランド2 6つの金貨で遊びながら通勤し、また昼休みにも6つの金貨で遊んだ。ドワンゴには路地裏と呼ばれているスペースがあり、ゲーム機が置かれているが、あまり遊ばれているのをみたことはない。なんでもぷよぷよ勢のために稼働するメガドライブなどが維持されているのだとか。
+</p>
+
+<p>
+もちろん、今日はドワンゴ勤務中にこの記事を書いた。次の論文集は10月だが、明日からはBoost勉強会大阪の発表資料を作成するので、暇にはならない。
+</p>
+
+<p>
+ところで、そろそろまたドワンゴのセミナールームを使ってC++勉強会を開くべきだろうか。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
