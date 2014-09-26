@@ -1,0 +1,296 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++14の新機能: decltype(auto) 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/09/c14-decltypeauto.html">C++14の新機能: decltype(auto)</a></h1>
+
+<p>
+さて、<a href="http://cpplover.blogspot.jp/2014/09/c14-2.html">前回</a>に引き続き、C++14の新機能を解説していく。今回は、decltype(auto)を解説する。
+</p>1
+
+<p>
+C++14で追加されたdecltype(auto)は、C++11で追加されたauto指定子と同じ、placeholder specifierである。decltype(auto)は、autoでは解決できない問題を解決するために導入された。導入のきっかけは、これまたC++14で追加された、関数の戻り値の型推定機能のためである。これは後日解説する。
+</p>
+
+<p>
+decltype(auto)は、わかりやすいといえばわかりやすい。autoのような型が勝手に変わる罠がないからだ。わかりにくいといえばわかりにくい。C++の型システムに深く関わるし、autoのようによきにはからってコンパイルが通ることがないからだ。
+</p>
+
+<p>
+さて、C++14のdecltype(auto)について解説する前に、まずC++11のautoについて解説しよう。
+</p>
+
+<p>
+auto指定子は変数宣言の型指定子に記述した場合、変数の型は、初期化子から決定される。
+</p>
+
+<pre><code class="cpp">auto a = 0 ; // int
+auto b = 0.0 ; // double
+
+std::vector&lt;int&gt; v ;
+auto iter = v.begin() ; // std::vector&lt;int&gt;::iterator
+</code></pre>
+
+<p>
+なるほど、一見すると、とてもわかりやすい。C++では、式の型はコンパイル時に決定できるので、このコードは危険ではないし、実行時オーバーヘッドなども一切ない。以下のように書いた場合と同等である。
+</p>
+
+<pre><code class="cpp">int a = 0 ;
+int b = 0.0 ;
+std::vector&lt;int&gt; v ;
+std::vector&lt;int&gt;::iterator iter = v.begin() ;
+</code></pre>
+
+<p>
+さて、単にauto指定子を使うだけならば、この程度の理解でもよい。しかし、auto指定子、というよりもC++の型システムは複雑なのだ。
+</p>
+
+<p>
+「変数の型は、初期化子から決定される」と書いた。初期化子(initializer)とは、= の右側の式のことだ。
+</p>
+
+<pre><code class="cpp">
+auto variable = initializer ;
+</code></pre>
+
+<p>
+「初期化子から決定される」という説明は、あまりにも物事を簡略化しすぎている。より正確に説明すると、テンプレート実引数推定のルールで型推定が行われる
+</p>
+
+<p>
+つまり、こういうことだ。
+</p>
+
+<pre><code class="cpp">template &lt; typename T &gt;
+void f( T ) ;
+
+// 変数variableの型はT
+f( initializer ) ;
+</code></pre>
+
+<p>
+さきほどの変数variableの型は、あたかも上記のように書いた場合にテンプレート実引数推定の結果のTの型になる。
+</p>
+
+<p>
+それの何が問題なのか。テンプレート実引数推定には、型の変換が入るのだ。
+</p>
+
+<pre><code class="cpp">int array[10] = { } ;
+
+// decltype(array) = int [10] 
+// decltype(x) = int *
+auto x = array ;
+
+
+void function() ;
+
+// decltype(function) = void ()
+// decltype(y) = void (*)()
+auto y = function ;
+
+
+int const const_obj = 0 ;
+
+// decltype(const_obj) = int const
+// decltype(z) = int
+auto z = const_obj ;
+</code></pre>
+
+<p>
+特に問題になるのは、リファレンスだ。
+</p>
+
+<pre><code class="cpp">int obj = 0 ;
+int &amp; ref = obj ;
+
+// decltype(ref) = int &amp;
+// decltype(x) = int
+auto x = ref ;
+</code></pre>
+
+<p>
+lvalueリファレンスの場合は、以下のように書くという手もある。
+</p>
+
+<pre><code class="cpp">auto &amp; x = ref ;
+</code></pre>
+
+<p>
+残念ながら、rvalueリファレンスの場合は、この方法は使えない。
+</p>
+
+<pre><code class="cpp">int &amp; l() ;
+int &amp;&amp; r() ;
+
+// ん？
+// decltype(x) = int &amp;
+auto &amp;&amp; x = l() ; 
+
+// decltype(y) = int &amp;&amp;
+auto &amp;&amp; y = r() ;
+</code></pre>
+
+<p>
+変数xの型はlvalueリファレンスになる。これは、auto指定子がテンプレート実引数推定のルールを利用しているためだ。そのルール上、初期化子の型から、変換がかかる。
+</p>
+
+<p>
+これを防いで、初期化子の型をそのまま使うには、decltypeを使う方法がある。
+</p>
+
+<pre><code class="cpp">decltype(expr) x = expr ;
+</code></pre>
+
+<p>
+なるほど、たしかにこれは動く。問題は、コード中にexprが重複してしまうということだ。同じコードを機械的に二度書かねばならないし、問題の元だ。
+</p>
+
+<p>
+このために、C++14には、初期化子の型をそのまま使う、decltype(auto)が追加された。
+</p>
+
+<pre><code class="cpp">int &amp;&amp; f() ;
+
+auto x = f() ; // int
+decltype(auto) y = f() ; // int &amp;&amp;
+</code></pre>
+
+<p>
+decltype(auto)は、autoを初期化子の式で置き換えたかのように振る舞う。つまり、初期化子の型になる。
+</p>
+
+<p>
+auto指定子との挙動の違いを比較してみよう。
+</p>
+
+<pre><code class="cpp">int array[10] = { } ;
+
+// ill-formed.
+// 配列の初期化子に配列は使えない
+decltype(auto) x = array ;
+
+
+void function() ;
+
+// ill-formed.
+// 関数型の変数を宣言することはできない
+decltype(auto) y = function ;
+
+
+int const const_obj = 0 ;
+
+// well-formed
+// decltype(z)はint const
+decltype(auto) z = const_obj ;
+</code></pre>
+
+<p>
+また、初期化子の式をdecltypeの中に入れるということは、初期化子が括弧で囲まれていた場合、型が変わる。
+</p>
+
+<pre><code class="cpp">
+int obj = 0 ;
+
+// decltype(x) = int
+decltype(auto) x = obj ;
+
+// decltype(y) = int &amp;
+decltype(auto) y = (obj) ;
+</code></pre>
+
+<p>
+これはdecltypeの仕様である。
+</p>
+
+<p>
+See Also:
+</p>
+
+<p>
+<a href="http://cpplover.blogspot.jp/2014/09/c14-2.html">本の虫: C++14の新機能: 2進数リテラル</a>
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。毎週金曜日の夜はボドゲと相場が決まっている。
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
