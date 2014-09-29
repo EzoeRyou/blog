@@ -1,0 +1,330 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++14の新機能: 関数の戻り値の型推定 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/09/c14.html">C++14の新機能: 関数の戻り値の型推定</a></h1>
+
+<p>
+C++14では、通常の関数に、戻り値の型推定という機能が加わった。
+</p>
+
+<p>
+C++14の戻り値の型推定を解説する前に、まずC++11の話を使用。
+</p>
+
+<p>
+戻り値の型推定は、C++11のlambda式に備わっていた。ただし、C++11では、lambda式が戻り値の型推定を行うためには、本体はreturn文ひとつだけでなければならないという制約があった。return文ひとつだけでない場合、戻り値の型はvoid型となる。
+</p>
+
+<pre><code class="cpp">// C++11のlambda式
+// 戻り値の型はint
+[](){ return 0 ; } ;
+
+// 戻り値の型はvoid
+[]() { } ;
+
+
+// ill-formed.
+// 戻り値の型はvoidなのにint型を返している。
+[]()
+{
+    int x = 0 ;
+    return x ;
+} ;
+</code></pre>
+
+<p>
+C++14では、通常の関数の戻り値の型推定機能の導入と共に、そのような制限は撤廃された。
+</p>
+
+<pre><code class="cpp">// C++14のlambda式
+// well-formed
+[]()
+{
+    int x = 0 ;
+    return x ; 
+} ;
+</code></pre>
+
+<p>
+また、C++11では、placeholder typeという機能が導入された。
+</p>
+
+<pre><code>// C++11のplaceholder type
+auto x = 0 ; // int
+</code></pre>
+
+<p>
+C++14では、placeholder typeに、decltype(auto)が追加された。
+</p>
+
+<pre><code class="cpp">// C++14のplaceholer type
+decltype(auto) x = 0 ; // int
+</code></pre>
+
+<p>
+decltype(auto)とautoの違いについては、前回の解説を参照。
+</p>
+
+<p>
+<a href="http://cpplover.blogspot.jp/2014/09/c14-decltypeauto.html">本の虫: C++14の新機能: decltype(auto)</a>
+</p>
+
+<p>
+C++14に追加された通常の関数の戻り値の型推定は、このplaceholder typeを関数の戻り値の型として指定できる。その場合、型はreturn文のオペランドの式から推定される。
+</p>
+
+<pre><code class="cpp">// C++14の戻り値の型推定
+
+// void
+auto f() { }
+
+// int
+auto g() { return 0 ; }
+
+// int
+decltype(auto) h() { return 0 ; }
+</code></pre>
+
+<p>
+戻り値の型としてのplaceholder typeは、後置することもできる。
+</p>
+
+<pre><code class="cpp">auto f() -&gt; auto
+{
+    return 0 ;
+}
+</code></pre>
+
+<p>
+この文法が認められている理由は、主に、lambda式にplaceholder typeを記述するためだ。
+</p>
+
+<pre><code class="cpp">
+// int &amp;
+[]() -&gt; auto &amp; 
+{
+    static int x ;
+    return x ;
+} ;
+</code></pre>
+
+<p>
+decltype(auto)は、主に戻り値の型推定を行わせるために追加された。
+</p>
+
+<pre><code class="cpp">int &amp; f() ;
+
+// int
+auto g() { return f() ; }
+
+// int &amp;
+decltype(auto) h() { return f() ; }
+</code></pre>
+
+<p>
+C++14の戻り値の型推定には、C++11のlambda式の戻り値の型推定のような、とても使いづらい制限はない。普通に書けば普通に動く。ただし、細かい点で注意すべきところはある。
+</p>
+
+<p>
+すべてのreturn文のオペランドの式の型は、一致していなければならない。
+</p>
+
+<pre><code class="cpp">auto f()
+{
+    return 0 ;
+    return 0.0 ; // ill-formed. 型の不一致
+}
+</code></pre>
+
+<p>
+再帰はできる。もちろん、return文のオペランドの式の型は、すべて一致していなければならない。
+</p>
+
+<pre><code class="cpp">
+auto ackermann( int m, int n )
+{
+    if ( m == 0 )
+        return n + 1 ;
+    if ( n == 0 )
+        return ackermann( m - 1, 1 ) ;
+    else
+        return ackermann( m - 1, ackermann( m, n-1 ) ) ;
+}
+</code></pre>
+
+<p>
+placeholder typeの型推定にあたって、まだ型推定されていないplaceholder typeが現れる場合は、エラーとなる。これは、変数の場合と同等だ。
+</p>
+
+<pre><code class="cpp">
+auto x = x ; // エラー
+
+auto f() ;
+// エラー
+auto g() { return f() ; }
+</code></pre>
+
+<p>
+placeholder typeを使った関数を再宣言する場合は、同じplaceholder typeを使わなければならない。推定される具体的な型を使うことはできない。
+</p>
+
+<pre><code class="cpp">auto f() ; // OK、宣言
+auto f() { return 0 ; } // OK、定義
+
+auto f() ; // OK、再宣言
+
+// ill-formed
+// 同じplaceholer typeを使わなければならない
+decltype(auto) f() ;
+int f() ;
+</code></pre>
+
+<p>
+関数テンプレートの明示的実体化や明示的特殊化でも、同じplaceholder typeを使わなければならない。
+</p>
+
+<pre><code class="cpp">// #1
+template &lt; typename T &gt; auto f( T t ) { return t ; }
+
+// 明示的実体化
+extern template auto f( int ) ; // OK
+extern template char f( char ) ; // エラー
+
+// 明示的特殊化
+template &lt; &gt; auto f( short ) ; // OK
+template &lt; &gt; long f( long ) ; // エラー
+
+// #2
+// #2は#1とは異なるテンプレートであることに注意
+template &lt; typename T &gt; T f( T t ) { return t ; }
+
+extern template char f( char ) ; // OK, #2の明示的実体化
+template &lt; &gt; long f( long ) ; // OK、#2の明示的特殊化
+</code></pre>
+
+<p>
+もちろん、上記のテンプレートは、実際に実体化して使う際に曖昧になるが、それは使う場合の話であって、テンプレートの話ではない。
+</p>
+
+<p>
+virtual関数で戻り値の型推定機能を使うことはできない。提案論文の<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3638.html">N3638</a>によれば、技術上可能ではあるが、オーバーライドのチェックとvtableレイアウトが複雑化するため、現時点では禁止しておくとのことだ。
+</p>
+
+<p>
+戻り値の型推定で、std::initializer_listを推定することはできない。
+</p>
+
+<p>
+placeholder typeで変数を宣言する場合は、std::initalizer_listを推定することができるが、std::initializer_listは実装の都合上、自動ストレージ上に構築して参照渡しをするため、関数の戻り値として返すのは不適切であるという理由に寄る、
+</p>
+
+<pre><code class="cpp">// OK
+// std::initializer_list&lt;int&gt;
+auto x = { 1, 2, 3 } ;
+
+// エラー
+// std::initializer_listは推定できない
+auto f()
+{
+    return { 1, 2, 3 } ;
+}
+</code></pre>
+
+<p>
+以上、細かい点はあるが、通常の利用では、それほど気にする必要はない。普通に書けば、自然に動くように設計されているはずだ。
+</p>
+
+<p>
+See Also:
+</p>
+
+<p>
+<a href="http://cpplover.blogspot.jp/2014/09/c14-2.html">本の虫: C++14の新機能: 2進数リテラル</a>
+</p>
+
+<p>
+<a href="http://cpplover.blogspot.jp/2014/09/c14-decltypeauto.html">本の虫: C++14の新機能: decltype(auto)</a>
+</p>
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
