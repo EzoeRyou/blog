@@ -1,0 +1,202 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++14の新機能: ジェネリックlambda 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/09/c14-lambda_30.html">C++14の新機能: ジェネリックlambda</a></h1>
+
+<p>
+C++14に追加された新機能に、ジェネリックlambdaがある。
+</p>
+
+<p>
+lambda式は便利だ。lambda式が便利な理由は、簡潔に書けるからだ。しかし、C++11のlambda式は、引数の型を書かなければならないので、十分に簡潔に書くことはできない。
+</p>
+
+<pre><code class="cpp">struct very_long_name
+{
+    int x ;
+    double y ;
+    std::string z ;
+} ;
+
+void sort( std::vector&lt;very_long_name&gt; &amp; v )
+{
+    std::sort( v.begin(), v.end(),
+        []( very_long_name &amp; a, very_long_name &amp; b )
+        {   // 複数のデータメンバーを正しく比較する方法を覚えておくと、
+            // いつかためになる。
+            return std::tie( a.x, a.y, a.z ) &lt; std::tie( b.x, b.y, b.z ) ;
+        } ) ;
+}
+</code></pre>
+
+<p>
+引数の型ぐらい、コンパイラーが何とかしてほしいものである。そこで、C++14には、引数の型を書かずにすむ、ジェネリックlambdaが追加された。
+</p>
+
+<pre><code class="cpp">    std::sort( v.begin(), v.end(),
+        []( auto &amp; a, auto &amp; b )
+        {
+            return std::tie( a.x, a.y, a.z ) &lt; std::tie( b.x, b.y, b.z ) ;
+        } ) ;
+</code></pre>
+
+<p>
+これだけでは、単に引数の型を省略出来るだけに見えるかもしれない。以下の例で、ジェネリックlambdaの素晴らしさがわかるだろう。
+</p>
+
+<pre><code class="cpp">template &lt; typename print &gt;
+void f( print p )
+{
+    p( 42 ) ;
+    p( 3.14 ) ;
+    p( "hello" ) ;
+}
+
+int main()
+{
+    f( []( auto &amp;&amp; elem ) { std::cout &lt;&lt; elem &lt;&lt; '\n' ; } ) ;
+}
+</code></pre>
+
+<p>
+ジェネリックlambdaは、テンプレートのようにどんな型でも受け付ける。
+</p>
+
+<p>
+lambda式は魔法ではなく、クロージャーオブジェクトと呼ばれる、単なる関数オブジェクトを返すシンタックスシュガーに過ぎない。ジェレリックlambda式も同じだ。テンプレートのようにと書いたが、実際、メンバーテンプレートを持つ関数オブジェクトのシンタックスシュガーに過ぎない。例えば、上記のlambda式によって生成されるクロージャーオブジェクトは、以下のようになる。
+</p>
+
+<pre><code class="cpp">
+struct closure_object
+{
+    template &lt; typename T &gt;
+    void operator ( T &amp;&amp; elem ) const
+    { std::cout &lt;&lt; elem &lt;&lt; '\n' ; }
+} ;
+</code></pre>
+
+<p>
+メンバーテンプレートを使えば、printに与える適切な関数オブジェクトを記述することができるが、C++11のlambda式には、これを可能にする文法がなかった。C++14で、ジェネリックlambdaとして追加された。
+</p>
+
+<p>
+なおこの機能はGCC 4.9とClang 3.4で実装されている。
+</p>
+
+<p>
+<a href="http://clang.llvm.org/cxx_status.html">Clang - C++1z, C++14, C++11 and C++98 Status</a>
+</p>
+
+<p>
+<a href="https://gcc.gnu.org/projects/cxx1y.html">C++1y/C++14 Support in GCC - GNU Project - Free Software Foundation (FSF)</a>
+</p>
+
+<p>
+See Also:
+</p>
+
+<p>
+<a href="http://cpplover.blogspot.jp/2014/09/c14-2.html">本の虫: C++14の新機能: 2進数リテラル</a>
+</p>
+
+<p>
+<a href="http://cpplover.blogspot.jp/2014/09/c14-decltypeauto.html">本の虫: C++14の新機能: decltype(auto)</a>
+</p>
+
+<p>
+<a href="http://cpplover.blogspot.jp/2014/09/c14.html">本の虫: C++14の新機能: 関数の戻り値の型推定</a>
+</p>
+
+<p>
+<a href="http://cpplover.blogspot.jp/2014/09/c14-lambda.html">本の虫: C++14の新機能: 初期化lambdaキャプチャー</a>
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+次の論文集がでるのは10月半ばになるので、それまではC++の解説記事を書く。
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
