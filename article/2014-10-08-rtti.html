@@ -103,7 +103,7 @@ typeidが返すオブジェクトの寿命はプログラムの終了までな�
 </p>
 
 <p>
-type_infoのオブジェっくとは型を表現する。type_infoのオブジェクト同士を等号比較することで、型が等しいかどうかを調べられる。
+type_infoのオブジェクトは型を表現する。type_infoのオブジェクト同士を等号比較することで、型が等しいかどうかを調べられる。
 </p>
 
 <pre><code class="cpp">
@@ -125,13 +125,26 @@ GNU/Linuxでは、IntelのItanium用のC++ ABIがデファクトスタンダー�
 </p>
 
 <pre><code class="cpp">#include &lt;cxxabi.h&gt;
+#include &lt;cstdlib&gt;
+#include &lt;string&gt;
+#include &lt;memory&gt;
+
+struct free_delete
+{
+    template &lt; typename T &gt;
+    void operator ()( T * ptr ) const noexcept
+    {
+        std::free( ptr ) ;
+    }
+} ;
 
 std::string demangle( std::type_info const &amp; ti )
 {
     int status = 0 ;
-    char * ptr = abi::__cxa_demangle( ti.name(), nullptr, nullptr, &amp;status ) ;
+    std::unique_ptr&lt;char, free_delete &gt;
+        ptr( abi::__cxa_demangle( ti.name(), nullptr, nullptr, &amp;status ) ) ;
 
-    if ( ptr == nullptr )
+    if ( !ptr )
     {
         switch ( status )
         {
@@ -146,8 +159,7 @@ std::string demangle( std::type_info const &amp; ti )
         }
     }
 
-    std::string result( ptr ) ;
-    std::free( ptr ) ;
+    std::string result( ptr.get() ) ;
 
     return result ; 
 }
