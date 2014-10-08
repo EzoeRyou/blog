@@ -1,0 +1,332 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++のtypeidとtype_infoとtype_index
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/10/ctypeidtypeinfotypeindex.html">C++のtypeidとtype_infoとtype_index</a></h1>
+
+<p>
+10月の論文集が発表されるまで暇なので、typeidとtype_infoと、C++11から追加されたtype_indexの解説をする。
+</p>
+
+<p>
+C++でRTTI(Run Time Type Infomation/Identification)と呼ばれる機能がある。
+</p>
+
+<p>
+std::type_infoは、型情報を表現するクラスである。type_infoのオブジェクトは、typeid式で得ることができる。typeid式は、オペランドに式かtype-idを取る。typeid式の結果は、constなstd::type_info型のlvalueである。typeid式を使うには、typeinfoヘッダーをincludeする必要がある。
+</p>
+
+<pre><code class="cpp">#include &lt;typeinfo&gt;
+
+std::type_info const &amp; t1 = typeid(int) ;
+std::type_info const &amp; t2 = typeid(double) ;
+</code></pre>
+
+<p>
+std::type_infoはデフォルト構築もコピーもムーブもできないクラスである。std::type_info型のオブジェクトは、typeid式によってしか作れない。
+</p>
+
+<p>
+typeid式は、constなtype_info型のlvalueを返すので、type_infoを使う場合は、リファレンスかポインターで参照しなければならない。
+</p>
+
+<pre><code class="cpp">
+std::type_info const &amp; t1 = typeid(int) ;
+std::type_info const * t2 = &amp;typeid(int) ;
+</code></pre>
+
+<p>
+typeid式が返すオブジェクトの寿命は、通常とは変わっていて、プログラムが終了するまでである。つまり、以下のようなコードが動く。
+</p>
+
+<pre><code class="cpp">#include &lt;typeinfo&gt;
+
+int main()
+{
+    std::typeinfo const * ptr ;
+    {
+        ptr = &amp;typeid(int) ;
+    }
+
+    ptr-&gt;name() ; // OK、
+}
+</code></pre>
+
+<p>
+typeidが返すオブジェクトの寿命はプログラムの終了までなので、リファレンスやポインターで安全に保持できる。寿命や解放を考える必要はない。
+</p>
+
+<p>
+type_infoのオブジェっくとは型を表現する。type_infoのオブジェクト同士を等号比較することで、型が等しいかどうかを調べられる。
+</p>
+
+<pre><code class="cpp">
+typeid(int) == typeid(double) ; // false
+</code></pre>
+
+<p>
+また、nameというメンバー関数を持っていて、これは実装依存の型を表現する何らかのnull終端された文字列を返す。
+</p>
+
+<pre><code class="cpp">int main()
+{
+    std::cout &lt;&lt; typeid(int).name() &lt;&lt; '\n' ;
+}
+</code></pre>
+
+<p>
+GNU/Linuxでは、IntelのItanium用のC++ ABIがデファクトスタンダードとなっていて、GNU/Linux用のGCCやClangでは、この仕様に従ったマングル名が返される。デマングルして人間にわかりやすい型にするには、以下のようにすればよい。
+</p>
+
+<pre><code class="cpp">#include &lt;cxxabi.h&gt;
+
+std::string demangle( std::type_info const &amp; ti )
+{
+    int status = 0 ;
+    char * ptr = abi::__cxa_demangle( ti.name(), nullptr, nullptr, &amp;status ) ;
+
+    if ( ptr == nullptr )
+    {
+        switch ( status )
+        {
+        case -1 :
+            return "memory allocation failure" ;
+        case -2 :
+            return "invalid mangled name" ;
+        case -3 :
+            return "invalid arguments" ;
+        default :
+            return "Shouldn't reach here" ;
+        }
+    }
+
+    std::string result( ptr ) ;
+    std::free( ptr ) ;
+
+    return result ; 
+}
+</code></pre>
+
+<p>
+それはさておき・・・
+</p>
+
+<p>
+typeid式が実行時型情報と呼ばれている理由は、ポリモーフィッククラス型の式をオペランドに与えると、実行時になるまで分からない型を表現するtype_infoが返されるからだ。
+</p>
+
+<pre><code class="cpp">struct A
+{
+    virtual void polymorphic() { }
+} ;
+
+struct B : A
+{ } ;
+
+void f( A &amp; ref )
+{
+    // refがA, Bどちらを参照するのかは実行時に決まる
+    // tiが表現する型も実行時に決まる
+    decltype(auto) ti = typeid( ref ) ;
+}
+</code></pre>
+
+<p>
+これにより、以下のようなコードを書くことができる。
+</p>
+
+<pre><code class="cpp">struct Base { virtual void p() = 0 ; } ;
+struct Cat : Base { } ;
+struct Dog : Base { } ;
+
+std::string get_name( Base &amp; ref )
+{
+    decltype(auto) ti = typeid(ref) ;
+    if ( ti == typeid(Cat) )
+        return u8"猫" ;
+    else if ( ti == typeid(Dog) )
+        return u8"犬" ;
+
+    return u8"謎" ;
+}
+</code></pre>
+
+<p>
+もちろん、世間一般的に、この場合にはvirtual関数を使うのが礼儀正しい作法であるとされている。
+</p>
+
+<pre><code class="cpp">struct Base { virtual std::string get_name() = 0 ; } ;
+struct Cat : Base { std::string get_name() { return u8"猫" ; } } ;
+struct Dog : Base { std::string get_name() { return u8"犬" ; } } ;
+
+
+auto get_name( Base &amp; ref )
+{
+    return ref.get_name() ;
+}
+</code></pre>
+
+<p>
+さて、typeidの結果であるtype_info型は、かなり扱いづらい。すでに説明したように、type_infoはデフォルト構築、コピー、ムーブができず、typeid式から得られるオブジェクトを、リファレンスやポインター経由で参照して使うしかないからだ。これは、type_info型のオブジェクトの大量に管理したい場合に問題になる。オブジェクトを大量に管理するには、vectorやmapやunordered_mapなどのコンテナーを使いたいが、type_info型を直接使うわけには行かない。とすると、ポインターだろうか。
+</p>
+
+<pre><code class="cpp">std::vector&lt; std::type_info * &gt; v ;
+</code></pre>
+
+<p>
+vectorならこれでよくても、やはり型情報という性質上、それぞれの型に何らかの値を付属させて、後から検索したい都合も出てくる。mapやunordered_mapで使いたい。
+</p>
+
+<p>
+そのためには、type_info *型をラップするという手がある。しかし、正しくラップするのは、以下のように単調でめんどくさい。
+</p>
+
+<pre><code class="cpp">namespace ezoe {
+
+class type_index
+{
+public:
+    type_index(const std::type_info&amp; rhs) noexcept
+        : target( &amp;rhs ) { }
+    bool operator==(const type_index&amp; rhs) const noexcept
+    { return *target == *rhs.target ; }
+    bool operator!=(const type_index&amp; rhs) const noexcept
+    { return *target != *rhs.target ; }
+    bool operator&lt; (const type_index&amp; rhs) const noexcept
+    { return target-&gt;before( *rhs.target ) ; }
+    bool operator&lt;= (const type_index&amp; rhs) const noexcept
+    { return !target-&gt;before( *rhs.target ) ; }
+    bool operator&gt; (const type_index&amp; rhs) const noexcept
+    { return rhs.target-&gt;before( *target ) ; }
+    bool operator&gt;= (const type_index&amp; rhs) const noexcept
+    { return !rhs.target-&gt;before( *target) ; }
+    std::size_t hash_code() const noexcept
+    { return target-&gt;hash_code() ; }
+    const char* name() const noexcept
+    { return target-&gt;name() ; }
+private:
+    const std::type_info* target;
+} ;
+
+}
+
+namespace std
+{
+    template &lt; &gt;
+    struct hash&lt; ezoe::type_index &gt;
+    {
+        size_t operator() ( ezoe::type_index ti ) const noexcept
+        {
+            return ti.hash_code() ;
+        }
+    } ;
+}
+</code></pre>
+
+<p>
+このコードは、誰が書いてもこのようになる。しかし、これを正しく書くのは面倒で、間違いやすく、しかもお互いに非互換なラッパーが乱立してしまう。そこで、このようなラッパー、std::type_indexが、C++11では標準ライブラリに追加された。使うには、ヘッダーファイルtypeindexをincludeする必要がある。
+</p>
+
+<pre><code class="cpp">#include &lt;typeindex&gt;
+#include &lt;map&gt;
+
+int main()
+{
+    std::map&lt; std::type_index, std::string &gt; m =
+    {
+        { typeid(int), "int" },
+        { typeid(double), "double"}
+    } ;
+
+    std::cout &lt;&lt; m[typeid(int)] &lt;&lt; '\n' ;
+}
+</code></pre>
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+次に解説すべきC++11で追加されたライブラリを探している。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
