@@ -1,0 +1,187 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++の例外指定 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/10/c.html">C++の例外指定</a></h1>
+
+<p>
+C++では、関数に例外指定というものが記述できる。これはC++98からある機能で、throw(T1, T2, ...)という文法で、関数が外に投げる例外を指定する機能だ。
+</p>
+
+<pre><code class="cpp">// C++98/03
+void f() throw( int, double ) ;
+</code></pre>
+
+<p>
+もし、関数が例外指定に指定された以外の型を投げた場合、std::unexpectedが呼ばれる。
+</p>
+
+<pre><code class="cpp">void f() throw( int ) 
+{
+    throw 0 ; // OK
+    throw 0.0 ; // 実行時エラー: call std::unexpected() 
+}
+</code></pre>
+
+<p>
+例外指定は、関数から抜けだせる例外を指定する機能で、関数の外に例外を投げなければ問題がない。
+</p>
+
+<pre><code class="cpp">void f() throw( int ) 
+{
+    try {
+        throw 0.0 ; // OK
+    } catch( ... ) { } // OK、外に投げない
+}
+</code></pre>
+
+
+<p>
+というのは、C++11以前の歴史の話だ。
+</p>
+
+<p>
+現実に、この例外指定を真面目に実装するコンパイラーは少なかった。パースだけして無視するような有名なコンパイラーがはびこったのだ。結局、実装されないのであれば机上の空論でしかない。C++11では、これを動的例外指定と呼び、deprecated扱いしている。規格が現実に追いついたというわけだ。
+</p>
+
+<p>
+ところで、この例外指定の文法は、本来規格が想定していなかった意味で使われ始めた。動的例外指定は、文法上、型を指定しないこともできる。
+</p>
+
+<pre><code class="cpp">void f() throw( ) ;
+</code></pre>
+
+<p>
+ある主要なC++コンパイラーは、この記述を、関数は例外を外に投げないという意味にみなし、最適化のためのヒントに使い始めた。これは、本来規格設計時に意図された意味ではなかったが、最適化のヒントのため、広まった。世の中のC++コンパイラーは、動的例外指定を完全に実装しなかったが、これは実装するだけの価値があったのだ。
+</p>
+
+<p>
+C++11では、無例外保証の指定機能だけに特化した、noexceptが追加された。noexceptを指定すると、関数は外に例外を投げないと指定したことになる。
+</p>
+
+<pre><code class="">void f() noexcept ;
+</code></pre>
+
+<p>
+もし外に例外を投げると、std::terminateが呼ばれる。
+</p>
+
+<p>
+また、noexceptにはbool型のコンパイル時定数のオペランドを取る文法がある。式がtrueの時は無例外指定になり、falseの時は無例外指定にならないという意味を持つ。
+</p>
+
+<pre><code class="cpp">void f() noexcept(true) ; // 例外を外に投げない
+void g() noexcept(false) ; // 例外を外に投げる可能性がある
+</code></pre>
+
+<p>
+これにより、コンパイル時メタプログラミングにより、関数の無例外指定の有無を切り替えられるようになった。
+</p>
+
+<p>
+無例外指定のない通常の関数宣言は、例外を外に投げる可能性がある関数である。throw()も、無例外指定とみなされる。
+</p>
+
+<pre><code class="cpp">void f1() ;
+void f2() throw() ; // 無例外指定
+void f3() noexcept ; // 無例外指定
+void f4() noexcept( true ) ; // 無例外指定
+void f5() noexcept( false ) ;
+</code></pre>
+
+<p>
+また、C++11ではnoexcept式というものが追加されている。これは、オペランドの式が例外を投げるかどうかをboolで返す。オペランドの式は未評価式である。
+</p>
+
+<pre><code class="cpp">void f() ;
+void g() noexcept ;
+
+int main()
+{
+    noexcept( f() ) ; // false
+    noexcept( g() ) ; // true
+}
+</code></pre>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書いた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
