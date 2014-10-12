@@ -81,7 +81,7 @@ espeakは、何も引数を指定しない場合、stdinから読み取って音
 </p>
 
 
-<pre><code>ping localhost | sed -e "s/.*/ping/g" | espeak</code></pre>
+<pre><code>ping localhost | stdbuf -oL sed -e "s/.*/ping/g" | espeak</code></pre>
 
 <p>
 と書いた後で、sedにもバッファリングを無効にするオプションがあることに気がついた。
