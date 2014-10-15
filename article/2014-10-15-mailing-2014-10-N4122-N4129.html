@@ -1,0 +1,455 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-10-pre-Urbana mailingsのレビュー: N4122-N4129 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/10/2014-10-pre-urbana-mailings-n4122-n4129.html">2014-10-pre-Urbana mailingsのレビュー: N4122-N4129</a></h1>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/#mailing2014-10">2014-10-pre-Urbana mailings</a>が公開された。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4122.pdf">N4122: AGENDA, PL22.16 Meeting No. 64, WG21 Meeting No. 59, November 3-8, 2014 – Urbana-Champaign, IL</a>
+</h2>
+
+<p>
+2014年11月3-8日にUrbana-Champaignで開かれる会議の予定表。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4123.html">N4123: Improvements to the Concurrency Technical Specification</a>
+</h2>
+
+<p>
+Concurrency TSドラフトの変更提案。すでに提案されていたexperimentalヘッダーなどの細かい変更に対応するため。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4124.html">N4124: Toward More Expressive Iterator Tags</a>
+</h2>
+
+<p>
+イテレーターカテゴリーを表現するライブラリであるイテレータータグの定義を変更する提案。
+</p>
+
+<p>
+イテレーターカテゴリーの実際の内容を個別に、reference_tagとかlvalue_tagなどと細分化し、イテレータータグはこれらの個別のタグの組み合わせで表現する。
+</p>
+
+<p>
+現在のイテレータータグは、以下のように定義されている。
+</p>
+
+<pre><code class="cpp">struct input_iterator_tag { };
+struct output_iterator_tag { };
+struct forward_iterator_tag: public input_iterator_tag { };
+struct bidirectional_iterator_tag: public forward_iterator_tag { };
+struct random_access_iterator_tag: public bidirectional_iterator_tag { };
+</code></pre>
+
+<p>
+タグというのは、異なる型として認識さえされればいいので、この定義なのだが、これではややわかりにくい。さらに、最近提案されているイテレーターは、ランダムアクセスイテレーターにみえて、実は既存のランダムアクセスイテレーターの定義をすべて満たしていないという問題が指摘されている。
+</p>
+
+<p>
+このため、イテレーターができることを細分化したタグを定義し、既存のイテレータータグを、そのタグの組み合わせとして定義するという提案。
+</p>
+
+<p>
+これを使い、既存のイテレータータグを、以下のように、組み合わせて定義する。
+</p>
+
+<pre><code class="cpp">typedef packer&lt;reference_tag,
+               lvalue_tag,
+               rvalue_tag,
+               equality_comparable_tag,
+               multipass_tag&gt;
+          forward_iterator_tag;
+</code></pre>
+
+
+<p>
+前回のN4068からの変更は、タグを組み合わせるために、N4115で提案されている汎用のコンパイル時限定tupleもどきであるpackerをつかうことになった。
+</p>
+
+<p>
+これにより、例えば、あるイテレータータグの特性をコンパイル時に判定できるようになった。
+</p>
+
+<pre><code class="cpp">template &lt; typename Iterator &gt;
+void f( Iterator first, Iterator last )
+{
+    // Iteratorがプロクシーイテレーターかどうか判定
+    constexpr bool b =
+        std::contains_type_v&lt;
+            std::iterator_traits&lt;Iterator&gt;::iterator_category,
+            std::packer&lt; std::reference_tag &gt; &gt; ;
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4125.pdf">[PDF注意] N4125: 2014-09 WG21/SG1 Meeting Information</a>
+</h2>
+
+<p>
+なぜか素手の終わった2014年夏の標準化委員会の会議の会場案内。CppConの前の週に行うそうで、CppConの会場も近い。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4126.htm">N4126: Explicitly defaulted comparison operators</a>
+</h2>
+
+<p>
+デフォルトのメンバーごとの比較演算子を明示的に自動生成させようという提案。
+</p>
+
+<p>
+クラスの比較が、クラスのメンバーごとの比較に落とし込め、クラスのメンバーは比較演算子をサポートしているとき、以下のようなコードを書かなければならない。
+</p>
+
+<pre><code class="cpp">struct X
+{
+    int a, b, c ;
+
+    bool operator ==( X &amp; rhs ) const noexcept
+    {
+        return
+            a == rhs.a &amp;&amp;
+            b == rhs.b &amp;&amp;
+            c == rhs.c ;
+    }
+
+    bool operator != ( X &amp; rhs ) const noexcept
+    {
+        return !( *this == rhs ) ;
+    }
+
+    bool operator &lt; ( X &amp; rhs ) const noexcept
+    {
+        return std::tie( a, b, c ) &lt; std::tie( rhs.a, rhs.b, rhs.c ) ;
+    }
+
+    bool operator &gt; ( X &amp; rhs ) const noexcept
+    {
+        return rhs &lt; *this ;
+    }
+
+    bool operator &lt;= ( X &amp; rhs ) const noexcept
+    {
+        return !( rhs &lt; *this ) ;
+    }
+
+    bool operator &gt;= ( X &amp; rhs ) const noexcept
+    {
+        return !( *this &lt; rhs ) ;
+    }
+
+} ;
+</code></pre>
+
+<p>
+これは極めて面倒だ。これを間違えずに書くのは至難の業である。しかもこれはstd::tieを使っている。本当のメンバーごとのlexicographical comparisonは正しく書くのがひたすら苦行でめんどくさい上に、手で書くと間違えやすい。
+</p>
+
+<p>
+そして、このコードは、もしメンバーの追加や削除が行われた場合、手で書き換えなければならない。極めて間違いやすい非人間的なコードであり、このコードを手で書くのは深刻な人権侵害である。こういうコードはよろしくコンパイラーが自動生成すべきなのだ。
+</p>
+
+<p>
+互換性の問題もあるので、暗黙に比較演算子を生成させるわけには行かない。そこで、明示的な宣言によって生成させる文法を提案している。
+</p>
+
+<pre><code class="cpp">struct Thing
+{
+    int a, b, c;
+    std::string d;
+};
+
+// 明示的な自動生成
+bool operator==(const Thing &amp;, const Thing &amp;)= default;
+bool operator!=(const Thing &amp;, const Thing &amp;)= default;
+</code></pre>
+
+<p>
+メンバーがprivateな場合、演算子はfrined宣言しなkればならない。
+</p>
+
+<pre><code class="cpp">class AnotherThing
+{
+    int a, b;
+
+public:
+    // ...
+
+    friend bool operator&lt;(Thing, Thing) = default;
+    friend bool operator&gt;(Thing, Thing) = default;
+    friend bool operator&lt;=(Thing, Thing) = default;
+    friend bool operator&gt;=(Thing, Thing) = default;
+};
+</code></pre>
+
+<p>
+なるほど、確かに中身を書く必要はなくなったが、まだ冗長で面倒だ。そこで、もっと簡潔な文法も提案されている。
+</p>
+
+<pre><code class="cpp">struct Thing
+{
+    int a, b, c;
+    std::string d;
+
+    default: ==, !=, &lt;, &gt;, &lt;=, &gt;=;   // defines the six non-member functions
+};
+</code></pre>
+
+<p>
+前回の論文N3950からの変更点としては、論文で議論が必要だとされていた部分が会議によってコンセンサスが得られたところだ。ポインターや浮動小数点数やenum型はそのまま比較される。mutableメンバーが存在する場合は明示的な演算子が使用できない。簡潔な文法は会議で強力に支持された。
+</p>
+
+<p>
+論文では、大小比較演算子の実装方法を二つ示している。ひとつはメンバーのstrict weak orderを使うもの、つまり大小比較演算子のみ使う。
+</p>
+
+<pre><code="cpp">
+bool operator&lt;(const thing &amp;t1, const thing &amp;t2) 
+{
+    if (t1.a &lt; t2.a) return true;
+    if (t2.a &lt; t1.a) return false;
+    if (t1.b &lt; t2.b) return true;
+    if (t2.b &lt; t1.b) return false;
+
+    return t1.c &lt; t2.c;
+}
+</code></pre>
+
+<p>
+これは既存のpairやtupleも採用している比較方法である。
+</p>
+
+<p>
+もうひとつは、メンバーのtotal orderを利用するもので、これは等号演算子の存在が必要になる。
+</p>
+
+<pre><code class="cpp">bool operator&lt;(const thing &amp;t1, const thing &amp;t2) 
+{
+    if (t1.a != t2.a)
+        return t1.a &lt; t2.a;
+    if (t1.b != t2.b)
+        return t1.b &lt; t2.b;
+    
+    return t1.c &lt; t2.c;
+}
+</code></pre>
+
+<p>
+これは是非とも採用されて欲しい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4127.html">N4127: Checked-dereference conditions</a>
+</h2>
+
+<pre><code class="cpp">
+if ( T x : e ) s
+</code></pre>
+
+<p>
+を
+</p>
+
+<pre><code class="cpp">if ( auto &amp;&amp; __p = e )
+{
+    T x = *__p ;
+    s
+}
+</code></pre>
+
+<p>
+に変換する文法の提案。
+</p>
+
+<p>
+ポインターや、ポインター風の型の値をbool型に変換してfalseではないことを確かめてから、operator *()でデリファレンスして使うというコードは頻出する。そのようなコードを書くための短い文法だ。Range-based forの文法から着想を得ているらしい。
+</p>
+
+<p>
+具体的な利用方法としては、例えば
+</p>
+
+<pre><code class="cpp">
+void inc( int * ptr )
+{
+    if ( int &amp; ref : ptr )
+        ++ref ;
+}
+</code></pre>
+
+<p>
+とか、
+</p>
+
+<pre><code class="cpp">void inc( std::weak_ptr&lt;int&gt; wp )
+{
+    if ( T &amp; ref = wp.lock() )
+        ++ref ;
+}
+<code></pre>
+
+<p>
+などのように使える。他には、提案中のoptionalのようなライブラリも利用例も考えられる。
+</p>
+
+<p>
+この文法は、forやwhileでも使える。switchでは使えない。
+</p>
+
+<p>
+また、「次世代」版として、型を省いてデフォルトでauot &amp;&amp;にする文法も提案されている。つまり、
+</p>
+
+
+<pre><code class="cpp">
+if ( x : e ) s
+</code></pre>
+
+<p>
+が
+</p>
+
+<pre><code class="cpp">if ( auto &amp;&amp; __p = e )
+{
+    auto &amp;&amp; x = *__p ;
+    s
+}
+</code></pre>
+
+
+<p>
+になる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4128.html">N4128: Ranges for the Standard Library, Revision 1</a>
+</h2>
+
+<p>
+標準ライブラリにRangeの概念を導入した場合の設計の叩き台。
+</p>
+
+<p>
+様々な設計上の考察が書かれている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4129.pdf">[PDF大注意] N4129: Source-Code Information Capture</a>
+</h2>
+
+<p>
+ソースファイルの記述場所の行番号、行頭からの文字数、ファイル先頭からの文字数、ファイル名、関数名を取得するライブラリの提案。
+</p>
+
+<p>
+source_context型のオブジェクトを構築した場所の情報が取得できる。
+</p>
+
+<pre><code class="cpp">void f()
+{
+    std::source_context sc ; // この場所のソースファイル情報
+
+    std::cout
+        &lt;&lt; "file name: " &lt;&lt; sc.file_name() &lt;&lt; "\n" &lt;&lt;
+        &lt;&lt; "line number" &lt;&lt; sc.line_number() &lt;&lt; "\n" ;
+
+}
+</code></pre>
+
+<p>
+プリプロセッサーにたよらずに、ソースファイルの情報を取得できるようになる。いわゆるprintfデバッグ用やログの出力などに利用できる。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+ドワンゴでは、デリランチと称する新しい重量課金の昼食システムにより、昼職が劇的に改善されている。サラダが安い。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
