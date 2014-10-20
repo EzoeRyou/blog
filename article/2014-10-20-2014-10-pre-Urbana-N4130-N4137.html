@@ -1,0 +1,348 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-10-pre-Urbana mailingsのレビュー : N4130-N4139
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/10/2014-10-pre-urbana-mailings-n4130-n4137.html">2014-10-pre-Urbana mailingsのレビュー : N4130-N4137</a></h1>
+
+<p>
+引き続き、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/#mailing2014-10">2014-10-pre-Urbana mailings</a>を解説していく。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4130.pdf">[Thou shalt not use PDF] N4130: Pad Thy Atomics</a>
+</h2>
+
+<p>
+「汝のアトミックを詰めよ」と題された論文。
+</p>
+
+<p>
+現在、atomicのデフォルトコンストラクターは、たとえオブジェクトが非トリビアルなコンストラクターを持っていようとも、オブジェクトの型としては未初期化の状態にすると規定されている。これはC言語との互換性のためだが、C++のクラス型も、未初期化の状態になってしまう。
+</p>
+
+<p>
+これをCの互換性を保ったまま解決しようとすると、atomic型だけPODなのにPODではないとか、あるいは逆にPODではないのにPODであるなどとという例外的な状態にしなければならない。
+</p>
+
+<p>
+未初期化で何が問題になるかといえば、padding bitsだ。未初期化の状態では、padding bitの状態が未規定である。では、たとえばatomic_compare_exchangeはpadding bitに対してどう振る舞うのか。結局、多くの実装ではatomicにはハードウェア支援されたロックフリーな機能を使うのであるからして、padding bitsも比較の際に考慮される実装がほとんどだろう。しかし、規格上はその挙動を定義していない。さてどうするか。
+</p>
+
+<p>
+論文ではpadding bitsの状態が未規定であることによる弊害を列挙し、また問題を解決する提案をいくつか挙げているが、結論は出していない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4131.html">N4131: Another response to N4074; explicit should never be implicit</a>
+</h2>
+
+<p>
+N4074で、return {expr}は、暗黙にexplicitコンストラクターを呼べるようにしようと提案されたが、それに対して、explicitは暗黙的になるべきではないとする反論。
+</p>
+
+<p>
+N4074の提案では、以下のコードが合法になる。
+</p>
+
+<pre><code class="cpp">struct Type1 {
+    explicit Type1 (int);
+};
+
+Type1 example_f1 () {
+    return { 0 };
+}
+</code></pre>
+
+<p>
+曰く、explicitの意味は、「そういう初期化はできるぜ。でもたぶんお前の思っている結果にはならないぜ。マジでやりたいなら手を動かせ」という意味である。もし、利用者が本当にその初期化を望むのならば、明示的に書かなければならない。
+</p>
+
+<p>
+曰く、そもそも現在のリスト初期化は、初期化の文法の統一を目的としたものであって、初期化の明示的なルールの迂回方法を目的としたものではない。
+</p>
+
+<p>
+曰く、リスト初期化にはNarrowing Conversionがあるのに、なぜ制限を緩くするのだ。
+</p>
+
+<p>
+曰く、return文は、そのオペランドであるexpression-or-braced-init-listを関数の戻り値として返すのではない。関数の戻り値の型の初期化子として使うのだ。提案では、関数の戻り値の型と関数のreturn文は、関数を書いた人間や保守する人間が把握しているとのことだが、そんなことはない。そもそも、戻り値の型を変えることはありえる。例えばstd::chrono::microsecondsを返すべきところでunsigned longを返していた関数を直すとかだ。そこで暗黙の型変換が走ってもらっては困る。
+</p>
+
+<p>
+筆者も制限緩和には反対の立場である。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4132.html">N4132: Contiguous Iterators</a>
+</h2>
+
+<p>
+contiguous iteratorの提案。これは、ランダムアクセスイテレーターかつ、イテレーターが連続したストレージ上を指し示すもので、すなわち、イテレーターaと整数nにおいて、*(a + n)と*(std::addressof(*a) + n)が等しいイテレーターとなる。
+</p>
+
+<p>
+原稿の標準ライブラリの中でcontiguou iteratorの制約を満たすものは、vector, string, valarray, arrayである。また、ライブラリTSに提案されているstring_viewもこの制約を満たす。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4133.html">N4133: Cleanup for exception-specification and throw-expression</a>
+</h2>
+
+<p>
+例外指定とthrow式の文面を整理する提案。意味上の変更はない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4134.pdf">[惜しむらくはPDF] N4134: Resumable Functions v.2</a>
+</h2>
+
+<p>
+Resuamble Functionの提案。かなり長く、基本的な概念から解説していて、論文としてはよく書けている。前提知識の学習にも最適だ。この論文で提案しているのは、低級で軽量なスタックレスコルーチンだ。
+</p>
+
+<p>
+論文によれば、この提案をMSVCで実装して知見を得たそうだ。論文著者はMS社員である。
+</p>
+
+<p>
+ちなみにこの論文、9ページ目で、decltype(auto)と書くべきところを、declspec(auto)と書き間違えている。いくら著者がMS社員とはいえ、なかなかおもしろい間違い方をするものだ。
+</p>
+
+<p>
+ただし、この提案はコア言語だけで完結せず、だいぶライブラリに依存する形になっているのだが、肝心のお手本となるべき標準ライブラリは含まれていない。論文には、コア言語が完成した後に、標準ライブラリとして我々が選ぶべきものが世上に開発されるであろう、という極めて楽観的な記述がある。また、全体的にやや理解が難しい。
+</p>
+
+<p>
+不完全で難しい機能が使われるわけがなく、使われないものにライブラリが書かれるわけがない。これなら最初から純粋にライブラリだけで完結させたほうがマシだ。机上の上では悪くなさそうに見えるが、実際には使いにくい、いかにもMicrosoftらしき提案よ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4135.pdf">N4135: Language Support for Runtime Contract Validation (Revision 8)</a>
+</h2>
+
+<p>
+N4075までは防衛的プログラミングと題されていた、実行時の前提条件検証ライブラリ。いわゆるassertライブラリの提案。
+</p>
+
+<p>
+素晴らしい変更点として、プリプロセッサーの使用を推奨する文面が削られた。まだプリプロセッサーを使うところはあるのだが、コンパイル時のビルドモード切り替えにとどまっている。
+</p>
+
+<p>
+このライブラリは、実行時の制約をチェックするためのassertライブラリである。従来のasertライブラリを模した作りにしているが、現実によくあるリリースビルドやデバッグビルドといったビルド時の切り替え機能に対応している。また、assertに引っかかった際に呼び出されるハンドラーを指定できる。
+</p>
+
+<p>
+ビルドモード
+</p>
+
+<p>
+opt, dbg, safeと、三種類のビルドモードと、何も指定しないという状態を合わせて、4種類のビルドモードが存在する。何も指定しない場合、一切のチェックが行われない。optは、最も軽い制約チェックのみ行う。dbgは、重いチェックも行う。safeは、すべてのチェックを行う。
+</p>
+
+<p>
+ビルドモードは、ライブラリのヘッダーである&lt;experimental/contract_assert&gt;を#includeするまえに、プリプロセッサーマクロ、contract_assert_build_xxxを定義して指定する。
+</p>
+
+<pre><code class="cpp">#define contract_assert_build_dbg 1
+#include &lt;experimental/contract_assert&gt;
+</code></pre>
+
+
+<p>
+assertは、contract_assert_xxxで行う。例えばポインターの指し示す先のストレージをチェックしたいとする。
+</p>
+
+<pre><code class="cpp">
+void do_something( char * p, std::size_t size )
+{
+    // 軽いチェック
+    // nullポインターかどうかのチェックを行う
+    contract_assert_opt( p != nullptr ) ;
+
+    // デバッグ用のチェック
+    // 独自に実装しているヒープメモリ上で確かに確保されているメモリかどうかを確認する
+    contract_assert_dbg( custom_allocator::is_valid_area( p, size ) ) ;
+
+    // 安全のためのチェック
+    // ポインターの参照先のビット列が期待しているフォーマットを満たしているかどうかのチェックを行う
+    contract_assert_safe( is_valid_format( p, size ) ) ;
+}
+</code></pre>
+
+<p>
+なにもモードがつかないcontract_assertというものもあり、これはcontract_assert_dbgの別名となっている。
+</p>
+
+<p>
+assertが失敗した時には、あらかじめ設定しておいたハンドラーが呼ばれる。ハンドラーはstd::contract_violation_info const &amp;型の引数を取る。この型は、制約違反が起きた式の文字列、ファイル名、行番号を取得できる。例えば、以下は例外を投げるハンドラーである。
+</p>
+
+<pre><code class="cpp">void violate()
+{
+    contract_assert( false ) ;
+}
+
+int main()
+{
+    std::set_contract_violation_handler(
+        []( auto &amp;&amp; info )
+        { throw info ; } ) ;
+
+    try {
+        violate() ;
+    } catch( std::contract_violation_info const &amp; info )
+    {
+        std::cout
+            &lt;&lt; "expression: " &lt;&lt; info.expression_text &lt;&lt; '\n'
+            &lt;&lt; "filename: " &lt;&lt; info.filename &lt;&lt; '\n'
+            &lt;&lt; "lien number: " &lt;&lt; info.line_number &lt;&lt; '\n' ;
+    }
+}
+</code></pre>
+
+<p>
+また、スレッドごと、ブロックスコープごとのハンドラーを設定するには、std::contract_violation_guardというライブラリが用意されている。
+</p>
+
+<pre><code class="cpp">void f()
+{
+    {
+        std::contract_violation_guard g( [](auto &amp;&amp; info ){ throw info ; } ) ;
+        // gのハンドラーが有効
+    }
+
+    // gのハンドラーは無効
+}
+</code></pre>
+
+<p>
+また、ユニットテスト用に、assertの可否によってbool値を返す機能もある。
+</p>
+
+<pre><code class="cpp">void do_something( int * ptr )
+{
+    contract_assert( ptr != null ) ;
+}
+
+int main()
+{
+    int i = 0 ;
+    bool b1 = contract_assert_pass( do_something( &amp;i ) ) ; // true
+    bool b2 = contract_assert_pass( do_something( false ) ) ; // false
+
+    bool b3 = contract_assert_fail( do_something( &amp;i ) ) ; // false
+    bool b4 = contract_assert_fail( do_something( nullptr ) ) ; // true
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4136.pdf">[読む気の失せる典型的な学術論文クソ固定レイアウトのPDF] N4136: C Concurrency Challenges Draft</a>
+</h2>
+
+<p>
+これは読む気が失せるほどにクソ典型的クソ学術クソ論文クソ固定クソレイアウトのクソPDFにて候。こののケンブリッジ大学の著者5人に申すことの候。彼らは天然の石頭にして、要望はすなわち鶏卵を岩石に投ずると一般なるも、あえて言わん。汝ら論文を紙で読みたるや。否、たとい紙で読みつるとも、物理的な単一ページを論理的な複数ページに分割するのは、そも何のためぞや。美しとでも思うてありや。うるさきことこの上なし、やめよ。
+</p>
+
+<p>
+中身は、本来学術論文としてだす予定の論文の下書き原稿にて候。C++標準化委員会の文書としてもいだしたとなん言いける。
+</p>
+
+<p>
+肝心の内容は、CとC++のアトミック周りの定義と理論の解説と、所謂thin air（虚空から現れいでたる）と名づけたるプログラムからは何らの脈絡もなき挙動の解決の難しきを論じ、結論して曰く、解決策なしと。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4137.htm">N4137: Business Plan and Convener's Report</a>
+</h2>
+
+<p>
+議長のHerb SutterによるISOに提出するお堅い報告書
+</p>
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
