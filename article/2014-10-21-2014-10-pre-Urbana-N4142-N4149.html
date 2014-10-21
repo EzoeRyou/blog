@@ -1,0 +1,406 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-10-pre-Urbanaのレビュー: N4142-N4149
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/10/2014-10-pre-urbana-n4142-n4149.html">2014-10-pre-Urbanaのレビュー: N4142-N4149</a></h1>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/#mailing2014-10">ISO/IEC JTC1/SC22/WG21 - Papers 2014 mailing2014-10</a>
+</p>
+
+<p>
+C++標準化委員会の残りの論文はあと100本ほど。年々、発行される文書の数が増えてきている気がする。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4142.pdf">[そろそろネタが尽きたがPDF] N4142: Atomic Operations on a Very Large Array</a>
+</h2>
+
+<p>
+atomic_array&lt;T&gt;の提案
+</p>
+
+<p>
+HPC(High Performance Computing)用途で、長大な配列をアトミックに操作したい場合に使える。
+</p>
+
+<p>
+atomic_arrayは、すでに確保された配列のアドレスで初期化される。atomic_arrayのオブジェクトを経由して配列にアクセスすれば、その配列は何らかの方法でアトミックに操作できる。atomic_arrayオブジェクトが生存している間は、atomic_array以外の方法で元の配列にアクセスした場合の挙動は未定義。atomic_arrayオブジェクトが破棄された後は、通常通りアクセスできる。
+</p>
+
+<p>
+論文にかかれている利用例としては。
+</p>
+
+<ol>
+<li>長大な配列をnewやmallocなどの何らかの方法で確保する</li>
+<li>シリアル、あるいはパラレルだが競合しない方法で、配列の要素の値を初期化する</li>
+<li>配列をatomic_array&lt;T&gt;オブジェクトでラップする</li>
+<li>atomic_array&lt;T&gt;のインターフェースを経由して、パラレルアルゴリズムで配列を書き変える</li>
+<li>atomic_array&lt;T&gt;オブジェクトを破棄する</li>
+<li>競合しない方法で配列にアクセスする</li>
+</ol>
+
+<p>
+atomic_arrayは既存の配列をラップしてアトミックな操作を提供するライブラリで、配列を所有しない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4143.pdf">N4143: Executors and schedulers, revision 4</a>
+</h2>
+
+<p>
+executorとschedulerに基づく並列実行ライブラリの提案。
+</p>
+
+<p>
+リファレンス実装が二つ示されている。
+</p>
+
+<p>
+ひとつは、最小限の実装
+</p>
+
+<p>
+<a href="https://github.com/ccmysen/executors_r4">https://github.com/ccmysen/executors_r4</a>
+</p>
+
+<p>
+もうひとつは、タイマーなどの追加的な機能も含む実装
+</p>
+
+<p>
+<a href="https://github.com/arturl/executors">https://github.com/arturl/executors</a>
+</p>
+
+<p>
+見方によっては、std::asnyncの高機能版とも言える。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4144.html">N4144: Searching and Manipulation of Parameter Packs</a>
+</h2>
+
+<p>
+パラメーターパックを扱うためのライブラリの提案。
+</p>
+
+<p>
+パラメーターパックを格納するpacker
+</p>
+
+<pre><code class="cpp">using type = std::packer&lt;char, short, int, long&gt; ;
+</code></pre>
+
+<p>
+あるpackerに指定した型が含まれるかどうか調べるis_contained_in/is_contains_type
+</p>
+
+<pre><code class="cpp">template &lt; typaname ... Types &gt;
+void f( Types ... args )
+{
+    // Typesにint型が含まれているかどうか
+    if ( std::is_contained_in_v&lt; int, std::packer&lt; Types ... &gt; &gt; )
+        /* ... */ ;
+
+    // Types にint型とdouble型が含まれているかどうか
+    if ( std::is_contains_types_v&lt; std::packer&lt; Types ... &gt; , std::packer&lt; int, double &gt; &gt; )
+        /* ... */ ;
+}
+</code></pre>
+
+
+<p>
+packerの最後に型を付け加えるadd_to、packerに指定した型が含まれていない場合に型を付け加えるunique_add_to
+</p>
+
+<pre><code class="cpp">template &lt; typename ... Types &gt;
+void f( Types ... args )
+{
+    // std::packer&lt; types ..., int &gt; 
+    using append_int = std::add_to_t&lt; int, std::packer&lt; Types ... &gt; &gt; ;
+
+    // Typesにint型が含まれていない場合のみ追加する
+    using append_if_unique = std::unique_add_to_t&lt; int, std::packer&lt; Types ... &gt; &gt; ;
+}
+</code></pre>
+
+<p>
+型をとりのぞくremove_from、重複した型を取り除くuniqueify
+</p>
+
+<pre><code class="cpp">
+using type = std::packer&lt; char, short, int, short, long &gt; ;
+
+// std::packer&lt; char, int, long &gt;
+using removed = std::remove_from_t&lt; short, type &gt; ;
+
+// shortがひとつしか入っていないpacker
+// 結果の型の並びは未規定
+using unique = std::uniqueify_t&lt; short, type &gt; ;
+</code></pre>
+
+<p>
+自前で書くのは面倒なテンプレートメタプログラミングなので、重宝しそうだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4145.html">N4145: Data-Invariant Functions</a>
+</h2>
+
+<p>
+暗号化処理を実装するにあたって、side-channel attackを防ぐという極めて難しい問題がある。これは、物理的に観測可能実行特性が、秘密のデータによって変わることを利用した攻撃である。たとえば、秘密のデータの値によって、処理時間や電力消費量や、CPUの電圧レギュレーターのノイズなどに変化があり、それを攻撃者が観測できる場合、それらの観測可能な物理的特性によって、秘密のデータを推測することができてしまう。なぜならば、その観測可能な物理的特性の変化は、秘密のデータの値の変化によりもたらされるものだからだ。
+</p>
+
+<p>
+<a href="https://github.com/openssl/openssl/commit/adb46dbc6dd7347750df2468c93e8c34bcb93a4b">openssl</a>の最近のパッチは、一部のif文を、結果の真偽によってタイミングに変化をもたらさないように置き換えるものである。これは将来のコンパイラーの最適化の進化などで無効化されてしまう可能性がある。
+</p>
+
+<p>
+この論文では、物理的な実行特性が、入力の値によって変化しないことを保証するライブラリを提案している。このライブラリは、std::constant_time::value&lt;T&gt;の形で使い、比較演算子がオーバーロードされている。
+</p>
+
+<p>
+これはなかなか興味深いライブラリの提案だ。
+</p>
+
+<p>
+そういえば、最近Hacker Newsでこういう話題が出ていた。
+</p>
+
+<p>
+<a href="https://news.ycombinator.com/item?id=8478427">Making sure crypto remains insecure [pdf] | Hacker News</a>
+</p>
+
+<p>
+諜報機関が意図的に弱い暗号を使わせるために、TLSやAESのようなサイドチャネル攻撃に弱い暗号を標準化するよう働きかけようという思考実験的なプレゼン資料だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4146.pdf">N4146: Disposition of Comments, ISO/IEC DIS 14882 C++ 2014</a>
+</h2>
+
+<p>
+C++14 DISに対する日本からのコメントに対する対応。文面上の細かな指摘が多い。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4147.pdf">N4147: Inline variables, or encapsulated expressions</a>
+</h2>
+
+<p>
+インライン変数の提案。
+</p>
+
+<p>
+この論文で提案しているインライン変数とは、変数を表現するオブジェクトを持たず、変数を使った時点で、毎回初期化子が評価される変数である。
+</p>
+
+<pre><code class="cpp">int f()
+{
+    static int count ;
+    return ++count ;
+}
+
+inline int counter = f() ;
+
+int main()
+{
+    counter ; // 1
+    counter ; // 2
+    counter ; // 3
+}
+</code></pre>
+
+<p>
+つまり、inline変数であるcounterという変数名を使うということは、毎回初期化子である"f()"を評価することと同じ意味になる。もちろん、初期化子を評価した副作用も起こる。また、グローバル変数counterを保持するint型のオブジェクトは存在しないので、メモリを消費しない。
+</p>
+
+<p>
+論文では、inline変数によって解決できる様々な問題を列挙している。文法やスコープに従う礼儀正しいマクロや、翻訳単位ごとに定義を書きたいがODR違反は回避したい場合、関数を書くのがあまりにも冗長で面倒な式を複数回使いたい場合などを挙げている。
+</p>
+
+<p>
+また、この提案に対する対案として、Expression Aliasなる案も出されたそうだ。これは、例えば、
+</p>
+
+<pre><code class="cpp">using name = expression ;
+</code></pre>
+
+<p>
+などという文法で、nameを使うと使った場所でexpressionが評価されるというものだ。
+</p>
+
+<p>
+それにしても、Future Workで、「ファンクターオブジェクトを使わざる第一級市民たる遅延評価がstd-proposals MLに浮上した。これは関数の引数をinlineと宣言する。評価の意味的には似ている。inline関数には役立つだろう。そういう変数をABI定義されたインターフェースに渡す際には、ポリモーフィックファンクターに変換される。まだ利点は不明なものの、[&amp;]()と書かずに済む」と書かれているのは興味深い。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4148.html">N4148: Disallowing Inaccessible Operators From Trivially Copyable</a>
+</h2>
+
+<p>
+コピー/ムーブコンストラクター、コピー/ムーブ代入演算子、デストラクターがdeletedかアクセス不可の場合であっても、torivially copyableの条件に合致してしまう。
+</p>
+
+<pre><code class="cpp">// コピーもムーブもしてほしくないクラス
+struct X
+{
+    X( X const &amp; ) = delete ;
+    X( X &amp;&amp; ) = delete ;
+    void operator = ( X const &amp; ) = delete ;
+    void operator = ( X &amp;&amp; ) = delete ;
+} ;
+
+int main()
+{
+    std::is_trivially_copyable_v&lt; X &gt; ; // true
+}
+</code></pre>
+
+<p>
+これは、トリビアルにコピー可能なことをコンパイル時に判断して、std::memcpyなどの高速な方法に切り替えるメタプログラミングに置いて問題になる。そのため、コピー/ムーブコンストラクター、コピー/ムーブ代入演算子、デストラクターがdeletedかアクセス不可の場合、trivially copyableの条件を満たさないように、trivially copyableの定義を書き変える提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4149.pdf">N4149: Categorically qualified classes</a>
+</h2>
+
+<p>
+クラスが一時オブジェクトとなることを禁止できる機能と、永続的なストレージ上に確保されることを禁止できる機能の追加。
+</p>
+
+<pre><code class="cpp">
+// 一時オブジェクトを禁止
+struct X &amp; { } ;
+X f() ;
+
+// 永続ストレージ上への確保を禁止
+struct Y &amp;&amp; { } ;
+Y g() ;
+
+int main()
+{
+    X x ; // OK
+    f() ; // エラー
+    X x = f() ; // OK、初期化子の中ではよい
+
+    Y y ; // エラー
+    g() ; // OK
+}
+</code></pre>
+
+<p>
+一時オブジェクト禁止はどう使うかというと、std::asyncのように関数の戻り値を無視してほしくない場合や、scoped_guardのようなRAIIラッパーで、そもそも一時オブジェクトとして使うことを想定していないクラスに利用できる。
+</p>
+
+<p>
+永続ストレージ上への確保の禁止はどう使うかというと、Expression Templateのplaceholder型のような、直接、名前付き変数として使うことを想定していないクラスに利用できる。これはN4035で提案されているものと同等の機能も実現する提案である。
+</p>
+
+<p>
+両方とも、文脈上暗黙に型変換が起こる場合は、この制約から逃れることが出来る。
+</p>
+
+<p>
+&amp;と&amp;&amp;を両方指定すると、どちらも禁止するクラスを書くことができる。この場合、クラスは初期化の中で他の型に変換される場合でしか使うことができない。
+</p>
+
+<pre><code class="cpp">struct X &amp; &amp;&amp;
+{
+    operator int () { return 0 ; }
+} ;
+
+int x = X() ; // OK
+<code></pre>
+
+<p>
+また、std::as_temporary&lt;T&gt;というtype traitsが追加される。これはネストされた型名::typeが、Tがlvalue修飾子を持たぬ場合はT、持つ場合は変換関数の型、それ以外の場合はtypeは定義されないという仕様になる。
+</p>
+
+<p>
+クラスのサブオブジェクトとして使用する場合には、この制約は適用されない。この理由について論文は、クラスの完全な型がオブジェクトがどう使われるかについて責任を持つべきだからとしている。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
