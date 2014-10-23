@@ -1,0 +1,342 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-10-pre-Urbanaのレビュー: N4150-N4159 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/10/2014-10-pre-urbana-n4150-n4159.html">2014-10-pre-Urbanaのレビュー: N4150-N4159</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4150.pdf">[論文にPDFを使わない議論が必要] N4150: Alias-Set Attributes: Toward restrict-like aliasing semantics for C++</a>
+</h2>
+
+<p>
+C99のrestrict風の機能をC++のattributeの文法で提供する提案。
+</p>
+
+<p>
+restrictとは、エイリアシングの可能性がないことを明示的にコンパイラーに伝える機能である。これにより、コンパイラーはよりよいコードが生成できるようになる。
+</p>
+
+<p>
+C99で追加されたrestrict機能は、すべての主要なC++コンパイラーで、そのままC++にも独自拡張として持ち込まれている。
+</p>
+
+<p>
+C言語のrestrictには問題も多い上に、C++に適用するには更に問題も多い。クラスのメンバーやlambda式やテンプレートに対してどう振る舞うのか。restrictは型なのか？　ではオーバーロード解決で区別されるのか？　名前マングリングに埋め込まれるのか？ C99ですら曖昧な定義をされている機能をそのままC++に持ち込むと問題が多い。
+</p>
+
+<p>
+C99のrestrictがすべての主要なC++コンパイラーでサポートされているということは、需要があるということである。さらに現実のプログラマーの意見を聞けば、「よりよいコードを吐くためならばエイリアシングの可能性の有無を明示的に指定する労をいとわない」曰く、「C++11の新機能は使いたいが、ただしパフォーマンスを落とさない場合に限る」
+</p>
+
+<p>
+C++の標準にrestrict風の機能がない場合、よりよいコードを生成するために、C++コンパイラーはそれぞれ独自機能を追加するし、プログラマーは移植性を確保するために手動で関数やループの展開を行う。
+</p>
+
+<p>
+論文では、叩き台となるための文法と機能を載せている。どうやら、alias_set()という文法でエイリアシングのルールに名前を付けて管理できるようだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4151.html">N4151: TriviallyCopyable reference_wrapper</a>
+</h2>
+
+<p>
+タイトル通り、reference_wrapperをtrivially copyableであることを保証する変更。つまり、コピーにはバイト列をコピーするだけでよいという保証になる。small buffer optimizationのために重要。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4152.pdf">[PDFをハンドルしたくない] N4152: uncaught_exceptions</a>
+</h2>
+
+<p>
+bool std::uncaught_exception()は、現在、例外がなげられてまだハンドラーが有効になっていない場合、わかりやすく言えば、キャッチされていない例外がある場合にtrueを返す。
+</p>
+
+<p>
+これは、デストラクターがstack unwindingの結果呼び出されたかどうかの判断に使える。
+</p>
+
+<pre><code class="cpp">class X
+{
+    ~X()
+    {
+        if ( std::uncaught_exception() )
+            // stack unwindingの結果呼ばれた
+        else
+            // それ以外のデストラクター呼び出し
+    }
+} ;
+
+int main()
+{
+    {
+        X x ;
+        // ブロックスコープを抜けたことによるデストラクター呼び出し
+    }
+
+    try {
+        X x ;
+        throw 0 ;
+        // stack unwindingによるデストラクター呼び出し
+    } catch( int e ) { }
+
+}
+</code></pre>
+
+<p>
+問題は、uncaught_exceptionは、キャッチされている例外があるかどうかでしか判断しない。stack unwindingの結果実行されたデストラクターの中では、かならずtrueを返してしまう。これは、stack unwinding以外の方法で呼び出されたデストラクターも含まれる。
+</p>
+
+<pre><code class="cpp">struct Y
+{
+    ~Y()
+    {
+        X x ;
+        // X::~Xの中でuncaught_exceptionはtrueを返す
+    }
+} ;
+</code></pre>
+
+<p>
+また、stack unwindingの結果呼ばれたデストラクターの中で更に例外を投げた結果として呼ばれたデストラクターも区別できない。
+</p>
+
+<pre><code class="cpp">struct Y
+{
+    ~Y()
+    {
+        try {
+            X x ;
+            throw 0 ;
+        } catch( ... ) { }
+    }
+} ;
+</code></pre>
+
+<p>
+このため、前回の論文、N3614では、stack unwindingの結果呼び出された直接のデストラクターのみtrueを返す関数を追加しようという提案であった。
+</p>
+
+<p>
+この論文では、int uncaught_exceptions()という関数を追加し、現在有効な例外の数を返すようにするという提案をしている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4153.pdf">[PDFをかろうじて使う必要がある画像埋め込み] N4153: 2015-02 LWG Meeting Invitation and Information</a>
+</h2>
+
+<p>
+2015年2月23日から27日にドイツのケルンで行われるライブラリWG会議の案内
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4154.pdf">[PDFを使う必要がない] N4154: Operator assert</a>
+</h2>
+
+<p>
+assert演算子の提案。
+</p>
+
+<p>
+assertはプリプロセッサーマクロとして実装されているが、これはコンパイラーが解析して最適化のヒントとして使うのに都合が悪い。そこで、assert式を提案している。assertはキーワードになる。NDEBUGマクロなどの既存の意味は維持される。
+</p>
+
+<p>
+CPPを廃止することを考えれば、現在CPPで提供されているあらゆる機能への代替機能が必要なので、わからないでもないが、コア言語でサポートすることだろうか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4155.htm">N4155: Non-member size() and more (Revision 1)</a>
+</h2>
+
+<p>
+非メンバーとしてsize()関数を追加する提案の<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4017.htm">N4017</a>に対し、差分的な変更で、front()とback()のサポートを除去し、initializer_listに対してdata()とempty()をサポートする提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4156.pdf">[PDFは軽量ではない] N4156: Light-Weight Execution Agents Revision 3</a>
+</h2>
+
+<p>
+並列実行ライブラリの実行媒体(execution-agent)として、std::threadより軽量な実行単位について、std::threadのような強力なforward progress保証などがないという弱い保証厳密に規定している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4157.pdf">[PDFを緩和する必要はない] N4157: Relaxing Packaging Rules for Exceptions Thrown by Parallel Algorithms</a>
+</h2>
+
+<p>
+並列実行版の&lt;algorithm&gt;は、複数の例外をexception_listでまとめて投げるが、これをまともに実装しようとすると、実装がやたらと複雑になる上に、ユーザーにそれほど利点をもたらさない。
+</p>
+
+<p>
+そのため、例外がひとつだけの場合は、exception_listにいれずにそのまま投げることを許可する提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4158.pdf">[破壊されるべきPDF] N4158: Destructive Move (Rev 1)</a>
+</h2>
+
+<p>
+破壊的ムーブを行う関数テンプレートを追加する提案。
+</p>
+
+<p>
+現在、標準ライブラリのムーブ後のオブジェクトは、未規定の状態にはなるものの、そのオブジェクトが提供する操作が動かなければならないと規定されている。これはつまり、ムーブ後にも最低限のストレージを動的に確保するなどの処理を行わなければならず、例外を投げるかもしれない。また、どうせ使わないオブジェクトであれば、その処理自体がオーバーヘッドになる。破壊的ムーブであれば例外を投げないムーブを提供できるクラスもある。
+</p>
+
+<pre><code>
+template &lt;class T&gt;
+void uninitialized_destructive_move(T* from, T* to) noexcept ;
+</code></pre>
+
+<p>
+fromはムーブ元のオブジェクトへのポインターを指し、toはT型のオブジェクトを構築できるサイズを持った未初期化のストレージを指す。
+</p>
+
+<pre><code>
+T x ;
+alignas(T) char buf[sizeof(T)] ;
+
+std::experimental::fundamentals_v2::uninitialized_destructive_move( &amp;x, buf ) ;
+</code></pre>
+
+<p>
+破壊的ムーブが例外を投げずに行えるかどうかを判断するtype traitsである、is_nothrow_destructive_movableも提案されている。
+</p>
+
+<pre><code>
+std::experimental::fundamentals_v2::is_nothrow_destructive_movable&lt;T&gt;::value ;
+</code></pre>
+
+<p>
+また、単なるバイト列のコピーだけでムーブできる、trivially destructive moveという概念も導入されている。これを調べるis_trivially_destructive_movableと、実際のその処理を行うuninitialized_trivial_destructive_moveも追加されている。
+</p>
+
+<p>
+また、配列用に、uninitialized_destructive_move_nも提案されている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4159.pdf">N4159: std::function and Beyond</a>
+</h2>
+
+<p>
+std::functionの設計は、2001年頃のboost::functionの実装を元にしており、最新のC++としてはやや痒いところに手が届かない部分がある。
+</p>
+
+<ul>
+<li>const性が正しく守れれない</li>
+<li>コピーできない関数オブジェクトを受け取れない</li>
+<li>lvalueとして呼び出し</li>
+</ul>
+
+<p>
+std::functionのoperator ()はconst修飾されているが、内部に保持する関数オブジェクトは非constに呼び出す。これは標準ライブラリに要求される挙動に反するし、結果としてデータ競合を引き起こしうる動作になるが、std::functionの文面を解釈する限りそう解釈するしかない。
+</p>
+
+<p>
+std::functionは、関数オブジェクトがコピー可能であることを要求している。コピーはできないがムーブならばできる関数オブジェクトを扱うことはできない。
+</p>
+
+<p>
+C++14では初期化キャプチャーが追加されたので、ムーブしかできないオブジェクトを値キャプチャーしたlambda式というものが書けるようになり、ますますこの制限が問題になる。
+</p>
+
+
+<p>
+std::functionは、関数オブジェクトをlvalueとして関数呼び出しする。つまり、operator ()にrvalueリファレンス修飾子がついている関数オブジェクトを呼び出すことはできない
+</p>
+
+<pre><code class="cpp">// std::functionで扱えないクラス
+struct rvalue_callable
+{
+    void operator () () const &amp;&amp; ;
+} ;
+</code></pre>
+
+<p>
+std::functionの問題を修正するには、互換性を壊す変更をするしかない。さもなければ、std::functionのoperator ()は例外的な挙動をすることを明示的に文面に残すかだ。
+</p>
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
