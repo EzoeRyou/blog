@@ -1,0 +1,108 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: Ubuntu 14.10にアップグレードした 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/10/ubuntu-1410.html">Ubuntu 14.10にアップグレードした</a></h1>
+
+<p>
+Ubuntu 14.10にアップグレードした。
+</p>
+
+<p>
+私はUbuntu 14.04LTSには、あまりいい思い出がない。頻繁に操作不可能になるからだ。画面が暗くなり、左側に数ドットほどの幅のオレンジ系のピクセルが残り、そのまま操作不可能に陥る。Ctrl+Alt+F1や、 Magic SysRq Keyも効かなくなる。あるいは、ブートしないこともある。これも、やはり何も画面に表示されないしログに残らないため、理由がわからない。
+</p>
+
+<p>
+Ubuntu 14.10にアップグレードしてからは、今のところ、そのような現象に悩まされてはいない。
+</p>
+
+<p>
+さて、Ubuntu 14.10では、GCCが4.9.1に、Clangが3.5になった。いずれも、現時点で最新の安定版である。Ubuntuの公式レポジトリのパッケージのC++コンパイラーのバージョンが、最新の安定版に追いつくとは珍しいことだ。
+</p>
+
+<p>
+今のところ、GCCやClangの本家最新の開発版を引っ張ってきても、特に面白い実験的な機能が実装されていたりはあまりしないので、しばらくは自前のビルドが必要なくなった。
+</p>
+
+<p>
+むろん、問題なしとは行かない。Ubuntu 14.10には、私の環境ではいくつか問題がある。
+</p>
+
+<p>
+まず、Ibusかmozcどちらかの挙動が、何やら面倒なことになっている。入力ソースを切り替えるショートカットを押すと、Mozcに切り替わるのだが、なぜか直接入力モードになっている。ひらがなモードに切り替えなければならない。
+</p>
+
+<p>
+GNU Backgammonが、起動後短時間で終了してしまう。標準出力をみると、mutexがどうのというエラーを吐いている。
+</p>
+
+<p>
+どうやら、報告済みのようだ。<a href="https://bugs.launchpad.net/ubuntu/+source/gnubg/+bug/1381751">Bug #1381751 “GNU backgammon crashed soon after start up” : Bugs : “gnubg” package : Ubuntu</a>
+</p>
+
+<p>
+LG製のとある型番のディスプレイをつないだ時だけ、ラップトップ側の組み込みディスプレイだけで、マウスカーソルが二重に表示されるという奇妙な不具合に遭遇している。数十ピクセルほど右側に90度回転して不思議なマウスカーソルが表示される。再現率100%なのだがわけがわからないし、上手く説明しづらい。
+</p>
+
+
+
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
