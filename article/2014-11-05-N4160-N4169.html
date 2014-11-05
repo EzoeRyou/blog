@@ -1,0 +1,481 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-10-pre-Urbana mailingsのレビュー: N4160-N4169 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/11/2014-10-pre-urbana-mailings-n4160-n4169.html">2014-10-pre-Urbana mailingsのレビュー: N4160-N4169</a></h1>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4160.html">N4160: Value constraints</a>
+</h2>
+
+<p>
+C++に、値に対する制約を記述するための機能を追加する具体的な文法案などはいくつか提案されている。この論文では、具体的な提案ではなく、値の制約ということに対して、必要な機能と実装上の課題などを考察している。
+</p>
+
+<p>
+値の制約という機能は、値に対して何らかの無効であり本来起こりえない条件を指定するものである。
+</p>
+
+<p>
+たとえば、ある関数はdouble型の引数をとるが、負数が与えられることは想定していないとかだ。古典的なassertの中に書かれる式も制約である。論文では他にも、同一の表現を指定するなどのことをあげている。たとえばstd::vector vのv.empty()とv.size() == 0は同じ意味であるなど。
+</p>
+
+<p>
+論文は実行時のチェックよりも、コンパイル次の静的チェックに重きをおいていて、実行時チェックを自動生成するなどの機能も、Eiffelを例にあげて説明している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4161.htm">N4161: Uniform Container Erasure (Revision 1)</a>
+</h2>
+
+<p>
+コンテナーを引数に取り、特定の要素を効率的に削除する、erase_if( container, pred )とerase( container, value )の提案。
+</p>
+
+<pre><code class="cpp">int main()
+{
+    std::list&lt;int&gt; l = { 1, 2, 3, 4, 5, 6, 7, 8, 9 } ;
+
+    // 3を取り除く
+    std::experimental::erase( l, 3 ) ;
+    // 5未満を取り除く
+    std::experimental::erase_if( l, [](auto x){ return x &lt; 5 ; } ) ;
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4162.pdf">N4162: Atomic Smart Pointers, rev. 1</a>
+</h2>
+
+<p>
+モダンなC++のコードにおいては、生のポインターを直接使ったり、deleteを直接呼び出したりするのを避けるべきである。unique_ptrやshared_ptrを使うべきである。これにより、リークフリーでメモリーセーフなコードを記述できる。オブジェクトの寿命が構造化されていなかったり、そもそもいつまで生きているのか分からなかったりする場合は、重要である。特に、並列処理では重宝する。
+</p>
+
+<p>
+残念ながら、ロックフリーなコードを書く場合、今だに生のポインターを扱わなければならない。unique_ptr, shared_ptr, weak_ptrは、アトミックな操作をサポートしていないためである。shared_ptrだけは多少のサポートがあるが、貧弱である。
+</p>
+
+<p>
+この論文は、atomic_shared_ptr&lt;T&gt;, atomic_eak_ptr&lt;T&gt;, atomic_unique_ptr&lt;T&gt;を提案している。
+</p>
+
+<p>
+前回の論文では、atomic&lt;*_ptr&lt;T&gt;&gt;というatomicテンプレートのスマートポインター型に対する特殊化を特別に定義するという珍妙な設計だったが、会議で否定されたために、独自のテンプレートとなった。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4163.htm">N4163: Agenda and Meeting Notice for WG21 Telecon Meeting</a>
+</h2>
+
+<p>
+2014年10月24日に行われる電話会議の予定表。
+</p>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4164.pdf">N4164: Forwarding References</a>
+</h2>
+
+<p>
+&amp;&amp;は、具体的な型に修飾する場合と、テンプレート仮引数に就職する場合とで、意味が異なる。
+</p>
+
+<pre><code class="cpp">struct X { } ;
+
+void f( X &amp;&amp; ) ;
+
+template &lt; typename T &gt;
+void g( T &amp;&amp; ) ;
+</code></pre>
+
+<p>
+この例で、X &amp;&amp;と、T &amp;&amp;は、受け取れる値が異なる。
+</p>
+
+<p>
+X &amp;&amp;はX型のnon-const non-volatileなrvaluesしか受け取れない。
+</p>
+
+<p>
+T &amp;&amp;は、CV修飾子の有無はおろか、lvalueさえ受け取ることができる。
+</p>
+
+<p>
+auto &amp;&amp;にも同じ性質がある。
+</p>
+
+<p>
+テンプレート仮引数やautoに&amp;&amp;を使った場合のこの何でも受け取れるという性質の挙動については、従来、公式に名前が付けられていなかった。
+</p>
+
+<p>
+しかし、この概念を教育したり議論したりする際に、名前がないと困る。そこで、この論文では、この性質をForwarding Referenceと呼ぶことを提案している。同時に、標準規格の文面上でもそのように名付ける変更案を提案している。
+</p>
+
+<p>
+単に既存のプログラム上の意味に名前を付けるだけで、意味が変わるわけではない。
+</p>
+
+<p>
+当初、Scott Meyersがこの性質に名前を付ける必要性を感じ、発表でUniversal Referenceと呼んだが、Universalという名前よりは、Forwardingの方がふさわしいと判断された。これは、どんな値でも転送する性質を持つからだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4165.pdf">N4165: Unified Call Syntax</a>
+</h2>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4174.pdf">N4174: Call syntax: x.f(y) vs. f(x,y)</a>
+</h2>
+
+<p>
+<a href="http://cpplover.blogspot.jp/2014/11/cunified-call-syntax-n4165-n4174.html">本の虫: C++に提案されている統一関数呼び出し文法(Unified Call Syntax): N4165, N4174</a>を参照。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4166.pdf">N4166: Movable initializer lists</a>
+</h2>
+
+<p>
+std::initializer_listの所有する値には、constなポインターを経由してアクセスする。constであるがために、値を変更したり、ムーブしたりできない。
+</p>
+
+<pre><code class="cpp">void f( std::initializer_list&lt;int&gt; list )
+{
+    // elemの型はint const &amp;
+    for ( auto &amp;&amp; elem : list )
+    {
+        elem = 0 ; // エラー
+    }
+}
+
+void g( std::initializer_list&lt; std::unique_ptr&lt;int&gt; &gt; list )
+{
+    std::vector&lt; std::unique_ptr&lt;int&gt; &gt; v ;
+
+    // elemの型はstd::unique_ptr&lt;int&gt; const &amp;
+    for ( auto &amp;&amp; elem : list )
+    {
+        v.push_back( std::move( elem ) )  ; // エラー
+    }
+}
+</code></pre>
+
+<p>
+しかし、初期化リストの初期化子がすべてリテラルででもない限り、initializer_listは、実装の詳細としては実行時にストレージを所有している。所有している以上、所有権の移動ができるはずである。しかし、現状ではconst_castを用いて、無理やりconst性を消し去る以外に、所有権を横取りする方法がない。
+</p>
+
+
+<pre><code class="cpp">void f( std::initializer_list&lt;int&gt; list )
+{
+    // elemの型はint const &amp;
+    for ( auto &amp;&amp; elem : list )
+    {
+        const_cast&lt;int &amp;&gt;(elem) = 0 ; 
+    }
+}
+
+void g( std::initializer_list&lt; std::unique_ptr&lt;int&gt; &gt; list )
+{
+    std::vector&lt; std::unique_ptr&lt;int&gt; &gt; v ;
+
+    // elemの型はstd::unique_ptr&lt;int&gt; const &amp;
+    for ( auto &amp;&amp; elem : list )
+    {
+        v.push_back( std::move( const_cast&lt; std::unique_ptr&lt;int&gt; &amp; &gt;(elem) ) )  ;
+    }
+}
+</code></pre>
+
+<p>
+なぜinitializer_listがムーブセマンティクスに対応していないかというと、initializer_list設計当時の2005年から2007年は、まだムーブセマンティクスが一般的ではなく、設計に含めることができなかったためだ。2008年に、initializer_listをムーブセマンティクスに対応させるための提案もN2801として出たものの、時間が足りず、そのまま打ち捨てられた。
+</p>
+
+<p>
+この論文では、initializer_listをムーブセマンティクスに対応させるための特殊化、std::initializer_list&lt;T &amp;&amp;&gt;を提案している。rvalueリファレンスは、単にオーバーロード解決でムーブ可能なinitializer_listを受け取るためのフラグであって、それ以外の意味はない。イテレーターは非constなリファレンスを返すので、以下のように書ける。
+</p>
+
+<pre><code class="cpp">void f( std::initializer_list&lt;int &amp;&amp; &gt; list )
+{
+    // elemの型はint &amp;
+    for ( auto &amp;&amp; elem : list )
+    {
+        elem = 0 ; // OK
+    }
+}
+
+void g( std::initializer_list&lt; std::unique_ptr&lt;int&gt; &amp;&amp; &gt; list )
+{
+    std::vector&lt; std::unique_ptr&lt;int&gt; &gt; v ;
+
+    // elemの型はstd::unique_ptr&lt;int&gt; &amp;
+    for ( auto &amp;&amp; elem : list )
+    {
+        v.push_back( std::move( elem ) )  ; // OK
+    }
+}
+</code></pre>
+
+<p>
+従来のinitializer_list&lt;T&gt;の挙動は変わらない。
+</p>
+
+<p>
+movable_initializer_list&lt;T&gt;のような別のプライマリーテンプレートを使わなかった理由としては、T &amp;&amp;は十分にわかりやすいし、initializer_listはよく知られている名前であるし、また、テンプレートメタプログラミングによって切り替え可能になるからだという。
+</p>
+
+<p>
+内部的には、initializer_list&lt;T &amp;&amp; &gt;はinitializer_list&lt;T&gt;から派生している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4167.pdf">N4167: Transform Reduce, an Additional Algorithm for C++ Extensions for Parallelism</a>
+</h2>
+
+<p>
+並列実行版アルゴリズムに、transform_reduceの追加をする提案。
+</p>
+
+<p>
+ドット積の計算を考える。従来のシリアル実行ならば、std::accumulateを使うことで、以下のように書ける。
+</p>
+
+<pre><code class="cpp">struct Point {
+    double x, y;
+};
+
+std::vector&lt;Point&gt; values(10007, Point{2.0, 2.0});
+
+double result =
+    std::accumulate(std::begin(values), std::end(values), 0.0,
+        [](double result, Point curr)
+        {
+            return result + curr.x * curr.y;
+        });
+</code></pre>
+
+<p>
+しかし、これは並列化できない。処理が進むためには、まず前回のresultが計算されなければならないからだ。
+</p>
+
+<p>
+この問題を解決するには、並列版アルゴリズムの提案に含まれているreduceを使うことができる。ただし、reduceの制約上、極めて不便なworkaroundを余儀なくされる。
+</p>
+
+<pre><code class="cpp">Point result =
+    std::experimental::parallel::reduce(
+        std::experimental::parallel::par,
+        std::begin(values),
+        std::end(values),
+        Point{0.0, 0.0},
+        [](Point res, Point curr)
+        {
+            return Point{
+                res.x * res.y + curr.x * curr.y, 1.0};
+        }
+    );
+</code></pre>
+
+<p>
+reduceの戻り値の型は、イテレーターの値の型でなければならない。そのため、本来ならdoubleを使うべきところだが、Pointクラスのxメンバーだけを使っている。しかも、無理やり行列的な計算をしている。値をそのままにしておくためだけに、本来不必要な1.0での乗算を行わなければならない。
+</p>
+
+<p>
+そこで、N4167は、イテレーターの値の方から戻り地の型へ変換する関数オブジェクトを引数に取る、transform_reduceを提案している。
+</p>
+
+<pre><code class="cpp">double result =
+    std::experimental::parallel::transform_reduce(
+        std::experimental::parallel::par,
+        std::begin(values),
+        std::end(values),
+        0.0,
+        std::plus<double>(),
+        [](Point r)
+        {
+            return r.x * r.y;
+        }
+    );
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4168.html">N4168: Removing auto_ptr</a>
+</h2>
+
+<p>
+auto_ptrを規格から削除する提案。
+</p>
+
+<p>
+すでにauto_ptrはdeprecated扱いで、Annex D互換機能に移されているが、この提案で完全に削除する。
+</p>
+
+<p>
+auto_ptrは、もはや使うべきではない。auto_ptrを使う既存のコードは、速やかにunique_ptrに書き変えるべきである。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4169.html">N4169: A proposal to add invoke function template (Revision 1)</a>
+</h2>
+
+<p>
+std::funcitonやstd::bindなどで使われている、INVOKE(§20.9.2)通りに呼び出しをしてくれる関数テンプレートinvokeを標準ライブラリに追加する提案。
+</p>
+
+<p>
+<a href="http://cpplover.blogspot.jp/2010/11/stdfunction.html">std::functionを実装</a>してみた人間ならばわかると思うが、INVOKEの仕様は結構複雑だ。
+</p>
+
+<pre><code class="cpp">struct X
+{
+    int data ;
+    int f() { return 0 ; }
+} ;
+
+int f() { return 0 ; }
+
+
+int main()
+{
+    // まあ、よくある関数呼び出し
+    std::function&lt; int () &gt; f1 = &amp;f ;
+    f1() ;
+
+    // メンバー関数呼び出し
+    std::function&lt; int ( X &amp; ) &gt; f2 = &amp;X::f ;
+    X x ;
+    f2( x ) ;
+
+    // メンバー関数呼び出しのポインター版
+    std::function&lt; int ( X * ) &gt; f3 = &amp;X::f ;
+    f3( &amp;x ) ;
+
+    // データメンバーへのアクセス
+    std::function&lt; int &amp; ( X &amp; ) &gt; f4 = &amp;X::data ;
+    f4( x ) = 123 ;
+
+    // データメンバーへのアクセスのポインター版
+    std::function&lt; int &amp; ( X * ) &gt; f5 = &amp;X::data ;
+    f5( &amp;x ) = 123 ;
+}
+</code></pre>
+
+<p>
+std::functionは、実は、データメンバーへのアクセスまで関数呼び出し風の文法でサポートしていたのをご存知だろうか。INVOKEの仕様に従っているためである。
+</p>
+
+<p>
+この挙動には、SFINAEを利用したメタプログラミングが必要である。これはよく使うので、標準ライブラリにほしい。そこで、そのような挙動をするinvoke関数テンプレートを追加する。
+</p>
+
+<p>
+ちなみに、リファレンス実装は以下の通り
+</p>
+
+
+<pre><code class="cpp">  template&lt;typename Functor, typename... Args&gt;
+  typename std::enable_if&lt;
+    std::is_member_pointer&lt;typename std::decay&lt;Functor&gt;::type&gt;::value,
+    typename std::result_of&lt;Functor&amp;&amp;(Args&amp;&amp;...)&gt;::type
+  &gt;::type invoke(Functor&amp;&amp; f, Args&amp;&amp;... args)
+  { 
+    return std::mem_fn(f)(std::forward&lt;Args&gt;(args)...); 
+  }
+   
+  template&lt;typename Functor, typename... Args&gt;
+  typename std::enable_if&lt;
+    !std::is_member_pointer&lt;typename std::decay&lt;Functor&gt;::type&gt;::value,
+    typename std::result_of&lt;Functor&amp;&amp;(Args&amp;&amp;...)&gt;::type
+  &gt;::type invoke(Functor&amp;&amp; f, Args&amp;&amp;... args)
+  { 
+    return std::forward&lt;Functor&gt;(f)(std::forward&lt;Args&gt;(args)...); 
+  }
+</code></pre>
+
+<p>
+これはなぜ標準ライブラリにないのか不思議だった。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
