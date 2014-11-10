@@ -1,0 +1,600 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-10-pre-Urbana mailingsのレビュー: N4170-N4182 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/11/2014-10-pre-urbana-mailings-n4170-n4182.html">2014-10-pre-Urbana mailingsのレビュー: N4170-N4182</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4170.html">N4170: Extend INVOKE to support types convertible to target class (Revision 1)</a>
+</h2>
+
+<p>
+タイトルだけですべてを説明している感があるが、INVOKEの仕様を拡張して、メンバーにアクセスする場合で、クラスに変換可能な場合に対応する。
+</p>
+
+<p>
+読む限り、こういうコードが動くようになるのではないかと思うのだが、すでにGCCやClangで動くのでよく分からない。なにか読み間違えているのだろうか。
+</p>
+
+<pre><code class="cpp">struct X
+{
+    int data = 0 ;
+} ;
+
+int main()
+{
+    std::function&lt; int &amp; ( X &amp; ) &gt; f = &amp;X::data ;
+    X x ;
+    f( std::ref(x) ) = 0 ;
+
+    auto data = std::bind( &amp;X::data, std::ref(x) ) ;
+    data() = 0 ;
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4171.html">N4171: Parameter group placeholders for bind</a>
+</h2>
+
+<p>
+std::bindのplaceholderを拡張する提案。
+</p>
+
+<p>
+std::bindには、placeholderという便利な機能がある。_1は第一引数、_2は第二引数というように、実引数をその順番で指定できるのだ。これにより、実引数の順番を入れ替えたり、無視したりといったことができる。
+</p>
+
+<pre><code class="cpp">struct Func
+{
+    void operator () () const
+    { std::cout &lt;&lt; '\n' ; }
+
+    template &lt; typename T, typename ... Types &gt;
+    void operator () ( T &amp;&amp; head, Types ... tail ) const
+    {
+        std::cout &lt;&lt; head ;
+        (*this)( tail... ) ;
+    }
+
+} ;
+
+int main()
+{
+    using namespace std::placeholders ;
+
+    auto f1 = std::bind( Func(), _1, _2, _3 ) ;
+    f1( 1, 2, 3 ) ; // 123
+
+    auto f2 = std::bind( Func(), _3, _2, _1 ) ;
+    f2( 1, 2, 3 ) ; // 321
+
+    auto f3 = std::bind( Func(), 4, _3, 4 ) ;
+    f3( 1, 2, 3 ) ; // 434
+}
+</code></pre>
+
+<p>
+N4171は、このプレイスホルダーを拡張する。すべての実引数を表す_all。 N番目から最後までの実引数を表す_from&lt;N&gt;。最初からN番目までの実引数を表す_to&lt;N&gt;。N番目からK番目までの実引数を表す_between&lt;N, K&gt;。
+</p>
+
+<pre><code class="cpp">struct Func
+{
+    void operator () () const
+    { std::cout &lt;&lt; '\n' ; }
+
+    template &lt; typename T, typename ... Types &gt;
+    void operator () ( T &amp;&amp; head, Types ... tail ) const
+    {
+        std::cout &lt;&lt; head ;
+        (*this)( tail... ) ;
+    }
+
+} ;
+
+
+int main()
+{
+    using namespace std::placeholders ;
+
+    auto f1 = std::bind( Func(), _all ) ;
+    f1( 1, 2, 3 ) ; // 123
+    f1( 1, 2, 3, 4, 5, 6, 7, 8, 9 ) ; // 123456789
+
+    auto f2 = std::bind( Func(), _from&lt;5&gt; ) ;
+    f2( 1, 2, 3, 4, 5, 6, 7, 8, 9 ) ; // 56789
+
+    auto f3 = std::bind( Func(), _to&lt;5&gt; ) ;
+    f3( 1, 2, 3, 4, 5, 6, 7, 8, 9 ) ; // 12345
+
+    auto f4 = std::bind( Func(), _between&lt;3,7&gt; ) ;
+    f4( 1, 2, 3, 4, 5, 6, 7, 8, 9 ) ; // 34567
+
+    auto f5 = std::bind( Func(), _all, _all ) ;
+    f5( 1, 2, 3 ) ; // 123123
+
+    auto f6 = std::bind( Func(), _to&lt;3&gt;, _from&lt;6,9&gt;, _between&lt;4,5&gt; ) ;
+    f6( 1, 2, 3, 4, 5, 6, 7, 8, 9 ) ; //123678945 
+}
+</code></pre>
+
+<p>
+また論文は、ジェネリックlambda式や汎用ラムダキャプチャーがある現在、std::bindに存在価値はあるのかという議論に対して反論を試みている。std::bindを使ったほうが簡潔で便利な場合があるという。 Perfect Forwardingを自力で書くのは面倒なので、std::bindの簡潔さは魅力だ。
+</p>
+
+<p>
+面白いし、簡潔に書ける場合もあるだろうが、私はlambda式の方が好みだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4172.htm">N4172: A proposal for named arguments for C++</a>
+</h2>
+
+<p>
+名前付き実引数の提案。
+</p>
+
+<p>
+name : valueという文法で、仮引数の名前を指定して実引数を渡すことができる。
+</p>
+
+<pre><code class="cpp">
+// グラフィック用のライブラリなどでありがちな引数の多い関数
+void draw_rect(int left, int top, int width, int height);
+
+int main()
+{
+    // どれがどれだっけ？
+    draw_rect( 100, 100, 400, 400 ) ;
+
+    // わかりやすい
+    draw_rect( left: 100, top : 100, width : 400, height : 400 ) ;
+
+    // 順番を入れ替えることもできる
+    draw_rect( width : 400, height : 400, top : 0, left : 0 ) ;
+}
+</code></pre>
+
+<p>
+これを名前付き実引数(named arguments)と呼ぶ。従来の実引数を、positional argumentsと呼ぶ。positional argumentsは、名前付き実引数の後に書くことはできない。
+</p>
+
+<pre><code class="cpp">void f( int a, int b ) ;
+
+int main()
+{
+    f( 1, b : 2 ) ; // well-formed
+    f( a : 1, 2 ) ; // ill-formed 
+}
+</code></pre>
+
+<p>
+ellipsisやVariadic Templatesを仮引数に使った関数の場合は、名前付き実引数は使えない。
+</p>
+
+<pre><code class="cpp">
+template &lt; typename ... Types &gt;
+void f( int a, Types ... args ) ;
+
+void g( int a, ... ) ;
+
+int main()
+{
+    f( a : 0 ) ; // ill-formed
+    g( a : 0 ) ; // ill-formed
+}
+</code></pre>
+
+<p>
+コンストラクター呼び出しにリスト初期化を使う場合には、名前付き実引数が使える。
+</p>
+
+<pre><code class="">struct X
+{
+    X( int a, int b, int c )
+} ;
+
+X x1( a : 1, b : 2, c : 3 ) ;
+X x2{ a : 1, b : 2, c : 3 } ;
+</code></pre>
+
+<p>
+ただし、提案はアグリゲート初期化には禁止している。
+</p>
+
+<pre><code class="cpp">
+struct X
+{
+    int a, b, c ;
+} ;
+
+X x{ a : 1, b : 2, c : 3 } ; // ill-formed
+</code></pre>
+
+<p>
+これを禁止する理由としては、後からコンストラクターを追加した場合、仮引数の名前とデータメンバーの名前とで、プログラムの意味が変わってしまうからだとしている。
+</p>
+
+<p>
+関数ポインターを経由した関数呼び出しには、名前付き実引数は禁止されている。
+</p>
+
+<pre><code class="cpp">void f( int x, int y ) ;
+using pointer = void (*)( int a, int b ) ;
+
+pointer p = &amp;f ;
+</code></pre>
+
+<p>
+この例で、関数ポインターpを経由して関数呼び出しをする際、xとyはもちろん使えない。関数ポインターが指し示す先は実行時に決まるためだ。aとbも使えない。理由は、aとbを使えるようにするためには、typedef名に仮引数名まで型情報として含めなければならないからだ。
+</p>
+
+<p>
+この提案は、関数の型に仮引数名を含める実装方法を取らないことを前提に設計されている。
+</p>
+
+<p>
+また論文では、予想される反論に回答を与えている。
+</p>
+
+<p>
+そもそも引数の数が多すぎる関数は設計が間違っているという反論に対しては、「それはそうだが、既存の現実のAPIは引数の数が多く、名前付き実引数は現実の問題を解決できる」と。
+</p>
+
+<p>
+C99のdesignated initialierと衝突するという反論に対しては、「あちらはデータメンバー名であり衝突しない」と
+</p>
+
+<p>
+仮引数の名前が変わると呼び出し側の意味が変わってしまうという反論に対しては、既存の有名なライブラリの最新版と数年前のバージョンのdiffを調査したところ、仮引数名の変更は極めて少なかったという調査結果を示している。
+</p>
+
+<p>
+また、将来の拡張案として、デフォルト実引数や、名前付きテンプレート実引数を挙げている。
+</p>
+
+<p>
+以下のようなデフォルト実引数が動くようになる。
+</p>
+
+<pre><code class="cpp">void f( int a = 0, int b ) ;
+
+int main()
+{
+    f( b : 0 ) ; // OK
+}
+</code></pre>
+
+<p>
+論文では、この挙動に異論はないが、この提案では含めないとしている。
+</p>
+
+<p>
+名前付きテンプレート実引数とは、以下のようなコードのことだ。
+</p>
+
+<pre><code class="cpp">template &lt; typename Key, typename Value &gt;
+struct map { ... } ;
+
+map&lt; Key : int, Value : string &gt; m ;
+</code></pre>
+
+<p>
+論文は、これは別物であり、別の提案で取り上げられるべきだとしている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4173.pdf">N4173: Operator Dot</a>
+</h2>
+
+<p>
+operator .をオーバーロード可能にする提案。
+</p>
+
+<pre><code class="cpp">class string_ref
+{
+    std::string data ;
+
+public :
+    string_ref( std::string const &amp; value )
+        : data( value ) { }
+
+    std::string &amp; operator .() { return data ; }
+} ;
+
+int main()
+{
+    string_ref ref("hello") ;
+
+    ref.length() ; // ref.operator.().length()
+    std::string str("str") ;
+    ref = str ; // ref.operator.() = str
+}
+</code></pre>
+
+<p>
+operator *やoperator -&gt;をオーバーロードしてポインターのように振る舞うクラスを作ることができるように、operator .をオーバーロードすれば、リファレンスのように振る舞うクラスを作ることができる。代入演算子すら使える。
+</p>
+
+<p>
+メンバーを明示的に宣言することによって、上書きできる。
+</p>
+
+<pre><code class="cpp">// resizeのあとにshrink_to_fitするstring
+class shrink_string
+{
+    std::string data ;
+public :
+    std::string &amp; operator .() { return data ; }
+    void resize( std::size_t n )
+    {
+        data.resize( n ) ;
+        data.shrink_to_fit() ;
+    }
+} ;
+</code></pre>
+
+<p>
+用途としては、スマートポインターのようなスマートリファレンスを書くのに使える。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4174.pdf">N4174: Call syntax: x.f(y) vs. f(x,y)</a>
+</h2>
+
+<p>
+<a href="http://cpplover.blogspot.jp/2014/11/cunified-call-syntax-n4165-n4174.html">本の虫: C++に提案されている統一関数呼び出し文法(Unified Call Syntax): N4165, N4174</a>を参照。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4175.pdf">N4175: Default comparisons</a>
+</h2>
+
+<p>
+デフォルトの比較演算子を暗黙的に生成する提案。
+</p>
+
+<p>
+前回の提案では、明示的に生成するよう記述した場合のみ生成するようになっていた。これは、既存のコードの意味を変えないという点では素晴らしいが、煩わしい。(a!=b) != !(a==b)がtrueとなるような珍妙なクラスを書いた奴は、根本的な論理的問題を引き起こしているのであって、そんなマヌケを救う必要はない。
+</p>
+
+<p>
+とはいえ、色々と考えることがある。
+</p>
+
+<p>
+==だけがユーザー定義されていた場合は、!=は==を使って生成される。では逆に!=だけがユーザー定義されていた場合はどうか。論文著者のBjarne Stroustrupは、!=から==を生成するのは好ましくないので生成しないと書いている。
+</p>
+
+<p>
+デフォルト生成された比較演算子にエラーがあって生成できない場合は、演算子を使った場合にエラーとなる。これは代入演算子の場合と同じだ。
+</p>
+
+<p>
+==の定義は、クラスの各メンバーをそれぞれ比較して、どれかひとつでもfalseを返した場合は、結果がfalseとなる。
+</p>
+
+<p>
+!=の定義は、a!=bは!(a==b)と定義される。
+</p>
+
+<p>
+クラスがポインター型のメンバーを持っている場合は、比較演算子は生成されない。
+</p>
+
+<p>
+リファレンス型のメンバーは、普通に比較される。
+</p>
+
+<p>
+配列型のメンバーは、各要素がそれぞれ比較される。
+</p>
+
+<p>
+mutableメンバーの扱いは難しい。人によって、mutableはクラスの値の一部であるとも、そうでないとも、意見が分かれる。論文では、
+</p>
+
+<ol>
+<li>mutableメンバーを他のメンバーと同様に扱う</li>
+<li>mutableメンバーがあるクラスに対しては比較演算子を生成しない</li>
+<li>mutableメンバーは比較の際には無視する</li>
+</ol>
+
+<p>
+という三つの方法を上げたうえで、3.の無視を提案している。
+</p>
+
+<p>
+空のクラスの場合は、等しいと評価される。
+</p>
+
+<p>
+unionの場合は、デフォルトの比較演算子は定義されない。ユーザー定義の==がある場合は!=は生成される。
+</p>
+
+<p>
+派生がある場合、仮想関数がない場合に、基本クラスを隠しメンバーとみなして比較する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4176.pdf">N4176: Thoughts about Comparisons</a>
+</h2>
+
+<p>
+N4175に対する議論をまとめたもの。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4177.html">N4177: Multidimensional bounds, index and array_view, revision 4</a>
+</h2>
+
+<p>
+連続したストレージを多次元配列のように扱えるラッパークラスライブラリ、array_viewの提案。
+</p>
+
+<p>
+前回からの変更点は、array_viewとstrided_array_viewのコンストラクターの引数の順序を、既存のSTLの慣習に合わせて、{size, location}から{location, size}に変更したこと。定数のviewに対するエイリアステンプレートを追加したこと。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4178.html">N4178: Proposed resolution for Core Issue 330: Qualification conversions and pointers to arrays of pointers</a>
+</h2>
+
+<p>
+§4.4の文面では、多次元ポインターについて規定しているが、ポインターの配列へのポインターの場合に対する記述がなく、以下のコードが型変換できないという問題がある。
+</p>
+
+<pre><code class="cpp">int main()
+{
+    double *array2D[2][3];
+
+    double       *       (*array2DPtr1)[3] = array2D;     // Legal
+    double       * const (*array2DPtr2)[3] = array2DPtr1; // Legal
+    double const * const (*array2DPtr3)[3] = array2DPtr2; // Illegal
+}
+</code></pre>
+
+<p>
+以下のコードは合法であることを考えると、これはおかしい。
+</p>
+
+<pre><code class="cpp">int main()
+{
+    double *array[2];
+
+    double       *       *ppd1 = array; // legal
+    double       * const *ppd2 = ppd1;  // legal
+    double const * const *ppd3 = ppd2;  // certainly legal (4.4/4)
+}
+</code></pre>
+
+<p>
+したがって、現行の文面に従えば、reinterpret_castを使うしか方法がなくなる。
+</p>
+
+<p>
+この問題を解決する。
+</p>
+
+<p>
+きわめてさらっと触れられているが、この修正案は、reinterpret_castにも手を加えている。なんと、reinterpret_castでconst性を削ぎ落とすことが可能になった。
+</p>
+
+<pre><code class="cpp">void f( void const * ptr )
+{
+    // 現行ではill-formed
+    // N4178提案ではwell-formed
+    reinterpret_cast&lt; int * &gt;( ptr ) ;
+}
+</code></pre>
+
+<p>
+いまさらこの制約をあっさりと外すのだろうか。reinterpret_castを使う以上、別にconst性をそぎ落としても問題ないのではないかとは思っていたものの、このような大きな変更にしては意外の軽さだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4179.html">N4179: Transactional Memory Support for C++: Wording (revision 2)</a>
+</h2>
+
+<p>
+トランザクショナルメモリーの文面案
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4180.pdf">N4180: SG5 Transactional Memory Support for C++ Update</a>
+</h2>
+
+<p>
+トランザクショナルメモリーに対するN3999からの変更点。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4182.pdf">N4182: SG5: Transactional Memory (TM) Meeting Minutes 2014/07/14-2014/10/06</a>
+</h2>
+
+<p>
+トランザクショナルメモリーの会議の議事録。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
