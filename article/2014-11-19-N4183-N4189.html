@@ -190,13 +190,13 @@ void f( T &amp; x )
 SFINAEは、テンプレートのインスタンス化を失敗させ、オーバーロード解決の候補から除外することによって、条件に合わない型を弾くことができる。
 </p>
 
-<pre><code>template &lt; typename T &gt;
+<pre><code class="cpp">template &lt; typename T &gt;
 std::enable_if_t&lt; has_xxx&lt;T&gt;::value, void &gt;
 f( T &amp; x )
 {
 
 }
-<code></pre>
+</code></pre>
 
 <p>
 問題は、SFINAEによってテンプレートのインスタンス化を阻害しても、メッセージを出力することができない。static_assertはインスタンス化しなければ働かないのだ。しかし一方で、SFINAEによる選択も行いたい。SFINAEの利点と、static_assertのメッセージの両方が欲しい。
@@ -233,7 +233,7 @@ ostreamは競合しないと規定されているが、複数回の出力が分�
     bout &lt;&lt; "hello, " &lt;&lt; "World!" &lt;&lt; std::endl ; 
 }
 ...
-<code></pre>
+</code></pre>
 
 <p>
 このようにostream_bufferでラップして、そのオブジェクトに出力すれば、ostream_bufferのオブジェクトの寿命が来た時に、複数回の出力をまとめて、一気に出力してくれる。複数回の出力の間に他の出力がまざることはない。
