@@ -1,0 +1,680 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-10-pre-Urbana mailingsのレビュー: N4183-N4189 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/11/2014-10-pre-urbana-mailings-n4183-n4189.html">2014-10-pre-Urbana mailingsのレビュー: N4183-N4189</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4183.pdf">[意味もなくPDF] N4183: Contiguous Iterators: Pointer Conversion &amp; Type Trait</a>
+</h2>
+
+<p>
+これまで、連続したストレージを指すイテレーターに対して、contiguous iteratorというカテゴリーを新たに設けようという提案があった。問題は、contiguous_iterator_tagを導入してしまうと、random_access_iterator_tagが最も下層に存在しているとみなしてハードコードしている既存のコードと相性が悪い。
+</p>
+
+<p>
+そこで、今回の提案では、連続するストレージを指すイテレーターから、生のポインターを得るための方法を標準ライブラリで提案するものとなっている。
+</p>
+
+<p>
+生のポインターを必要とするレガシーなC APIなどにポインターを渡したい場合に使える。
+</p>
+
+<pre><code class="cpp">// ポインターとサイズを取る
+// よくありがちレガシーなC API
+void legacy_C_API( void * ptr, size_t size ) ;
+
+template &lt; typename ContiguousIterator &gt;
+void f( ContiguousIterator first, ContiguousIterator last )
+{
+    auto raw_pointer = std::pointer_from( first ) ;
+    legacy_C_API( first, std::distance( first, last ) ) ;
+}
+</code></pre>
+
+<p>
+内部の実装としては、pointer_fromは、内部的にdo_pointer_fromをunqalified nameで呼び出すので、ADLが発動し、それぞれのイテレーターに対応する関数がコンパイル時にADLで発見されるものとなっている。
+</p>
+
+<p>
+ADL以外の実装案として、iterator_tratisのstaticメンバー関数という案が出ている。
+</p>
+
+<p>
+つくづくコンセプトが欲しい。ADLを悪用するのは汚い。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4184.pdf">[50ページもあるが余白使いすぎで無駄がありすぎるためページ数が水増しされているクソレイアウトのPDF]N4184: SIMD Types: The Vector Type &amp; Operations</a>
+</h2>
+
+<p>
+まず、このPDFに文句を言いたい。このPDFは50ページある。さぞかし長い文書なのだろうと思ったら、なるほど、長いことは長いが、実質はその半分の25ページぐらいの長さだ。なぜ50ページになっているかというと、左右半分、上下の1割ほどは余白である。極めて面積を非効率的に使っているそびえ立つクソのような固定レイアウトのPDFである。
+</p>
+
+<p>
+さて、内容はというと、SIMDベクトル型としてのクラステンプレートライブラリの考察だ。かなり詳細に、初歩的なことから書かれている。
+</p>
+
+<p>
+SIMD型はベクトルループよりも、並列処理に適さないデータレイアウトを書いてしまった場合が明らかなので、より並列処理しやすいデータレイアウトが書きやすくなる。
+</p>
+
+<p>
+valarrayのことはすっかり忘れ去られているようだ。
+</p>
+
+<p>
+歴史的経緯としては、そもそもvalarrayはベクトル型であった。当時は、ライブラリとしてベクトル演算を最適化する手法が主流であったので、valarrayもライブラリ実装による最適化を想定していた。しかし、1990年代後半から、Expression Templatesなどのテンプレートメタプログラミングを多用した最適化手法が流行り始め、valarrayは時代遅れになって放置された。誰も標準ライブラリから取り除くべきだという主張しなかったので、valarrayはそのまま残ってしまったのだ。
+</p>
+
+<p>
+さて、時代は変わった。コンパイラーの最適化技術は、当時と比べてかなり進歩した。スカラー演算をまとめてベクトル演算にしたり、ループをベクトル演算にしたりといった最適化が行われるようになってきた。しかし、やはりそのような最適化には限界がある。
+</p>
+
+<p>
+多くのC++コンパイラーは、Intrinsicsという、アセンブリとほぼ等しいような薄い関数としてSIMD演算を提供している。しかし、これはあまりにも特定アーキテクチャに深く結びついていて、移植性が低い。
+</p>
+
+<p>
+そこで、最初からSIMDベクトル型というものがあれば、コンパイラーはベクトル演算のコードを吐く際の最適化のヒントとして使うことができる。valarrayが一周回って最新になった。
+</p>
+
+<p>
+問題は、いまさらvalarrayを大幅に拡張して使うのは互換性の問題や、設計上の想定の違いから無理であろうし、やはり独立した新しいライブラリとなるべきだろう。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4185.pdf">[同じく非効率的なレイアウトのPDF] N4185: SIMD Types: The Mask Type &amp; Write-Masking</a>
+</h2>
+
+<p>
+N4184で考察しているSIMDベクトル型の条件分岐について。
+</p>
+
+<p>
+branchは、モダンなCPUには極めて重い処理である。分岐予測をミスれば、それまでの投機実行結果を破棄して処理をやり直さねばならず、100サイクル以上も無駄にする。そのため、最近の多くのアーキテクチャにはconditional moveという命令が追加されている。
+</p>
+
+<p>
+また、SIMDベクトル型の比較の結果は、ひとつのbool値ではなく、boolのSIMDベクトル型で得られる。これは既存のif/for/while/switchのような条件分岐の文法では扱えない。
+</p>
+
+<p>
+論文では、Maskとwrite maskingという仕組みを考察している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4186.pdf">[PDF] N4186: Supporting Custom Diagnostics and SFINAE</a>
+</h2>
+
+<p>
+deleted定義に文字列リテラルを記述できる文法の提案。
+</p>
+
+<pre><code class="cpp">void f() = delete("Don't use this function.") ;
+
+int main()
+{
+    f() ; // ill-formed
+}
+</code></pre>
+
+<p>
+コンパイラーは、この文字列リテラルを何らかの通知メッセージとして利用できる。たとえば、コンパイルエラーメッセージとして出力するなど。
+</p>
+
+<p>
+なぜこの機能が提案されているかというと、SFINAEとstatic_assertを組み合わせたような機能が欲しいからだ。
+</p>
+
+<p>
+static_assertは、文字列リテラルを指定できる。コンパイラーはこの文字列を、例えばコンパイルエラーメッセージで出力することができる。
+</p>
+
+<pre><code class="cpp">
+template &lt; typename T &gt;
+void f( T &amp; x )
+{
+    static_assert( has_xxx&lt;T&gt;::value, "Template argument must has xxx.") ;
+}
+</code></pre>
+
+<p>
+SFINAEは、テンプレートのインスタンス化を失敗させ、オーバーロード解決の候補から除外することによって、条件に合わない型を弾くことができる。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+std::enable_if_t&lt; has_xxx&lt;T&gt;::value, void &gt;
+f( T &amp; x )
+{
+
+}
+<code></pre>
+
+<p>
+問題は、SFINAEによってテンプレートのインスタンス化を阻害しても、メッセージを出力することができない。static_assertはインスタンス化しなければ働かないのだ。しかし一方で、SFINAEによる選択も行いたい。SFINAEの利点と、static_assertのメッセージの両方が欲しい。
+</p>
+
+<p>
+このため、deleted定義に文字列リテラルを記述できる文法が提案されている。
+</p>
+
+<pre><code class="cpp">template &lt; typename T &gt;
+std::enable_if_t&lt; !has_xxx&lt;T&gt;::value, void &gt;
+f( T &amp; x ) = delete("Template argument must has xxx.")
+</code></pre>
+
+<p>
+このように、想定に合わない型をわざとdeleted定義されている関数テンプレートが最適関数になるようにしておけば、SFINAEによる選択かつコンパイルエラーかつメッセージが実現できる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4187.html">N4187: C++ Ostream Buffers</a>
+</h2>
+
+<p>
+ostreamは競合しないと規定されているが、複数回の出力が分断されずに出力される保証はない。何らかの外部的な同期が必要になるが、同期方法は標準にない。標準にない場合、複数のお互いに非互換な同期処理が自作される。ostreamの同期処理は標準で存在すべきである。
+</p>
+
+<p>
+この提案は、色々と設計の変遷を経たうえで、現在は、バッファー案になっている。
+</p>
+
+<pre><code class="cpp">...
+{
+    std::ostream_buffer bout( std::cout ) ;
+    bout &lt;&lt; "hello, " &lt;&lt; "World!" &lt;&lt; std::endl ; 
+}
+...
+<code></pre>
+
+<p>
+このようにostream_bufferでラップして、そのオブジェクトに出力すれば、ostream_bufferのオブジェクトの寿命が来た時に、複数回の出力をまとめて、一気に出力してくれる。複数回の出力の間に他の出力がまざることはない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4188.pdf">N4188: Proposal for classes with runtime size</a>
+</h2>
+
+<p>
+この論文は、C++に実行時にサイズが決まるクラスを提案している。
+</p>
+
+<p>
+よくある実行時にサイズの変わるストレージを扱うクラスを考える。
+</p>
+
+<pre><code class="cpp">template &lt; typename T &gt;
+class runtime_size_buffer
+{
+    std::size_t size ;
+    T * ptr ;
+public :
+    runtime_size_buffer( std::size_t size )
+        : size(size), ptr(new T[size])
+    { }
+    ~runtime_size_buffer( )
+    {
+        delete[] ptr ; 
+    }
+} ;
+
+
+auto f( std::size_t size )
+{
+    return std::make_unique&lt;runtime_size_buffer&gt;(size) ;
+}
+</code></pre>
+
+<p>
+このコードは非効率的である。sizeof(runtime_size_buffer)分のストレージを確保して、次に内部的なストレージを確保している。メモリ確保が二回発生している。
+</p>
+
+<p>
+しかし、最も効率的な、メモリ確保を一回しかしないコードを書くには、型システムを迂回しなければならない。
+</p>
+
+<pre><code class="cpp">struct rsb
+{
+    std::size_t size ;
+    char buf[1] ;
+} ;
+
+
+rsb * allocate_rsb( std::size_t bufsize )
+{
+    void * raw_ptr = std::malloc( sizeof(rsb) + bufsize -1 ) ;
+    rsb * ptr = reinterpret_cast&lt; rsb * &gt;( raw_ptr ) ;
+    ptr-&gt;size = bufsize ;
+    return ptr ;
+}
+</code></pre>
+
+<p>
+型システムを完全に迂回しなければならない上に、規格上未定義である。
+</p>
+
+<p>
+GCC拡張では、このような現実に書かれているコードを支援するために、構造体の最後の配列の要素数を0にすることができる。
+</p>
+
+<pre><code class="cpp">typedef struct
+{
+    size_t size ;
+    char buf[0] ;
+} zero_size_array ;
+</code></pre>
+
+<p>
+C99では、この現実に行われている手法を規格でサポートするために、Flexible Array Memberを追加した。配列の添字を記述しない文法になっている。この構造体の後に続くメモリーが、配列のアクセスでそのままアクセスできることを規格上規定している。
+</p>
+
+<pre><code class="cpp">
+typedef struct
+{
+    size_t size ;
+    char buf[] ;
+} flexible_array_member ;
+</code></pre>
+
+<p>
+しかしこれは、型システムの迂回である。型があるからこそ、コンストラクターやデストラクター、virtual関数、またコードの誤りをコンパイル時に検出したりできるのだ。クラスの後に続くストレージに配列でアクセスできると仮定しても、C++にこの手法をこのまま持ち込むと、以下のような極めて醜悪なコードになってしまう。
+</p>
+
+<pre><code class="cpp">// アライメントやパディングなどは適切に動くものとする
+template &lt; typename T &gt;
+struct rsb
+{
+    std::size_t size ;
+    T buf[1] ;
+
+    rsb( std::size_t size )
+        : size(size) { }
+} ;
+
+// unique_ptrのためのデリーター
+template &lt; typename T &gt;
+struct rsb_deleter
+{
+    void operator () ( rsb&lt;T&gt; * ptr ) const
+    {
+        // 一つづつ破棄
+        T * iter = std::addressof(ptr-&gt;buf[1]) ;
+        T * end = iter + ptr-&gt;size -1 ;
+        for ( ; iter != end ; ++iter )
+        {
+            iter-&gt;~T() ;
+        }
+
+        ptr-&gt;~rsb() ;
+        ::operator delete( ptr ) ;
+    }
+} ;
+
+template &lt; typename T &gt;
+using unique_rsb_ptr = std::unique_ptr&lt; rsb&lt;T&gt;, rsb_deleter&lt;T&gt; &gt; ;
+
+template &lt; typename T &gt;
+unique_rsb_ptr&lt; T &gt; make_rsb( std::size_t bufsize )
+{
+    void * raw_ptr = ::operator new( sizeof( rsb&lt;T&gt; ) + sizeof(T) * (bufsize -1) ) ;
+    // placement newでrsbを構築
+    unique_rsb_ptr&lt; T &gt; ptr( new(raw_ptr) rsb&lt;T&gt;( bufsize ) ) ;
+
+    // placement newで配列の要素を一つづつ構築
+    for (
+        T * iter = std::addressof( ptr-&gt;buf[1] ), * end = iter + bufsize - 1 ;
+        iter != end ; ++iter )
+    {
+        new(iter) T ;
+    }
+
+    return ptr ;
+}
+
+
+struct Foo
+{
+    Foo() { std::cout &lt;&lt; "constructed" &lt;&lt; '\n' ; }
+    ~Foo() { std::cout &lt;&lt; "destructed" &lt;&lt; '\n' ; }
+} ;
+
+int main()
+{
+    auto ptr = make_rsb&lt;Foo&gt;( 3 ) ;
+}
+</code></pre>
+
+<p>
+このようなコードを書くのは面倒で、もしコードに誤りがあったとしても、コンパイル時エラーにはならない。
+</p>
+
+<p>
+C++に必要なのは、型システムの恩恵をうけつつ、このような実行時にクラスのサイズを決定できる機能だ。そこでN4188が提案しているのが、実行時にサイズの決まるクラスだ。
+</p>
+
+<p>
+この機能のサンプルコードは以下のようになる。
+</p>
+
+<pre><code class="cpp">// もちろんテンプレートが使える
+template &lt; typename T &gt;
+class X
+{
+    const std::size_t size ;
+    int other_members ;
+    T buf[size] ;
+public :
+    X( std::size_t size )
+        : size(size)
+    { }
+} ;
+
+int main()
+{
+    // 実行時配列の要素数5
+    auto p1 = std::make_unique<X>( 5 ) ;
+    sizeof( X ) ; // 配列を除くコンパイル時サイズ
+    sizeof( *p1 ) ; // 実行時配列を含む実行時サイズ
+}
+</code></pre>
+
+<p>
+実行時サイズ配列(runtime size array)とは、最後のデータメンバーの配列である。上の例ではbufだ。実行時サイズ配列を持つクラスを実行時サイズクラスと呼ぶ。
+</p>
+
+<p>
+実行時サイズ指定子(runtime size specifier)とは、実行時サイズ配列の要素数として指定できる。上の例ではsizeだ。const修飾された整数型で、最初の非staticデータメンバーでなければならない。
+</p>
+
+<p>
+実行時サイズクラス型にsizeofを適用すると、コンパイル時のサイズを返す。つまり、配列を除くサイズだ。
+</p>
+
+<p>
+実行時サイズクラスのオブジェクトにsizeofを適用すると、実行時のサイズを返す。
+</p>
+
+<p>
+論文では、当初の制限として、実行時サイズクラスに以下のような制限を課している。
+</p>
+
+<ul>
+<li>
+実行時サイズクラスはデータメンバーに実行時サイズオブジェクトを持てない。
+</li>
+
+<li>
+実行時サイズクラスはvirtual基本クラスを持てない。
+</li>
+
+<li>
+実行時サイズクラスが基本クラスになるときは、派生クラスの最も右側の基本クラスでなければならない。
+</li>
+
+<li>
+実行時サイズクラスは配列の要素型になることはできない。
+</li>
+</ul>
+
+<p>
+論文では、後の拡張提案で、これらの制限のうち緩和できるものは緩和するとしている。
+</p>
+
+<p>
+さて、コンパイラーはどうやってこの実行時サイズクラスのオブジェクトを構築するのか。通常の型Tのオブジェクトの構築は、以下のとおりである。
+</p>
+
+<ol>
+<li>
+正しくアラインされたsizeof(T)バイトのメモリーを確保する
+</li>
+
+<li>
+確保されたメモリーに対してplacement newを呼ぶ。
+</li>
+</ol>
+
+<p>
+上記の実行時サイズクラスX&lt;T&gt;は、以下のように構築される。
+</p>
+
+<ol>
+<li>
+すべてのコンストラクターの実引数の値を計算する
+</li>
+
+<li>
+実行時サイズ式の値を計算し、一時オブジェクト__tmp_nに格納する。
+</li>
+
+<li>
+__tmp_nが負数であれば、std:bad_array_length（あるいは同等のもの）を投げる。これはoperetor new[]の挙動に沿うものである。
+</li>
+
+<li>
+正しくアラインされたsizeof(X&lt;T&gt;) + __temp_n * sizeof(T)バイトのメモリーを確保する
+</li>
+
+<li>
+確保されたメモリに対してplacement newを呼び出す。実行時サイズ指定子の初期化子は、__temp_nに置き換える。
+</li>
+</ol>
+
+<p>
+実行時サイズ指定子がクラスの最初のデータメンバーであることにより、コンパイラーはコンパイル時に、クラスの実行時のサイズを格納している場所を認識できる。
+</p>
+
+<p>
+実行時サイズクラスは、動的ストレージ上にしか確保できない。
+</p>
+
+<p>
+型システムの恩恵を受けつつ、C99のFlexible Array Member相当のことができる機能である。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4189.pdf">N4189: Generic Scope Guard and RAII Wrapper for the Standard Library</a>
+</h2>
+
+<p>
+汎用的なスコープガードとRAIIラッパーの提案。
+</p>
+
+<p>
+前回からの変更点は、scope_guardがscope_exitに解明されたこと。
+</p>
+
+<p>
+スコープガードとは、スコープを抜けた時に実行される処理のことである。例えば、関数から抜けた時に、必ずメッセージを出力したいとする。
+</p>
+
+<pre><code class="cpp">
+void f()
+{
+    if ( !is_ok() )
+    {
+        std::cout &lt;&lt; "exit function f.\n" ;
+        return ;
+    }
+
+    try {
+        new int ;
+    } catch( ... )
+    {
+        std::cout &lt;&lt; "exit function f.\n" ;
+        throw ;
+    }
+
+    std::cout &lt;&lt; "exit function f.\n" ;
+    return ;
+}
+</code></pre>
+
+<p>
+このようなコードを手で書くのは甚だしく面倒である。
+</p>
+
+<p>
+N4189で提案されているscope_exitを使えば、以下のように書ける。
+</p>
+
+<pre><code class="cpp">void f()
+{
+    auto guard = std::make_scope_exit( []{ std::cout &lt;&lt; "exit function f.\n" ; } ) ;
+
+    if ( !is_ok() )
+        return ;
+
+    new int ;
+}
+</code></pre>
+
+<p>
+scope_exitのオブジェクトは、自動ストレージ上に構築されることを前提に設計されている。オブジェクトが破棄される際に、指定した関数オブジェクトを実行してくれる。そのため、どのような方法でスコープを抜けようとも、必ず実行される。
+</p>
+
+
+<p>
+RAIIラッパーとは、unique_ptrをより汎用的にしたライブラリだ。
+</p>
+
+<p>
+解放処理が必要な何らかのリソースがある。例えばFILE *であったり、OSやライブラリの提供するAPIであったりなどだ。これは通常、RAIIという技法を使って管理する。
+</p>
+
+<pre><code class="cpp">struct file_resource
+{
+    std::FILE * res ;
+    explicit file_resource( std::FILE * fp )
+        : res( fp )
+    { }
+
+    file_resource( file_resource const &amp; ) = deete ;
+    file_resource( file_resource &amp;&amp; rhs )
+        : res(rhs.res)
+    {
+        rhs.res = nullptr ;
+    }
+
+    file_resource &amp; operator = ( file_resource const &amp; ) = delete ;
+    file_resource &amp; operator = ( file_resource &amp;&amp; rhs )
+    {
+        if ( this != &amp;rhs )
+        {
+            res = rhs.res ;
+            rhs.res = nullptr ;
+        }
+    }
+    
+
+    ~file_resource()
+    { std::fclose( fp ) ; }
+
+    FILE * get() const { return res ; }
+} ;
+
+int main()
+{
+    file_resource fp( std::fopen(...) ) ;
+}
+</code></pre>
+
+<p>
+このようなRAIIラッパーをいちいち自前で書くのは面倒だ。汎用的なRAIIラッパーが標準ライブラリに欲しい。N4189で提案されているunique_resourceを使えば、以下のように書ける。
+</p>
+
+<pre><code class="cpp">
+int main()
+{
+    auto fp = std::make_unique_resource( std::fopen(...), [](auto fp){ std::fclose( fp ) ; } ) ;
+    std::fputs( "hello", *fp ) ;
+}
+</code></pre>
+
+<p>
+これにより、汎用的なRAIIラッパーを、わざわざ自分でクラスを書くことなく使える。
+</p>
+
+<div class="dwango-ad">
+<p>ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
