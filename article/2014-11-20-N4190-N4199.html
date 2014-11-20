@@ -1,0 +1,451 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-10-pre-Urbanaのレビュー: M4190-N4199 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/11/2014-10-pre-urbana-m4190-n4199.html">2014-10-pre-Urbanaのレビュー: M4190-N4199</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4190.htm">N4190: Removing auto_ptr, random_shuffle(), And Old &lt;functional&gt; Stuff</a>
+</h2>
+
+<p>
+unary_function, binary_function, ptr_fun, mem_fun, mem_fun_ref, bind1st, bind2nd, auto_ptr, random_shuffleを規格から取り除く提案。
+</p>
+
+<p>
+これらはすでに、現行規格でdeprecated扱いになっているものであり、よりよい方法が存在している。
+</p>
+
+<p>
+C++11で採用されたbind自体も、lambda式（特にC++14のジェネリックlambda式）があるため、いずれはdeprecatedになるのではないかと論文筆者は記述している。同感だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4191.html">N4191: Folding expressions</a>
+</h2>
+
+<p>
+fold-expressionという新たな式を追加する提案。
+</p>
+
+<p>
+たとえば、テンプレートパラメーターのそれぞれにoperator +を適用して返す場合を考える。
+</p>
+
+<pre><code class="cpp">template &lt; typename T &gt;
+auto sum( T &amp;&amp; head )
+{
+    return head ;
+}
+
+template &lt; typename T, typename ... Types &gt;
+auto sum( T &amp;&amp; head, Types &amp;&amp; ... args )
+{
+    return head + sum( std::forward&lt;Types&gt;(args) ... ) ;
+}
+
+int main()
+{
+    sum( 1, 2, 3 ) ; // 6
+}
+</code></pre>
+
+<p>
+やりたいことは、args$0 + args$1 + ... + args$Nなのに、なぜこんなに面倒な記述をしなければならないのか。
+</p>
+
+<p>
+N4191では、fold式というものを提案している。これを使うと、以下のように書ける。
+</p>
+
+<pre><code class="cpp">template &lt; typename ... Types &gt;
+auto sum( Types ... args )
+{
+    return ( args + ... ) ;
+}
+</code></pre>
+
+<p>
+この提案は、fold-expressionという新しいprimary-expressionを追加する。fold式は、以下のように書ける。
+</p>
+
+<pre><code class="cpp">( args + ... )</code></pre>
+
+<p>
+これは、以下のようにleft foldでパック展開される。
+</p>
+
+<pre><code class="cpp">
+((args$0 + args$1) + ...) + args$n
+</code></pre>
+
+<p>
+right foldさせたければ、以下のように書けばよい。
+</p>
+
+<pre><code class="cpp">( ... + args )</code></pre>
+
+<p>
+これは、以下のようにright foldでパック展開される。
+</p>
+
+<pre><code class="cpp">args$0 + ( ... + ( args$n-1 + args$n ) )</code></pre>
+
+<p>
+括弧は必須である。
+</p>
+
+<p>
+fold式が対応するのは、以下の演算子である。
+</p>
+
+<pre>
+    +  -  *  /  %  ^  &amp;  |  ~  =  &lt;  &gt;  &lt;&lt;  &gt;&gt;
+    +=  -=  *=  /=  %=  ^=  &amp;=  |=  &lt;&lt;=  &gt;&gt;=
+    ==  !=  &lt;=  &gt;=  &amp;&amp;  ||  ,  .*  -&gt;*
+</pre>
+
+<p>
+空のパラメーターパックをfoldした場合、一部の演算子の評価結果は、デフォルトの値になる。
+</p>
+
+
+<table>
+<tr><th>Operator</th>    <th>Value when parameter pack is empty</th></tr>
+<tr><td><tt>*</tt></td>  <td><tt>1</tt></td>                        </tr>
+<tr><td><tt>+</tt></td>  <td><tt>0</tt></td>                        </tr>
+<tr><td><tt>&amp;</tt></td>  <td><tt>-1</tt></td>                       </tr>
+<tr><td><tt>|</tt></td>  <td><tt>0</tt></td>                        </tr>
+<tr><td><tt>&amp;&amp;</tt></td> <td><tt>true</tt></td>                     </tr>
+<tr><td><tt>||</tt></td> <td><tt>false</tt></td>                    </tr>
+<tr><td><tt>,</tt></td>  <td><tt>void()</tt></td>                   </tr>
+</table>
+
+<p>
+これ以外の演算子で、空のパラメーターパックをfoldすると、ill-formedである。
+</p>
+
+<p>
+空のパラメーターパックをfold式に渡した場合の挙動をカスタマイズしたい場合は、以下のように書くことができる。
+</p>
+
+<pre><code class="cpp">( args + ... + an )</code></pre>
+
+<p>
+もちろん、right foldもできる。
+</p>
+
+
+<pre><code class="cpp">( an + ... + args )</code></pre>
+
+<p>
+このように(a + ... + b)と書いた場合、aかbのどちらか片方だけがパラメーターパックでなければならない。
+</p>
+
+<p>
+これは興味深い提案だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4192.html">N4192: C++ Standard Core Language Active Issues</a>
+</h2>
+
+<p>
+C++のコア言語で既知の問題集。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4193.html">N4193: C++ Standard Core Language Defect Reports and Accepted Issues</a>
+</h2>
+
+<p>
+C++のコア言語で解決済みの問題集
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4194.html">N4194: C++ Standard Core Language Closed Issues</a>
+</h2>
+
+<p>
+C++のコア言語で、議論の結果、何も対応しないと結論された問題集。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4195.pdf">[PDF注意] N4195: std::synchronic&lt;T&gt;</a>
+</h2>
+
+<p>
+C++11で追加されたatomicオブジェクトを使えば、標準の範囲内で移植性の高い同期処理を記述できる。例えば、以下は教科書や大学の授業でよくあるTTAS(Test-And-Test-And-Set)スピンロックによるmutexの実装である。
+</p>
+
+<pre><code class="cpp">struct ttas_mutex
+{
+    ttas_mutex() : locked(false) { }
+    void lock()
+    {
+        while(1)
+        {
+            bool state = false;
+            if(locked.compare_exchange_weak(state, true, memory_order_acquire) )
+                break ;
+
+            while(locked.load(memory_order_relaxed)==state)
+            ; // 値が変わるまでひたすらループ
+        }
+    }
+
+    void unlock()
+    {
+        locked.store(false, memory_order_release);
+    }
+
+    atomic&lt;bool&gt; locked ;
+}
+</code></pre>
+
+<p>
+ただし、このコードには問題がある。ループ処理がひたすらCPU時間を浪費してしまうのだ。効率的なmutexの実装には、処理速度を遅くしたり、待機したり、OSの提供する同期方法を使ったりなどの方法を組み合わせる必要がある。その実現方法は、環境により異なり、移植性がない。
+</p>
+
+<p>
+N4195は、この問題に標準の範囲内で対処できるように、synchronic&lt;T&gt;というライブラリを提案している。
+</p>
+
+<p>
+synchronicは、atomicと似ているが、追加のメンバーがある。まず、値が変更された時までブロックするexpect_updateや、ブロックするCASとしてのload_when_not_equal/load_when_equalがある。synchronicを使えば、先ほどのTTAS mutexは、以下のように書ける。
+</p>
+
+<pre><code class="cpp">struct ttas_mutex
+{
+    ttas_mutex() : locked(false) { }
+    void lock()
+    {
+        while(1)
+        {
+            bool state = false;
+            if(locked.compare_exchange_weak(state, true, memory_order_acquire) )
+                break ;
+
+            locked.expect.update(state) ;
+        }
+    }
+
+    void unlock()
+    {
+        locked.store(false, memory_order_release);
+    }
+
+    synchronic&lt;bool&gt; locked ;
+}
+</code></pre>
+
+<p>
+これによって、std::mutexに匹敵するパフォーマンスを得られる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4196.html">N4196: Attributes for namespaces and enumerators</a>
+</h2>
+
+<p>
+[[deprecated]]は当初、enumeratorとnamespaceにも適用できることが望まれていた。しかし、attributeの文法上の問題で、記述できないでいた。
+</p>
+
+<p>
+N4196は、attributeの文法を変更してenumeratorとnamespaceにもattributeを記述できるようにし、deprecatedも対応させる提案。
+</p>
+
+<pre><code class="cpp">namaspace [[deprecated("namespace lib is deprecated.")]] lib { }
+enum struct E { enumerator [[deprecated("enumerator is deprecated.")]] } ;
+</code></pre>
+
+<p>
+この提案を紹介すると、ある人から、#includeにもdeprecatedを指定したいという声が出てきたのだが、それがどういう意味なのかよくわからない。単にヘッダーファイルの使用をdeprecatedにしたいのであれば、ヘッダーファイルでユニークな名前をdeprecatedで宣言して使っておけばいいのではないかと思う。
+</p>
+
+<pre><code class="cpp">// library.h
+#ifndef LIBRARY_INCLUDE_GUARD
+#define LIBRARY_INCLUDE_GUARD
+
+using LIBRAY_DEPRECATED [[deprecated("library.h is deprecated.")]] = void ;
+using USE_LIBRARY_DEPRECATED = LIBRARY_DEPRECATED ;
+
+#endif
+</code></pre>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4197.html">N4197: Adding u8 character literals</a>
+</p>
+
+<p>
+charひとつで表現できるUCS文字のリテラルを追加する提案。
+</p>
+
+<pre><code class="cpp">char A = u8'A' ; // OK, 値は0x41
+char unknown = 'A' ; // 値は実装依存
+char あ = u8'あ' ; // ill-formed、char一つで表現できない
+</code></pre>
+
+<p>
+これにより、標準の範囲内でASCII文字の値をリテラルで記述できるようになった。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4198.html">N4198: Allow constant evaluation for all non-type template arguments</a>
+</h2>
+
+<p>
+非型テンプレート仮引数に渡せるテンプレート実引数には、様々な制限がある。ただし、その制限は、現状にあっていない。ポインター、リファレンス、メンバーへのポインターが特にひどい。
+</p>
+
+<p>
+ポインター型は、静的ストレージ上のオブジェクト、もしくはリンケージを持つ関数で、その文法は&amp;entityか配列か関数でなければならない。あるいは任意のnullポインターに評価される定数式。
+</p>
+
+<p>
+つまり、以下のようになる。
+</p>
+
+<pre><code class="cpp">
+template &lt; int * &gt; struct X { } ;
+int n ;
+
+X&lt;&amp;n&gt; a ; // OK
+
+constexpr int * p() { return &amp;data ; }
+X&lt;p()&gt; b ; // ill-formd
+
+constexpr int * q() { return nullptr ; }
+X&lt;q()&gt; c ; // OK
+</code></pre>
+
+<p>
+この仕様はいかにも変だ。&amp;nはいいのに、p()はよろしくない。これは、文法は&amp;entityでなければならないためである。しかし、nullポインターとなる任意の定数式は許されているので、コンパイラーはどうせp()をコンパイル時に評価しなければならない。そして、結果がnullポインターでなければエラーにするのだ。余計なお世話である。
+</p>
+
+<p>
+何故このようなマヌケな制限になっているのかというと、当時のC++は定数式としてのポインターやリファレンスやメンバーへのポインターを扱うのに十分な機能を持っていなかった。constexprがある今でも、その当時の制限を未だに抱えている。
+</p>
+
+<p>
+リンケージを持たねばならない制限というのは、exportテンプレートの名残である。
+</p>
+
+<p>
+N4198は、この制限を緩和する提案である。
+</p>
+
+<p>
+具体的には、静的ストレージ上の完全なオブジェクトを指すポインターやリファレンスに評価される任意の定数式を許可する。これにより、上の例のq()がテンプレート実引数として合法になる。
+</p>
+
+<p>
+完全なオブジェクトという制限は、エイリアシングの問題を避けるためである。もし、サブオブジェクトへのポインターやリファレンスでもよいとなると、以下のようなコードで問題になる。
+</p>
+
+<pre><code class="cpp">struct A { int x, y } a ;
+template &lt; int * &gt; struct X { } ;
+
+using B = X&lt;&amp;a.x + 1&gt; ;
+using C = X&lt;&amp;a.y&gt; ;
+</code></pre>
+
+<p>
+さて、BとCは同じ型だろうか。この問題を避けるために、完全なオブジェクトでなければならない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4199.html">N4199: Minutes of Sept. 4-5, 2014 SG1 meeting in Redmond, WA</a>
+</h2>
+
+<p>
+2014年9月4-5日にRedmondで行われたSG1(concurrency)会議の議事録。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+最近、同僚の一人が机の上に出来合いのダンボールハウスを設置して簡易パーティションをつくりだしたらしい。また会社見学の際の観光名所がひとつ増えたようだ。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
