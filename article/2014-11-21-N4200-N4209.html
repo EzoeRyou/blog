@@ -1,0 +1,420 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-10-pre-Urbanaのレビュー: N4200-N4209
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/11/2014-10-pre-urbana-n4200-n4209.html">2014-10-pre-Urbanaのレビュー: N4200-N4209</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4200.htm">N4200: Feature-testing recommendations for C++</a>
+</h2>
+
+<p>
+C++の機能が実装されているかどうかを確かめるプリプロセッサーマクロの提案。
+</p>
+
+<p>
+現実のコンパイラーは、言語の新機能をすこしづつ実装していく。そこで、現実のコードでは、以下のようなコードが存在する。
+</p>
+
+<pre><code class="cpp">struct X
+{
+    X() { ... }
+    X( X const &amp; rhs ) { ... }
+
+#ifdef __cpp_rvalue_references
+    X( C &amp;&amp; rhs ) { ... }
+#endif
+} ;
+</code></pre>
+
+<p>
+このようなマクロは、現実のコードで頻出するので、規格で定義したほうがよい。そこで、規格にこのようなマクロがあらかじめ定義されているようにする提案。たとえば、この__cpp_rvalue_referencesというマクロは、実装がrvalueリファレンスに対応している場合のみdefineされる。
+</p>
+
+<p>
+詳しくは論文を読んでもらうとして、各機能に対応するマクロ名がある。
+</p>
+
+<p>
+また、特定のincludeファイルが存在するかどうかを調べる__has_include()や、特定のattributeがあるかどうかを調べる__has_cpp_attributeがある。
+</p>
+
+<pre><code class="cpp">#if __has_cpp_attribute(deprecated)
+[[ deprecated ]]
+#endif
+void f() ;
+
+#if __has_include(&lt;unordered_map&gt;)
+#include &lt;unordered_map&gt;
+#else
+#include "hash_map"
+#endif
+</code></pre>
+
+<p>
+必要悪とはいえ・・・プリプロセッサーマクロに頼る機能には複雑な思いがある。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4201.html">N4201: Alignment helpers for C++</a>
+</h2>
+
+<p>
+アライメント調整のための関数を追加する提案。
+</p>
+
+<p>
+is_align( x, a )は、xが0か、xがaの倍数の場合にtrueを返す。
+</p>
+
+<p>
+align_up( x, a )は、x以上の最小の数nで、is_align(n, a)を満たすnを返す。
+</p>
+
+<p>
+align_down( x, a )は、x以下の最大の数nで、is_align(n, a)を満たすnを返す。
+</p>
+
+<pre><code class="cpp">int main()
+{
+    std::is_aligned( 128, 64 ) ; // true
+    std::is_aligned( 32, 64 ) ; // false
+
+    std::align_up( 128, 64 ) ; // 128
+    std::align_up( 128, 256 ) ; // 256
+
+    std::align_down( 128, 64 ) ; // 64
+    std::align_down( 128, 256 ) ; // 128
+}
+</code></pre>
+
+<p>
+xは、整数型とポインター型でオーバーロードされているので、アドレスのアラインにも使える。
+</p>
+
+<pre><code class="cpp">int main()
+{
+    void * ptr = std::malloc( 1000 ) ;
+
+    // 16バイトにアライメントされているか？
+    bool b = std::is_aligned( ptr, 16 ) ;
+
+    // 256バイトにアライメント調整されたポインターを得る
+    void * aligned_256 = std::align_up( ptr, 256 ) ;
+    // 128バイトにアライメント調整しなおしたポインターを得る
+    void * aligned_128 = std::align_down( aligned_256, 128 ) ;
+
+</code></pre>
+
+<p>
+またN4201はアライメントキャストを提案している。これは、reinterpret_castとアライメント調整を同時に行うキャストである。
+</p>
+
+<pre><code class="cpp">
+void f( void * ptr )
+{
+    // alignof(int)にalign_upしてint *型にreinterpret_castしたポインターを得る
+    int * int_ptr = std::align_up_cast&lt; int * &gt;( ptr ) ;
+    // alignof(short)にalign_downしてshort *型にreinterpret_castしたポインターを得る
+    short * short_ptr = std:align_down_cast&lt; short * &gt;( ptr ) ;
+
+    // 128にalign_up
+    int * int_ptr = std::align_up_cast&lt; int * &gt;( ptr, 128 ) ;
+}
+</code></pre>
+
+<p>
+これらの関数は、SIMDや非同期IOやドライバーなど、様々な分野で使われる。いずれも一行で実装できるものであるが、標準ライブラリに存在することによって、必要になるたびにソフトウェアごとにプログラマーが独立してググり、書き、テストする手間を省くことができる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4202.html">N4202: Strongly Typed Bitset</a>
+</h2>
+
+<p>
+C++11から追加されたbitset&lt;N&gt;は、ビット列を扱う効率的で抽象度の高いコンテナーとして設計された。しかし、現実のビット列を扱う分野では、アライメントを指定する必要があったり、サイズが重要であったりして、bitsetは事実上使えない状態になっている。
+</p>
+
+<p>
+bitsetの内部的なストレージのアライメントやサイズを指定する方法はない。例えば、x86-64のGCCにおけるbitsetの実装は、最小でも8バイトのサイズがある。
+</p>
+
+<p>
+bitsetに新たなテンプレートパラメーターを付け加えて、bitset&lt;N,T&gt;とする、Tはalignof(T)とsizeof(T)のための型だ。このbitset&lt;N,T&gt;は、以下のような特性を持つ。(小文字のnがよくわからないが)
+</p>
+
+<pre><code class="cpp">static_assert(is_integral&lt;T&gt;::value);
+static_assert(alignof(bitset&lt;N,T&gt;) == alignof(T[N / (sizeof(T) * CHAR_BIT) + (n % (sizeof(T) * CHAR_BIT) != 0)];
+static_assert(sizeof(bitset&lt;N,T&gt;) == sizeof(T[N / (sizeof(T) * CHAR_BIT) + (n % (sizeof(T) * CHAR_BIT) != 0)];
+</code></pre>
+
+<p>
+ビット列を表現するための内部的なストレージの型として、underlying_typeというネストされた型名を追加する。
+</p>
+
+<pre><code class="cpp">
+using type = std::bitset&lt;64&gt;::underlying_type
+</code></pre>
+
+<p>
+また、bitsetのエイリアステンプレートとして、速度を重視したfast_bitsetと、サイズを重視したsmall_bitsetを追加する。
+</p>
+
+<pre><code class="cpp">int main()
+{
+    // 速度を重視したアライメントやサイズになる
+    std::fast_bitset&lt;20&gt; fast_bits ; 
+
+    // 速度よりも可能な限り最小サイズを重視
+    std::small_bitset&lt;20&gt; small_bits ;
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4203.html">N4203: Fast ASCII Character Manipulation</a>
+</h2>
+
+<p>
+タイトルの通り、高速にASCII文字を処理するライブラリの提案。
+</p>
+
+<p>
+isdigit, isxdigit, islower, isupper, isalpha, isalnumなどの各種の分類のための関数、todigit, tolower, toupperなどの変換関数、int型を数字一文字に変換するfromdigitもある。
+</p>
+
+<pre><code class="cpp">
+void f( char c )
+{
+    std::ascii::isdigit(c) ;
+    std::ascii::islower(c) ;
+    char C = std::ascii::touppwer(c) ;
+}
+</code></pre>
+
+<p>
+C言語から受け継いだ&lt;cctype&gt;にもほぼ同等の関数群があるが、この論文はcctypeが極めて遅いという設計上の問題を挙げている。
+</p>
+
+<p>
+&lt;cctype&gt;は、実行時に設定されるロケールによって処理が異なる。たとえば、isspaceはロケールによって空白文字であると認識される文字が変わる。そもそもASCII互換ですらない文字コードすら扱えるようになっている。このため、cctypeの実装には動的な分岐が必要で、肥大化して遅く、インライン展開もできない。一方、この提案は、ASCII文字を扱うことだけを前提に設計されている。実装はconstexpr関数であり、インライン展開でき、コンパイラーの最適化次第でベクトル化も可能となる。
+</p>
+
+<p>
+その他、isXXX系の関数は&lt;cctype&gt;とは違い、int型ではなくbool型を返すことや、char, wchar_t, char16_t, char32_tに対するオーバーロードがあることなど、より洗練された設計になっている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4204.html">N4204: C++ Latches and Barriers (post Rapperswil)</a>
+</h2>
+
+<p>
+スレッドの動機に使うラッチとバリアーライブラリの提案。
+</p>
+
+<p>
+ラッチは、カウンターを持つ、arrive()かcount_down(N)で、カウンターを減少させる。カウンターが0になると同期条件が満たされる。同期条件が満たされると、wait()で待っているスレッドのブロックが解かれる。
+</p>
+
+<pre><code class="cpp">int main()
+{
+    // カウンターは10
+    std::latch c(10) ;
+
+    for ( int i = 0 ; i != 10 ; ++i )
+    {
+        std::thread t( [&amp;](){
+            // 処理
+            c.arrive() ;
+        } ) ;
+
+        t.detach() ;
+    }
+
+    // カウンターが0になるまでブロック
+    c.wait() ;
+}
+</code></pre>
+
+<p>
+arriveは、ひとつのスレッドは一度しか呼び出すことができない。count_downにはそのような制限がなく、同一スレッドから何度でも呼び出せる。count_downは、スレッドプールなどの同一スレッドで複数の単位の処理をしている場合に使える。
+</p>
+
+<p>
+ラッチは使い捨てで、再利用できない。バリアーは、同期条件を満たした後にリセットされ、再利用できる。
+</p>
+
+<p>
+flex_barrierはbarrierに似ているが、コンストラクターで同期条件を満たした場合に呼ばれる関数オブジェクトを指定できる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4205.pdf">N4205: Working Draft, C++ Extensions for Concepts</a>
+</h2>
+
+<p>
+コンセプトのドラフト。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4206.html">N4206: C++ Standard Evolution Active Issues List</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4207.html">N4207: C++ Standard Evolution Completed Issues List</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4208.html">N4208: C++ Standard Evolution Closed Issues List</a>
+</h2>
+
+<p>
+C++の新機能を扱うEWGで現在認識している問題、解決済みの問題、却下された問題の一覧。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4209.html">N4209: A Proposal to Add a Const-Propagating Wrapper to the Standard Library</a>
+</h2>
+
+<p>
+const性を伝播させるためのラッパー、propagate_constライブラリの提案。
+</p>
+
+<p>
+constなメンバー関数からポインターを経由して別のメンバー関数を呼び出す場合、const性が伝播しない。
+</p>
+
+<pre><code class="cpp">struct A
+{
+    void f() {}
+    void f() const {}
+} ;
+
+struct B
+{
+    std::unique_ptr&lt;A&gt; ptr ;
+    B() : ptr( std::make_unique&lt;A&gt;() { }
+
+    void f() { ptr-&gt;f() ; }
+    void f() const { ptr-&gt;f() ; } ;
+}
+
+int main()
+{
+
+    B b ;
+    b.f() ; // call B::f(), A::f()
+    B cb ;
+    cb.f() ; // call B::f() const, A::f()
+}
+</code></pre>
+
+<p>
+このような例でconst性をメンバーに伝播させたい場合に使えるラッパーライブラリを提案している。
+</p>
+
+<pre><code class="cpp">struct A
+{
+    void f() {}
+    void f() const {}
+} ;
+
+struct B
+{
+    std::propagate_const&lt;std::unique_ptr&lt;A&gt;&gt; ptr ;
+    B() : ptr( std::make_unique&lt;A&gt;() { }
+
+    void f() { ptr-&gt;f() ; }
+    void f() const { ptr-&gt;f() ; } ;
+}
+
+int main()
+{
+
+    B b ;
+    b.f() ; // call B::f(), A::f()
+    B cb ;
+    cb.f() ; // call B::f() const, A::f() const
+}
+</code></pre>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+ところで、歌舞伎座タワーのB2Fのエレベーターの前にいる案内員は、一般の観光客とドワンゴ社員を人目で見分ける能力を有しているらしく、観光客がやってくると観光客向け5F行きエレベーターのボタンを、ドワンゴ社員がやってくると7F直通エレベーターのボタンを押す。いったい彼らはどうやってドワンゴ社員かどうかを見分けているのだろうか。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
