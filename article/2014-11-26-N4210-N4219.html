@@ -1,0 +1,387 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-10-pre-UrbanaのC++標準化委員会文書のレビュー: N4210-N4219
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/11/2014-10-pre-urbanac-n4210-n4219.html">2014-10-pre-UrbanaのC++標準化委員会文書のレビュー: N4210-N4219</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4210.pdf">[またPDF] N4210: IBM comment on preparing for a Trigraph-adverse future in C++17</a>
+</h2>
+
+<p>
+トライグラフ除去の可否を問う投票で、賛成票が多数派であったが、その中でIBMは強く反対の立場であった。トライグラフは現に利用者がいて、ASCIIが多数派なC++では、マイノリティといえど、実際の利用者がいる機能を除去するのは、C++のためにならないという主張である。そこでBjarne Stroustrupから、その現実の利用者をまとめて報告せよと言われたので、IBMはこの文書を提出した。
+</p>
+
+<p>
+IBMによれば、機密のため顧客名は明かせないものの、現実に利用者が多数いるという。特に重要な利用者の、ある北アメリカの大手の某銀行は、IBMメインフレームを使い続けている。処理は極めて重要である。彼らは長年の多大な労力をデバッグにつぎ込んでおり、安定していて、他の環境に移行することは決してない。
+</p>
+
+<p>
+C++はASCIIが多数派であるが、物言わぬマイノリティの声を代弁するためにもIBMはトライグラフ除去に反対するという。
+</p>
+
+<p>
+どうも私にはよくわからない世界だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4211.html">N4211: File System TS Active Issues List (Revision R3)</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4212.html">N4212: File System TS Closed Issues List (Revision R3)</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4213.html">N4213: File System TS Defect Report List (Revision R3)</a>
+</h2>
+
+<p>
+TSに提案されているFile systemライブラリに持ち上がっている問題集
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4214.pdf">[PDF] N4214: A Module System for C++ (Revision 2)</a>
+</h2>
+
+<p>
+40年前のコピペ技術である#inludeにかわるモジュール機能の提案。
+</p>
+
+<p>
+現在、C++が使っているコンパイルとリンクモデルは、C言語から受け継いだものである。各翻訳単位は、他の翻訳単位のことを一切知らずに処理される。翻訳単位を超えるには、名前リンケージ（シンボル名）を使う。名前に対応する定義はひとつだけでなければならない（ODR）。
+</p>
+
+<p>
+翻訳単位の外に見える名前である外部名を、手動によるコピペで管理することを防ぐために、我々は40年前の技術である自動コピペ技術、プリプロセッサーによるヘッダーファイルを未だに使っている。これは、コンパイラーからみれば、コピペである。
+</p>
+
+<p>
+ヘッダーファイルの中身はマクロによって書き換わってしまうおそれがあり、誤りの元である。
+</p>
+
+<p>
+変数や関数の宣言ぐらいしか書かれていなかった昔のC言語ならば、まだ十分に耐えられたのだが、モダンなC++では、ヘッダーファイルには実行されるコードが記述されている。コンパイラーは翻訳単位ごとに重複した内容を処理しなければならず、現代のC++のコンパイル時間の増大の原因になっている。
+</p>
+
+<p>
+この論文では、C++に近代的なコンポーネント化をもたらすための機能、モジュールの設計を考案している。
+</p>
+
+<p>
+モジュールは、既存のプリプロセッサーと組み合わせて使うことができる。これは穏やかな移行のために必要である。既存のプログラムはプリプロセッサーによる自動コピペ技術でコンポーネント化されていて、自動的にモジュールに書き換わってはくれない。今後もしばらくはぷりプロセッサーを使う必要がある。この地上からプリプロセッサーを一掃して、純粋なモジュールのみを使う素晴らしき新世界になるまでは。
+</p>
+
+<p>
+さて、モジュールの使い方だが、論文では以下のような文法を想定している。
+</p>
+
+<pre><code class="cpp">import std.vector ; // #include &lt;vector&gt;
+
+int main()
+{
+    std::vector&lt;int&gt; v ;
+}
+</code></pre>
+
+<p>
+モジュールを使う側からすれば、#includeの機械的な置換ぐらいで対応可能だ。
+</p>
+
+<p>
+では、ライブラリ側がモジュールに対応するにはどうすればいいのだろうか。これには二つの設計が考えられる。コンパイラー側が自動的に対応する方法と、ソースファイル中に宣言を記述するものだ。論文では、コンパイラーに推測させるよりも、明示的な宣言の方が好ましいとしている。
+</p>
+
+<p>
+モジュールは、モジュール宣言で宣言する。
+</p>
+
+<pre><code class="cpp">module module-name ;
+</code></pre>
+
+<p>
+この宣言の意味は、この翻訳単位のこれ以降の宣言は、module-nameという名前のモジュールの一部であるという宣言だ。モジュール宣言は翻訳単位に一つしか存在できない。前回の論文では、翻訳単位の最初の宣言でなければならないとしていたが、今回の論文では、そのような制約は必要ないということで緩和された。移行を簡単にするために、module宣言の前に宣言されているものは、グローバルモジュールに属するものになる。
+</p>
+
+<p>
+モジュールによるインターフェース宣言は、実装と同じソースファイルに記述することもできるし、別のソースファイルに記述することもできる。これは、どちらか片方だけに制限するのは現実的ではないためだ。
+</p>
+
+<p>
+モジュールは外部へのテントリーポイントを、export宣言で宣言する。
+</p>
+
+<pre><code class="cpp">export toplevel-declaration</code></pre>
+
+<pre><code class="cpp">struct X { } ;
+module M ;
+struct Y { } ;
+
+export struct Z { } ;
+</code></pre>
+
+<p>
+このように記述した場合、Xはグローバルモジュールに属する。YはモジュールMに属するが、エクスポートされていない。ZはモジュールMに属するexportされている名前だ。
+</p>
+
+<p>
+toplevel-declarationは、import宣言かmodule宣言か、通常の宣言のいずれかである。export宣言にimport宣言を指定した場合、import宣言で指定したモジュールがエクスポートする宣言が、現在のモジュールから見えることになる。
+</p>
+
+<pre><code class="cpp">module lib ;
+export import std.vector ;
+
+export namespace lib {
+
+class Foo
+{
+    std::vector&lt;int&gt; v ;
+} ;
+
+}
+</code></pre>
+
+<p>
+export宣言でmodule宣言を指定すると、現在のモジュールのサブモジュールの名前を宣言したことになる。
+</p>
+
+<p>
+export module module-name ;
+</p>
+
+<p>
+export宣言でトップレベルの宣言をすると、その宣言は外部に公開される。
+</p>
+
+<pre><code class="cpp">
+module foo
+
+// barはfooをimportしてもimportされない
+import bar ;
+
+// fooをimportするとhogeもimportされる
+export import hoge ;
+
+// 内部
+void f( int ) ;
+
+// 外部に公開される
+export void f( int, int ) ;
+
+// 外部に公開される
+export namespace foo {
+    void g() ;
+}
+</code></pre>
+
+<p>
+まだまだ文法は変わるだろうし、具体的な実装が出てきてからが面白いところだろう。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4215.pdf">[読みにくいPDF] N4215: Towards Implementation and Use of memory_order_consume</a>
+</h2>
+
+<p>
+memory_order_consumeの存在意義の解説。特にロックやアトミックのような命令を発行することなく、コンパイラーの一部の最適化を抑制するだけで実装可能だが、なかなかそういう高品質の実装が出てこない現状について書いている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4216.html">N4216: Out-of-Thin-Air Execution is Vacuous</a>
+</h2>
+
+<p>
+虚空から現れいでたる(Out Of Thin Air)値とは、何の脈略も関連性もなく現れる値のことである。例えば、何らの排他的制御も同期処理も行わずに同じオブジェクトに複数のスレッドから値を書き込んだ場合、その結果の値は未定義となる。未定義である以上、結果の値がどのようになってもかまわない。しかしまったく脈絡のない値が出てきてもいいものか。
+</p>
+
+<p>
+議論の結果、規格では実装に対しOOTAを避けるように記述されているが、具体的なOOTAについて記述されていない。この論文では、具体的なOOTAについて記述している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4217.html">N4217: std::rand replacement, revision 1</a>
+</h2>
+
+<p>
+std::randを廃止したい。しかし、std::randはあまりにもお手軽に使うことができる。
+</p>
+
+<p>
+1から6までの乱数をひとつ生成したいとする。大昔のrandならば、以下のように書ける。
+</p>
+
+<pre><code class="cpp">// このようなコードを書いてはならない。
+int main()
+{
+    std::srand( std::time( nullptr ) ) ;
+    int pip = std::rand()%6 + 1 ;
+}
+</code></pre>
+
+<p>
+まずstd::time()で初期化するのはお勧めできないし、剰余を使う方法は、均一に分布しない。
+</p>
+
+<p>
+では、C++11ではどう書けばよいのか。
+</p>
+
+<pre><code class="cpp">// 長い
+int main()
+{
+    std::random_device d ;
+    std::seed_seq s = { d(),d(),d(),d(),d(),d(),d(),d(),d(),d() } ;
+    std::mt19937 engine( s )  ;
+    
+    std::uniform_int_distribution<int> dist( 1, 6 ) ;
+
+    int pip = dist( engine ) ;
+}
+</code></pre>
+
+<p>
+このコードは毎回初期化されるし、均一に分布するが、やや長過ぎる。C++11の乱数ライブラリをまともに使うには、乱数エンジンやら乱数分布やらの概念を学ばなければならない。
+</p>
+
+<p>
+std::randのような手軽さを持っていて、モダンな小さい乱数ライブラリが欲しい。そこでこの論文では、そういうライブラリを提案している。
+</p>
+
+<pre><code class="cpp">
+int main()
+{
+    // プログラムの実行ごとに別の状態に初期化される
+    std::seed_init() ;
+
+    int pip = std:randint( 1, 6 ) ;
+}
+</code></pre>
+
+<p>
+結局、手軽でなければ普及しないのであれば、入るべき提案だろう。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4218.pdf">[PDF] N4218: Variant: a typesafe union</a>
+</h2>
+
+<p>
+型安全なunionであるvariantライブラリの提案。Boost.Variantに似たインターフェースになっている。ビジターなし、Variantを再帰的に使った場合の特殊な対応なし。
+</p>
+
+<pre><code class="cpp">int main()
+{
+    std::experimental::variant&lt; int, double &gt; v ;
+    v = 0 ;
+    v = 0.0 ;
+
+    int value = std::experimental::get&lt;double&gt;(v) ;
+}
+</code></pre>
+
+<p>
+テンプレート仮引数に指定した型のみ入れられる型安全なunionだ。
+</p>
+
+<p>
+論文で言及しているが、variantは空の状態になりうるという。
+</p>
+
+<pre><code class="cpp">variant&lt; T, U &gt; a = T() ;
+variant&lt; T, U &gt; b = U() ;
+
+a = b ; // 空になりうる
+</code></pre>
+
+<p>
+この場合、aにbを代入するために、まずaに入っているTのオブジェクトを破棄して、次にUを構築するが、Uの構築に失敗した場合は、空の状態になる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4219.pdf">N4219: Fixing the specification of universal-character-names (rev. 2)</a>
+</h2>
+
+<p>
+universal-character-nameに対する実装の挙動の提案。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+最近、街コロというボードゲームに興味を持っているが、いまいち戦略が見いだせない。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
