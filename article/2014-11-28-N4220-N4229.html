@@ -1,0 +1,511 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-10-pre-Urbanaのレビュー: N4220-N4229
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/11/2014-10-pre-urbana-n4220-n4229.html">2014-10-pre-Urbanaのレビュー: N4220-N4229</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4220.pdf">[PDF注意] N4220: An update to the preprocessor specification (rev. 2)</a>
+</h2>
+
+<p>
+プリプロセッサーの規格には、未定義な挙動とされている部分があるが、多くの主要な実装で似通った実装になっているところもあるので、その部分を規格で追認する。また、生文字列リテラルやユーザー定義リテラルなど、C++の新しい文法にプリプロセッサー規格が追いついていないので、対応させる。矛盾した点や曖昧点も改善する。
+</p>
+
+<p>
+プリプロセッサーの定義に未定義な挙動が多いのは、実装に自由度をもたせたり、独自拡張を許可したりするためだったのだが、結局問題のある未定義の挙動は違法であると定義したほうがよいし、当時は独自拡張のために未定義にしていたところも、数十年たてば、主要な実装はほぼ似たような実装に落ち着いたりした。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4221.pdf">[PDF注意] N4221: Generalized lifetime extension</a>
+</h2>
+
+<p>
+寿命修飾子(lifetime qualifier)の提案。
+</p>
+
+<p>
+一時オブジェクトの寿命は、完全な式の中である。
+</p>
+
+<p>
+ただし、リファレンスに束縛された一時オブジェクトは寿命が延長される。
+</p>
+
+<pre><code class="cpp">struct X { } ;
+
+int main()
+{
+    // 一時オブジェクトの寿命が延長される。nn
+    auto &amp;&amp; ref = f() ;
+}
+</code></pre>
+
+<p>
+しかし、関数呼び出しの結果返されるリファレンスに対しては、たとえ参照先が一時オブジェクトであったとしても、寿命延長が行われない。
+</p>
+
+<pre><code class="cpp">struct X
+{
+    int data ;
+    ~X()
+    {
+        std::cout &lt;&lt; data &lt;&lt;  ": destructed.\n" ;
+    }
+} ;
+
+int main()
+{
+    auto &amp;&amp; r1 = X{1} ; // 寿命延長される
+    auto &amp;&amp; r2 = std::move( X{2} ) ; // 寿命延長されない
+
+    std::cout &lt;&lt; "end of scope.\n" ; 
+}
+</code></pre>
+
+<p>
+なぜならば、関数の実引数として与える式がfull-expressionだから、その時点でmain関数のブロックスコープのリファレンスに束縛されていない以上、寿命延長されないのだ。関数を呼び出した結果のリファレンスは、たとえ一時オブジェクトを束縛していたとしても、寿命延長されない。
+</p>
+
+<p>
+これにより、クラスのアクセッサー(getter)が使えず、データメンバーを直接publicで使わなければならないという問題もある。
+</p>
+
+<pre><code class="cpp">struct X
+{
+    int data ;
+    int &amp; get_data() const { return data ; }
+} ;
+
+int main()
+{
+    auto &amp;&amp; ref =  X{}.data ; // 寿命延長される
+    auto &amp;&amp; ref = X{}.get_data() ; // 寿命延長されない
+}
+</code></pre>
+
+<p>
+ここで、dataはprivateなメンバーにして、publicがget_dataでアクセスさせたいとしても、寿命延長されないという点で使えない。
+</p>
+
+<p>
+これが具体的に問題になるのは、例えばrange-based forだ。
+</p>
+
+<pre><code class="cpp">struct has_vec
+{
+// これはprivateメンバーにしたい
+    std::vector&lt;int&gt; m = { 1, 2, 3 } ;
+
+    std::vector&lt;int&gt; &amp; get_vec() const
+    { return m ; }
+} ;
+
+int main()
+{
+    for ( int val : has_vec{}.m ) ; // OK
+    for ( int val : has_vec{}.get_vec() ) ; // エラー、寿命延長されない
+}
+</code></pre>
+
+<p>
+もっと具体的な例を挙げると、Boost.Adaptorsをrange-based forで使いたい場合がある。
+</p>
+
+<pre><code class="cpp">std::vector&lt;int&gt; vec;
+for (int val : vec  | boost::adaptors::reversed
+                    | boost::adaptors::uniqued )
+{
+    // 一時オブジェクトはすでに破棄されている
+}
+</code></pre>
+
+<p>
+関数を超えて一時オブジェクトの寿命を延長させるには、新しい言語機能が必要である。
+</p>
+
+<p>
+関数の仮引数宣言に寿命修飾子(lifetime qualifier)であるexportキーワードを記述して、寿命を延長させることができる。
+</p>
+
+<pre><code class="cpp">struct X { } ;
+template &lt; typename T &gt;
+T const &amp; f( export T const &amp; t )
+{
+    return t ;
+}
+
+int main()
+{
+    auto &amp;&amp; ref = f( X{} ) ; // 寿命延長される
+}
+</code></pre>
+
+<p>
+データメンバーを直接使わなければならない問題も、寿命修飾子により解決できる。
+</p>
+
+<pre><code class="cpp">class has_vec
+{
+private :
+    std::vector&lt;int&gt; m = { 1, 2, 3 } ;
+
+public :
+    std::vector&lt;int&gt; &amp; get_vec() export const
+    { return m ; }
+} ;
+
+int main()
+{
+    for ( int val : has_vec{}.get_vec() ) ; // OK
+}
+</code></pre>
+
+<p>
+これにより、Boost.Adaptorsの例も動く。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4222.pdf">[PDF注意] N4222: Minimal Additions to the Array View Library for Performance and Interoperability</a>
+</h2>
+
+<p>
+連続したストレージを多次元配列に見せかけるライブラリarray_viewに対する機能追加の提案。
+</p>
+
+<p>
+テンプレートで行が先か、列が先か、レイアウトを選べるようになる。
+</p>
+
+<p>
+既存の似たようなライブラリからの移行を用意にするため、operator ()をサポート
+</p>
+
+<p>
+operator []はレイアウトが行列どちらでも動作が変わらないようにする。
+</p>
+
+<p>
+内部的なポインターにアクセスできるようにする。
+</p>
+
+<p>
+特に1次元配列の場合だが、RandomAccessContainerとrangeのサポート。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4223.html">N4223: Response To: Let return Be Explicit</a>
+</h2>
+
+<p>
+N4074で提案された、return {expr}で暗黙の型変換がおこるときでもexplicitコンストラクターを呼び出せるようにする提案に対する反論。
+</p>
+
+<p>
+explicitなものはexplicitなのだから制限を緩和すべきではないとしている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4224.html">N4224: Supplements to C++ Latches</a>
+</h2>
+
+<p>
+N4204で提案されている同期ライブラリ、ラッチとバリアーに対する機能追加の提案。
+</p>
+
+<p>
+ラッチのオブジェクトを安全に破棄するためには、そのラッチに対してwaitしているすべてのスレッドのブロックを解いてからでなければならない。これは、ラッチをローカル変数として確保している場合、そのスレッドはブロックスコープを抜ける前にwaitしなければならないことを意味する。
+</p>
+
+<p>
+これを避けるために、以下の関数でSelf-Destructするラッチを生成できるようにする。
+</p>
+
+<pre><code class="cpp">static latch* create_self_deleting( int C );
+</code></pre>
+
+<p>
+それから、ラッチの完了通知ができるようになった後、スレッドのブロックが解かれる間の状態のときに、呼び出されるコールバック関数を指定できる、flex_latchを追加する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4225.html">N4225: Towards uniform handling of subobjects</a>
+</h2>
+
+<p>
+基本クラスをクラス定義の中で宣言できる機能の提案。
+</p>
+
+<p>
+まだ大雑把な構想段階だが、たとえばこういうコードが書けるようになりたい。
+</p>
+
+<pre><code class="cpp">struct Base
+{
+    Base( std::string ) ;
+} ;
+
+class Derived
+{
+members:
+    string str = "hello" ;
+
+public bases :
+    Base{ str } ;
+
+} ;
+</code></pre>
+
+<p>
+アクセス指定子の文法を拡張することで、基本クラスをクラス定義の中で指定できる。
+</p>
+
+<p>
+しかも、基本クラスよりも上に書かれているデータメンバーの初期化の方が、基本クラスの初期化より先に行われるので、基本クラスの初期化に派生クラスのデータメンバーを使うことができる。
+</p>
+
+<p>
+論文はとても短く、大雑把な構想しか記述していない。そして最後に、
+</p>
+
+<blockquote>
+
+<p>
+この提案の目的は何か？
+</p>
+
+<p>
+簡単に言えば、この提案は複数の欲しがられている機能を汎用的に提供できる、とても大雑把な構想だ。パーサーだとかそのへんの問題はいろいろあるだろうけど、とりあえず目安として、まず聞きたいことは、
+</p>
+
+<ul>
+<li>We hate it?</li>
+<li>We like it?</li>
+</ul>
+</blockquote>
+
+<p>
+私はもっと具体的な利用例や需要が示されるまでは、いらないと思う。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4226.pdf">[PDF注意] N4226: Apply the [[noreturn]] attribute to main as a hint to eliminate global object destructor calls</a>
+</h2>
+
+<p>
+[[noreturn]]をmainに指定した場合、staticストレージのオブジェクトの破棄をしなくてもよいという意味にしようという提案。
+</p>
+
+<p>
+組み込み環境など、mainから戻ることがなく、staticストレージ上のオブジェクトを破棄するコードすら許容できないような厳しい資源の制約のある環境の場合に役に立つ。
+</p>
+
+<p>
+私は、別のattributeにしたほうがいいと思う。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4227.pdf">[PDF注意] N4227: Cleaning-up noexcept in the Library (Rev 2)</a>
+</h2>
+
+<p>
+N3279で、標準ライブラリにnoexceptを付ける際のガイドラインを設けた。
+</p>
+
+<p>
+数年の経験を経た今、そのガイドラインを改良する必要がある。
+</p>
+
+<p>
+問題なのは、デバッグモードでムーブコンストラクターが例外を投げる可能性だ。そこで、C++17では、std::stringのムーブコンストラクターからnoexcetptを取り除く決定がなされた。
+</p>
+
+<p>
+しかし、一般にnoexceptを取り除きたくはない。そこで、ガイドラインでは、「noexceptにすることが大変望ましい」として、要求はしないようにする。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4228.pdf">[PDF注意] N4228: Refining Expression Evaluation Order for Idiomatic C++</a>
+</h2>
+
+<p>
+f( a, b, c ) のような式があった場合、sub-expressionであるf, a, b, cの評価順序は、規格上未規定である。もし、sub-expressonが同じオブジェクトを変更していた場合、プログラムの挙動は未定義になってしまう。f( i++, i ) や v[i] = i++ のような式の挙動は未定義である。
+</p>
+
+<p>
+例えば、以下のコードは未規定である。
+</p>
+
+<pre><code class="cpp">#include &lt;map&gt;
+int main() {
+    std::map&lt;int, int&gt; m;
+    m[0] = m.size();
+}
+</code></pre>
+
+<p>
+論文は言う、「この手の質問は、単なる娯楽ではなく、採用面接問題でもなく、学術的な興味によるものでもない。現在規格が規定する式の評価順序は、有害で、有名なプログラミングのイディオムに反し、標準ライブラリの安全な使用にも悪影響を与えている。この罠は素人や注意深くないプログラマーのみ引っかかるものではない。ルールを知っているものですら陥る。」
+</p>
+
+<p>
+例えば、以下のコードだ。
+</p>
+
+<pre><code class="cpp">void f()
+{
+    std::string s = “but I have heard it works even if you don’t believe in it”
+    s.replace(0, 4, “”).replace(s.find(“even”), 4, “only”).replace(s.find(“ don’t”), 6, “”);
+    assert(s == “I have heard it works only if you believe in it”);
+}
+</code></pre>
+
+<p>
+このコードの挙動は未規定である。
+</p>
+
+<p>
+ちなみに、このコードは世界的なC++エキスパート達から査読を受けた、The C++ Programingu Language 4th（プログラミング言語C++第四版）に存在するものである。最近、このコードの問題がツールによって発見された。
+</p>
+
+<p>
+このコードを、トリッキーなメソッドチェイニングを使うから悪いのだと避難するのは当たらない。std::cout &lt;&lt; a &lt;&lt; b &lt;&lt; cですらチェイニングである。また、std::future&lt;T&gt;にthen()メンバー関数を追加して、メソッドチェイニング的に使わせようと設計している今、問題はチェイニングではないのだ。根本的な問題を直さなければならない。
+</p>
+
+<p>
+論文では、以下の評価順序を提案している。
+</p>
+
+<ul>
+<li>postfix-expressionは左から右に評価される。これには関数呼び出しとメンバーアクセスも含まれる</li>
+<li>代入式は右から左に評価される。複合代入も含まれる</li>
+<li>シフト演算子のオペランドは左から右に評価される</li>
+</ul>
+
+<p>
+以下の式は、a, b, c, dの順に評価される。
+</p>
+
+<ul>
+<li>a.b</li>
+<li>a-&gt;b</li>
+<li>a(b,c,d)</li>
+<li>b=a</li>
+<li>b@=a</li>
+</ul>
+
+<p>
+また、オーバーロード演算子の評価順序は、関数呼び出しのルールではなくて、対応する組み込み演算子の評価順序に従う。
+</p>
+
+<p>
+これは歓迎すべき提案のように思われる。sub-expressionの評価順序は定めるべきだ。
+</p>
+
+<h2>
+<a herf="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4229.pdf">N4229: Pointer Ordering</a>
+</h2>
+
+<p>
+標準ライブラリの関数オブジェクトの比較はtotal orderingを要求しているが、関数オブジェクトが関数ポインターの場合ですら適用されてしまう。ポインターに対する組み込みの比較はtotal orderingではないというのに。
+</p>
+
+<p>
+関数ポインターの場合は、組み込みの比較と同じ結果になるように一文を加える修正。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はC++WG JPの会議に出た後にドワンゴに出勤して書かれた。
+</p>
+
+<p>
+今夜はボドゲでもしようとおもう。
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+ドワンゴはFPGAの扱えるハードウェア開発エンジニアを募集しているようだ。
+</p>
+
+<p>
+<a href="https://progres05.jposting.net/pgdwango/u/job.phtml?job_code=947&job_employment=">【ニコニコ事業】ハードウェア開発エンジニア (正社員)｜職種一覧｜中途採用・アルバイト採用・障がい者採用｜採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
