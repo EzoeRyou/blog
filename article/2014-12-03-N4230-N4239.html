@@ -1,0 +1,626 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-10-pre-Urbanaのレビュー: N4230-N4239 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/12/2014-10-pre-urbana-n4230-n4239.html">2014-10-pre-Urbanaのレビュー: N4230-N4239</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4230.html">N4230: Nested namespace definition (revision 2)</a>
+</h2>
+
+<pre><code class="cpp">namespace A::B::C {
+    // ...
+}
+</code></pre>
+
+<p>
+を、
+</p>
+
+<pre><code class="cpp">namespace A {
+    namespace B {
+        namespace C {
+            // ...
+        }
+    }
+}
+</code></pre>
+
+<p>
+と同等にする提案。
+</p>
+
+<p>
+これは個人的に入るべき小粒な機能だと思う。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4231.pdf">N4231: Terms and definitions related to "threads"</a>
+</h2>
+
+<p>
+規格における「スレッド」の意味するところに意見の不一致が見られるので、スレッドの意味を明確に定義する。また、スレッドより軽い実行媒体についても定義する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4232.pdf">N4232: Stackful Coroutines and Stackless Resumable Functions</a>
+</h2>
+
+<p>
+コルーチンとレジューム可能関数には似通った部分があるから統一してはどうかという意見に対し、コルーチンとレジューム可能関数の違いを解説している文書。
+</p>
+
+<p>
+N3985が提案しているコルーチンは、ライブラリである。スタックフルな実装であり、アドレス空間を多大に消費する。ライブラリなので今すぐに使うことができる。
+</p>
+
+<p>
+N3858, N3977の提案しているレジューム可能関数は、コア言語機能である。スタックレスな実装であり、コルーチンのようにアドレス空間を浪費しない。コンパイラーによるサポートが必要である。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4233.html">N4233: A Class for Status and Optional Value</a>
+</h2>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3533.html">N3533で提案されているConcurrent Queues</a>ライブラリでは、値と状態を別々に返すように設計されている。
+</p>
+
+<pre><code class="cpp">Value queue::value_pop();
+queue_op_status queue::try_pop(Value&amp;);
+queue_op_status queue::nonblocking_pop(Value&amp;);
+</code></pre>
+
+<p>
+この設計には、以下の制約がある。
+</p>
+
+<ul>
+<li>value_popで状態が悪い場合、例外が投げられる</li>
+<li>try_popとnonblocking_popを使う場合、Valueがデフォルト構築可能でなければならない</li>
+</ul>
+
+
+<p>
+なにか状態と値を同時に返せるようなライブラリが欲しい。そう、例えば以下のような。
+</p>
+
+<pre><code class="cpp">
+something&lt;queue_op_status, Value&gt; queue::value_pop();
+something&lt;queue_op_status, Value&gt; queue::try_pop();
+something&lt;queue_op_status, Value&gt; queue::nonblocking_pop();
+</code></pre>
+
+<p>
+設計上の要件としては、このsomethingは、必ず状態を有するが、値を有するかどうかは分からない。存在しない値にアクセスしようとすると例外を投げる。
+</p>
+
+<p>
+これは提案中のoptionalやexpectedに似ている。ただし、optionalとexpectedは、値かエラーかのどちらか片方を格納するライブラリである。ここで欲しいのは、必ず状態を格納し、値を格納しているかどうかは分からないライブラリだ。
+</p>
+
+<p>
+N4233は、このような要求を満たす、status_value&lt; Status, Value &gt;というライブラリを提案している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4234.pdf">N4234: 0-overhead-principle violations in exception handling - part 2</a>
+</h2>
+
+<p>
+ゼロオーバーヘッドの原則(Zero Overhead Principal)とは、使わない機能のオーバーヘッドを支払うべきではないという原則である。ある機能があったとして、その機能を使わない場合、その機能をサポートするために必要なオーバーヘッドがもたらされてはならない。C++は伝統的に、この原則を強く意識してきた。Bjarne StroustrupがSimulaを使ってシミュレーターを書いたら、使いもしないGCのオーバーヘッドでプログラムの実行時間の80%が浪費されていたことは、あまりにも有名だ。
+</p>
+
+<p>
+C++で、特にオーバーヘッドのやり玉に上げられるのは、例外である。例外のオーバーヘッドについては、N4049で考察されている。組み込みなどの資源制約の厳しい環境では、例外のオーバーヘッドは高く付きすぎる。
+</p>
+
+<p>
+この論文、N4234では、もしユーザーが例外を使わずにSTLを用いた場合、規格と現在の実装は、現在の最適化技術であWhole Program AnalysisやLink Time Optimizationを用いて、例外によるゼロオーバーヘッドの原則（生成されたバイナリに例外サポートのためのコードが一切含まれないことを指す）を尊重できるのかどうかを考察している。
+</p>
+
+<p>
+論文は、例外を使わないコンパイラーフラグや、例外を使わないSTL実装を使うことについては考察していない。
+</p>
+
+<blockquote>
+<p>
+例外処理サポートのない特別なSTL実装の使用（gccの-fno-exceptionsフラグなど）は考察しない。例外処理は言語の一部であり、言語のサブセットを定義することは、過去にEmbedded C++があったように、好ましいことではない。
+</p>
+</blockquote>
+
+<p>
+この論文では、以下のようなプログラムで実験を行った。
+</p>
+
+<ul>
+<li>::operator new(nothrow)を呼ぶアロケーター</li>
+<li>main関数</li>
+<li>noexceptではないvector::push_backの呼び出し</li>
+<li>純粋仮想関数が誤って呼ばれた場合に呼ばれる関数(__cxa_pure_virtual)を、ツールチェインの例外を使うデフォルト実装を上書きして定義する（ドキュメント化された方法である）</li>
+</ul>
+
+<p>
+ターゲットプラットフォームはLinux x86-64(Ubuntu 14.04)で、GNUツールチェインが用いられた。Clangでも試したらしいが、同じ結果だったそうだ。
+</p>
+
+<p>
+結果としては、生成されたバイナリには、例外サポートのためのシンボルが含まれていた。
+</p>
+
+<p>
+理由はいくつかある。STL実装の内部で、_M_check_lenという関数が呼ばれ、これがlength_error例外を投げている。範囲外かどうかのチェックは規格で必須になっているため、これは規格準拠の実装である。operator new(nothrow)は、例外を使ってnew_handlerから投げられる例外を確認している。
+</p>
+
+<pre><code class="cpp">_GLIBCXX_WEAK_DEFINITION void * 
+operator new (std::size_t sz, const std::nothrow_t&amp;) _GLIBCXX_USE_NOEXCEPT 
+{ 
+  void *p; 
+ 
+  /* malloc (0) is unpredictable; avoid it.  */ 
+  if (sz == 0) 
+    sz = 1; 
+ 
+  while (__builtin_expect ((p = malloc (sz)) == 0, false)) 
+    { 
+      new_handler handler = std::get_new_handler (); 
+      if (! handler) 
+        return 0; 
+      __try 
+{ 
+  handler (); 
+} 
+      __catch(const bad_alloc&amp;) 
+{ 
+  return 0; 
+} 
+    } 
+ 
+  return p; 
+} 
+</code></pre>
+
+<p>
+なぜこんなコードでなければならないかというと、規格でoperator new(size)を呼び出すようになっているからだ。そして、operator new(size)は以下のように定義されている。
+</p>
+
+<ul>
+<li>ループを実行する。ループの中で、まず要求されたストレージの確保を試みる。ストレージ確保の方法は実装依存である。</li>
+<li>ストレージの確保が成功したならば、ストレージへのポインターを返す。ストレージの確保が成功しなかった場合で、現在のnew_handlerがnullポインターの場合、std::bad_allocをthrowする。</li>
+<li>現在のnew_handlerがnullポインター以外の場合、現在のnew_handlerを呼び出す。呼び出しが返ったならば、ループを続行する。</li>
+<li>ループはストレージの確保が成功するか、new_handlerの呼び出しが返らなくなるまで、続けられる。</li>
+</ul>
+
+
+
+<p>
+私が書いた<a href="http://ezoeryou.github.io/cpp-book/C++11-Syntax-and-Feature.xhtml#allocation-and-deallocation">C++11の文法と機能</a>も参照。
+</p>
+
+<p>
+operator newは、ストレージの確保に失敗した場合、new_handlerを呼び出してから、再びストレージ確保を試みる。new_handlerがループを打ち切ると判断したかどうかは、例外を使わなければ確認できない。
+</p>
+
+<p>
+アロケーターでoperator new(nothrow_t)のかわりに、mallocを使ったプログラムの場合、例外サポートのためのシンボルを含まないバイナリの生成に成功したという。
+</p>
+
+<p>
+このテスト結果を受けて、論文では、規格に以下のような改善案を提示している。
+</p>
+
+<p>
+STLに対する改善案としては、
+</p>
+
+<p>
+コンテナーにnoexcept版のメンバー関数を追加する。
+</p>
+
+<p>
+引数の違いで追加する方法
+</p>
+
+<pre><code class="cpp">void push_back (const value_type&amp; val,  nothrow_t ) noexcept; 
+void push_back (value_type&amp;&amp; val,  nothrow_t ) noexcept;  
+</code></pre>
+
+<p>
+あるいは別名で追加する。
+</p>
+
+<p>
+範囲外チェックをoptionalにする。
+</p>
+
+<p>
+C++に対する改善案としては、
+</p>
+
+<p>
+noexcept修飾子で、ポインターを修飾することを可能にする。これによってオーバーロード解決でnoexcept版のメンバー関数が呼ばれる。
+</p>
+
+<p>
+論文にサンプルコードはないが、以下のような感じだろうか。
+</p>
+
+<pre><code class="cpp">struct X
+{
+    void f() ; // エラーを例外で通知
+    bool f() noexcept ; // エラーを戻り値で通知
+} ;
+
+int main()
+{
+    X noexcept x ;
+    x.f() ; // noexceptのオーバーロードが呼ばれる。
+}
+</code></pre>
+
+<p>
+うーむ・・・
+</p>
+
+<p>
+new_handlerに対しては、例外を投げないnew_nothrow_handlerを追加する改善案が示されている。s
+</p>
+
+<p>
+標準ライブラリに例外を投げないstd::nothrow_allocatorを追加する案も示している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4235.htm">N4235: Selecting from Parameter Packs</a>
+</h2>
+
+<p>
+テンプレートパラメーターパックを扱う際に、N番目の型を取り出したいことがよくある。これは以下のように書くことができる。
+</p>
+
+<pre><code class="cpp">template&lt;int N, typename T0, typename ... Tr&gt; struct nth_type_impl {
+  using type = typename nth_type_impl&lt;N-1, Tr...&gt;::type;
+};
+  template&lt;typename T0, typename ... Tr&gt;
+  struct nth_type_impl&lt;0, T0, Tr...&gt; {
+    using type = T0;
+  };
+template&lt;int N, typename ... Ts&gt;
+using nth_type = typename nth_type_impl&lt;N, Ts...&gt;::type;
+
+template&lt;typename ... Ts&gt; struct App {
+  nth_type&lt;3, Ts...&gt; n1;  // 4番目の要素.
+}
+</code></pre>
+
+<p>
+これは動く。動くのだが、問題がある。これは再帰的なテンプレートのため、テンプレートのインスタンス化が大量に発生し、コンパイラー資源の浪費である。また、エラーメッセージもわかりにくい。
+</p>
+
+<p>
+N4235では、パラメーターパックを扱うための便利な文法をいくつか提案している。
+</p>
+
+<p>
+パラメーターパックからN番目の要素を取り出す文法
+</p>
+
+<p>
+先ほどのAppは、以下のように簡潔に書くことができる。
+</p>
+
+<pre><code class="cpp">
+template < typename ... Ts >
+struct App
+{
+    Ts.[3] n1 ; // 4番目の要素
+} ;
+</code></pre>
+
+<p>
+存在しない場合はエラーになる。
+</p>
+
+<pre><code class="cpp">template &lt; typename ... Types &gt;
+struct first
+{
+    using type = Types.[0] ;
+} ;
+
+using type = first&lt;&gt;::type ; // ill-formed
+</code></pre>
+
+<p>
+パックサブセット、パラメーターパックTsからsizeof...(Ns)だけ切り出す文法
+</p>
+
+<pre><code class="cpp">Ts.&lt;Ns...&gt;
+</code></pre>
+
+<p>
+先頭からsizeof...(Ns)だけ要素を切り出したパラメーターパックになる。
+</p>
+
+<p>
+N番目の要素だけ指定して切り出す文法
+</p>
+
+<pre><code class="cpp">Ts.&lt;1, 3, 5&gt;
+</code></pre>
+
+<p>
+これは、2番目と4番目と6番目の要素のパラメーターパックになる。
+</p>
+
+<pre><code class="cpp">Ts.&lt;0, Ns..., 0&gt;
+</code></pre>
+
+<p>
+これは、前後を最初の要素に挟まれたTs.&lt;Ns...&gt;になる。
+</p>
+
+<p>
+整数シーケンスのパック展開を簡単に作れる文法 b ... &lt; eも提案されている。
+</p>
+
+<pre><code class="cpp">// {1,2,3,4,5,6,7,8,9}
+int digits = { 0 ... &lt; 10 } ;
+</code></pre>
+
+<p>
+これは、パックサブセットと組み合わせると強力になる。
+</p>
+
+<pre><code class="cpp">// 最初の要素を除いたパラメーターパック
+Ts.&lt; 1 ... &lt; sizeof...(Ts) &gt;
+// 最後の要素を除いたパラメーターパック
+Ts.&lt; 0 ... &lt; sizeof...(Ts) - 1 &gt;
+// 要素を二度繰り返したパラメーターパック
+Ts.&lt; 0 ... &lt; sizeof...(Ts), 0 ... sizeof...(Ts) &gt;
+</code></pre>
+
+<p>
+また、この文法をプリプロセッサーでサポートするためにpp-numberにも変更を加える提案をしている。
+</p>
+
+<p>
+面白い機能だ。文法にバイク小屋議論はあるだろうが、このような機能は欲しい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4236.html">N4236: A compile-time string library template with UDL operator templates</a>
+</h2>
+
+<p>
+C++の文字列リテラルは、C言語から受け継いだ。C++では、std::basic_stringによって、文字列操作を高級にした。しかし、まだC++における文字列は扱いづらい。論文では、以下のようなサンプルコードで例示している。
+</p>
+
+<pre><code class="cpp">
+// 結合
+  //
+  auto x1 = "Hello" + ", " + "World!"; // エラー!
+  auto x2 = std::string("Hello") + ", " + "World!"; // 動くけど汚い。あと実行時コストがかかる
+  auto x3 = "Hello" + std::string(", ") + "World!"; // エラー!
+  auto x4 = "Hello" ", " "World!"; // 動くけど・・けど・・・
+
+  auto conjunction = std::string(", ");
+  auto x5 = "Hello" conjuction "World!"; // けど、これはエラーだろ。
+
+  // ジェネリックプログラミング
+  //
+  template &lt;typename T&gt;
+  typename T::size_type find(T t, typename T::value_type q)
+  {
+      return t.find(q);
+  }
+
+  auto s1 = std::string("One");
+  auto s2 = "Two";
+
+  find(s1, 'n'); // これはいい
+  find(s2, 'w'); // エラー!
+  find(std::string(s2), 'w'); // うごくけど、ちょっと待てよオイ
+
+  // テンプレートメタプログラミング
+  //
+  template &lt;typename T&gt; struct metaprogram { /* ... */ };
+
+  metaprogram&lt;"Hello, World!"&gt; m1; // エラー!
+  metaprogram&lt;std::string("Hello, World!")&gt; m2; // そもそもなんじゃこりゃ
+  metaprogram&lt;decltype("Hello, World!")&gt; m3; // そういう意味じゃない
+  metaprogram&lt;decltype(std::string("Hello, World!"))&gt; m4; // これも違う
+  metaprogram&lt;boost::mpl::string&lt;'Hell','o, W','orld', '!'&gt;&gt; m5; // やったぜ！　ってなめとんのかー！
+  metaprogram&lt;_S("Hello, World!")&gt; m6; // 詳細は気にするな
+</code></pre>
+
+<p>
+この論文は、文字列リテラルを使いやすくするために、新しいテンプレートライブラリstd::basic_string_literalと、ユーザー定義リテラルを提案している。これにより、上のコードは、以下のように書ける。
+</p>
+
+<pre><code class="cpp">  // 結合
+  //
+  constexpr auto x1 = "Hello"S + ", "S + "World!"S; // 動く。実行時コストなし
+
+  constexpr auto conjunction = ", "S;
+  constexpr auto x5 = "Hello"S + conjuction + "World!"S; // 動く、実行時コストなし。
+
+  // ジェネリックプログラミング
+  //
+  template &lt;typename T&gt;
+  constexpr typename T::size_type find(T t, typename T::value_type q)
+  {
+      return t.find(q);
+  }
+
+  auto s1 = std::string("One");
+  constexpr auto s2 = "Two"S;
+
+  find(s1, 'n'); // 動く。
+  find(s2, 'w'); // 動く。実行時コストなし
+
+  // Template Metaprogramming
+  //
+  template &lt;typename T&gt; struct metaprogram { /* ... */ };
+
+  metaprogram&lt;decltype("Hello, World!"S)&gt; m1; // 動く、実行時コストなし
+</code></pre>
+
+<p>
+このライブラリ、std::basic_string_literalのコンストラクターはprivateである。std::basic_string_literalは、ユーザー定義リテラルoperator "" Sによってのみ構築することができる。実行時オブジェクトを誤って作り出してしまうことを防ぐためである。std::basic_string_literalは、std::basic_stringにインターフェースを似せて設計されており、const std::basic_string相当のことができるようになっている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4237.pdf">N4237: Language Extensions for Vector loop level parallelism</a>
+</h2>
+
+<p>
+Clik PlusやOpenMP 4.0を土台にしたベクトルループをコア言語機能として追加する提案。プリプロセッサーではなくキーワードを使う。
+</p>
+
+<pre><code class="cpp">int main()
+{
+    int a[100] = { ... };
+    int b[100] = { ... };
+    int c[100] = { ... };
+
+    for simd ( int i = 0 ; i &lt; 100 ; ++i )
+    {
+        c[i] = a[i] + b[i] ;
+    }
+
+}
+</code></pre>
+
+<p>
+ベクトルループには制約が多い。たとえば、上記のコードを説明する。
+</p>
+
+<p>
+ここで、iはInduction Variableである。繰り返し文の条件では、&lt; ,&gt;, &lt;=, &gt;=, ==, !=のどれかを使わなければならず、しかもそのオペランドの片方は、識別子でなければならない。識別子はInduction Variableをささなければならない。for文の3つめのオペランドは、インクリメントやデクリメント、あるいはそれに準ずるような式(+=とかa = b + cとか)しか書けない。ループの本体でInduction Variableを書き変える場合は、インクリメントやデクリメントの類しか使えない。
+</p>
+
+<p>
+ベクトルループには、チャンクサイズを指定できる。
+</p>
+
+<pre><code class="cpp">for simd safelen(5) ( int i = 0 ; i &lt; 10 ; ++i )
+{
+    X ;
+    Y ;
+}
+</code></pre>
+
+<p>
+ここで、式Xが式Yに先行しなければならない場合、i == 6の時の式Xの実行の前に、i == 5の時の式Yの実行は先行している保証がある。
+</p>
+
+<p>
+とにかく制約が強いし、その制約を厳格に文面化するために、文面はかなりわかりにくい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4238.pdf">N4238: An Abstract Model of Vector Parallelism</a>
+</h2>
+
+<p>
+並列実行版の&lt;algorithm&gt;で、純粋なベクトル実行ポリシーを設計するための、ベクトル実行の抽象的なモデルを提示する。この論文は提案ではない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4239.pdf">N4239: Defaulted Comparison Using Reflection</a>
+</h2>
+
+<p>
+デフォルトの比較演算子をコンパイラーが生成しようという提案があるが、そういうものは現在提案されているリフレクション機能を使ってライブラリでやればよいという提案。
+</p>
+
+<p>
+リフレクション機能が十分に柔軟であれば、比較演算子にとどまらず、+=とかhashの自動生成まで行える。また、比較方法について意見の一致が見られないので、なおさら多様な挙動を柔軟に切り替えられるライブラリでやるべきことだとの主張だ。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+今日は、社内できのこの山派とたけのこの里派による宗教戦争が勃発したが、コーラタワー崩壊により終結したようだ。残念ながら、筆者は今回もコーラタワー崩壊を目にすることはかなわなかった。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
