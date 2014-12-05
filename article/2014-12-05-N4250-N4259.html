@@ -1,0 +1,190 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/12/2014-11-post-urbana-n4250-n4259.html">2014-11-post-Urbanaのレビュー: N4250-N4259</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4250.html">N4250: WG21 2014-10-24 Telecon Minutes</a>
+</h2>
+
+<p>
+2014年10月24日に行われた電話会議の議事録。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4251.html">N4251: WG21 2014-11 Urbana Minutes</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4252.pdf">[PDF注意] N4252: PL22.16 2014-11 Urbana Minutes</a>
+</h2>
+
+<p>
+2014年11月の3-8日に行われたUrbana会議の議事録。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4253.pdf">N4253: Language Support for Runtime Contract Validation (Revision 9)</a>
+</h2>
+
+<p>
+高級なassertライブラリを追加する提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4254.html">N4254: User-Defined Literals for size_t (and ptrdiff_t)</a>
+</h2>
+
+<p>
+size_tとptrdiff_tのユーザー定義リテラルを&lt;cstddef&gt;に追加する提案。
+</p>
+
+<pre><code class="cpp">#include &lt;cstddef&gt;
+int x = 0 ; // int
+int s = 0z ; // std::size_t
+int p = 0t ; // std::ptrdiff_t
+</code></pre>
+
+<p>
+整数リテラルのデフォルトの型はintである。int型は符号付き整数型である。size_tやptrdiff_tは符号なし整数型である。size_tやptrdiff_tを扱うときに、整数リテラルをそのまま書いて演算や比較をしてしまうと、符号を混ぜて処理することになり、思わぬ誤りにつながる。そのため、型安全のためには、size_tやptrdiff_t型のリテラルがほしい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4255.pdf">N4255: Proposed resolution for US104: Allocator-aware regular expressions (rev 3)</a>
+</h2>
+
+<p>
+正規表現ライブラリをアロケーターに対応させる提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4257.html">Delimited iterators (Rev. 4)</a>
+</h2>
+
+<p>
+本当の意味でのデリミターをサポートするostream_joinerを追加する提案。
+</p>
+
+<p>
+ostream_iteratorに指定するデリミターは、実はサフィックスである。
+</p>
+
+<pre><code class="cpp">vector&lt;int&gt; v = {1, 4, 6};
+cout &lt;&lt; "(";
+copy(v.begin(), v.end(), ostream_iterator&lt;int&gt;(cout, ", "));
+cout &lt;&lt; ")"; // Oops! Prints (1, 4, 6, )
+</code></pre>
+
+<p>
+最後の要素の後にもデリミターが出力されてしまう。正しくデリミターを付加する、ostream_joinerを新たに追加する提案。
+</p>
+
+<pre><code class="cpp">vector&lt;int&gt; v = {1, 4, 6};
+cout &lt;&lt; "(";
+copy(v.begin(), v.end(), std::make_ostream_joiner(cout, ", "));
+cout &lt;&lt; ")"; // Prints (1, 4, 6) as desired
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4258.pdf">N4258: Cleaning up noexcept in the Library (Rev 3)</a>
+</h2>
+
+<p>
+ムーブコンストラクターなど、標準ライブラリでnoexceptを必須にした関数でも、例外を投げたくなる状況がある。たとえばデバッグモードなど。そのため、規格の文面を、「例外を投げないことが推奨される」という文面に変える提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4259.pdf">N4259: Wording for std::uncaught_exceptions</a>
+</h2>
+
+<p>
+現在まだキャッチされていない例外の数を返すint std::uncaught_exceptions() noexceptの文面。
+</p>
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+社内で勃発したきのこたけのこ戦争はたけのこ陣営が勝利したようだ。解せないことだ。
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
