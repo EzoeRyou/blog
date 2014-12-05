@@ -1,0 +1,192 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-11-post-Urbanaのレビュー: N4270-N4279 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/12/2014-11-post-urbana-n4270-n4279.html">2014-11-post-Urbanaのレビュー: N4270-N4279</a></h1>
+
+<p>
+やはり欠番が多い。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4270.html">N4270: Consolidated Revisions to C++ Extensions for Library Fundamentals</a>
+</h2>
+
+<p>
+標準ライブラリに対する拡張。
+</p>
+
+<ul>
+<li>
+std::functionのswapは、アロケーターは交換しないという文面の追加。
+</li>
+
+<li>
+BM法による検索アルゴリズムの追加
+</li>
+
+<li>
+optional
+</li>
+
+<li>
+any
+</li>
+</ul>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4272.pdf">[PDF注意] N4272: Working Draft, Technical Specification for C++ Extensions for Transactional Memory</a>
+</h2>
+
+<p>
+トランザクショナルメモリーのドラフト文面
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4273.htm">N4273: Uniform Container Erasure (Revision 2)</a>
+</h2>
+
+<p>
+一部のコンテナーは、効率化のため、eraseをメンバー関数として提供している。任意のコンテナーから汎用的かつ効率的に要素を削除できる、erase_if( container, pred )とerase( container, value )の提案
+</p>
+
+<pre><code class="cpp">template &lt; typename Container &gt;
+void remove_less_than_100( Container &amp; c )
+{
+    // 100以下の要素を削除する
+    std::erase( c, []( auto v ) { return v &lt; 100 } ) ;
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4274.pdf">[PDF注意] N4274: Relaxing Packaging Rules for Exceptions Thrown by Parallel Algorithms - Proposed Wording (Revision 1)</a>
+</h2>
+
+<p>
+N4157における並列アルゴリズムで例外をパッケージ化する際の制限緩和の修正案は十分ではなかったので、完全問題を修正する新しい文面案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4275.html">N4275: Parallelism PDTS Comment Responses</a>
+</h2>
+
+<p>
+並列アルゴリズムのTSに対するNBコメントへの返答。日本からは4件送っている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4276.pdf">N4276: Adding Fused Transform Algorithms to the Parallelism TS</a>
+</h2>
+
+<p>
+並列アルゴリズムとして、transform_reduce, transform_exclusive_scan, transform_inclusive_scanを追加する提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4277.html">N4277: TriviallyCopyable reference_wrapper (Revision 1)</a>
+</h2>
+
+<p>
+reference_wrapperをTrivially Copyableにする提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4279.html">N4279: Improved insertion interface for std::{unordered_,}map (revised)</a>
+</h2>
+
+<p>
+std::mapとstd::unordered_mapについて。
+</p>
+
+
+<p>
+emplaceは、要素が存在するときは何もしないが、規格準拠な実装は実引数をムーブしてもよい。ムーブをしないことが保証されたtry_emplaceを追加する。
+</p>
+
+<p>
+要素が存在しない時は挿入し、存在するときは代入する、insert_or_assignを追加する。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+今日は軽い論文と欠番がが多かったのでだいぶたまっている論文を消化できた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
