@@ -1,0 +1,188 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-11-post-Urbanaのレビュー: N4260-N4269
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/12/2014-11-post-urbana-n4260-n4269.html">2014-11-post-Urbanaのレビュー: N4260-N4269</a></h1>
+
+<p>
+どうも欠番が多い。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4261.html">N4261: Proposed resolution for Core Issue 330: Qualification conversions and pointers to arrays of pointers</a>
+</h2>
+
+<p>
+多次元ポインターでconstを付け加える型変換について規定する文面がないため、以下のコードが違法になってしまう問題を修正する提案
+</p>
+
+<pre><code class="cpp">
+  int main()
+  {
+     double *array2D[2][3];
+  
+     double       *       (*array2DPtr1)[3] = array2D;     // 合法
+     double       * const (*array2DPtr2)[3] = array2DPtr1; // 合法
+     double const * const (*array2DPtr3)[3] = array2DPtr2; // 違法
+  }
+</code></pre>
+
+<p>
+規格の文面上にこの例についてカバーする箇所がないため、このようなことになってしまっている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4262.pdf">N4262: Wording for Forwarding References</a>
+</h2>
+
+<p>
+テンプレート仮引数Tで実引数T &amp;&amp;や、auto &amp;&amp;は、どんな型でも受け取ることができる。この性質に対して、Fowarding Referenceという名前を付ける提案の文面案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4263.pdf">N4263: Toward a concept-enabled standard library</a>
+</h2>
+
+<p>
+Concept Lite TSがほぼ完成したので、さっそく標準ライブラリをConceptに対応させたい。その対応させる際の方針を示した論文。
+</p>
+
+<p>
+多少の非互換性は許容する方針らしい。たとえば、暗黙の型変換とか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4265.html">N4265: Transactional Memory Support for C++: Wording (revision 3)</a>
+</h2>
+
+<p>
+トランザクショナルメモリーの文面案
+</p>
+
+<p>
+この前のC++WG JPの会議では、現在提案中のトランザクショナルメモリーは、ハードウェアネイティブのトランザクショナルメモリーに落とし込める設計ではないので、何を考えて設計したのかよくわからない。全然実用的ではないという意見であった。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4266.html">N4266: Attributes for namespaces and enumerators</a>
+</h2>
+
+<p>
+名前空間とenumeratorにattributeを指定できる文法を追加する提案。これまでは文法が規定されていなかったので、deprecatedを指定できなかった。
+</p>
+
+<pre><code class="cpp">namespace [[deprecated("lib_v1 is deprecated. Use lib_v2 instead.")]] lib_v1 { }
+
+enum struct Option { safe, fast, super_fast, dangerously_fast [[deprecated("It has issues. Don't use it")]] } ;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4267.html">N4267: Adding u8 character literals</a>
+</h2>
+
+<p>
+charのオブジェクトひとつで表現できる文字に限ったUTF-8文字リテラルを追加する提案の文面案。
+</p>
+
+<p>
+用途としては、ASCII文字をリテラルで表現できる。
+</P>
+
+<pre><code class="cpp">
+char c = u8"c" ;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4268.html">N4268: Allow constant evaluation for all non-type template arguments</a>
+</h2>
+
+<p>
+非型テンプレート仮引数に配列からポインターへの型変換や関数からポインターへの型変換などを許容する提案の文面案
+</p>
+
+<p>
+今回は欠番が多い。N4269のタイトルは、「まともなコンパイラーはatomicを最適化しない」というもので、興味深いのだが、欠番となっている。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
