@@ -1,0 +1,332 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-11-post-Urbanaのレビュー: N4293-N4298 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/12/2014-11-post-urbana-n4293-n4298.html">2014-11-post-Urbanaのレビュー: N4293-N4298</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4293.pdf">N4293: C++ language support for contract programming</a>
+</h2>
+
+<p>
+contractを言語でサポートする提案で、Urbanaの会議で議論した方針の結果をまとめたもの。
+</p>
+
+<p>
+contractとは、処理を実行する上での前提条件(古典的にはassertマクロなどでチェックされていたもの)、処理を実行したあとの状態の保証、ある型の値は有効な状態になっていることだ。
+</p>
+
+<p>
+これらのcontractは、既存のコードでは、assertマクロや、戻り値や例外などのエラー処理で処理されたりするものもあれば、単に未定義の状態になるとして済ませているものもある。
+</p>
+
+<p>
+現在議論中のcontractは、コア言語によるサポートを必要とするものだ。ライブラリによる実装では、関数の本体の中に隠れてしまい、コンパイラーやツールからは使いにくくなってしまう。
+</p>
+
+<p>
+ビルドモード（デバッグビルドやリリースビルドなど）を規格に含めるかどいうかという議論では、この提案では含めないということになった。
+</p>
+
+<p>
+論文で提示されている文法は、提案する機能を示す目安であって、具体的な提案ではないが、例えば以下のような機能が欲しいとしている。
+</p>
+
+<pre><code class="cpp">double square_root( double x )
+expects( x &gt;= 0.0 )
+ensures( square_root &gt;= 0.0 )
+</code></pre>
+
+<p>
+この例では、square_rootという関数のdouble型の実引数xは、必ず0.0以上であることを前提条件としていて、この関数の戻り値は必ず0.0以上であることを保証している。ensuresの中で関数名を使うと、関数の戻り値の意味になる。
+</p>
+
+<p>
+これはあくまでこのような機能が欲しいという例示のための文法だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4294.pdf">N4294: Arrays of run-time bounds as data members</a>
+</h2>
+
+<p>
+実行時にサイズの決まる配列をクラスのデータメンバーとして持つことができる機能の問題点の洗い出しと解決案。
+</p>
+
+<p>
+自動ストレージ、つまりスタックから実行時に決定されるサイズのストレージを確保したいという需要はあるが、C++風に型システムの上にサポートするには色々と問題があり、C++14では頓挫した。
+</p>
+
+<p>
+既存の方法としては、alloca()とかC99のVariable Length Array、Flexible Array Memberなどがある。
+</p>
+
+<pre><code class="cpp">int good_old_C()
+{
+    // スタックから確保
+    // 低級すぎる
+    void * p = alloca(100) ;
+}
+
+// C99
+void vla( std::size_t size )
+{
+    // Variable Length Array
+    // クラスによるラップができない
+    char buf[size] ;
+}
+
+// C99
+// Flexible Array Member
+struct FAM
+{
+    std::size_t size ;
+    char buf[] ;
+} ;
+
+void fam( std::size_t size )
+{
+    FAM * ptr =(FAM *) std::malloc( size ) ;
+    ptr-&gt;size = size ;
+}
+</code></pre>
+
+<p>
+C++でも実行時サイズ配列をサポートしたいが、型システムの中でやりたい。
+</p>
+
+<p>
+前回の提案は、クラスの最後のデータメンバーが実行時サイズ配列で、クラスの最初のデータメンバーがconstな整数型でなければならず、最初のデータメンバーが実行時サイズ配列の要素数の指定に使われ、最初のデータメンバーの初期化が特別に扱われるというものだった。
+</p>
+
+<pre><code class="cpp">// 前回の提案
+struct X
+{
+    std::size_t size ;
+    char buf[] ;
+
+    X( std::size_t size ) : size(size), buf[size] { }
+} ;
+</code></pre>
+
+<p>
+sizeの初期化は、通常のメンバーの初期化とは別に扱われる。
+</p>
+
+<p>
+今回の提案では、配列コンストラクターという文法を提案している。
+</p>
+
+<pre><code class="cpp">// 実行時サイズオブジェクト
+struct X
+{
+    // 配列コンストラクター
+    X[]() : buf[10] { }
+    X[]( std::size_t size ) : buf[size] { }
+
+    char buf[] ; // 実行時サイズ配列
+} ;
+</code></pre>
+
+<p>
+配列コンストラクターはinlineでなければならない。
+</p>
+
+<p>
+配列コンストラクターから通常のコンストラクターに転送することもできる。これはC++11の機能だ。
+</p>
+
+<pre><code class="cpp">struct X
+{
+    // 配列コンストラクター
+    X[]() : buf[10], X{} { }
+    X[]( std::size_t size ) : buf[size], X{size1} { }
+
+    // 通常のコンストラクター
+    X() { }
+    X( std::size_T size) { }
+
+    char buf[] ; // 実行時サイズ配列
+} ;
+</code></pre>
+
+<p>
+転送せずに、配列コンストラクターだけですべてを済ませることもできる。ただし、配列コンストラクターはinlineでなければならない。
+</p>
+
+<p>
+今回の提案では、実行時サイズ型と実行時サイズオブジェクトに対してsizeofは一切サポートされない。
+</p>
+
+<p>
+実行時サイズ配列の提案は文法や機能の設計がめまぐるしく変わっている。これもまだ決定ではないので、まだ変わるだろう。
+</p>
+
+<p>
+sizeofがサポートされないのであれば、ある型が実行時サイズ型であるかどうかを調べるtraitsが欲しいところだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4295.html">N4295: Fold expressions</a>
+</h2>
+
+<p>
+Folding Expressionの文面案。
+</p>
+
+<p>
+Folding Expressionとは、パラメーターパックpに対して、p + ...と書くと、p1 + (p2 + (p3 + p4))のように展開してくれる式のことだ。
+</p>
+
+<p>
+例えば、実引数をすべて足し合わせる関数テンプレートsumを書きたいとする。従来ならば、以下のように書ける。
+</p>
+
+<pre><code class="cpp">// 従来のパック展開による実装
+template &lt; typename T &gt;
+auto sum( T &amp;&amp; t )
+{
+    return std::forward&lt;T&gt;(t) ;
+}
+
+template &lt; typename T, typename ... Types &gt;
+auto sum( T &amp;&amp; t, Types &amp;&amp; ... args )
+{
+    return t + sum( std::forward&lt;Types&gt;(args) ... ) ;
+}
+</code></pre>
+
+<p>
+見ての通り、極めて冗長だ。Folding Expressionを使えば、以下のように簡潔に書ける。
+</p>
+
+<pre><code class="cpp">// Folding Expression
+template &lt; typename ... Types &gt;
+auto sum( Types &amp;&amp; ... args )
+{
+    return args + ... ;
+}
+</code></pre>
+
+<p>
+なお、ClangのSVNにすでに実装されているようだ。
+</p>
+
+<p>
+<a href="http://clang.llvm.org/cxx_status.html">Clang - C++1z, C++14, C++11 and C++98 Status</a>
+</p>
+
+<p>
+これはかなり確実に入りそうだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4296.pdf">N4296: Working Draft, Standard for Programming Language C++</a>
+</h2>
+
+<p>
+現在の最新のC++標準規格のドラフト
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4297.html">N4297: Editor's Report -- Working Draft, Standard for Programming Language C++</a>
+</h2>
+
+<p>
+ドラフト編集者の編集報告書。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4298.pdf">N4298: Agenda and Meeting Notice for WG21 Ballot Resolution Telecon Meeting</a>
+</h2>
+
+<p>
+2014年12月5日に行われた電話会議の予定表。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
