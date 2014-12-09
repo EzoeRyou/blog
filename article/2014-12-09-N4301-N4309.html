@@ -1,0 +1,207 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-11-post-Urbanaのレビュー: N4301-N4309 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/12/2014-11-post-urbana-n4301-n4309.html">2014-11-post-Urbanaのレビュー: N4301-N4309</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4301.pdf">[PDF] N4301: Working Draft, Technical Specification for C++ Extensions for Transactional Memory</a>
+</h2>
+
+<p>
+トランザクショナルメモリーのTSドラフト
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4302.pdf">[PDf] N4302: Technical Specification for C++ Extensions for Technical Specification for C++ Extensions for Transactional Memory</a>
+</h2>
+
+<p>
+N4301とほぼ同一。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4303.html">N4303: Pointer safety and placement new</a>
+</h2>
+
+<p>
+以下のコードは、C++14で挙動が定義された。
+</p>
+
+<pre><code class="cpp">#include &lt;new&gt;
+#include &lt;cassert&gt;
+
+struct A { char buf[1]; };
+struct B { char buf[1]; };
+
+int main(void) {
+    A a{ { 0 } };
+    B *bp = static_cast&lt;B *&gt;(static_cast&lt;void *&gt;(&amp;a));
+    new (bp) B{ { 1 } };
+    assert(bp-&gt;buf[0] == 1);
+}
+</code></pre>
+
+<p>
+C++14では、static_castはaの先頭アドレスを指すことが明記されたので、上のコードは動作する。
+</p>
+
+<p>
+ただし、これによって、コンパイラーのポインターの値によるエイリアシングの判定に誤りが生じる。そこで、この論文では、launderという関数を追加している。この関数にポインターの値を通すことによって、コンパイラーのアドレス値の解析を阻止するのだとか。
+</p>
+
+<pre>template &lt;typename T&gt; constexpr T* launder(T* p) noexcept;
+Required behavior: An invocation of this function may be used in core constant expressions whenever the value of its argument may be used in a core constant expression.
+
+Requires: p represents the address A of a byte in memory and an object Obj whose cv-unqualified type is remove_cv_t&lt;T&gt; is located at the address A.
+
+Returns: A value of type T * which points to Obj.
+</pre>
+
+<p>
+そういう明示的なものが使われるとは思えない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4304.html">N4304: C++ Standard Core Language Active Issues</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4305.html">N4305: C++ Standard Core Language Defect Reports and Accepted Issues</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4306.html">N4306: C++ Standard Core Language Closed Issues</a>
+</h2>
+
+<p>
+コア言語で現在議論中の問題、解決済みの問題、却下された問題の一覧。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4307.pdf">[PDF] N4307: National Body Comment -- ISO/IEC PDTS 19568 -- Technical Specification: C++ Extensions for Library Fundamentals</a>
+</h2>
+
+<p>
+Library Fundamentals TSに対するNBコメント集。日本からはmake_applyの追加というコメントが出ている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4308.pdf">[PDF] N4308: National Body Comment -- ISO/IEC PDTS 19570 -- Technical Specification: C++ Extensions for Parallelism</a>
+</h2>
+
+<p>
+Parallelism TSに対するNBコメント集。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4309.html">Return type deduction for explicitly-defaulted and deleted special member functions</a>
+</h2>
+
+<p>
+特別なメンバー関数をdefault化、delete定義するときに、戻り値の型推定を許す提案。
+</p>
+
+<p>
+以下のコードが、
+</p>
+
+<pre><code class="cpp">struct X
+{
+    X &amp; operator = ( X const &amp; ) = default ;
+    X &amp; operator = ( X &amp;&amp; ) = delete ;
+}
+</code></pre>
+
+<p>
+以下のように書ける。
+</p>
+
+<pre><code class="cpp">struct X
+{
+    auto operator = ( X const &amp; ) = default ;
+    auto operator = ( X &amp;&amp; ) = delete ;
+}
+</code></pre>
+
+<p>
+うーん・・・・、なんとも言いがたい。あって邪魔にはならない機能だが。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
