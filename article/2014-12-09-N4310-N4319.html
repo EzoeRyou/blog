@@ -1,0 +1,360 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2014-11-post-Urbanaのレビュー: N4310-N4319 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/12/2014-11-post-urbana-n4310-n4319.html">2014-11-post-Urbanaのレビュー: N4310-N4319</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4310.html">N4310: Technical Specification for C++ Extensions for Parallelism, Working Draft</a>
+</h2>
+
+<p>
+Parallelism TSのドラフト
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4311.pdf">[PDf] N4311: Parallelism TS Editor's Report</a>
+</h2>
+
+<p>
+Parallelism TSの編集者の報告書
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4312.pdf">[PDF] N4312: Programming Languages -- Technical Specification for C++ Extensions for Parallelism</a>
+</h2>
+
+<p>
+N4311と内容は同じ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4313.html">N4313: Improvements to the Concurrency Technical Specification, revision 1</a>
+</h2>
+
+<p>
+&lt;future&gt;にwhen_all, when_any_result, when_any, make_ready_future, make_exceptional_futureを追加する提案。 
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4314.html">N4314: Data-Invariant Functions (revision 2)</a>
+</h2>
+
+<p>
+入力の値におって、処理時間が異なるなどの外部から計測可能な挙動の違いが存在する場合、外部からその違いを計測することによって、秘密の情報が漏れてしまうことがある。暗号処理の実装において、サイドチャネル攻撃として知られている問題だ。
+</p>
+
+<p>
+<a href="https://github.com/openssl/openssl/commit/adb46dbc6dd7347750df2468c93e8c34bcb93a4b">最近のOpenSSLのパッチ</a>は、そのような問題に対処するために入力によって処理速度が変化しないようにプラットフォーム依存の方法で対処している。
+</p>
+
+<p>
+そのような仕組みは標準に存在するべきである。この論文では、入力の値によって外部から計測可能な挙動の変化が生じないような基本的な演算を提供するライブラリ、std::constant_time::value&lt;T&gt;を提供している。
+</p>
+
+<pre><code class="cpp">// 入力の値によって処理時間やメモリアクセスパターンに差がでないことが保証されている
+auto equal( std::constant_time::value&lt;int&gt; a, std::constant_time::value&lt;int&gt; b )
+{
+    return a == b ;
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4315.html">N4315: make_array, revision 3</a>
+</h2>
+
+<p>
+std::arrayを作るstd::make_arrayの提案。
+</p>
+
+<pre><code class="cpp">// 面倒
+std::array&lt;int, 5&gt; a1 = { 1, 2, 3, 4, 5 } ;
+// 簡単
+auto a2 = std::make_array( 1, 2, 3, 4, 5 ) ;
+
+// 面倒
+atd::array&lt;char, 4&gt; a3 = { 'a', 'b', 'c', '\0' } ;
+// 簡単
+auto a4 = std::to_array("abc") ;
+
+// std::array&lt; char const *, 1 &gt;
+auto a5 = std::make_array("abc") ;
+</code></pre>
+
+<p>
+これは自分で実装してみるとVariadic Templatesの練習になって面白い。
+</p>
+
+<p>
+<a href="https://gist.github.com/lichray/6034753/337240ea9777c5118ba3430c5198c2d0d4f81a03">リファレンス実装</a>が公開されている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4316.html">N4316: std::rand replacement, revision 2</a>
+</h2>
+
+<p>
+std::randの代替品、std::randintの提案
+</p>
+
+<p>
+前回の変更点は、seed関数がseed_initからreseedに解明されたことだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4317.pdf">[PDF] N4317: New Safer Functions to Advance Iterators</a>
+</h2>
+
+<p>
+イテレーターを進めるadvanceとnextとprevに終端をチェックする安全版を追加する提案
+</p>
+
+<p>
+例えば、イテレーターを三つ進めるごとに処理をしたいとする。以下のように書くと問題がある。
+</p>
+
+<pre><code class="cpp">
+for ( auto i = begin(con), e = end(con) ; i != e ; std::advance( i, 3 ) ) 
+    process( *i ) ;
+</code></pre>
+
+<p>
+このループは、イテレーターを三回進めるごとに終端のチェックを行っている。イテレーターの指す要素の数によっては、終端を飛び越してしまう可能性がある。
+</p>
+
+<p>
+終端をチェックしつつイテレーターを進めるadvance, next, prevを追加しようという提案。この提案を使えば、以下のように書ける。
+</p>
+
+<pre><code class="cpp">
+for ( auto i = begin(con), e = end(con) ; i!= e ; std::advance( i, e, 3 ) )
+    process( *i ) ;
+</code></pre>
+
+<p>
+advance, next, prevに、終端のイテレーターを取るオーバーロードが追加される。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4318.pdf">[PDF] N4318: Proposal to add an absolute difference function to the C++ Standard Library</a>
+</h2>
+
+<p>
+絶対値の差を計算するabs_diff(a, b)の提案。
+</p>
+
+<p>
+operator &lt;とoperator -をサポートする型のオブジェクトの絶対値の差を計算してくれる。
+</p>
+
+<pre><code class="cpp">int main()
+{
+    // 2
+    std::cout &lt;&lt; abs_diff( 3, 5 ) &lt;&lt; '\n' ;
+}
+</code></pre>
+
+<p>
+従来のabsでこれをやろうとすると、abs(a - b)のようになる。しかし、もし型が符号なし整数型で、bの方が大きい場合、悲惨なことになる。
+</p>
+
+<pre><code class="class">
+int main()
+{
+    std::cout &lt;&lt; abs( 3 - 5 ) &lt;&lt; '\0' ;
+}
+</code></pre>
+
+<p>
+結果は好ましい物にならないだろう。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4319.pdf">[PDf] N4319: Contracts for C++: What are the Choices</a>
+</h2>
+
+<p>
+会議の結果、contract programming(契約プログラミング)をコア言語で直接サポートすべきという意見に固まったが、contractに対するそれぞれの意見や経験がバラバラである。Microsoftの既存の経験から、contractの土台を解説している。
+</p>
+
+<p>
+なぜcontractが必要なのか。
+</p>
+
+<ul>
+<li>実行時チェックによって予期しないプログラムの挙動を早期に発見できる</li>
+<li>テストのサポート</li>
+<li>関数とデータ構造のドキュメント</li>
+<li>静的に証明可能な契約による最適化<li>
+<li>静的解析によるコンパイル時にバグの発見</li>
+</ul>
+
+<p>
+contract systemに求めるもの
+</p>
+
+<ol>
+<li>
+あるコードに対する要求(required)と保証(ensured)を直接表現できること。たとえば、関数を呼び出す前と呼び出した後の条件や、通常時と異常時の挙動など。
+</li>
+
+<li>
+アノテーションによるオーバーヘッドを最小化する。contractは既存の機能と強調して働き、将来の発展を妨げるものであってはならない。
+</li>
+
+<li>
+静的と動的な解析ツールや、コンパイラーの最適化の役に立つ
+</li>
+
+<li>
+あまりに冗長な文法ではないこと
+</li>
+</ol>
+
+<p>
+論文著者は、contractが受け入れられるには、軽量な文法であることが必要であるとしている。
+</p>
+
+<p>
+論文は、既存のマイクロソフト製品におけるContract機能を紹介している。
+</p>
+
+<p>
+.NETのCodeContracts
+</p>
+
+<pre><code class="cpp">public void TurnReactorOn()
+{
+    Contract.Requires(this.state == State.Off);
+    Contract.Ensures(this.state == State.On);
+    ...
+}
+</code></pre>
+
+<p>
+このコードは、関数が呼び出される前はreactorが動いていないことを要求し、関数が呼び出された後はreactorが動いていることを保証するものである。これはライブラリで実装されている。実行時のチェックと、静的解析ツールによるチェックが行われる。
+</p>
+
+<p>
+SAL
+</p>
+
+<p>
+SALはプリプロセッサーマクロを多用した契約の記述だ。
+</p>
+
+<pre><code class="cpp">void * memcpy(
+_Out_writes_bytes_all_(count) void *dest,
+_In_reads_bytes_(count) const void *src,
+size_t count
+);
+</code></pre>
+
+<p>
+この宣言は、destに書き込まれるバイト数とsrcから読み込まれるバイト数のアノテーションだ。MSはSALにより数多くのバグを発見して修正できているとしている。
+</p>
+
+<p>
+System C#
+</p>
+
+<p>
+System C#はC#の拡張で、言語機能としてcontractをサポートしている。
+</p>
+
+<pre><code class="cpp">public string Format(int x)
+requires x &gt;= 0
+ensures return != null
+{
+...
+}
+</code></pre>
+
+
+<p>
+このコードは、関数が呼び出される前に、xが0ではないことを要求し、関数の戻り値がnullではないことを保証している。
+</p>
+
+<div class="dwango-ad">
+
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
