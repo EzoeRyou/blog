@@ -1,0 +1,700 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: SD-6: 機能テスト
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2014/12/c14.html">C++14に入る機能テストマクロの一覧</a></h1>
+
+<p>
+現実のコンパイラーにおいて、C++11やC++14、そして今制定されようとしている各種TSやC++1zなどの機能は、個々に実装される。その場合、あるコンパイラーのあるバージョンは、rvalueリファレンスを実装している、その次のバージョンはconstexprを実装したという、中途半端に機能を実装した状態になる。
+</p>
+
+<p>
+その結果、現実には、往々にして以下のようなコードが書かれることになる。
+</p>
+
+<pre><code class="cpp">#ifndef __USE_RVALUE_REFERENCES
+  #if (__GNUC__ &gt; 4 || __GNUC__ == 4 &amp;&amp; __GNUC_MINOR__ &gt;= 3) || \
+      _MSC_VER &gt;= 1600
+    #if __EDG_VERSION__ &gt; 0
+      #define __USE_RVALUE_REFERENCES (__EDG_VERSION__ &gt;= 410)
+    #else
+      #define __USE_RVALUE_REFERENCES 1
+    #endif
+  #elif __clang__
+    #define __USE_RVALUE_REFERENCES __has_feature(cxx_rvalue_references)
+  #else
+    #define __USE_RVALUE_REFERENCES 0
+  #endif
+#endif
+</code></pre>
+
+<p>
+標準規格としては、一部機能だけ実装することを推奨するのではないが、現実がこうである以上、ある機能が実装されているかどうかを調べる標準のプリプロセッサーマクロが存在するべきである。
+</p>
+
+<p>
+そこで提案されているのが、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4200.htm">Feature-testing recommendations for C++</a>だ。
+</p>
+
+<p>
+この提案では、C++の主要機能が実装されている場合、特定の名前のプリプロセッサーマクロが事前に定義されることとなる。例えば、rvalueリファレンスの場合、__cpp_rvalue_referencesという名前のプリプロセッサーマクロが定義される。
+</p>
+
+<p>
+マクロの名前は、名前の衝突を避けるため、プレフィクスが付けられる。コア言語機能ならば__cpp_、ライブラリー機能ならば__cpp_lib_である。機能名は、その機能の論文のタイトルから採用される。
+</p>
+
+<p>
+マクロの値は、その機能がドラフトに採用された年と月を表現している。これにより、標準規格策定中にドラフトが更新された場合、値も更新される。たとえば、C++11の機能である__cpp_rvalue_referencesの場合、2006年の10月にドラフト入りしたので、その値は200610となる。
+</p>
+
+<p>
+特定のヘッダーファイルがあるかどうかを調べるプリプロセッサーの機能、__has_includeが追加される。これは、#ifや#elifの中で使うことができる。
+</p>
+
+<pre><code class="cpp">#ifdef __has_include
+#  if __has_include(&lt;optional&gt;)
+#    include &lt;optional&gt;
+#    define have_optional 1
+#  elif __has_include(&lt;experimental/optional&gt;)
+#    include &lt;experimental/optional&gt;
+#    define have_optional 1
+#    define experimental_optional
+#  else
+#    define have_optional 0
+#  endif
+#endif
+</code></pre>
+
+<p>
+機能テスト推奨に対応している実装で、#ifdefで__has_includeを記述すると、定義済みだと評価される。#ifや#elifで__has_include(ヘッダー)と記述すると、そのヘッダーが存在する場合はtrueとなる。
+</p>
+
+<p>
+同様に、特定のattributeがあるかどうかを調べるプリプロセッサーの機能、__has_cpp_attributeが追加される。
+</p>
+
+<pre><code class="cpp">#ifdef __has_cpp_attribute
+#  if __has_cpp_attribute(deprecated)
+#    define ATTR_DEPRECATED(msg) [[deprecated(msg)]]
+#  else
+#    define ATTR_DEPRECATED(msg)
+#  endif
+#endif
+</code></pre>
+
+<p>
+具体的なマクロ名
+</p>
+
+<p>
+実際に論文を読めばいいと思うのだが、とりあえずここにも書いておく。ほとんどの機能は、このブログや<a href="http://ezoeryou.github.io/cpp-book/C++11-Syntax-and-Feature.xhtml">C++11の参考書</a>で解説したはずだが、まだ知らない読者はいるのだろうか。なにか新たに解説して欲しい機能があればコメントで言えば解説するつもりだ。
+</p>
+
+<h2>
+C++98機能
+</h2>
+
+    <table border="1" class="ins">
+	<thead>
+	    <tr>
+		<th>機能</th>
+		<th>セクション番号</th>
+		<th>マクロ名</th>
+		<th>値</th>
+		<th>ヘッダー</th>
+	    </tr>
+	</thead>
+	<tbody>
+	    <tr>
+		<td>実行時型情報</td>
+		<td>5.2</td>
+		<td><code>__cpp_rtti</code></td>
+		<td>199711</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr>
+		<td>例外</td>
+		<td>15</td>
+		<td><code>__cpp_exceptions</code></td>
+		<td>199711</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	</tbody>
+    </table>
+
+<h2>
+C++11機能
+</h2>
+
+
+    <table border="1">
+	<thead>
+	    <tr>
+		<th>文書番号</th>
+		<th>文書名</th>
+		<th>セクション番号</th>
+		<th>マクロ名</th>
+		<th>値</th>
+		<th>ヘッダー</th>
+	    </tr>
+	</thead>
+	<tbody>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2249.html">N2249</a></td>
+		<td>ユニコード文字型</td>
+		<td>2.13</td>
+		<td><a><code>__cpp_unicode_characters</code></a></td>
+		<td>200704</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr>
+		<td rowspan="2"><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2442.htm">N2442</a></td>
+		<td rowspan="2">生文字列リテラルとUnicode文字列リテラル</td>
+		<td rowspan="2">2.13</td>
+		<td><a><code>__cpp_raw_strings</code></a></td>
+		<td>200710</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr>
+		<td><a><code>__cpp_unicode_literals</code></a></td>
+		<td>200710</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2765.pdf">N2765</a></td>
+		<td>User-defined Literals</td>
+		<td>2.13, 13.5</td>
+		<td><a><code>__cpp_user_defined_literals</code></a></td>
+		<td>200809</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2009/n2927.pdf">N2927</a></td>
+		<td>lambda式</td>
+		<td>5.1</td>
+		<td><a><code>__cpp_lambdas</code></a></td>
+		<td>200907</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2235.pdf">N2235</a></td>
+		<td>constexpr</td>
+		<td>5.19, 7.1</td>
+		<td><a><code>__cpp_constexpr</code></a></td>
+		<td>200704</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr class="ins">
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2009/n2930.html">N2930</a></td>
+		<td>Range-Based for</td>
+		<td>6.5</td>
+		<td><a><code>__cpp_range_based_for</code></a></td>
+		<td>200907</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2004/n1720.html">N1720</a></td>
+		<td>static_assert</td>
+		<td>7</td>
+		<td><a><code>__cpp_static_assert</code></a></td>
+		<td>200410</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2343.pdf">N2343</a></td>
+		<td>Decltype</td>
+		<td>7.1</td>
+		<td><a><code>__cpp_decltype</code></a></td>
+		<td>200707</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr>
+		<td rowspan="3"><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2761.pdf">N2761</a></td>
+		<td rowspan="3">属性(attribute)</td>
+		<td rowspan="3">7.6</td>
+		<td><a><code>__cpp_attributes</code></a></td>
+		<td>200809</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr class="ins">
+		<td><a><code>__has_cpp_attribute(noreturn)</code></a></td>
+		<td>200809</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr class="ins">
+		<td><a><code>__has_cpp_attribute(carries_dependency)</code></a></td>
+		<td>200809</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2006/n2118.html">N2118</a></td>
+		<td>rvalueリファレンス</td>
+		<td>8.3</td>
+		<td><a><code>__cpp_rvalue_references</code></a></td>
+		<td>200610</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2242.pdf">N2242</a></td>
+		<td>可変長テンプレート(Variadic Templates)</td>
+		<td>8.3, 14</td>
+		<td><a><code>__cpp_variadic_templates</code></a></td>
+		<td>200704</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr class="ins">
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2672.pdf">N2672</a></td>
+		<td>初期化リスト(Initializer List)</td>
+		<td>8.5</td>
+		<td><a><code>__cpp_initializer_lists</code></a></td>
+		<td>200806</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr class="ins">
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2006/n1986.pdf">N1986</a></td>
+		<td>コンストラクターのデリゲート</td>
+		<td>12.6</td>
+		<td><a><code>__cpp_delegating_constructors</code></a></td>
+		<td>200604</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr class="ins">
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2756.htm">N2756</a></td>
+		<td>非staticデータメンバーの初期化子</td>
+		<td>12.6</td>
+		<td><a><code>__cpp_nsdmi</code></a></td>
+		<td>200809</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr class="ins">
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2540.htm">N2540</a></td>
+		<td>継承コンストラクター</td>
+		<td>12.9</td>
+		<td><a><code>__cpp_inheriting_constructors</code></a></td>
+		<td>200802</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr class="ins">
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2439.htm">N2439</a></td>
+		<td>リファレンス修飾子(*thisへのムーブセマンティクス)</td>
+		<td>13.3</td>
+		<td><a><code>__cpp_ref_qualifiers</code></a></td>
+		<td>200710</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr class="ins">
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2258.pdf">N2258</a></td>
+		<td>テンプレートエイリアス</td>
+		<td>14.5</td>
+		<td><a><code>__cpp_alias_templates</code></a></td>
+		<td>200704</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	</tbody>
+    </table>
+
+<h2>
+C++14機能
+</h2>
+
+<p>
+まだこのブログで詳細に解説していない機能もあるはずだ。
+</p>
+
+
+    <table border="1">
+	<thead>
+	    <tr>
+		<th>文書番号</th>
+		<th>文書名</th>
+		<th>セクション番号</th>
+		<th>マクロ名</th>
+		<th>値</th>
+		<th>ヘッダー</th>
+	    </tr>
+	</thead>
+	<tbody>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3472.pdf">N3472</a>
+		</td>
+		<td>2進数リテラル</td>
+		<td>2.14</td>
+		<td><code><a href="#detail.cpp14.n3472">__cpp_binary_literals</a></code></td>
+		<td>201304</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr class="ins">
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3781.pdf">N3781</a>
+		</td>
+		<td>シングルクオートによる数値区切り</td>
+		<td>2.14</td>
+		<td><code><a href="#detail.cpp14.n3781">__cpp_digit_separators</a></code></td>
+		<td>201309</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3648.html">N3648</a>
+		</td>
+		<!--feedback-->
+		<td>汎用lambdaキャプチャー</td>
+		<td>5.1</td>
+		<td><code><a href="#detail.cpp14.n3648">__cpp_init_captures</a></code></td>
+		<td>201304</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3649.html">N3649</a>
+		</td>
+		<!--feedback-->
+		<td>ジェネリックlambda式</td>
+		<td>5.1</td>
+		<td><code><a href="#detail.cpp14.n3649">__cpp_generic_lambdas</a></code></td>
+		<td>201304</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr class="ins">
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3778.html">N3778</a>
+		</td>
+		<td>サイズ付き解放関数</td>
+		<td>5.3, 18.6</td>
+		<td><code><a href="#detail.cpp14.n3778">__cpp_sized_deallocation</a></code></td>
+		<td>201309</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3652.html">N3652</a>
+		</td>
+		<td>constexpr関数の制限緩和</td>
+		<td>5.19, 7.1</td>
+		<td><code><a href="#detail.cpp14.n3652">__cpp_constexpr</a></code></td>
+		<td>201304</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr>
+		<td rowspan="2"><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3638.html">N3638</a></td>
+		<!--feedback-->
+		<td rowspan="2">関数の戻り値の型推定</td>
+		<td rowspan="2">7.1</td>
+		<td><code><a href="#detail.cpp14.n3638">__cpp_decltype_auto</a></code></td>
+		<td>201304</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr>
+		<td><code><a href="#detail.cpp14.n3638">__cpp_return_type_deduction</a></code></td>
+		<td>201304</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr class="ins">
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3760.html">N3760</a>
+		</td>
+		<td>[[deprecated]]属性</td>
+		<td>7.6</td>
+		<td><code>__has_cpp_attribute(deprecated)</code></td>
+		<td>201309</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3653.html">N3653</a>
+		</td>
+		<td>アグリゲート初期化とメンバー初期化子の同時利用</td>
+		<td>8.5</td>
+		<td><code><a href="#detail.cpp14.n3653">__cpp_aggregate_nsdmi</a></code></td>
+		<td>201304</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3651.pdf">N3651</a>
+		</td>
+		<td>変数テンプレート</td>
+		<td>14, 14.7</td>
+		<td><code><a href="#detail.cpp14.n3651">__cpp_variable_templates</a></code></td>
+		<td>201304</td>
+		<td><em>predefined</em></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3658.html">N3658</a>
+		</td>
+		<!--feedback-->
+		<td>コンパイル時整数シークエンス(index_sequence)</td>
+		<td>20</td>
+		<td><code><a href="#detail.cpp14.n3658">__cpp_lib_integer_sequence</a></code></td>
+		<td>201304</td>
+		<td><code>&lt;utility&gt;</code></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3668.html">N3668</a>
+		</td>
+		<!--feedback-->
+		<td>exchange()関数</td>
+		<td>20</td>
+		<td><code><a href="#detail.cpp14.n3668">__cpp_lib_exchange_function</a></code></td>
+		<td>201304</td>
+		<td><code>&lt;utility&gt;</code></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3670.html">N3670</a>
+		</td>
+		<td>tupleで型を指定できるget</td>
+		<td>20.2-20.4</td>
+		<td><code><a href="#detail.cpp14.n3670">__cpp_lib_tuples_by_type</a></code></td>
+		<td>201304</td>
+		<td><code>&lt;utility&gt;</code></td>
+	    </tr>
+	    <tr class="ins">
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3887.pdf">N3887</a>
+		</td>
+		<td>テンプレートエイリアスを使ったtuple_element_t</td>
+		<td>20.3-20.4</td>
+		<td><code><a href="#detail.cpp14.n3887">__cpp_lib_tuple_element_t</a></code></td>
+		<td>201402</td>
+		<td><code>&lt;utility&gt;</code></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3656.htm">N3656</a>
+		</td>
+		<!--feedback-->
+		<td>make_unique</td>
+		<td>20.7</td>
+		<td><code><a href="#detail.cpp14.n3656">__cpp_lib_make_unique</a></code></td>
+		<td>201304</td>
+		<td><code>&lt;memory&gt;</code></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3421.htm">N3421</a>
+		</td>
+		<!--feedback-->
+		<td>greater&lt;&gt;のテンプレート実引数の省略</td>
+		<td>20.8</td>
+		<td><code><a href="#detail.cpp14.n3421">__cpp_lib_transparent_operators</a></code>
+		</td>
+		<td>201210</td>
+		<td><code>&lt;functional&gt;</code></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3462.html">N3462</a>
+		</td>
+		<!--feedback-->
+		<td>std::result_ofをSFINAEフレンドリーにする変更</td>
+		<td>20.9</td>
+		<td><code><a href="#detail.cpp14.n3462">__cpp_lib_result_of_sfinae</a></code></td>
+		<td>201210</td>
+		<td><code>&lt;functional&gt;</code></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3545.pdf">N3545</a>
+		</td>
+		<td>integral_constantにconstexprなoperator ()を追加する変更</td>
+		<td>20.9</td>
+		<td><code><a href="#detail.cpp14.n3545">__cpp_lib_integral_constant_callable</a></code>
+		</td>
+		<td>201304</td>
+		<td><code>&lt;type_traits&gt;</code></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3655.pdf">N3655</a>
+		</td>
+		<td>エイリアステンプレートでメタ関数をラップして::typeを_tにする変更</td>
+		<td>20.9</td>
+		<td><code><a href="#detail.cpp14.n3655">__cpp_lib_transformation_trait_aliases</a></code>
+		</td>
+		<td>201304</td>
+		<td><code>&lt;type_traits&gt;</code></td>
+	    </tr>
+	    <tr class="ins">
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3945.html#2112">LWG 2112</a></td>
+		<td>is_finalの追加</td>
+		<td>20.10</td>
+		<td><code><a href="#detail.cpp14.lwg2112">__cpp_lib_is_final</a></code></td>
+		<td>201402</td>
+		<td><code>&lt;type_traits&gt;</code></td>
+	    </tr>
+	    <tr class="ins">
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3822.html#2247">LWG 2247</a></td>
+		<td>std::nullptr_t可動化を調べるis_null_pointer</td>
+		<td>20.10</td>
+		<td><code><a href="#detail.cpp14.lwg2247">__cpp_lib_is_null_pointer</a></code></td>
+		<td>201309</td>
+		<td><code>&lt;type_traits&gt;</code></td>
+	    </tr>
+	    <tr>
+		<td rowspan="2"><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3642.pdf">N3642</a></td>
+		<td rowspan="2">chronoとstringに対するユーザー定義リテラルの追加</td>
+		<td>20.11</td>
+		<td><code><a href="#detail.cpp14.n3642">__cpp_lib_chrono_udls</a></code></td>
+		<td>201304</td>
+		<td><code>&lt;chrono&gt;</code></td>
+	    </tr>
+	    <tr>
+		<td>21.7</td>
+		<td><code><a href="#detail.cpp14.n3642">__cpp_lib_string_udls</a></code></td>
+		<td>201304</td>
+		<td><code>&lt;string&gt;</code></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3657.htm">N3657</a>
+		</td>
+		<!--feedback-->
+		<td>連想コンテナでkey_typeに変換可能な型から検索する機能</td>
+		<td>23.4</td>
+		<td><code><a href="#detail.cpp14.n3657">__cpp_lib_generic_associative_lookup</a></code>
+		</td>
+		<td>201304</td>
+		<td><code>&lt;map&gt;</code><br />
+		    <code>&lt;set&gt;</code></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3644.pdf">N3644</a>
+		</td>
+		<!--feedback-->
+		<td>Null Forward Iterators</td>
+		<td>24.2</td>
+		<td><code><a href="#detail.cpp14.n3644">__cpp_lib_null_iterators</a></code></td>
+		<td>201304</td>
+		<td><code>&lt;iterator&gt;</code></td>
+	    </tr>
+	    <tr class="ins">
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3945.html#2285">LWG 2285</a></td>
+		<td>make_reverse_iterator</td>
+		<td>24.5</td>
+		<td><code><a href="#detail.cpp14.lwg2285">__cpp_lib_make_reverse_iterator</a></code>
+		</td>
+		<td>201402</td>
+		<td><code>&lt;iterator&gt;</code></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3671.html">N3671</a>
+		</td>
+		<td>equal, mismatch, is_permutationで二つのrangeをとるオーバーロード</td>
+		<td>25.2</td>
+		<td><code><a href="#detail.cpp14.n3671">__cpp_lib_robust_nonmodifying_seq_ops</a></code>
+		</td>
+		<td>201304</td>
+		<td><code>&lt;algorithm&gt;</code></td>
+	    </tr>
+	    <tr class="ins">
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3779.pdf">N3779</a>
+		</td>
+		<td>std::complexのユーザー定義リテラル</td>
+		<td>26.4</td>
+		<td><code><a href="#detail.cpp14.n3779">__cpp_lib_complex_udls</a></code></td>
+		<td>201309</td>
+		<td><code>&lt;complex&gt;</code></td>
+	    </tr>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3654.html">N3654</a>
+		</td>
+		<td>quotedライブラリ</td>
+		<td>27.7</td>
+		<td><code><a href="#detail.cpp14.n3654">__cpp_lib_quoted_string_io</a></code></td>
+		<td>201304</td>
+		<td><code>&lt;iomanip&gt;</code></td>
+	    <tr>
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3659.html">N3659</a>
+		</td>
+		<td>shared_mutex</td>
+		<td>30.4</td>
+		<td><del><a href="#detail.cpp14.n3659"><code>__cpp_lib_shared_mutex</code></a></del><br />
+		    <ins><a href="#detail.cpp14.n3659"><code>__has_include(&lt;shared_mutex&gt;)</code></a></ins>
+		</td>
+		<td>		    <ins>1</ins></td>
+		<td>		    <ins><em>predefined</em></ins></td>
+	    </tr>
+	    <tr class="ins">
+		<td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3891.htm">N3891</a>
+		</td>
+		<td>shared_mutexをshared_timed_mutexに改名</td>
+		<td>30.4</td>
+		<td><code><a href="#detail.cpp14.n3891">__cpp_lib_shared_timed_mutex</a></code></td>
+		<td>201402</td>
+		<td><code>&lt;shared_mutex&gt;</code></td>
+	    </tr>
+	</tbody>
+    </table>
+
+<p>
+疲れた。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
