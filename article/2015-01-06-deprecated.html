@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: [[deprecated]]の文面の疑問点
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/01/deprecated.html">[[deprecated]]の文面の疑問点</a></h1>
+
+<p>
+[[deprecated]]の解説を書くためにCC++14の文面を解釈していて、以下のような疑問を持った。
+</p>
+
+<blockquote>
+<p>
+§ 7.6.5 paragraph 2
+</p>
+
+<p>
+The attribute may be applied to the declaration of a class, a typedef-name, a variable, a non-static data
+member, a function, a namespace, an enumeration, an enumerator, or a template specialization.
+</p>
+</blockquote>
+
+<p>
+テンプレートの特殊化(template specialization)という用語の使用がとても気になる。
+</p>
+
+<p>
+何故ならば、テンプレートの特殊化の宣言というものは、明示的なテンプレートの特殊化ぐらいしか思いつかないからだ。通常のテンプレートの特殊化は、暗黙のテンプレートの実体化された結果であり、宣言は存在しない。プライマリーテンプレートの宣言はテンプレートの宣言であり、テンプレートの特殊化の宣言ではない。
+</p>
+
+<p>
+すると、テンプレート宣言にはdeprecated属性が使えないのだろうか。
+</p>
+
+<p>
+「テンプレートの特殊化」という用語を使用することのもうひとつの問題は、template-idに限定してしまうということだ。template-nameはテンプレートの特殊化ではない。
+</p>
+
+<pre><code class="cpp">// テンプレートの特殊化の宣言ではないが
+template &lt; typename T &gt;
+class [[deprecated]] A { } ;
+
+template &lt; template &lt; typename &gt; typename T &gt;
+class B { } ;
+
+// 警告
+// template-idはテンプレートの特殊化
+A&lt;int&gt; ;
+
+// 警告なし
+// template-nameはテンプレートの特殊化ではない
+B&lt;A&gt; b ;
+</code></pre>
+
+<p>
+現在のClangの実装は、正しく（？）A&lt;int&gt;とB&lt;A&gt;のどちらとも警告を出さない。GCCはどちらとも警告を出す。
+</p>
+
+<p>
+こういう細かい文面解釈の問題が気になってしまってなかなかC++14解説の執筆が進まない。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書いた。
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
