@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: Linus Torvalds、HFS+に激怒 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/01/blog-post_14.html">Linus Torvalds、HFS+に激怒</a></h1>
+
+<p>
+<a href="https://plus.google.com/+JunioCHamano/posts/1Bpaj3e3Rru">CVE-2014-9390 aka "Git on case-insensitive filesystems" I did not give the…</a>
+</p>
+
+<p>
+gitが影響を受けた、HFS+で、一部の文字を区別しなかったり無視したりする問題に対して、Linusが吠えている。
+</p>
+
+<blockquote>
+<p>
+マジで、HFS+はたぶん最悪のファイルシステムだな。クソすぎるぜ。NTFSもutf8の正規化で似たような問題（/の非正規化された表現を使用）があったが、まあ、今は修正されたんだろうよ。OS Xの問題は根本的すぎる。
+</p>
+
+<p>
+そりゃ、古いさ。そりゃ、データ保護がクソすぎるってのはあるさ。だが、そういうのは、単に「すげーファイルシステムじゃない」って問題だ。「自分のケツすら拭けないマヌケによって設計された信じがたいクソ」ってわけじゃない。
+</p>
+
+<p>
+HFS+の恐ろしさは、すげーファイルシステムではない、ということではない。いいアイディアがあると信じている人間によって、今もなおクソなファイルシステムとして設計され続けているということだ。
+</p>
+
+<p>
+大文字小文字の同一視は信じられないくらいクソなアイディアだ。Appleの連中は修正するべきだがそれをしない。逆に、クソなアイディアを更にくそったれにしてUnicodeに拡張していやがる。UTF-8ですらなく、たぶんUCS2だ。
+</p>
+
+<p>
+NTFSも似たようなことをやらかしたが、AppleはHFS+でその上をいくクソをやらかしている。
+</p>
+
+<p>
+レガシーモデル（「もっとまともな方法を知らなかった」）における大文字小文字の同一視は、まだいい訳もたつ。だがな、Unicodeの同一性比較がファイルシステムにおいてもいいアイディアだと考えた奴はこの業界から干されるべきだろ。離乳食でもやって部屋の隅っこで邪魔にならないように食わしとけ。そうすりゃ奴らは幸せだろうし、俺らのシステムをクソみたいにしないだろうよ。
+</p>
+
+<p>
+そして、NFD正規化を持ちだして、正しいunicodeをクソみたいなフォーマットに変換しやがるとは、言い訳も何もあったもんじゃねえよ。正規化はいいことだと考える奴らすらNFDはクソフォーマットだと認めてるし、データ交換のためにいいフォーマットじゃねーよ。離乳食レベルですらねぇ。設計上、ユーザーのデータをぶっ壊し続けてやがる。クソか。
+</p>
+
+<p>
+で、Appleのこういうサルどもにファイルシステムのしごとを任せてるわけか？　マジで？
+</p>
+
+<p>
+ZFSに移行しなかった妥当な理由は色々ある（オホン、オラクル、ゴホン）にしてもだ、大文字小文字を区別するHFS+に移行させてから、それで将来的にはもっとマシなファイルシステムに移行させることもできただろうが、そいつはしなかったんだよな。大文字小文字を区別する方法があるが、Appleは隠して使わせないようにしている。
+</p>
+
+<p>
+アホすぎてやってられねーぜ。
+</p>
+
+<p>
+で、クソみたいな方針決定をする奴らと、そのクソを実装する奴らがいる。Johnが文句を言っている「よっしゃ、俺らはまともな機能を実装しないぜ」ってのより、「俺らはクソを実装するぜ」ってほうがはるかにひどい。
+</p>
+
+
+<p>
+文句終わり
+</p>
+</blockquote>
+
+<p>
+まあ、実際HFS+のUnicode正規化はクソだ
+</p>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
