@@ -1,0 +1,450 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++の正規表現ライブラリ: std::regex
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/01/c-stdregex.html">C++の正規表現ライブラリ: std::regex</a></h1>
+
+<p>
+いまさらながら、C++の正規表現ライブラリを調べている。
+</p>
+
+<p>
+C++の正規表現ライブラリ、std::regexは、boost::regexを土台に設計されている。boost::regexの正規表現の文法は、perlなのに対し、std::regexは、ECMAScriptである。この理由は、しっかりと正規表現の文法が定義されていて、外部規格として参照できる品質のものが、perlには存在しないためだ。std::regexはposixと拡張posixとawkとgrepとegrepの正規表現にも対応している。
+</p>
+
+<p>
+本記事では、ECMAScriptの正規表現を使う。また、参考のためのECMAScriptのコードも使う。
+</p>
+
+<p>
+全体一致
+</p>
+
+<p>
+文字列全体が正規表現に一致するかどうかを調べたいとする
+</p>
+
+<pre><code>var re = /1234/ ;
+var text = "1234" ;
+
+var result = re.test( text ) ;
+</code></pre>
+
+<p>
+これを、std::regexを使って書くと以下のようになる。
+</p>
+
+<pre><code>#include &lt;regex&gt;
+
+int main()
+{
+    std::regex re("1234") ;
+    std::string text("1234") ;
+
+    bool result = std::regex_match( text, re ) ;
+}
+</code></pre>
+
+<p>
+C++には、正規表現リテラルはないので、文字列リテラルで正規表現を記述する。
+</p>
+
+<p>
+もうすこし正規表現らしいことをしてみよう。連続した数字に一致する正規表現を使ってみる。
+</p>
+
+<pre><code>var re = /\d+/ ;
+var text = "1234" ;
+
+var result = re.test( text ) ;
+</code></pre>
+
+<p>
+残念ながら、C++の文字列リテラルで/\d+/を書こうとすると、エスケープシーケンスのためにエラーになる。
+</p>
+
+<pre><code>std::regex r1 = "\d+" ; // エラー
+std::regex r2 = "\\d+" ; // OK
+</code></pre>
+
+<p>
+"\\d+"と書けば動くのだが、これはとても書きづらい。C++11で追加された生文字列リテラルを使えば、自然に書けるようになる。
+</p>
+
+<pre><code>std::regex re = R"(\d+)" ;
+</code></pre>
+
+<p>
+外側の括弧は生文字列リテラルの文法なので紛らわしいが、バックスラッシュを二重に書くよりはマシだろう。
+</p>
+
+<p>
+部分一致の検索
+</p>
+
+<p>
+以下のようなECMAScriptのコードをC++で書きたいとする
+</p>
+
+<pre><code>var re = /\d+/ ;
+var text = "There are 99 bottles." ;
+
+var a = re.exec( text ) ;
+var result = a[0] ; // "99"
+</code></pre>
+
+<p>
+C++では、以下のように書ける。
+</p>
+
+<pre><code>int main()
+{
+    std::regex re( R"(\d+)" ) ;
+    std::string text="There are 99 bottles." ;
+
+    std::smatch m ; // std::match_results&lt;string::const_iterator&gt;
+    std::regex_search( text, m, re ) ;
+
+    std::cout &lt;&lt; m.str() &lt;&lt; std::endl ;
+}
+</code></pre>
+
+<p>
+部分一致を検索するには、regex_searchを使う。結果は、match_resultsで受け取ることができる。
+</p>
+
+<p>
+部分一致をすべて検索。
+</p>
+
+<p>
+以下は、部分一致をすべて検索するECMAScriptのコードである。
+</p>
+
+<pre><code>var re = /\d+/g ;
+var text = "123 456 789" ;
+
+// ["123", "456", "789"]
+var result = text.match( re ) ;
+</code></pre>
+
+<p>
+C++では、イテレーターを使ってregex_searchを繰り返し呼び出すことで書くことができる。
+</p>
+
+<pre><code>std::vector&lt; std::string &gt;
+search( std::string const &amp; text, std::regex const &amp; re )
+{
+    std::vector&lt; std::string &gt; result ;
+
+    auto iter = text.cbegin() ;
+    auto end = text.cend() ;
+
+    std::smatch m ;
+
+    while ( std::regex_search( iter, end, m, re ) )
+    {
+        result.push_back( m.str() ) ;
+        iter = m[0].second ;
+    }
+
+    return result ;
+}
+
+int main()
+{
+    std::regex re( R"(\d+)" ) ;
+    std::string text="123 456 789" ;
+
+    auto result = search( text, re ) ;
+
+    for ( auto &amp; elem : result )
+    {
+        std::cout &lt;&lt; elem &lt;&lt; std::endl ;
+    }
+}
+</code></pre>
+
+<p>
+とはいえ、これは面倒だ。
+</p>
+
+<p>
+C++には、このように部分一致を複数見つける用途に、regex_iteratorを用意している。これを使えば、以下のように書くことができる。
+</p>
+
+<pre><code>std::vector&lt; std::string &gt;
+search( std::string const &amp; text, std::regex const &amp; re )
+{
+    std::vector&lt; std::string &gt; result ;
+
+    std::sregex_iterator iter( text.cbegin(), text.cend(), re ) ;
+    std::sregex_iterator end ;
+
+    for ( ; iter != end ; ++iter )
+    {
+        result.push_back( iter-&gt;str() ) ;
+    }
+
+    return result ;
+}
+</code></pre>
+
+<p>
+置換
+</p>
+
+<p>
+以下のように、DogをCatに置き換えたいとする。
+</p>
+
+<pre><code>var re = /Dog/g ;
+var text = "Dog is nice. Dog is cute. Dog is awesome." ; 
+
+// "Cat is nice. Cat is cute. Cat is awesome."
+var result = text.replace( re, "Cat" ) ;
+</code></pre>
+
+<p>
+C++では、regex_replaceを使って書くことができる。
+</p>
+
+<pre><code>
+int main()
+{
+    std::regex re( R"(Dog)" ) ;
+    std::string text("Dog is nice. Dog is cute. Dog is awesome.") ;
+
+    // "Cat is nice. Cat is cute. Cat is awesome."
+    auto result = std::regex_replace( text, re, "Cat" ) ;
+}
+</code></pre>
+
+<p>
+以下のように最初の一致だけを書き換えたい場合、
+</p>
+
+<pre><code>var re = /Dog/ ;
+var text = "Dog is better than dog." ; 
+
+// "Cat is better than dog."
+var result = text.replace( re, "Cat" ) ;
+</code></pre>
+
+<p>
+以下のように書くことができる。
+</p>
+
+<pre><code>int main()
+{
+    std::regex re( R"(Dog)" ) ;
+    std::string text="Dog is better than dog." ;
+
+    // "Cat is better than dog."
+    auto result = std::regex_replace( text, re, "Cat",
+        std::regex_constants::format_first_only ) ;
+}
+</code></pre>
+
+<p>
+置換はECMAScriptの文法と同じだ。
+</p>
+
+<pre><code>// ECMAScript
+var text = "123 456"
+var re = /(\d+) (\d+)/ ;
+
+// "456 123"
+var result = text.replace( re, "$2 $1" ) ;
+</code></pre>
+
+<pre><code>// C++
+std::string text("123 456") ;
+std::regex re(R"((\d+) (\d+))") ;
+
+// "456 123"
+auto result = std::regex_replace( text, re, "$2 $1" ) ;
+</code></pre>
+
+<p>
+サブマッチ
+</p>
+
+<p>
+正規表現は括弧でキャプチャをすることができる。
+</p>
+
+<pre><code>var re = /(\d+) (\d+) (\d+)/ ;
+var text = "123 456 789" ;
+
+// ["123 456 789", "123", "456", "789"]
+var result = text.match( re ) ;
+</code></pre>
+
+<p>
+C++では、match_resultsから得られるsub_matchをたどることで、同等のことができる。
+</p>
+
+
+<pre><code>
+std::vector&lt; std::string &gt;
+match( std::string const &amp; text, std::regex const &amp; re )
+{
+    std::vector&lt; std::string &gt; result ;
+
+    std::smatch m ; // match_results
+
+    std::regex_match( text, m, re ) ;
+
+    for ( auto &amp;&amp; elem : m )
+    {// elemはsub_match
+        result.push_back( elem.str() ) ;
+    }
+
+    return result ;
+}
+
+int main()
+{
+    std::regex re( R"((\d+) (\d+) (\d+))" ) ;
+    std::string text="123 456 789" ;
+
+    // {"123 456 789", "123", "456", "789"}
+    auto result = match( text, re ) ;
+
+    for ( auto &amp;&amp; elem : result )
+    {
+        std::cout &lt;&lt; elem &lt;&lt; std::endl ;
+    }
+}
+</code></pre>
+
+<p>
+std::regexを一通り触ってみた感想としては、Boost.Regexのうち、規格として定義できる部分だけ定義したという感じだ。
+</p>
+
+<p>
+std::regexと現行の主要なライブラリ(libstdc++とlibc++)の実装を調べると、ASCII文字か、あるいは単なるバイト列に対して使うことが出来る正規表現でしかなかった。charとwchar_tには対応している。ただし、ASCII文字以外には対応していない。UTF-8を使えばバイト列として一致させることはできた。つまり、
+</p>
+
+<pre><code>// 通常の文字列リテラルのエンコードはUTF-8の環境
+std::regex re(R"(いろは にほへ)") ;
+std::string text("いろは にほへ") ;
+
+std::regex_match( text, re ) ;
+</code></pre>
+
+<p>
+これは動く。ただし、wchar_tは動かない。
+</p>
+
+<pre><code>std::wregex re(R"(いろは にほへ)") ;
+std::wstring text(L"いろは にほへ") ;
+
+// 動かない
+std::regex_match( text, re ) ;
+</code></pre>
+
+<p>
+UTF-8は単なるバイト列だと考えるしかない。例えば以下は動かない。
+</p>
+
+<pre><code>// 通常の文字列リテラルのエンコードはUTF-8の環境
+std::regex re(R"(.)") ;
+std::string text("あ") ;
+
+// 動かない
+std::regex_match( text, re ) ;
+</code></pre>
+
+<p>
+char16_t、char32_tは、libstdc++とlibc++では、コンパイルすら通らない。
+</p>
+
+<p>
+というわけで、現状の規格と実装状況から言えば、ASCII文字だけに限定していいのならば、std::regexとstd::wregexは使える。Unicodeが扱いたければ、規格外の正規表現ライブラリを使うべきだ。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+そろそろC++のブログ記事を増やしていきたい。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
