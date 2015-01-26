@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: GCCのoverrideのバグらしきもの
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/01/gccoverride.html">GCCのoverrideのバグらしきもの</a></h1>
+
+<p>
+ask.fmに<a href="http://ask.fm/EzoeRyou/answer/123450972503">このような質問</a>がきた。
+</p>
+
+<p>
+C++では、overrideはキーワードではない。overrideは、特定の文脈でだけ文法で認識され、それ以外の場所では、単なる識別子となる。
+</p>
+
+<p>
+そのため、以下のようなコードが書ける。
+</p>
+
+<pre><code class="cpp">struct override { } ;
+
+struct B
+{
+    virtual auto f() -&gt; override ;
+} ;
+
+struct D : B
+{
+// GCC: error: two or more data types in declaration of 'type name'
+    auto f() -&gt; override override ;
+} ;
+</code></pre>
+
+<p>
+しかしなぜかGCCは開発版の5.0ですら、コンパイルエラーとなる。
+</p>
+
+<p>
+まさか未だにこのような面白い問題が残っているとは。
+</p>
+
+<p>
+GCC Bugzillaを検索したところ、同じ不具合は報告されていないようなので、報告してみた。
+</p>
+
+<p>
+<a href="https://gcc.gnu.org/bugzilla/show_bug.cgi?id=64794">Bug 64794 – GCC failed at virtual function with "override" trailing return type name, followed by override virt-specifier</a>
+</p>
+
+<p>
+Clangでは問題がない。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
