@@ -1,0 +1,308 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++11の時間ライブラリ: chrono 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/01/c11-chrono.html">C++11の時間ライブラリ: chrono</a></h1>
+
+<p>
+&lt;chrono&gt;は、C++11で追加された時間ライブラリである。
+</p>
+
+<p>
+単位時間を扱うためのduration、起点からの経過時間を扱うためのtime_point、現在の起点からの経過時間を取得するためのclockからなる。Cの標準ライブラリのtime_tとtime(), clock_gettime()を置き換えることが出来る。日付機能は含まれていない。
+</p>
+
+<p>
+duration
+</p>
+
+<p>
+時間について考える。一時間は60分である。1分は60秒である。1秒は1000ミリ秒である。
+</p>
+
+<p>
+単位の異なる時間の値を相互に変換するのは、簡単な計算だ。
+</p>
+
+<pre><code>unsigned int min_to_sec( unsigned int min )
+{
+    return min * 60 ;
+}
+</code></pre>
+
+<p>
+しかし、実引数minに渡される値の単位が分であることを保証する方法はない。間違えたとしても、コンパイルエラーにはならない。
+</p>
+
+<p>
+chronoでは、時間単位を扱うライブラリ、durationを追加した。これは型安全に時間の計算をしてくれる。
+</p>
+
+<pre><code>
+#include 
+
+int main()
+{
+    // 15分
+    std::chrono::minutes min(15) ;
+
+    // 分を秒に変換
+    std::chrono::seconds sec = min ;
+
+    // 900
+    std::cout &lt;&lt; sec.count() &lt;&lt; std::endl ;
+
+    // エラー、余りが発生する可能性があるため
+    min = sec ;
+
+    // OK
+    min = std::chrono::duration_cast&lt;std::chrono::minutes&gt;( sec ) ;
+}
+</code></pre>
+
+<p>
+durationテンプレートには、よく使う時間単位、hours, minutes, seconds, miliseconds, microseconds, nanosecondsというtypedef名があらかじめ宣言されている。
+</p>
+
+<p>
+また、C++14からは、時間単位のtypedef名へのユーザー定義リテラルが定義されている。それぞれ、h, min, s, ms, us, nsとなっている。
+</p>
+
+<pre><code>auto hours = 3h ;
+auto seconds = 100s ;
+
+auto sum = 1h + 5min + 3s ;
+</code></pre>
+
+<p>
+durationクラスは、メンバー関数countにより、内部表現の値を得ることができる。単位はdurationテンプレートの特殊化のとおりだ。
+</p>
+
+<pre><code>int main()
+{
+    std::chrono::seconds s(10) ;
+
+    s.count() ; // 10
+
+    auto s2 = s + s ;
+
+    s2.count() ; // 20
+
+    std::chrono::hours h(1) ;
+    h.count() ; // 1
+
+    s = h ;
+
+    s.count() ; // 3600
+}
+</code></pre>
+
+<p>
+time_point
+</p>
+
+
+<p>
+time_pointは、ある起点時間からの経過時間を表現するクラスだ。time_point同士を減算すると、その結果はdurationになる。time_pointを直接構築することはあまりない。time_pointは、clockから得ることができる。C標準ライブラリのtime_tに比べて、型安全になっている。
+</p>
+
+<p>
+clock
+</p>
+
+<p>
+clockは、現在のtime_pointを取得するクラスだ。staticメンバー関数のnowでtime_pointを取得できる。
+</p>
+
+<pre><code>int main()
+{
+    // 処理前の起点からの経過時間
+    auto t1 = std::chrono::system_clock::now() ;
+
+    // 処理
+    std::this_thread::sleep_for( std::chrono::seconds(1) ) ;
+
+    // 処理後の起点からの経過時間
+    auto t2 = std::chrono::system_clock::now() ;
+
+    // 処理の経過時間
+    auto elapsed = t2 - t1 ;
+
+    // 単位は未規定
+    std::cout &lt;&lt; elapsed.count() &lt;&lt; std::endl ;
+}
+</code></pre>
+
+<p>
+system_clockは、システム上のリアルタイムクロックを表現するclockである。
+</p>
+
+<p>
+このクロックの使うdurationは未規定である。そのため、経過時間を実際の時間単位で知りたければ、duration_castが必要になる。
+</p>
+
+<pre><code>int main()
+{
+    // 処理前の起点からの経過時間
+    auto t1 = std::chrono::system_clock::now() ;
+
+    // 処理
+    std::this_thread::sleep_for( std::chrono::seconds(1) ) ;
+
+    // 処理後の起点からの経過時間
+    auto t2 = std::chrono::system_clock::now() ;
+
+    // 処理の経過時間をミリ秒で取得
+    auto elapsed = std::chrono::duration_cast&lt; std::chrono::milliseconds &gt;(t2 - t1) ;
+
+    // 単位はミリ秒
+    std::cout &lt;&lt; elapsed.count() &lt;&lt; std::endl ;
+}
+</code></pre>
+
+<p>
+C++規格は、起点時間がいつなのかを規定していない。経過時間はtime_pointのメンバー関数tiem_since_epochで取得できる。また、system_clockから得られるtiem_pointは、time_tに変換できる。
+</p>
+
+<pre><code>int main()
+{
+    // time_point
+    auto t1 = std::chrono::system_clock::now() ;
+    // 起点時間からの経過時間
+    std::cout &lt;&lt; t1.time_since_epoch().count() &lt;&lt; '\n' ;
+
+    // time_t
+    auto t2 = std::chrono::system_clock::to_time_t( t1 ) ;
+    std::cout &lt;&lt; t2 &lt;&lt; '\n' ;
+
+    // tme_point
+    auto t3 = std::chrono::system_clock::from_time_t( t2 ) ;
+
+    std::cout &lt;&lt; t3.time_since_epoch().count() &lt;&lt; std::endl ;
+}
+</code></pre>
+
+<p>
+system_clockのtime_pointとtime_tが、同じ時間単位の分解能を使っているとは限らない。
+</p>
+
+<p>
+clockはsystem_clockだけではない。他にも、steady_clockがある。これは、実時間の経過によって、time_pointの経過時間が減らないことが保証されている。
+</p>
+
+<pre><code>int main()
+{
+    // time_point
+    auto t1 = std::chrono::steady_clock::now() ;
+
+    // この間にシステムの時刻が過去に変更されるかもしれない
+
+
+    auto t2 = std::chrono::steady_clock::now() ;
+
+
+    // trueであることが保証されている
+    bool b = t2 &gt;= t1 ;
+}
+</code></pre>
+
+<p>
+その他のclockにも、constexpr staticデータメンバーのis_steadyの値によって、steady_clockと同じ保証があるかどうかを確かめることができる。
+</p>
+
+<pre><code>// true/false
+bool b = std::chrono::system_clock::is_steady ;
+</code></pre>
+
+
+<p>
+C++規格はもうひとつ、high_resolution_clockを規定している。これは、時間の分解能が高いclockであると規定されている。
+</p>
+
+<pre><code>auto t1 = std::chrono::high_resolution_clock::now() ;
+// 処理
+auto t2 = std::chrono::high_resolution_clock::now() ;
+
+// 処理のかかった時間
+auto e = t2 - t1 ;
+</code></pre>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
