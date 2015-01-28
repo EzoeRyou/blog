@@ -1,0 +1,392 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: ドワンゴのプログラミングコンテストをクリアできなかったお話
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/01/blog-post_28.html">ドワンゴのプログラミングコンテストをクリアできなかったお話</a></h1>
+
+<p>
+<a href="http://info.dwango.co.jp/saiyo/procon2016/index.html">dwangoプログラミングコンテスト2016</a>
+</p>
+
+<p>
+ドワンゴが主催するプログラミングコンテストの予選が、24日に行われたそうだ。筆者はクリアできなかったが、簡単なものだけ解説する。本格的な解説が読みたい人は、わざわざこの記事を読まずとも、以下で解説されているようだ。
+</p>
+
+<p>
+<a href="https://speakerdeck.com/dwango/dwangopuroguramingukontesuto-yu-xuan-wen-ti-jie-shuo">「dwangoプログラミングコンテスト」予選問題解説 // Speaker Deck</a>
+</p>
+
+<p>
+<a href="http://dwango2015-prelims.contest.atcoder.jp/tasks/dwango2015_prelims_1">A: プレミアム会員 - dwangoプログラミングコンテスト | AtCoder</a>
+</p>
+
+<blockquote>
+<p>
+ニコニコ動画には、プレミアム会員という制度があります。このプレミアム会員制度には月額一定の額を支払うことで加入できます。
+</p>
+<p>
+ニワンゴくんは、この n ヶ月間連続してプレミアム会員です。 また、x ヶ月前に月の一定支払い額が 525 円から 540 円に変わったことを知っています。 つまり、この n ヶ月のうち最近の x ヶ月間は月額 540 円支払っていて、それ以外の月では 525 円払っていたことが分かっています。
+</p>
+
+<p>
+n と x が与えられるので、この n ヶ月間でニワンゴくんがプレミアム会員制度に支払った合計額を出力してください。
+</p>
+</blockquote>
+
+<p>
+\(525(n-x) + 540x\)を計算すればよい。
+</p>
+
+<pre><code>#include &lt;iostream&gt;
+ 
+int main()
+{
+    int n = 0 ;
+    int x = 0 ;
+
+    std::cin &gt;&gt; n &gt;&gt; x ;
+ 
+    int payment = ( n - x ) * 525 + x * 540 ;
+ 
+    std::cout &lt;&lt; payment &lt;&lt; '\n' ;
+}
+</code></pre>
+
+<p>
+<a href="http://dwango2015-prelims.contest.atcoder.jp/tasks/dwango2015_prelims_2">B: ニコニコ文字列 - dwangoプログラミングコンテスト | AtCoder</a>
+</p>
+
+<blockquote>
+<p>
+0 から 9 の数字から成る文字列 S が与えられます。
+</p>
+<p>
+ある文字列 X について、X="25" または X="2525" または X="252525" …… というふうに "25" を何回か繰り返した文字列になっているとき、X はニコニコ文字列であるといいます。 たとえば "25" や "25252525" はニコニコ文字列ですが、"123" や "225" はニコニコ文字列ではありません。
+</p>
+
+<p>
+あなたの仕事は、文字列 S について、ニコニコ文字列となるような連続した部分文字列の取り出し方が何通りあるかを答えることです。 文字列として同じであっても、取り出し位置が異なっていれば別々に数えます。
+</p>
+</blockquote>
+
+
+<p>
+与えられた文字列から連続した"25"をすべて探し出し、25の数を数える。N個の"25"が連続した文字列の部分文字列の取り出し方は、1+2+3+...+N通りあるので、\(\frac{N(1 + N)}{2}\)で計算すればよい。
+</p>
+
+<p>
+ただし、Sの長さは100000以下であるとのことなので、もし\(\frac{N(1 + N)}{2}\)の計算に32bit符号付き整数を使っていた場合、50000回連続した文字列が渡されると、50001 * 50000を計算しようとするとオーバーフローしてしまう。
+</p>
+
+<p>
+連続した"25"文字列は、C++11で追加された&lt;regex&gt;ライブラリを使えばよい。
+</p>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;regex&gt;
+
+unsigned long long int count( unsigned long long int n )
+{
+    return ( 1 + n ) * n / 2 ;
+}
+
+int main()
+{
+
+    std::string str ;
+    std::cin &gt;&gt; str ;
+
+    std::regex re(R"((?:25)+)") ;
+
+    std::sregex_iterator iter( str.cbegin(), str.cend(), re ) ;
+    std::sregex_iterator end ;
+
+    unsigned long long int sum = 0 ;
+    for ( ; iter != end ; ++iter )
+    {
+        auto n = iter-&gt;str().length() / 2 ;
+        sum += count( n ) ;
+    }
+
+    std::cout &lt;&lt; sum &lt;&lt; '\n' ;
+}
+</code></pre>
+
+<p>
+ただし、このコードはatcoderを通らない。理由は、atcoderのC++11のコンパイラーがGCC4.8.1という2年前の化石バージョンで、libstdc++がregex_iteratorをサポートしていないからだ。そのため、以下のようにregex_searchを複数回呼び出すというマヌケなコードを書かなければならない。
+</p>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;regex&gt;
+
+unsigned long long int count( unsigned long long int n )
+{
+    return ( 1 + n ) * n / 2 ;
+}
+
+int main()
+{
+
+    std::string str ;
+    std::cin &gt;&gt; str ;
+
+    std::regex re(R"((?:25)+)") ;
+
+    std::smatch m ;
+
+    unsigned long long int sum = 0 ;
+
+    auto iter = str.cbegin() ;
+    auto end = str.cend() ;
+
+
+    while ( iter != end )
+    {
+        std::regex_search( iter, end, m, re ) ;
+        auto n = m.str().length() / 2 ;
+        sum += count( n ) ;
+
+        iter = m[0].second ;
+    }
+
+    std::cout &lt;&lt; sum &lt;&lt; '\n' ;
+}
+</code></pre>
+
+<p>
+と思ったが、これも時間制限内に終わらない。Wandboxで試しても終わらないので、どうもlibstdc++ 4.8.1のregexライブラリには問題があるようだ。
+</p>
+
+<p>
+<a href="http://melpon.org/wandbox/permlink/RykV9Ho7aaTcVGMf">[Wandbox]三へ( へ՞ਊ ՞)へ ﾊｯﾊｯ</a>
+</p>
+
+<p>
+2年前のC++コンパイラーなど使うべきではないという教訓が得られた。
+</p>
+
+<p>
+<a href="http://dwango2015-prelims.contest.atcoder.jp/tasks/dwango2015_prelims_3">C: ゲーマーじゃんけん - dwangoプログラミングコンテスト | AtCoder</a>
+</p>
+
+<p>
+期待値の計算方法がわからないのでモンテカルロ法で解こうとしたが、必要な精度が出ずに敗北した。小数点以下6桁は辛い。
+</p>
+
+<p>
+なんでも、必要な精度を出すためには、1兆回は試行しなければならないそうだ。制限時間は2分。すると、一回の試行は0.12ナノ秒で終えなければならない。無理だ。
+</p>
+
+<p>
+<a href="http://cpplover.blogspot.jp/2012/05/blog-post_31.html">本の虫: 全プログラマーが知るべきレイテンシー数</a>
+</p>
+
+
+<p>
+最終的に以下のようなコードを書きちらしたが、もちろん必要な精度は出ない。
+</p>
+
+<pre><code>#include &lt;algorithm&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;random&gt;
+#include &lt;future&gt;
+ 
+enum { Rock = 0, Paper = 1, Scissors = 2 } ;
+ 
+template &lt; typename Iter, typename RNG &gt;
+unsigned long long int play( Iter begin, Iter end, RNG rng )
+{
+    unsigned long long int i = 0 ;
+ 
+for ( ; ; ++i )
+{
+    int n = std::distance( begin, end ) ;
+ 
+ 
+    // 勝者決定判定
+    if ( n == 1 )
+    {
+        break ;
+    }
+ 
+    // じゃんけん
+    std::generate( begin, end, rng ) ;
+ 
+ 
+    // 出された手が 1 種類の場合 
+    int first_hand = *begin ;
+    bool b = std::all_of( begin, end,
+        [=](int x) { return x == first_hand ; } ) ;
+ 
+    if ( b )
+    {
+        continue ;
+    }
+ 
+    // 出された手が 2 種類以上の場合
+ 
+    // 手をカウント
+    
+    auto rock = std::count( begin, end, Rock ) ;
+    auto paper = std::count( begin, end, Paper ) ;
+    auto scissors = std::count( begin, end, Scissors ) ;
+ 
+ 
+    // 出したプレイヤーの数が最も少ない手に注目する。 
+ 
+    // そのような手が 3 種類あった場合
+    if ( rock == paper &amp;&amp; rock == scissors )
+    {
+        continue ;
+    }
+ 
+ 
+    auto hands = { rock, paper, scissors } ;
+    auto minor = std::min( hands ) ;
+ 
+    // 出ていない手がある場合
+    if ( minor == 0 )
+    {
+ 
+        typename Iter::difference_type h[3] = { rock, paper, scissors } ;
+        std::remove( h, h + 3, 0 ) ;
+        auto m = std::min( h[0], h[1] ) ;
+        end = begin + m ;
+        
+    }
+    else {
+        // すべての手が出た場合
+        end = begin + minor ; 
+    }
+   
+}
+ 
+    return i ;
+ 
+}
+ 
+ 
+constexpr unsigned long long int trial = 10000 ;
+ 
+ 
+unsigned long long int gamer_zyanken( int n )
+{
+    std::mt19937 engine ;
+ 
+    std::uniform_int_distribution&lt;&gt; dist( 0, 2 ) ;
+ 
+ 
+    std::vector&lt;int&gt; players( n ) ;
+ 
+    unsigned long long int sum = 0 ;
+ 
+    for ( int i = 0 ; i != trial ; ++i )
+    {
+        sum += play( players.begin(), players.end(), [&amp;]{ return dist(engine) ; } ) ; 
+    }
+ 
+    return sum ;
+}
+
+ 
+int main()
+{
+    int n ;
+    std::cin &gt;&gt; n ;
+ 
+    auto f1 = std::async( std::launch::async, gamer_zyanken, n ) ;
+    auto f2 = std::async( std::launch::async, gamer_zyanken, n ) ;
+    auto f3 = std::async( std::launch::async, gamer_zyanken, n ) ;
+    auto f4 = std::async( std::launch::async, gamer_zyanken, n ) ;
+ 
+    unsigned long long int sum = f1.get() + f2.get() + f3.get() + f4.get() ;
+ 
+    double result = double(sum) / double(4 * trial) ;
+ 
+    std::cout &lt;&lt; result &lt;&lt; '\n' ;
+}
+</code></pre>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
