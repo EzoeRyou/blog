@@ -146,7 +146,7 @@ int main()
 </p>
 
 <ol>
-<li>シンボル。これはシンボル博多の一部であるという既存の手法と異なる。</li>
+<li>シンボル。これはシンボルは型の一部であるという既存の手法と異なる。</li>
 <li>lazyのような新しいキーワード。新しいキーワードは既存のコードを壊す恐れがある。既存の文法を折り合う文脈依存キーワードもない</li>
 <li>既存のキーワードを再利用する。inlineがよさそうだ</li>
 </ol>
@@ -270,10 +270,10 @@ enum class total_ordering { less, equal, greater };
 これに対応する関数テンプレートは以下の通り。
 </p>
 
-<p>template&lt;typename T&gt; partial_ordering partial_order(T,T)
+<pre><code>template&lt;typename T&gt; partial_ordering partial_order(T,T)
 template&lt;typename T&gt; weak_ordering weak_order(T,T)
 template&lt;typename T&gt; total_ordering total_order(T,T)
-</p>
+</code></pre>
 
 <p>
 これにより、比較の結果と目的の比較方法を取り違える間違いは型安全に回避できる。
