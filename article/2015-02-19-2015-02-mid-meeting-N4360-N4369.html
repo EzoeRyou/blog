@@ -1,0 +1,378 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準 2015-02 mid-meetingのレビュー: N4360-N4369
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/02/isoiec-jtc1sc22wg21-papers-2015-pdf.html">C++標準 2015-02 mid-meetingのレビュー: N4360-N4369</a></h1>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/#mailing2015-02">ISO/IEC JTC1/SC22/WG21 - Papers 2015</a>の紹介を進めていく。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4360.pdf">[PDF] N4360: Delayed Evaluation Parameters</a>
+</p>
+
+<p>
+遅延評価引数の提案。この提案は具体的な文法の提案にまでは踏み込んでいない。
+</p>
+
+<p>
+遅延評価引数とは、呼び出し元が関数の実引数に渡した式がその場で評価されず、関数内で最初に値が使われた時に評価される機能である。
+</p>
+
+<pre><code>// とても遅い関数
+int f() ; 
+
+void g( int x )
+{
+    bool b ;
+    std::cin &gt;&gt; b ;
+    if ( b )
+        std::cout &lt;&lt; x &lt;&lt; std::endl ;
+    else
+        std::cout &lt;&lt; 0 &lt;&lt; std::endl ;
+}
+
+int main()
+{
+    g( f() + 1 ) ;
+}
+</code></pre>
+
+<p>
+関数fは、値を返すのに、とてつもない重い計算を行うものとする。しかし、その値は、入力次第によっては必要がないものである。関数gに引数として与える式の評価は、実際に使う必要があるときまで遅延させたい。
+</p>
+
+<p>
+これを現行のC++でやろうとすると、関数オブジェクトを引数にとって関数呼び出しするようなコードになる。
+</p>
+
+<pre><code>// とても遅い関数
+int f() ; 
+
+template &lt; typename LazyInt &gt;
+void g( LazyInt x )
+{
+    bool b ;
+    std::cin &gt;&gt; b ;
+    if ( b )
+        std::cout &lt;&lt; x() &lt;&lt; std::endl ;
+    else
+        std::cout &lt;&lt; 0 &lt;&lt; std::endl ;
+}
+
+int main()
+{
+    g( [](){ return f() + 1 ; } ) ;
+}
+</code></pre>
+
+<p>
+しかし、このようなコードを手で書くのは面倒だ。このような遅延評価引数機能をコア言語に追加してはどうか。
+</p>
+
+<p>
+論文は設計方針として、いくつかの提案をしている。
+</p>
+
+<p>
+引数はキャッシュ風に一度だけ評価されるべきか、インスタンス風にそのつど評価されるべきか - 一度だけ評価されるべき
+</p>
+
+<p>
+引数はいつ評価されるべきか - 値が必要とされるとき。値へのポインターやリファレンスを取る場合も含む。sizeof, typeid, alignas, decltypeでは評価されない。
+</p>
+
+<p>
+遅延評価引数がさらに別の遅延評価引数の中に入れられた場合はどうするか - 遅延評価引数は自動的に評価されるべきではない。
+</p>
+
+<p>
+遅延評価引数はstd::functionのようにラッパーであるべきか、lambdaのように別のオブジェクトであるべきか - ラッパーのようであるべき
+</p>
+
+<p>
+文法は？
+</p>
+
+<p>
+三案ある。
+</p>
+
+<ol>
+<li>シンボル。これはシンボル博多の一部であるという既存の手法と異なる。</li>
+<li>lazyのような新しいキーワード。新しいキーワードは既存のコードを壊す恐れがある。既存の文法を折り合う文脈依存キーワードもない</li>
+<li>既存のキーワードを再利用する。inlineがよさそうだ</li>
+</ol>
+
+<p>
+規格準拠の実装は、観測可能な副作用がない場合、遅延評価引数をthunkを使わずに実行することができる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4361.pdf">[PDf] N4361: Concepts Lite TS</a>
+</h2>
+
+<p>
+タイトル通り、Concept LiteのTSドラフト。
+</p>
+
+<p>
+軽量コンセプトは、SFINAEに毛が生えたような設計になっている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4362.html">N4362: WG21 2015-01 Skillman Minutes</a>
+</h2>
+
+<p>
+2015年1月26-27日にSkilmanで行われた会議の議事録。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4365.pdf">[PDf] N4365: Responses to National Body Comments, ISO/IEC PDTS 19568, C++ Extensions for Library Fundamentals</a>
+</h2>
+
+<p>
+Library Fundamentals TSに対するNBコメントへの回答。
+</p>
+
+<p>
+日本からはmake_applyを追加すべきだというコメントを送ったが、合意がないとして却下された。提案論文を出せとのことだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4366.html">N4366: LWG 2228: Missing SFINAE rule in unique_ptr templated assignment</a>
+</h2>
+
+<p>
+unique_ptrのdeleterの型に互換性のない場合でも、オーバーロード解決の候補に上がってしまうことの修正。
+</p>
+
+<p>
+以下のコードを修正する。
+</p>
+
+<pre><code>#include &lt;memory&gt;
+#include &lt;type_traits&gt;
+
+struct do_nothing
+{
+    template &lt;class T&gt;
+    void operator()(T*) {}
+};
+
+int
+main()
+{
+    int i = 0;
+    std::unique_ptr&lt;int, do_nothing&gt; p1(&amp;i);
+    std::unique_ptr&lt;int&gt; p2;
+
+    // OK
+    static_assert(std::is_assignable&lt;decltype(p2), decltype(p1)&gt;::value, "");
+
+    // コンパイルエラー
+    p2 = std::move(p1);
+}
+</code></pre>
+
+<p>
+なぜかというと、unique_ptrのムーブ代入演算子がオーバーロード解決の候補関数に上がらない条件（SFINAEで阻止される条件）が、デリーターを考慮していないからだ。デリーターを考慮するように規格を修正する提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4367.html">N4367: Comparison in C++</a>
+</h2>
+
+<p>
+比較関数の提案。
+</p>
+
+<p>
+そもそも比較というのは様々ある。同値関係と順序とがあり、同値関係にはequivalenceとequalityがあり、順序には、partial ordering, weak ordering, total orderingが存在する。例えば、通常のソートにはweak orderingが必要で、メモ化にはweak orderingとequalityが必要だ。
+</p>
+
+<p>
+三種類の異なる順序を、operator &lt;ひとつで扱うという既存の仕組みがそもそも間違っていたのだ。そこで、これら三種類の順序比較をテンプレート関数として標準ライブラリに追加してはどうか。
+</p>
+
+<pre><code>template&lt;typename T&gt; bool partial_less(const T&amp;,const T&amp;);
+template&lt;typename T&gt; bool weak_less(const T&amp;,const T&amp;);
+template&lt;typename T&gt; bool total_less(const T&amp;,const T&amp;);
+</code></pre>
+
+<p>
+また、同値関係についても同様に追加してはどうか。
+</p>
+
+<pre><code>template&lt;typename T&gt; bool partial_unordered(const T&amp;,const T&amp;);
+template&lt;typename T&gt; bool weak_equal(const T&amp;,const T&amp;);
+template&lt;typename T&gt; bool total_equal(const T&amp;,const T&amp;);
+</code></pre>
+
+<p>
+また、strcmpのように、less, greater, neitherの三値を返す関数テンプレートを追加するべきではないか。三値はstrong enumで以下のように提供する。
+</p>
+
+<pre><code>enum class partial_ordering { less, unordered, greater };
+enum class weak_ordering { less, equivalent, greater };
+enum class total_ordering { less, equal, greater };
+</code></pre>
+
+<p>
+これに対応する関数テンプレートは以下の通り。
+</p>
+
+<p>template&lt;typename T&gt; partial_ordering partial_order(T,T)
+template&lt;typename T&gt; weak_ordering weak_order(T,T)
+template&lt;typename T&gt; total_ordering total_order(T,T)
+</p>
+
+<p>
+これにより、比較の結果と目的の比較方法を取り違える間違いは型安全に回避できる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4368.htm">N4368: Introducing alias size_type for type size_t in class std::bitset</a>
+</h2>
+
+<p>
+std::bitsetにネストされた型名であるsize_typeを追加する提案。
+</p>
+
+<p>
+vector&lt;bool&gt;を利用している既存のコードをbitsetに移行する際に、よく使われる共通のネストされた型名が存在しないと既存のコードがうごかないため、その対応。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4369.htm">N4369: Default argument for second parameter of std::advance</a>
+</h2>
+
+<p>
+C++11に追加されたstd::nextとstd::prevの第二引数には、デフォルト実引数として1が使われている。そのため、
+</p>
+
+<pre><code>auto it2 = std::next( it1, 1 ) ;
+</code></pre>
+
+<p>
+と書くかわりに、
+</p>
+
+
+<pre><code>auto it2 = std::next( it1 ) ;
+</code></pre>
+
+<p>
+と書くことができる。
+</p>
+
+<p>
+std::advanceにも同等のデフォルト実引数があってもよいはずだ。
+</p>
+
+<pre><code>std::advance( ita, 1 ) ;
+</code></pre>
+
+<p>
+と書くかわりに、
+</p>
+
+<pre><code>std::advance( ita ) ;
+</code></pre>
+
+<p>
+と書くことが出来る。
+</p>
+
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+サーバールーム兼野菜室というのは、冷蔵室にサーバーラックと野菜が詰め込まれているものかと想像したが、サーバーからの排熱を利用した温室だという説もあり、はっきりしない。
+</p>
+
+<p>
+特定のグループに所属する人間専用のシェアハウスというのはすぐに平凡な日常に陥ると思うのだが、大丈夫なのだろうか。
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
