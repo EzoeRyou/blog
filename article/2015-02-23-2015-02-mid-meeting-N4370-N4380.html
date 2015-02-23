@@ -1,0 +1,474 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準 2015-02 mid-meetingのレビュー: N4370-N4380
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/02/c-2015-02-mid-meeting-n4370-n4380.html">C++標準 2015-02 mid-meetingのレビュー: N4370-N4380</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4370.html">N4370: Networking Library Proposal (Revision 4)</a>
+</h2>
+
+<p>
+Boost.Asioを土台にしたネットワークライブラリの提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4371.html">N4371: Minimal incomplete type support for standard containers, revision 2</a>
+</h2>
+
+<p>
+一部のSTLのコンテナーの要素型に不完全型をサポートする提案。
+</p>
+
+<p>
+以下のようなコードが書けるようになる。
+</p>
+
+<pre><code class="cpp">struct Entry
+{
+    std::vector&lt;Entry&gt; v ;
+} ;
+</code></pre>
+
+<p>
+クラスは、定義の終了である}を持って、完全型になる。クラス定義内ではまだ不完全型である。したがって、vectorにテンプレート実引数に渡す時点では、まだ不完全型なのだ。これをサポートするかどうかは、これまで規格上は未規定だったのだが、この提案では、vector, list, forward_listに限ってはサポートするとしている。
+</p>
+
+<p>
+これ以外のコンテナーについては、更に議論をして緩和していくという。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4372.html">N4372: A Proposal to Add a Const-Propagating Wrapper to the Standard Library</a>
+</h2>
+
+
+<p>
+クラスのデータメンバーがポインターの場合、ポインターの参照先は、constメンバー関数からでも変更できる。
+</p>
+
+<pre><code>
+struct A
+{
+    void f() ;
+    void f() const ;
+} ;
+
+class B
+{
+    std::unique_ptr&lt;A&gt; ptr ;
+
+public :
+    // コンストラクターやデストラクターなど
+
+    void f()
+    {
+        ptr-&gt;f() ; // 非const版が呼ばれる
+    }
+
+    void f( ) const
+    {
+       ptr-&gt;f() ; // 非const版が呼ばれる
+    }
+} ;
+</code></pre>
+
+<p>
+これは完全に規格通りの挙動だが、意味的にはここでconst版が呼ばれて欲しい。そこで、そのようなconst性を伝播させるライブラリ、propagate_constを提案している。
+</p>
+
+<pre><code>
+class B
+{
+    std::propagate_const&lt; std::unique_ptr&lt;A&gt; &gt; ptr ;
+
+public :
+    void f()
+    {
+        ptr-&gt;f() ; // 非const版が呼ばれる
+    }
+
+    void f( ) const
+    {
+       ptr-&gt;f() ; // const版が呼ばれる
+    }
+} ;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4373.pdf">N4373: Atomic View</a>
+</h2>
+
+<p>
+非atomicオブジェクトをatomic操作できるラッパーライブラリ、atomic_viewの提案。
+</p>
+
+
+<pre><code>// 並列実行される何らかのタスク
+void spawn_task( std::experimental::atomic_array_view&lt;int&gt; v ) ;
+
+void f( int * ptr, std::size_t size )
+{
+    // 非atomic操作
+    std::for_each( ptr, ptr + size, []( auto &amp; elem ) { elem = 0 ; } ) ;
+
+    {
+        std::experimental::atomic_array_view&lt;int&gt; v( ptr, size ) ;
+
+        // vを経由してしか操作できない。
+
+        spawn_task( v ) ;
+        spawn_task( v ) ;
+        spawn_task( v ) ;
+    // vが破棄される
+    }
+
+    // これ以降、配列に直接操作が可能
+}
+</code></pre>
+
+<p>
+atomic_array_view&lt;T&gt;は、既存の非アトミック型の配列をラップして、アトミックな操作ができるようにしてくれる。atomic_array_viewでラップする前に起こったアクセスは、atomic_array_viewのコンストラクターの実行が完了する前に起こる(happens before)。
+</p>
+
+<p>
+atomic_array_viewのオブジェクトが存在する間は、配列に直接アクセスすることはできず、atomic_array_viewのオブジェクトを通してしかアクセスできない。
+</p>
+
+<p>
+atomic_array_viewはコピーすることができる。その際には、アトミック操作を実現するためのロックなどのリソースが、もしあれば、共有される。最後のatomic_array_viewのオブジェクトが破棄された後に、元の配列は直接アクセスすることが出来るようになる。
+</p>
+
+<p>
+配列ではなく単一のオブジェクトに対するarray_viewである、atomic_concurrenty_view&lt;T&gt;も存在する。
+</p>
+
+<p>
+これらのatomic_viewには、二つの利用方法が想定されている。ひとつには、High Performance Computing用途で、巨大な配列を、まず競合しない方法で初期化し、次に並列に変更し、その後に競合しない方法で読み書きを行うような処理に使える。
+</p>
+
+<p>
+もうひとつは、既存のコードで非atomicな型を使っていて、atomic&lt;T&gt;に置き換えるコストが現実的ではない場合に使うことができる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4374.html">N4374: Linux-Kernel Memory Model</a>
+</h2>
+
+<p>
+これまで、Linuxカーネルのメモリーモデルは、<a href="https://www.kernel.org/doc/Documentation/memory-barriers.txt">memory-varriers.txt</a>と<a href="https://www.kernel.org/doc/Documentation/atomic_ops.txt">atomic_ops.txt</a>にラフにドキュメント化されていた。これはLinuxカーネルの開発には用を為すが、厳密な規格を書き起こすには不適切である。N4374は、初めてLinuxカーネルのメモリーモデルを厳密にドキュメントする試みである。
+</p>
+
+<p>
+Linuxカーネルのメモリーモデルがまとめられていて、C++との対応も考察されている。Linuxカーネルで使われている既存のメモリーモデルをC++コミュニティに紹介することで、今後の規格化に役立てる意図がある。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4375.html">N4375: Out-of-Thin-Air Execution is Vacuous</a>
+</h2>
+
+<p>
+オブジェクトへの並列アクセスによる競合により、本来現れるはずのない値が現れてしまう、Out Of Thin Air(OOTA) Effectの具体的な例と、それに酔ってもたらされる害悪を紹介した論文。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4376.html">N4376: Use Cases for Thread-Local Storage</a>
+</h2>
+
+<p>
+TLSは20年以上も使われている実績ある機能ではあるが、最近、SIMD畑とGPGPU畑の連中が、TLSの有用性に疑問を持っていて、会議でもそう主張している。この論文はTLSの有用性を解説している。
+</p>
+
+<p>
+ただし、SIMDやGPGPUによる軽いスレッド風並列処理を行う際に、TLSは共有する実装がもっとも効率的であり、悩ましいところで、論文ではそこの考察も行っている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4377.pdf">[PDF] N4377: C++ Extensions for Concepts PDTS</a>
+</h2>
+
+<p>
+Concept Liteのドラフト
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4378.pdf">N4378: Language Support for Contract Assertions</a>
+</h2>
+
+<p>
+契約プログラミングのためのcontract_assertライブラリ。
+</p>
+
+<p>
+contract_assertには、3種類のassertion levelが設定されている。min, on, maxだ。minは最小限、maxは最大限のレベルになっている。これ以外にも、完全に無効にするoffがある。assertion levelは、何らかの実装依存の方法で設定するようだ。レベルは、コンパイル時にpredefine macroで取得することができる。
+</p>
+
+<pre><code>#ifdef contract_assertion_level_max
+#endif
+</code></pre>
+
+<p>
+これは、従来のNDEBUGのようなマクロに相当する。
+</p>
+
+<p>
+contract_assertには、contract_assert_min/contract_assert_on/contract_assert_maxがある。それぞれ、レベルに対応していて、そのレベル以上の場合にチェックが走る。contract_assertマクロは、contract_assert_onと同じだ。
+</p>
+
+<pre><code>void * contract_memcpy( void * dest, const void * src, size_t n )
+{
+    // 軽い契約チェック
+    // nullポインターではないかどうか調べる
+    contract_assert( dest != nullptr ) ;
+    contract_assert( src != nullptr ) ;
+
+    // 重たい契約チェック
+    // 環境依存の方法を使って有効なメモリ領域かどうかを調べる
+    contract_assert_max( platform_specific::is_valid_memory_area( dest, n ) ) ;
+    contract_assert_max( platform_specific::is_valid_memory_area( src, n ) ) ;
+
+    char * d = static_cast&lt;char *&gt;(dest) ;
+    char const * s = static_cast&lt;char const *&gt;(src) ;
+    char const * const end = s + n ;
+
+    for ( ; s != end ; ++s, ++d )
+    {
+        *d = *s ;
+    }
+
+    // 重たい契約チェック
+    // 宇宙線やハードウェア破損などの可能性を考慮
+    contract_assert_max( std::memcmp( dest, src, n ) == 0 ) ;
+
+    return dest ;
+}
+</code></pre>
+
+<p>
+契約違反時には、ハンドラーが呼ばれる。このハンドラーは呼び出し元にreturnしてはならない。デフォルトのハンドラーは、std::abortを呼び出す。set_contract_violation_handlerでカスタムハンドラーを設定できる。
+</p>
+
+<pre><code>
+int main()
+{
+    std::experimental::set_contract_violation_handler(
+        []( std::experimental::contract_violation_info &amp; info )
+        {
+// assertionレベルを表すenum値
+// enum class contract_assertion_level { min, on, max };
+            auto level = info.level ;
+
+// contract_assertの式の文字列
+// contract_assert( is_okay(x) ) ;の場合、"is_oaky(x)"
+// phase 3なので、プリプロセッサーマクロ展開前の文字列が得られる
+// 複数の連続した空白文字はスペース文字ひとつになる。
+            std::cout &lt;&lt; info.expression_text &lt;&lt; '\n' ;
+
+// contract_assertが存在するソースファイルの__FILE__
+            std::cout &lt;&lt; info.filename &lt;&lt; '\n' ;
+
+// contract_assertが存在するソースファイルの__LINE__に相当
+            std::cout &lt;&lt; info.line_number &lt;&lt; '\n' ;
+
+            // ハンドラーは呼び出し元に戻ってはならない
+            std::abort() ;
+
+        } ) ;
+
+}
+</code></pre>
+
+<p>
+contract_violation_infoクラスのメンバーの中でも、expression_textが興味深い。Phase of translationのphase 3の文字列なので、マクロも展開されない。また、複数の連続した空白文字（スペース、改行、水平タブ、垂直タブ、ラインフィード）は、スペースひとつに変換される。
+</p>
+
+<pre><code>#define identity(x) x
+
+// "identity ( x ) "
+contract_assert(
+    identity
+    (
+        x
+    )
+) ;
+</code></pre>
+
+<p>
+C++としてはだいぶ頑張ったようだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4379.pdf">[PDFうざい] N4379: FAQ about N4378, Language Support for Contract Assertions</a>
+</h2>
+
+<p>
+contract_assertに対するFAQ集。
+</p>
+
+<p>
+興味深いものを紹介すると・・・
+</p>
+
+<p>
+contract_assertはコンパイル時チェックやデッドコード除去、最適化、静的解析用途にも使えるように設計されている。
+</p>
+
+<p>
+どうやってデッドコード除去を行うのか？
+</p>
+
+<p>
+コンパイラーにとってasssert式とシンボルを関連付けるのはお手の物だ。
+</p>
+
+<p>
+なぜ関数本体でしか使えないのか？
+</p>
+
+<p>
+それ以上のものは、全く経験のないまったく新しい文法や機能を必要とする。そこまで冒険したくない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4380.html">N4380: Constant View: A proposal for a std::as_const helper function template</a>
+</h2>
+
+<p>
+&lt;utility&gt;にstd::as_constの提案。
+</p>
+
+<pre><code>int main()
+{
+    std::string text("text") ;
+    std::string const &amp; const_ref = std::as_const(text) ;
+
+    // std::string::const_iterator
+    auto iter = std::as_const(text).begin() ;
+}
+</code></pre>
+
+<p>
+as_const(obj)は、以下のように実装できる
+</p>
+
+<pre><code>template&lt; typename T &gt;
+inline typename std::add_const&lt; T &gt;::type &amp;
+as_const( T &amp;t ) noexcept
+{
+    return t;
+}
+</code></pre>
+
+<p>
+as_constの提案理由としては、const版と非const版の同名のメンバー関数がある場合、const版のメンバー関数を明示的に呼び出すことだ。
+</p>
+
+<pre><code>
+int main()
+{
+    std::string s ;
+    // std::string::iterator
+    auto iter1 = s.begin() ;
+    // std::string::const_iterator
+    auto iter2 = std::as_const(s).begin() 
+}
+</code></pre>
+
+<p>
+cbeginはこの目的のためにあるが、すべてのクラスに存在するわけではない。const版のメンバー関数を明示的に呼ぶ際に、const_cast&lt; std::add_const&lt; decltype( object ) &gt;::type &amp; &gt;( object )と書くより楽になる。
+</p>
+
+
+
+<p>
+xvalueやprvalueをサポートすることに意義があるかという点について、議論が分かれている。
+</p>
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+どうやら、ドワンゴ社内に競技プログラミング部なるものができるそうだ。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
