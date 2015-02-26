@@ -1,0 +1,108 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++11/14の採用が進んでいないのはだいたいRHELのせい 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/02/c1114rhel.html">C++11/14の採用が進んでいないのはだいたいRHELのせい</a></h1>
+
+<p>
+C++11やC++14は、すでにGCCやClangの最新の安定版で実用的に使えるようになっているが、なかなか現場で広く使われるようにはなっていないように見える。これはなぜか。やはり教育者の不足か。参考書がないのか。それもあるかもしれないが、最大の理由がある。
+</p>
+
+<p>
+RHELが悪い。
+</p>
+
+<p>
+RHEL 6のGCCのバージョンは4.4である。これは。C++11をまともにサポートしていない。GCC 4.4当時といえば、まだC++11がC++0xと呼ばれていた時代で、一部機能を当時のドラフトに基づいて実験的実装をしていた。正式な規格とはだいぶ異なっているだろうし、不具合もたくさんあるものと思われる。
+</p>
+
+<p>
+次のRHELのバージョンは7であるが、これにはGCC 4.8が入るものと思われる。しかし、すでにGCCの安定版は4.9だ。GCC 4.8もC++11実装に不具合が色々あってあまりお勧めできない。これがあと何年も使われるのかと思うとげんなりする。
+</p>
+
+<p>
+結局、LTSというのは本当に有益なのだろうかという疑問が湧いてきた。挙動が変わらないとはいっても、不具合もそのままなので、そのコストは支払わなければならない。そして、いずれはソフトウェアをアップデートせねばならず。5年10年もの積みかさなかった挙動の変更を一気に修正しなければならない。
+</p>
+
+<p>
+とはいえ、C++の簡単な入門書は必要だと思うので、簡単に読めるC++の解説を今書いている。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
