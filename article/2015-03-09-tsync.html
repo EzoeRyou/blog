@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: ChromiumがLinuxカーネル3.17以前のサポートを打ち切り
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/03/chromiumlinux317.html">ChromiumがLinuxカーネル3.17より前のサポートを打ち切り</a></h1>
+
+<p>
+<a href="http://www.phoronix.com/scan.php?page=news_item&px=Google-Chrome-TSYNC-Kernel">Chrome/Chromium To Require Newer Version Of Linux Kernel - Phoronix</a>
+</p>
+
+<p>
+ChromiumがLinuxカーネル3.17以前のサポートを打ち切るようだ。
+</p>
+
+<p>
+というのは釣りタイトルだが、Linuxカーネル3.16までで、最新のChromiumを使うと、ブラウザー拡張がインストールできないという問題がある。この理由は、Linuxカーネルのサンドボックス機能であるseccompに最近入ったTSYNC(SECCOMP_FILTER_FLAG_TSYNC)をChromiumが使っているためだ。
+</p>
+
+<p>
+興味深いは、LinuxカーネルにTSYNCをいれたのは、Chromium開発者で今はGoogle社員でもあるKees Cookだ。Ubuntuの12.04と14.10のLinuxカーネルには、TSYNCをbackportするパッチがあたっているが、これもKees Cookが用意したらしい。
+</p>
+
+<p>
+これは適切に情報共有されなかったらしく、かやの外の人間は、最新のChromiumが動かなくなった理由を、手探りで解明する必要に迫られた。
+</p>
+
+<p>
+<a href="https://codereview.chromium.org/758063005">Issue 758063005: Linux sandbox: report TSYNC status in chrome://sandbox - Code Review</a>
+</p>
+
+
+<p>
+さて、ChromiumがLinuxカーネル3.17以上を必要とするようになったというバグ報告は、WontFixとされてしまった。なぜならば、「これは技術的にはregressionではあるが、ユーザーにはカーネルのアップデートという、十分にリーズナブルなworkaroundが存在するから」だそうだ。はたして、本当に十分にリーズナブルだろうか。
+</p>
+
+<p>
+Linuxカーネル3.16というのは、去年リリースされたばかりのだいぶ新しいバージョンである。3.17以上を要求するのはあまりにも難しい。3.17以前のカーネルでChromiumを使うには、TSYNCのbackportが必要だが、少なくともDebianは、backportに消極的のようだ。
+</p>
+
+<p>
+<a href="https://lists.debian.org/debian-kernel/2015/03/msg00133.html">Debian 8/jessie - SECCOMP_FILTER_FLAG_TSYNC</a>
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
