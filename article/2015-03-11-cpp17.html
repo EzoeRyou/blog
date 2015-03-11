@@ -1,0 +1,368 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 最近のC++17事情
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<articl>
+<h1><a href="http://cpplover.blogspot.jp/2015/03/c17.html">最近のC++17事情</a></h1>
+
+<p>
+C++1z、あるいはC++17とも呼ばれている次のC++規格の、最近の事情はどうなっているのか。すでにドラフトに取り入れられた機能もあるので、現在の最新の状況を見ていこう。もうすでに紹介したものも含まれているが、おさらいとしてみていく。また、ここで解説する新機能は、いずれもすでにドラフト入りしているが、正式に規格制定される際に変わる可能性がある。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3928.pdf">N3928: メッセージなしstatic_assert</a>
+</h2>
+
+<p>
+C++11で入ったstatic_assertは、必ず文字列リテラルを書かなければならなかった。
+</p>
+
+<pre><code>static_assert( INT_MAX &gt;= 2147483647, "This code assumes at least 32-bit int." ) ;
+static_assert( true == true, "You're compiler is fundamentally wrong." ) ;
+</code></pre>
+
+<p>
+しかし、この文字列リテラルの使われ方は規定されていない。特にメッセージを書きたくなくても、文字列リテラルは、文法上必ず書かなくてはならない。
+</p>
+
+<pre><code>
+static_cast( std::numeric_limits&lt;double&gt;::is_iec559, "" ) ;
+</code></pre>
+
+<p>
+C++1zでは、文字列リテラルを書かなくてもよくなる。
+</p>
+
+<pre><code>
+static_cast( false ) ;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4086.html">N4086: Removing trigraphs??!</a>
+</h2>
+
+<p>
+トライグラフが取り除かれる。
+</p>
+
+<pre><code>// C++14までは#
+// C++1zでは??=
+std::cout &lt;&lt; "??=" ;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4051.html">N4051: Allow typename in a template template parameter</a>
+</h2>
+
+<p>
+テンプレートテンプレートパラメーターにtypenameキーワードが使えるようになる。
+</p>
+
+<pre><code>template &lt;
+    template &lt; typename T &gt;
+    class U
+&gt;
+struct X ;
+</code></pre>
+
+<p>
+が、
+</p>
+
+
+<pre><code>template &lt;
+    template &lt; typename T &gt;
+    typename U
+&gt;
+struct X ;
+</code></pre>
+
+<p>
+とも書けるようになる。
+<p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3922.html">N3922: New Rules for auto deduction from braced-init-list.</a>
+</h2>
+
+<p>
+auto指定子で直接初期化でリスト初期化を書いた場合の挙動を変更する。C++14で合法なコードが違法になる珍しいケースだ。
+</p>
+
+<pre><code>
+auto a{ 1, 2, 3 } ;
+</code></pre>
+
+<p>
+このコードは、C++14までは合法なコードであり、decltype(a)は、std::initializer_list&lt;int&gt;となる。
+</p>
+
+<p>
+C++1zでは、このコードは違法である。auto指定子で直接初期化でリスト初期化の場合は、単一のinitializer-clauseしか書くことができなくなった。
+</p>
+
+<pre><code>// aの型はint
+auto a{ 1 } ;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4295.html">N4295: Fold expressions</a>
+</h2>
+
+<p>
+今回紹介する新機能の中で、一番面白い機能がこれだ。パラメーターパックに対するfold式がC++に入る。
+</p>
+
+<p>
+パラメーターパック全てに対して演算子を適用したい場面がある。
+</p>
+
+<pre><code>// 与えた実引数にoperator +を適用して合計値を返す関数テンプレートsum
+sum( 1, 2, 3 ) ; // 6
+sum( 1, 2, 3, 4 ) ; // 10
+</code></pre>
+
+<p>
+このようなsumをC++14で書くと以下のようになる。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+T sum( T &amp;&amp; t )
+{
+    return t ;
+}
+
+template &lt; typename T, typename ... Args &gt;
+T sum( T &amp;&amp; t, Args &amp;&amp; ... args )
+{
+    return t + sum( std::forward&lt;Args&gt;(args)... ) ;
+}
+</code></pre>
+
+<p>
+やりたいことは、パラメーターパックのそれぞれの実引数にoperator +を適用したいだけなのに、やたらと面倒なコードだ。
+</p>
+
+<p>
+そこで、C++1zには、パラメーターパックに対するfold式が入る。
+</p>
+
+<pre><code>template &lt; typename ... Args &gt;
+auto sum( Args &amp;&amp; ... args )
+{
+    return ( args + ... ) ;
+}
+</code></pre>
+
+<p>
+これは、sum( 1, 2, 3, )に対して、 (((1 + 2) + 3) + 4)のようにleft foldされる。
+</p>
+
+<p>
+逆に以下のように書けば、
+</p>
+
+<pre><code>template &lt; typename ... Args &gt;
+auto sum( Args &amp;&amp; ... args )
+{
+    return ( ... + args ) ;
+}
+</code></pre>
+
+<p>
+(1 + ( 2 + ( 3 + 4 ) ) )のように、right foldされる。
+</p>
+
+
+<p>
+fold式は、必ず括弧で囲まなければならない。
+</p>
+
+
+<pre><code>
+( pack + ... ) ; // OK
+pack + ... ; // エラー、括弧で囲まれていない
+</code></pre>
+
+<p>
+fold式には、unary(単項) foldとbinary(二項) foldがある。binary foldは、(e1 op1 ... op2 e2)という形を取る。op1とop2は同じfold演算子でなければならず、e1とe2は、どちらか片方だけがパラメーターパックでなければならない。e2がパラメーターパックであった場合はleft fold、e1がパラメーターパックであった場合はright foldとなる。
+</p>
+
+<pre><code>
+template < typename ... Types >
+void f( Types ... args )
+{
+    ( 1 + ... + args ) ; // binary left fold
+    ( args + ... + 1 ) ; // binary right fold
+}
+</code></pre>
+
+<p>
+それぞれ、(( ( 1 + args0 ) + args1) + ... + argsN )と、args0 + ( args1 + ( ... argsN + 1) )のようにパック展開される。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4267.html">N4267: Adding u8 character literals</a>
+</h2>
+
+<p>
+UTF-8文字リテラルの追加。プレフィクスu8の文字リテラルで、UTF-8のコード単位一つで表現可能な文字が記述できる。
+</p>
+
+<pre><code>
+char a = u8'a' ; // OK
+char b = u8'あ' ; // エラー、UTF-8で符号化するにはコード単位が3個必要。
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4230.html">N4230: Nested namespace definition (revision 2)</a>
+</h2>
+
+<p>
+名前空間の宣言をネストできるようになる。
+</p>
+
+<pre><code>namepsace A {
+    namespace B {
+        namespace C {
+            // ...
+        }
+    }
+}
+</code></pre>
+
+<p>
+のようなコードが、
+</p>
+
+<pre><code>namespace A::B::C {
+// ...
+}
+</code></pre>
+
+<p>
+のように書ける。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4266.html">N4266: Attributes for namespaces and enumerators</a>
+</h2>
+
+<p>
+名前空間とenumeratorにattributeが記述できるようになる。C++14までは、文法上の制約で記述することができなかった。これにより、名前空間やenumeratorにdeprecatedが指定できる。記述する場所は、名前空間ならnamespaceキーワードの前、識別子の後、enumeratorならば、識別子の後だ。
+</p>
+
+<pre><code>
+namespace [[deprecated("This namespace is deprecated.")]] libv1 { }
+
+enum class E { value [[deprecated("This enumerator is deprecated.")]] = 0 ; }
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4268.html">N4268: Allow constant evaluation for all non-type template arguments</a>
+</h2>
+
+<p>
+すべての非型テンプレート実引数でコンパイル時評価を可能にするように制限を緩和する。
+</p>
+
+<p>
+以下のコードは違法である。
+</p>
+
+<pre><code>template&lt;int *p&gt; struct A {};
+int n;
+A&lt;&amp;n&gt; a; // ok
+
+constexpr int *p() { return &amp;n; }
+A&lt;p()&gt; b; // エラー
+</code></pre>
+
+<p>
+理由は、定数として渡せるポインターはnullだけだからである。
+</p>
+
+<pre><code>constexpr int *p() { return nullptr ; }
+A&lt;p()&gt; b; // OK
+</code></pre>
+
+<p>
+constexprがある今、この制約は時代にそぐわない。そこで、非型テンプレート実引数に、任意の定数式を渡せるように制限を緩和された。つまり、上のコードは違法ではなくなる。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
