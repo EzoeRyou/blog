@@ -1,0 +1,286 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: メンバー関数へのポインターを返すメンバー関数へのポインターを返すメンバー関数
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/03/blog-post_24.html">メンバー関数へのポインターを返すメンバー関数へのポインターを返すメンバー関数
+</a></h1>
+
+<blockquote>
+<p>
+class Foo;が存在したとして(1)Fooのメンバ関数ポインタ(2)を戻すメンバ関数のポインタが欲しいと思った(なお(1)で戻すメンバ関数もFooのメンバ関数ポインタを戻す)のだが、どうあがいても記述出来ないものだったりするのだろうか？
+</p>
+</blockquote>
+
+<p>
+ようするに、以下のようなことがしたいわけだ。
+</p>
+
+<pre><code>class Foo
+{
+public :
+    // メンバー関数a
+    void a() { }
+    // メンバー関数aへのポインターを返すメンバー関数b
+    ??? b() { return &amp;Foo::a ; }
+    // メンバー関数aへのポインターを返すメンバー関数bへのポインターを返すメンバー関数c
+    ??? c() { return &amp;Foo::b ; }
+}
+</code></pre>
+
+<p>
+ここで、???の部分に戻り値の型を記述しなければならない。
+</p>
+
+<p>
+もちろんこれは記述できる。ただしその記述は、C++の規格のバージョンにより難易度が異なる。
+</p>
+
+<p>
+C++14
+</p>
+
+<p>
+最新の素晴らしい標準規格であるC++14では、この程度の問題は赤子の手をひねるより簡単だ。
+</p>
+
+<p>
+C++14に追加された戻り値の型推定は、戻り値の型を書くべき場所にautoキーワードを書くことで、return文のオペランドの式の型を戻り値の型として書いた扱いになる。
+</p>
+
+<pre><code>// C++14
+// 戻り値の型推定
+class Foo
+{
+public :
+    // C++14
+    void a() { }
+    auto b() { return &amp;Foo::a ; }
+    auto c() { return &amp;Foo::b ; }
+} ;
+</code></pre>
+
+<p>
+return文のオペランドの式の型はコンパイル時に決定できるため、当然、戻り値の型もコンパイル時に決定できる。これは具体的な形名を手で書くのと全く同じである。コンパイラーができることはコンパイラーにやらせれば良い。人間様が手をわずらわす必要はない。
+</p>
+
+<p>
+C++11
+</p>
+
+<p>
+残念ながら、4年も前の大昔の標準規格であるC++11には戻り値の型推定がない。そのため、戻り値の型を手で書かなければならない。ただし、C++11には、戻り値の型を後置する新しい関数記法がある。戻り値の型を書くべき場所にautoキーワードを書き、関数宣言の最後に-&gt;を書いて、その後に戻り値の型を書く。
+</p>
+
+<pre><code>// C++11
+// 新しい関数記法
+class Foo
+{
+public :
+    void a() { }
+    auto b() -&gt; void (Foo::*)() { return &amp;Foo::a ; } 
+    auto c() -&gt; auto (Foo::*)() -&gt; void (Foo::*)() { return &amp;Foo::b ;}
+} ;
+</code></pre>
+
+<p>
+関数aの型は、void (Foo::*)()である。あるいは、auto (Foo::*)() -&gt; voidである。とすると、この型を返す関数は、auto b() -&gt; void (Foo::*)()となるここまでくればもう明白だろう。そう、関数cが返すのは auto (Foo::*)() -&gt; ???で、???に入る戻り値の型はvoid (Foo::*)()だ。
+</p>
+
+<p>
+C++03
+</p>
+
+<p>
+C++03を今使うものは何か苦行でも行っているとしか思えない。
+</p>
+
+<p>
+まず、関数型がある。
+</p>
+
+<pre><code>
+void (int)
+</code></pre>
+
+<p>
+しかる後に、関数へのポインター型がある。
+</p>
+
+<pre><code>
+void (*)(int)
+</code></pre>
+
+<p>
+関数ポインターを返す関数は以下のように書ける。
+</p>
+
+<pre><code>
+void f(int) { }
+
+void (* g())(int)
+{
+    return &amp;f ;
+}
+</code></pre>
+
+<p>
+わかるだろうか。g()が関数gの関数名と仮引数リストだ。void (* ...)(int)の部分が戻り値の型だ。関数型には仮引数リストやその他の修飾などが含まれる。関数の型の文法上、仮引数リストと修飾はg()を囲む形で記述される。
+</p>
+
+<p>
+つまりこういうことだ。
+</p>
+
+<pre><code>void (* // 戻り値の形名
+    g() // 関数名と仮引数リスト
+)(int) // 戻り値の形名
+;
+</code></pre>
+
+<p>
+関数gへのポインターを返す関数hは以下のように書ける。
+</p>
+
+<pre><code>
+void (* (* h())() )(int)
+{
+    return &amp;g ;
+}
+</code></pre>
+
+<p>
+つまりこういうことだ。
+</p>
+
+<pre><code>void (* // 戻り値の形名
+    (*  // 戻り値の形名
+        h() // 関数名と仮引数リスト
+    )() // 戻り値の形名
+)(int)  // 戻り値の形名
+;
+</code></pre>
+
+<p>
+そして、メンバーへのポインター型がある。
+</p>
+
+<pre><code>struct X { void f() ; } ;
+
+void (X::* p1)() = &amp;X::f ;
+</code></pre>
+
+<p>
+これらを組み合わせると、C++03という化石の様な古代の標準規格でも書くことができる。
+</p>
+
+<pre><code>// C++03
+class Foo
+{
+public :
+    // C++03
+    void a() { }
+    void (Foo::* b())() { return &amp;Foo::a ; }
+    void (Foo::* (Foo::* c())())() { return &amp;Foo::b ;}
+} ;
+</code></pre>
+
+<p>
+typedefを使うことで、いくらかマシにはできる。
+</p>
+
+<pre><code>class Foo
+{
+public :
+
+    typedef void (Foo::* a_ptr) () ;
+    typedef a_ptr (Foo::* b_ptr)() ;
+
+    // C++03
+    void a() { }
+    a_ptr b() { return &amp;Foo::a ; }
+    b_ptr c() { return &amp;Foo::b ;}
+} ;
+</code></pre>
+
+<p>
+結論としては、早くC++14に移行しろということだ。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
