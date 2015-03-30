@@ -1,0 +1,517 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: コンパイラーを負かす
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/03/blog-post_30.html">コンパイラーを負かす</a></h1>
+
+<p>
+<a href="http://www.roguelazer.com/2015/02/beating-the-compiler/">roguelazer's website: beating the compiler</a>
+</p>
+
+<p>
+なかなか面白かったので翻訳して紹介する。
+</p>
+
+<blockquote>
+
+<blockquote>
+<p>
+たとえば、97%の場合において、僅かな効率など忘れるべきである。。早すぎる最適化は諸悪の根源である。とはいえ、残りの重要な3%の機会を逃すべからず。
+</p>
+
+<p>
+-- Donald Knuth
+</p>
+</blockquote>
+
+<blockquote>
+<p>
+計測せよ。計測するまで速度の最適化を施してはならぬ。たとえ計測したにせよ、一部のコードが残りを圧倒するまではまだ最適化してはならぬ。
+</p>
+
+<p>
+Rob Pike
+</p>
+</blockquote>
+
+
+<p>
+最新のWebサービスを主体とした技術の業界に長年浸かった我々は、パフォーマンスの問題を忘れがちである。<a href="http://www.sqlalchemy.org/">SQLAlchemy ORM</a>の中で行うリクエスト一つが8,9秒かかる中で、関数呼び出しひとつを3ミリ秒最適化したところで何になるというのか。とはいえ、時にはそのような最適化スキルを養っておくのもいいことだ。今回は、ある簡単な課題を最適化して、やっつけ仕事よりどれだけよくできるのかを見ていくことにする。普通はやらないだろうが。
+</p>
+
+<h2>
+課題
+</h2>
+
+<p>
+今回の課題はとても簡単なものだ。n個の整数を合計せよ。この課題を公平にするために、整数値は32bit符号付きintに収まるものとし、その合計も32bit符号付きintに収まるものとする。
+</p>
+
+<p>
+もちろん、我々は最適化をするのであるから、パフォーマンスの計測には注意を払わねばならぬ。通常なら、我々は単なる時刻を使う（Pythonの<a href="https://docs.python.org/2.7/library/timeit.html">timeit</a>モジュールなどで計測するものだ）。ただし、time.clock()をPythonからただ呼び出すだけで、30マイクロものコストがかかる。おやおや、これはあまりよくないぞ。言い換えてみよう。time.clock()をPythonで呼び出すと、最近のCPUでは60,000サイクル消費するのだ。かわりに、筆者はCPUサイクルをカウントする手法を用いるものとする。これには問題もある（特に、周波数スケーリングが有効になっていたり、複数のコアがあってOSのスケジューラーがリスケジュールを行いたくなった場合など）。だが、これはCPUのパフォーマンスの計測として、最も正確でオーバーヘッドの最小な単位である。Intel x86では、RDTSC命令で実装できる（より具体的に言うと、シリアライズされるRDTSCP命令だ）。筆者はこれを使いやすいように<a href="https://github.com/Roguelazer/rdtsc">Pythonライブラリ</a>としてラップした。
+</p>
+
+<p>
+これがテスト計画だ。
+</p>
+
+<ol>
+<li>n個のされた範囲(0,\(2^{12}\))の整数値のデータファイルを乱数で生成する。固定値のseedで乱数生成する。</li>
+<li>テストは、まずデータをすべて読み込む</li>
+<li>テストは、RDTSC命令でサイクル数を計測する</li>
+<li>テストは、少なくとも100回実行する</li>
+</ol>
+
+<p>
+この記事のテストは、<a href="http://ark.intel.com/products/76086/Intel-Core-i7-4850HQ-Processor-6M-Cache-up-to-3_50-GHz">Intel Core i7-4850HQ</a>を搭載した2013年の15インチのrMBPで行われた。また、<a href="http://ark.intel.com/products/83507/Intel-Core-i5-4308U-Processor-3M-Cache-up-to-3_30-GHz">Intel Core i5-4308U</a>を搭載した2014年の13インチ rMBPでも実行して、結果がまともであることを確かめた。
+</p>
+
+
+<h2>
+最初の試み：Python
+</h2>
+
+<p>
+Pythonは好きだ。簡単でダックタイピングな言語で、オブジェクト指向と関数型の便利な機能がたくさんあるプログラミング言語だ。ファイルからデータを読み込むのは簡単だ。
+</p>
+
+<pre><code>import array
+
+data = array.array("i")
+with open(sys.argv[1], "r") as f:
+    for line in f:
+        data.append(int(line.strip()))
+</code></pre>
+
+<p>
+最もやっつけな解決法がこれだ。
+</p>
+
+<pre><code>def sum_naive_python():
+    result = 0
+    for i in data:
+        result += i
+    return result
+</code></pre>
+
+<p>
+コードはあまりに自明だ。美しい。このコードは、筆者のコンピューターでは、50,000,000 ± 3%サイクルかかる。これは約24ミリ秒だ。だが、筆者は絶対時間についてはそれほど気にしていない。問題なのはスケールするかどうかだ。そこで筆者が使う指標は、1サイクルあたり何個処理できるかだ。理想的な単一命令実行の非スーパースカラーで完璧な分岐予測を持つCPUでは、サイクルあたり1.0個処理できるはずだ。この指標では、最初の試みは悲惨だ。0.01個/サイクルだ。整数の個数辺りのスケールは以下の通り。
+</p>
+
+<p><img alt="naive python" src="http://www.roguelazer.com/images/2015-02-28-beating-the-compiler/sum_naive_python.svg" ></img></p>
+
+<p>
+とても簡単な改良方法がある。Pythonにはネイティブのsum関数があり、これはCで実装されていて、もっと速いはずだ。次のテスト関数はこうだ。
+</p>
+
+<pre><code>def sum_native_python():
+    return sum(data)
+</code></pre>
+
+<p>
+これはマシになった。12,000,000 ± 2%サイクル、0.04個/サイクルだ。まだ悲惨だが、4倍速い。
+</p>
+
+<p><img alt="native python" src="http://www.roguelazer.com/images/2015-02-28-beating-the-compiler/sum_native_python.svg" /></p>
+
+<p>
+Python用のイケてる数値ライブラリを使うとどうなるだろうか。<a href="http://www.numpy.org/">numpy</a>はどうだ。このライブラリは最低聞かされたFORTRANコードを呼んでくれる。すげー速いはずだ。
+</p>
+
+<p><img alt="numpy" src="http://www.roguelazer.com/images/2015-02-28-beating-the-compiler/sum_numpy.svg" /></p>
+
+<p>
+ダメだ。NumPyのオーバーヘッドで相殺されるようだ。0.004個/サイクルしかでない（ネイティブsum関数を組み込みのarray型に適用する場合の10分の1だ）
+</p>
+
+<h2>
+より高みへ：C
+</h2>
+
+<p>
+Pythonでそれ以上速くできないのであれば、Cに変えろというのは、Pythonでよくあるパターンだ。Cで同様のテスト環境を用意した。ファイルからヒープに確保されたintの配列に読み込み（少々長いのでわざわざコードはみせない）。この数値群を足し合わせるC関数の最初の実験がこれだ。
+</p>
+
+<pre><code>int sum_simple(int* vec, size_t vecsize)
+{
+    int res = 0;
+    for (int i = 0; i &lt; vecsize; ++i) {
+        res += vec[i];
+    }
+    return res;
+}
+</code></pre>
+
+<p>
+最初のPythonコードと同じくらい綺麗だ。さて結果は？
+</p>
+
+<p>
+3,423,072サイクル(~1.5ミリ秒)、0.162個/サイクルだ。これはPythonより10倍速い。
+</p>
+
+<p>
+注意：Apple LLVM 6.0 / clang-600.0.56 -O0でコンパイルした。
+</p>
+
+<p><img alt="C O0 Simple" src="http://www.roguelazer.com/images/2015-02-28-beating-the-compiler/O0_simple.svg" /></p>
+
+<p>
+もっと速くできるだろうか。
+</p>
+
+<p>
+そういえば昔、<a href="http://funroll-loops.teurasporsaat.org/">ループの手動展開</a>は高パフォーマンスであると聞いたことがある。ループを展開すると、ループの最後のジャンプのオーバーヘッドを隠して、分岐予測の為事を代わりに引き受けたことになる。4回展開版が以下だ。
+</p>
+
+<pre><code>int sum_unroll_4(int* vec, size_t vecsize)
+{
+    int res = 0;
+    int i;
+    for (i = 0; i &lt; vecsize - 3; i+=4) {
+        res += vec[i];
+        res += vec[i+1];
+        res += vec[i+2];
+        res += vec[i+3];
+    }
+    for (; i &lt; vecsize; ++i) {
+        res += vec[i];
+    }
+    return res;
+}
+</code></pre>
+
+<p>
+展開されたループのパフォーマンスはどうか。ほぼ同じだ（0.190個/サイクル）
+</p>
+
+<p><img alt="C O0 Unroll 4" src="http://www.roguelazer.com/images/2015-02-28-beating-the-compiler/O0_unroll_4.svg" /></p>
+
+<p>
+ひょっとしたら展開数が足りないのではないか。では、8回ループ展開をしてみよう。
+</p>
+
+<pre><code>int sum_unroll_8(int* vec, size_t vecsize)
+{
+    int res = 0;
+    int i;
+    for (i = 0; i &lt; vecsize; i+=8) {
+        res += vec[i];
+        res += vec[i+1];
+        res += vec[i+2];
+        res += vec[i+3];
+        res += vec[i+4];
+        res += vec[i+5];
+        res += vec[i+6];
+        res += vec[i+7];
+    }
+    for (; i &lt; vecsize; ++i) {
+        res += vec[i];
+    }
+    return res;
+}
+</code></pre>
+
+<p>
+やれやれ、0.192 PPC(Points Per Cycles)だ
+</p>
+
+<p><img alt="C O0 Unroll 8" src="http://www.roguelazer.com/images/2015-02-28-beating-the-compiler/O0_unroll_8.svg" /></p>
+
+<p>
+どうやら、最近のプロセッサーの分岐予測というのはめちゃめちゃ優秀らしい。ループ展開は、とても短いループか、あるいは何らかの理由で分岐予測が最悪の結果になるループには有効だが、まず時間の無駄というものだ。
+</p>
+
+<p>
+最適化コンパイラー
+</p>
+
+<p>
+Cを書いた経験がある読者は、ここで疑問に思っていることだろう。なぜ筆者は-O0でコンパイルしているのだ？、と。最新のコンパイラーは何十年もの最適化手法が積み上げられており、筆者ごときが書いた程度のものは余裕でこすことができるだろう、と。
+</p>
+
+<p>
+実にそのとおりだ。-O3を使うと、精製されたコードは他の方法を消し炭すら残らないほどの煙にしてふっ飛ばしてしまう。4.462個/サイクルだ。
+</p>
+
+<p><img alt="C O3 Simple" src="http://www.roguelazer.com/images/2015-02-28-beating-the-compiler/O3_simple.svg" /></p>
+
+<p>
+待てよ・・・1個/サイクル以上だと？　どうやったらそんなことが可能なのだ。
+</p>
+
+<p>
+さて、読者よ。プロセッサーの歴史のお勉強の時間だ。  
+</p>
+
+<p>
+複数命令発行、スーパースカラー、アウトオブオーダー、ベクトル計算機
+</p>
+
+<p>
+今は昔、コンピュータープロセッサーというものは、とても簡単だった。プロセッサーは命令を一つづつ読み込み、1ないしは数サイクルを使って処理し、結果を吐き出すものだった。
+</p>
+
+<p><img alt="simple architecture" src="http://www.roguelazer.com/images/2015-02-28-beating-the-compiler/simple.svg" /></p>
+
+<p>
+これは、1965年にCray 6600がリリースされる以前の話で、デスクトップでも1995年にP6 Pentium Proが発売されたことで過去の話になった。この2つのプロセッサーは、スーパースカラーアーキテクチャの代表例だ。
+</p>
+
+<p>
+簡単に言うと、スーパースカラーアーキテクチャーとは、複数の実行ユニット（大抵目的別に特化されている。たとえば2つの汎用数値演算ユニットといくつかのアドレス計算ユニットとひとつのSIMDユニットとひとつのFPUユニットなど）があり、複数の命令を並列に実行するために別々の実行ユニットに振り分けることができる。
+</p>
+
+<p><img alt="superscalar architecture" src="http://www.roguelazer.com/images/2015-02-28-beating-the-compiler/superscalar.svg" /></p>
+
+<p>
+筆者の持っているIntel Haswell CPUのアーキテクチャーは、以下のようになっている。
+</p>
+
+<p><img alt="haswell" src="http://www.roguelazer.com/images/2015-02-28-beating-the-compiler/haswellexec.png" /></p>
+
+<p>
+つまり、複数の命令を同時に実行できるということで、1.0加算/サイクルというのは、遅すぎるということだ。
+</p>
+
+<p>
+最後の要素は、謎めいた略語であるSIMD(Single Instruction, Multiple Data)だ。SIMD命令はベクトル命令とも呼ばれていて、演算を複数のデータに対して一度に適用できる。例えば、IntelのSSEユニットでは、演算を4つの32bit整数値か、2つの64bit浮動小数点数に対して適用できる。
+</p>
+
+<p>
+x86には多数のSIMDユニットがある。MMX拡張から始まり、SSE, SSE2, SSE3, SSE4.1, AVX, AVX2、そしてまだリリースされていないAVX-512。ここではその技術的詳細については述べないが、詳しく知りたければ、<a href="http://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-manual-325462.pdf">ここにすべて載っている</a>。
+</p>
+
+<p>
+Haswellプロセッサーでは、2つのベクトルInt ALUがある、理論上、2つのAVX2処理を並列に行える。それぞれが8個の32bit整数値を同時に処理できる。<a href="http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-optimization-manual.html">Intel 64 and IA32 Architectures Optimization Reference Manual</a>によれば、それぞれの命令は1サイクルのレイテンシーがあり、つまり理論上のPPCは16.0になる。だいぶ高い。実際、これは不可能なほどに高い。1サイクルごとに16個32bit整数値をCPUに転送するには、64バイト/サイクルのメモリースループットが必要であり、これは、筆者のCPUに当てはめれば、147GB/sのメモリースループットになる。筆者の環境のPC3-12800 RAMは、最大一本あたり12.8GB/s（トータルで25.6GB/s）であり、これはたったの11バイト/サイクルだ。つまり、メモリの最大のスループットを考えれば、2.75PPCをすこし上回るほどだ。これ以上高いスコアは、筆者のCPU上の128MBものeDRAM L4キャッシュに残っていたものである。
+</p>
+
+<p>
+コンパイラーを負かす
+</p>
+
+<p>
+さて、コンパイラーは負かせるか？　4.462 PPCより上を叩き出せるか。もちろん無理だが、データが広帯域のL3やL4キャッシュに乗るほど小さければ、まあ、可能ではある。いかがその例だ。PPCは4.808だ。
+</p>
+
+<pre><code>int sum_avx2_unroll4(int* vec, size_t vecsize)
+{
+    unsigned int vec_out[8] __attribute__ ((aligned(64)));
+    size_t processed = 0;
+    asm(
+        "XORQ %%rax,%%rax\n\t"
+        "VPXOR %%ymm0,%%ymm0,%%ymm0\n\t"
+        "VPXOR %%ymm5,%%ymm5,%%ymm5\n\t"
+        "VPXOR %%ymm6,%%ymm6,%%ymm6\n\t"
+        "VPXOR %%ymm7,%%ymm7,%%ymm7\n\t"
+        "VPXOR %%ymm8,%%ymm8,%%ymm8\n\t"
+        "top%=:\n\t"
+        "VMOVDQA (%1, %%rax, 4),%%ymm1\n\t"
+        "VMOVDQA 32(%1, %%rax, 4),%%ymm2\n\t"
+        "VMOVDQA 64(%1, %%rax, 4),%%ymm3\n\t"
+        "VMOVDQA 96(%1, %%rax, 4),%%ymm4\n\t"
+        "ADDQ $32,%%rax\n\t"
+        "VPADDD %%ymm1,%%ymm5,%%ymm5\n\t"
+        "VPADDD %%ymm2,%%ymm6,%%ymm6\n\t"
+        "VPADDD %%ymm3,%%ymm7,%%ymm7\n\t"
+        "VPADDD %%ymm4,%%ymm8,%%ymm8\n\t"
+        "CMP %2,%%rax\n\t"
+        "JL top%=\n\t"
+        "VPADDD %%ymm5,%%ymm0,%%ymm0\n\t"
+        "VPADDD %%ymm6,%%ymm0,%%ymm0\n\t"
+        "VPADDD %%ymm7,%%ymm0,%%ymm0\n\t"
+        "VPADDD %%ymm8,%%ymm0,%%ymm0\n\t"
+        "VMOVDQA %%ymm0, 0(%3)\n\t"
+        "MOVQ %%rax, %0\n\t"
+        : "=r"(processed)
+        : "r"(vec), "r"(vecsize), "r"(vec_out)
+        : "rax", "ymm0", "ymm1", "ymm2", "ymm3", "ymm4", "ymm5", "ymm6", "ymm7", "ymm8", "cc"
+    );
+    int res = 0;
+    for (int i = 0; i &lt; 8 ; ++i) {
+        res += vec_out[i];
+    }
+    for (; processed &lt; vecsize; ++processed) {
+        res += vec[processed];
+    }
+    return res;
+}
+</code></pre>
+
+<p>
+これは4回展開したAVX2ベクトル化版だ。また、独立した複数の加算レジスターに合計させることにより、IPCを僅かに稼いでいる。
+</p>
+
+<p><img alt="C O0 AVX2 Unroll4" src="http://www.roguelazer.com/images/2015-02-28-beating-the-compiler/O0_avx2_unroll4.svg" /></p>
+
+<p>
+本当にコンパイラーを打ち負かしたのだろうか。PPCの違いを比べてみる。
+</p>
+
+<p><img alt="comparison" src="http://www.roguelazer.com/images/2015-02-28-beating-the-compiler/competition.svg" /></p>
+
+<p>
+技術的に言えば、筆者のコードは負けることはない。参考に、これがコンパイラーの生成するアセンブリだ。
+</p>
+
+<pre><code>
+## BB#2:                                ## %vector.body.preheader
+    pxor    %xmm0, %xmm0
+    xorl    %ecx, %ecx
+    pxor    %xmm1, %xmm1
+    .align  4, 0x90
+LBB8_3:                                 ## %vector.body
+                                        ## =&gt;This Inner Loop Header: Depth=1
+    movdqa  %xmm1, %xmm2
+    movdqa  %xmm0, %xmm3
+    movdqu  (%rdi,%rcx,4), %xmm0
+    movdqu  16(%rdi,%rcx,4), %xmm1
+    paddd   %xmm3, %xmm0
+    paddd   %xmm2, %xmm1
+    addq    $8, %rcx
+    cmpq    %rcx, %rax
+    jne LBB8_3
+## BB#4:
+    movq    %rax, %rcx
+LBB8_5:                                 ## %middle.block
+    paddd   %xmm1, %xmm0
+    movdqa  %xmm0, %xmm1
+    movhlps %xmm1, %xmm1            ## xmm1 = xmm1[1,1]
+    paddd   %xmm0, %xmm1
+    phaddd  %xmm1, %xmm1
+    movd    %xmm1, %eax
+    cmpq    %rsi, %rcx
+    je  LBB8_8
+## BB#6:                                ## %.lr.ph.preheader13
+    leaq    (%rdi,%rcx,4), %rdx
+    subq    %rcx, %rsi
+    .align  4, 0x90
+LBB8_7:                                 ## %.lr.ph
+                                        ## =&gt;This Inner Loop Header: Depth=1
+    addl    (%rdx), %eax
+    addq    $4, %rdx
+    decq    %rsi
+    jne LBB8_7
+</code></pre>
+
+<p>
+コンパイラーは2回展開のSSE2レジスターを使う選択をしている。いえい。
+</p>
+
+<p>
+結論
+</p>
+
+<p>
+Pythonや、その他の動的型付け言語は、十分に速いかもしれないが、速いことは常にいいことだ。Cのような低級言語で速度を稼げるかもしれないし、アセンブリを手書きすることでもう少し上を行けるかもしれないが、コンパイラーを信頼したほうがいい。しかし、もし大量の12bitの数値を限りなく高速に足し合わせたいのであれば、まあ、これが答えだ。
+</p>
+
+<p><img alt="comparison" src="http://www.roguelazer.com/images/2015-02-28-beating-the-compiler/500k.svg" /></p>
+
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Cycles for 500k Points</th>
+<th>Points per Cycle</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>sum_numpy</td><td>110681288 &pm; 0% Cycles</td><td>0.005 &pm; 0% PPC</td></tr>
+<tr><td>sum_naive_python</td><td>48255863 &pm; 1% Cycles</td><td>0.010 &pm; 1% PPC</td></tr>
+<tr><td>sum_native_python</td><td>12063768 &pm; 2% Cycles</td><td>0.041 &pm; 2% PPC</td></tr>
+<tr><td>-O0 simple</td><td>3095247 &pm; 1% Cycles</td><td>0.162 &pm; 1% PPC</td></tr>
+<tr><td>-O2 simple</td><td>2889994 &pm; 1% Cycles</td><td>0.173 &pm; 1% PPC</td></tr>
+<tr><td>-O0 unroll_4</td><td>2630305 &pm; 2% Cycles</td><td>0.190 &pm; 2% PPC</td></tr>
+<tr><td>-O0 unroll_8</td><td>2597596 &pm; 0% Cycles</td><td>0.192 &pm; 0% PPC</td></tr>
+<tr><td>-O2 unroll_8</td><td>2461759 &pm; 1% Cycles</td><td>0.203 &pm; 1% PPC</td></tr>
+<tr><td>-O2 unroll_4</td><td>2419625 &pm; 1% Cycles</td><td>0.207 &pm; 1% PPC</td></tr>
+<tr><td>-O2 unroll_4_asscom</td><td>1134117 &pm; 1% Cycles</td><td>0.441 &pm; 1% PPC</td></tr>
+<tr><td>-O0 unroll_4_asscom</td><td>1091086 &pm; 2% Cycles</td><td>0.458 &pm; 2% PPC</td></tr>
+<tr><td>-O3 unroll_4</td><td>393973 &pm; 4% Cycles</td><td>1.269 &pm; 4% PPC</td></tr>
+<tr><td>-O3 unroll_8</td><td>334532 &pm; 0% Cycles</td><td>1.495 &pm; 0% PPC</td></tr>
+<tr><td>-O0 asm_unroll_8</td><td>266224 &pm; 3% Cycles</td><td>1.878 &pm; 3% PPC</td></tr>
+<tr><td>-O3 unroll_4_asscom</td><td>254489 &pm; 1% Cycles</td><td>1.965 &pm; 1% PPC</td></tr>
+<tr><td>-O2 asm_unroll_8</td><td>227831 &pm; 1% Cycles</td><td>2.195 &pm; 1% PPC</td></tr>
+<tr><td>-O3 asm_unroll_8</td><td>227390 &pm; 0% Cycles</td><td>2.199 &pm; 0% PPC</td></tr>
+<tr><td>-O0 avx2_and_scalar_unroll</td><td>149051 &pm; 0% Cycles</td><td>3.355 &pm; 0% PPC</td></tr>
+<tr><td>-O3 avx2_and_scalar_unroll</td><td>146261 &pm; 0% Cycles</td><td>3.419 &pm; 0% PPC</td></tr>
+<tr><td>-O2 avx2_and_scalar_unroll</td><td>144545 &pm; 0% Cycles</td><td>3.459 &pm; 0% PPC</td></tr>
+<tr><td>-O3 sse2</td><td>125397 &pm; 2% Cycles</td><td>3.987 &pm; 2% PPC</td></tr>
+<tr><td>-O0 sse2</td><td>123398 &pm; 0% Cycles</td><td>4.052 &pm; 0% PPC</td></tr>
+<tr><td>-O2 sse2</td><td>119917 &pm; 0% Cycles</td><td>4.170 &pm; 0% PPC</td></tr>
+<tr><td>-O3 simple</td><td>112045 &pm; 0% Cycles</td><td>4.462 &pm; 0% PPC</td></tr>
+<tr><td>-O0 avx2</td><td>111489 &pm; 0% Cycles</td><td>4.485 &pm; 0% PPC</td></tr>
+<tr><td>-O2 avx2</td><td>110661 &pm; 0% Cycles</td><td>4.518 &pm; 0% PPC</td></tr>
+<tr><td>-O3 avx2_unroll4_mem_address</td><td>110342 &pm; 0% Cycles</td><td>4.531 &pm; 0% PPC</td></tr>
+<tr><td>-O3 avx2_unroll4</td><td>109213 &pm; 1% Cycles</td><td>4.578 &pm; 1% PPC</td></tr>
+<tr><td>-O3 avx2</td><td>107011 &pm; 0% Cycles</td><td>4.672 &pm; 0% PPC</td></tr>
+<tr><td>-O2 avx2_unroll4</td><td>106253 &pm; 0% Cycles</td><td>4.706 &pm; 0% PPC</td></tr>
+<tr><td>-O2 avx2_unroll4_mem_address</td><td>105458 &pm; 1% Cycles</td><td>4.741 &pm; 1% PPC</td></tr>
+<tr><td>-O0 avx2_unroll4</td><td>103996 &pm; 0% Cycles</td><td>4.808 &pm; 0% PPC</td></tr>
+<tr><td>-O0 avx2_unroll4_mem_address</td><td>101976 &pm; 0% Cycles</td><td>4.903 &pm; 0% PPC</td></tr>
+</tbody>
+</table>
+
+<p>
+おめでとう。
+</p>
+
+</blockquote>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
