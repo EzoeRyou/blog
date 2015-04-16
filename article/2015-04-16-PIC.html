@@ -1,0 +1,386 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: GCC 5.0でのx86におけるPICの改善と、いかに32bit PICコードがクソであるかというお話
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/04/gcc-50x86pic32bit-pic.html">GCC 5.0でのx86におけるPICの改善と、いかに32bit PICコードがクソであるかというお話</a></h1>
+
+<p>
+<a href="https://software.intel.com/en-us/blogs/2014/12/26/new-optimizations-for-x86-in-upcoming-gcc-50-32bit-pic-mode">New optimizations for X86 in upcoming GCC 5.0: PIC in 32 bit mode. | Intel® Developer Zone</a>
+</p>
+
+<p>
+GCC 5.0では、x86(32bit)におけるPIC(Position Independent Code)が改善された。これまではEBXレジスターがGOT(Global Offset Table)のために予約されていたのだが、これを使わなくなった。この結果、貴重なレジスターがひとつ多く使えることになった。
+</p>
+
+<p>
+32bit x86におけるPICのダメっぷりは、以下の記事に詳しい。
+</p>
+
+<p>
+<a href="http://ewontfix.com/18/">EWONTFIX - 32-bit x86 Position Independent Code - It's that bad</a>
+</p>
+
+<blockquote>
+<p>
+32-bit x86 Position Independent Codeは実にクソだ。
+</p>
+
+<p>
+まず、簡単なCの関数がposition-independent-codeでどうコンパイルされるのかを見てみよう。(つまり、shared library用に-fPICが使われるということだ)
+</p>
+
+<pre><code>void bar(void);
+
+void foo(void)
+{
+    bar();
+}
+</code></pre>
+
+<p>
+さて、GCCはどうコンパイルするのかというと、
+</p>
+
+<pre><code>foo:
+    pushl   %ebx
+    subl    $24, %esp
+    call    __x86.get_pc_thunk.bx
+    addl    $_GLOBAL_OFFSET_TABLE_, %ebx
+    movl    32(%esp), %eax
+    movl    %eax, (%esp)
+    call    bar@PLT
+    addl    $24, %esp
+    popl    %ebx
+    ret
+__x86.get_pc_thunk.bx:
+    movl    (%esp), %ebx
+    ret
+</code></pre>
+
+<p>
+ありゃ、なぜこうなるんだ。
+</p>
+
+<p>
+もちろん、ここで期待すべきは以下のようなコードだ。
+</p>
+
+<pre><code>foo:
+    jmp bar
+</code></pre>
+
+<p>
+PICではないコード生成ならばこうなる。あるいは、barがみえているPICでもこうなる。この理想的なコードは、PICでは得ることができない。なぜならば、呼び出される側(bar)の相対アドレスは、リンク時に固定されていないからだ。別のshared libraryの中かもしれないし、メインプログラムの中かもしれない。
+</p>
+
+<p>
+position-independentコードとGOT/PLTのことをご存知の読者は、なぜ以下のようにできないのか疑問に思うかもしれない。
+</p>
+
+<pre><code>foo:
+    jmp bar@PLT
+</code></pre>
+
+<p>
+ここでは、symbol@PLTというアセンブリの記法で、アセンブラーに特別な再配置を指定している。これはリンカーがcall命令における相対アドレスを"procedure linkage table"(PLT) thunkしたコードを生成する。このthunkはshared libraryの固定された場所に配置され（つまり、ライブラリがどのアドレスにロードされようと、呼び出し側から固定された相対アドレスとなる）、関数の実際のアドレスをロードしてジャンプする処理をする。
+%</p>
+
+<p>
+これが、問題の発端だ。
+</p>
+
+<p>
+実際の関数barにジャンプするために、PLT thunkはグローバルデータにアクセスする必要がある。つまり、ジャンプ先に使う"global offset table"(GOT)へのポインターにアクセスする必要がある。PLT thunkコードは、以下のようなものだ。
+</p>
+
+<pre><code>bar@PLT:
+    jmp *bar@GOT(%ebx)
+    push $0
+    jmp &lt;PLT slot -1&gt;
+</code></pre>
+
+<p>
+ふたつ目と3つめの命令はlazy binding(後述)に関係するもので、ひとつ目がここで問題にするところだ。32-bit x86は現在の命令ポインターからの相対的なメモリーのロード/ストアをする方法が提供されていないため、SysV ABIがその方法を提供している。コードがPICとしてPLT thunkを呼び出すとき、GOTへのポインターを%ebxに隠し引数として渡さなければならない。
+</p>
+
+<p>
+さて、なぜそれが4つ前のコードになってしまうのか。
+</p>
+
+<p>
+ABI上、呼びだされた側で破壊していい(call-clobbered)レジスターは%eax, %ecx, %edxだけなのだ。隠しGOT引数用のレジスターである%ebxは呼びだされた側で破壊できない(call-saved)。つまり、fooが%ebxを改変した場合、保存してリストアさせる責任を負う。そのため、極めて悲惨な非効率的状況に陥る。
+</p>
+
+<ol>
+<li>fooは%ebxをbar@PLTへの引数としてロードしなければならない</li>
+<li>fooは呼び出し元に戻る前に、%ebxがcall-savedなレジスターのため、%ebxをスタックに保存して復帰させなければならない。</li>
+<li>barの呼び出しは末尾呼び出しにならない。なぜならば、fooはbarから戻った後に処理を行わなければならないから。%ebxをリストアさせなければならない</li>
+</ol>
+
+<p>
+そのため、例2のようなそびえ立つものとなる。
+</p>
+
+<p>
+一体どうやったらこの問題を解決できるのか。
+</p>
+
+<p>
+まず挙げられる解決法は、隠し引数を渡すレジスターを変えることだ。しかし、これはコンパイラーとリンカーのABI規約を変えずに行えないので、選択肢からは外れる。
+</p>
+
+<p>
+bar@PLTへの隠し引数の要件を無くすというのはどうだろうか。これも、ABI変更を伴うが、非互換ではない。とはいえ、現実的ではない。PLT thunkがレジスターを破壊せずにGOTアドレスをロードするのは簡単ではなく、破壊してもいいたった3つのレジスターは、すべてデフォルトではないがサポートしなければならない"regparam"呼び出し規約のために使われている。%ebxを使うという選択は意図的なものだ。引数私に使われている可能性のあるレジスターを壊すのを避けるためだ。
+</p>
+
+<p>
+では、どんな手が残されているのか。
+</p>
+
+<p>
+PLT thunkをなくしてしまうというのはどうだろうか。例4のようなコードを生成することを目指すのではなく、以下のようなコードを目指すのはどうか。
+</p>
+
+<pre><code>foo:
+    call    __x86.get_pc_thunk.cx
+    jmp *bar@GOT+_GLOBAL_OFFSET_TABLE_(%ecx)
+__x86.get_pc_thunk.cx:
+    movl    (%esp), %ecx
+    ret
+</code></pre>
+
+<p>
+これはfooの肥大化のかなりを削れるし、PLT thunkのための追加のキャッシュラインの必要な命令もひとつ減らせる。なかなかよさそうだ。
+</p>
+
+<p>
+なんで最初からこうなっていなかったのか。
+</p>
+
+<p>
+残念ながら、こうなっていなかったのには理由がある。その理由はよろしくない。
+</p>
+
+<p>
+PLTが存在するそもそもの理由は、メインプログラムが固定アドレスにロードされて（PIE以前の時代を考えてみよ）、position-independent codeを使わずにshared libraryの関数を呼び出すためのものだ。メインプログラムのPLTは、%ebxに隠しGOT引数を必要としない種類のものだ。なぜならば、固定アドレスであるため、自分のGOTには絶対アドレスを使えるのだ。ただし、メインプログラムはPLTを必要とする。なぜならば、レガシー(非PIC)なオブジェクトファイル、呼び出す関数が実行時に任意の場所にロードできることを知らないコードに対応するためのものだ。（そのようなオブジェクトファイルから、PLT thunkを生成して適切に結びつけられた、ダイナミックリンクされたプログラムを生成するのは、リンカーの仕事だ）
+</p>
+
+<p>
+position-independent codeはPLTを必要としない。例6で例示したように、GOT自信から目的のアドレスをロードして、間接的なcall/jumpを行える。position-independentna
+tなshared libraryコードにおけるPLTの利用は、PLTの別の利点を活用するためのものだ。すなわちlazy bindingだ。
+</p>
+
+<p>
+lazy bindingの基本
+</p>
+
+<p>
+lazy bindingが使われるとき、ダイナミック隣家ーは呼び出される側のシンボル名の検索をロード時まで遅延させる。名前検索は関数が最初に呼ばれる時まで遅延される。理論上、これは実行時のオーバーヘッドとして、やや複雑な機構と最初に関数を呼び出した時の遅延を犠牲に、起動時間を節約するものである。
+</p>
+
+<p>
+少なくとも、数十年前にこの機構が設計された時の理屈はそうであった。
+</p>
+
+<p>
+現在、lazy bindingはセキュリティの足かせとなっているし、パフォーマンス乗の利点というのも疑わしくなっている。最大の問題は、lazy bindingが機能するためには、GOTは実行時に書き込み可能でなければならないということだ。これは任意のコードの実行への攻撃ベクターとなってしまっている。近代的な強固なシステムはrelroを使う。これはGOTの一部ないしは全部を、ロード後にリードオンリーにする。しかし、lazy bindingするPLTのGOTスロットは、この防衛から外さねばならない。relroリンク機能の恩恵を受けるには、lazy bindingは無効にしなければならない。それには以下のようなリンクオプションを使う。
+</p>
+
+<pre><code>-Wl,-z,relro -Wl,-z,now
+</code></pre>
+
+<p>
+つまり、lazy bindingというのは、deprecated扱いされていると考えて差し支えない。
+</p>
+
+<p>
+そういうわけで、<a href="http://www.musl-libc.org/">musl libc</a>はlazy bindingを<a href="http://wiki.musl-libc.org/wiki/Functional_differences_from_glibc#Lazy_bindings">そういう理由と他の理由で</a>、サポートしていない。
+</p>
+
+<p>
+lazy bindingとPLT
+</p>
+
+<p>
+例5のPLT thunkの2行目と3行目を見よ。どのように動作しているかというと、bar@GOT(%ebx)は当初（lazy binding前）2行目へのポインターがダイナミックリンカーにより設定されている。2行目で定数0がpushされているのは、PLT/GOTスロット番号だ。jumpする先のコードはthunkで、スタックに引数としてpushされたスロット番号を使い、lazy bindingを解決するためのコードを呼び出す。
+</p>
+
+<p>
+例6で、同じことを実現するのは簡単ではない。同等のことをしようとすれば、呼び出し側を遅くさせ、呼び出すたびにコード重複が必要だ。
+</p>
+
+<p>
+つまり、効率的なx86 PIC関数呼び出しができないのは、大昔の間違った機能をサポートするためなのだ。
+</p>
+
+<p>
+幸い、修正可能だ。
+</p>
+
+<p>
+もし、lazy bindingを諦めることができればの話だ。
+</p>
+
+<p>
+Alexander MonakovはGCCの簡単なパッチを用意した。これはPLT経由のPIC呼び出しを無効にするものだ。ひょっとしたら上流に取り入れられるかもしれない。
+</p>
+
+<pre><code>diff --git a/gcc/config/i386/i386.c b/gcc/config/i386/i386.c
+index 3263656..cd5f246 100644
+--- a/gcc/config/i386/i386.c
++++ b/gcc/config/i386/i386.c
+@@ -5451,7 +5451,8 @@ ix86_function_ok_for_sibcall (tree decl, tree exp)
+   if (!TARGET_MACHO
+       &amp;&amp; !TARGET_64BIT
+       &amp;&amp; flag_pic
+-      &amp;&amp; (!decl || !targetm.binds_local_p (decl)))
++      &amp;&amp; flag_plt
++      &amp;&amp; (decl &amp;&amp; !targetm.binds_local_p (decl)))
+     return false;
+
+   /* If we need to align the outgoing stack, then sibcalling would
+@@ -25577,15 +25578,23 @@ ix86_expand_call (rtx retval, rtx fnaddr, rtx callarg1,
+       /* Static functions and indirect calls don't need the pic register.  */
+       if (flag_pic
+          &amp;&amp; (!TARGET_64BIT
++             || !flag_plt
+              || (ix86_cmodel == CM_LARGE_PIC
+                  &amp;&amp; DEFAULT_ABI != MS_ABI))
+          &amp;&amp; GET_CODE (XEXP (fnaddr, 0)) == SYMBOL_REF
+          &amp;&amp; ! SYMBOL_REF_LOCAL_P (XEXP (fnaddr, 0)))
+        {
+-         use_reg (&amp;use, gen_rtx_REG (Pmode, REAL_PIC_OFFSET_TABLE_REGNUM));
+-         if (ix86_use_pseudo_pic_reg ())
+-           emit_move_insn (gen_rtx_REG (Pmode, REAL_PIC_OFFSET_TABLE_REGNUM),
+-                           pic_offset_table_rtx);
++         if (flag_plt)
++           {
++             use_reg (&amp;use, gen_rtx_REG (Pmode, REAL_PIC_OFFSET_TABLE_REGNUM));
++             if (ix86_use_pseudo_pic_reg ())
++               emit_move_insn (gen_rtx_REG (Pmode,
++                                            REAL_PIC_OFFSET_TABLE_REGNUM),
++                               pic_offset_table_rtx);
++           }
++         else
++           fnaddr = gen_rtx_MEM (QImode,
++                                 legitimize_pic_address (XEXP (fnaddr, 0), 0));
+        }
+     }
+
+diff --git a/gcc/config/i386/i386.opt b/gcc/config/i386/i386.opt
+index 301430c..aacc668 100644
+--- a/gcc/config/i386/i386.opt
++++ b/gcc/config/i386/i386.opt
+@@ -572,6 +572,10 @@ mprefer-avx128
+ Target Report Mask(PREFER_AVX128) SAVE
+ Use 128-bit AVX instructions instead of 256-bit AVX instructions in the auto-vectorizer.
+
++mplt
++Target Report Var(flag_plt) Init(0)
++Use PLT for PIC calls (-mno-plt: load the address from GOT at call site)
++
+ ;; ISA support
+
+ m32
+</code></pre>
+
+<p>
+筆者は手元のGCC 4.7.3ツリーに似たような変更を加えて試してみたところ、以下のような出力を得られた。
+</p>
+
+<pre><code>foo:
+    call    __x86.get_pc_thunk.cx
+    addl    $_GLOBAL_OFFSET_TABLE_, %ecx
+    movl    bar@GOT(%ecx), %eax
+    jmp *%eax
+__x86.get_pc_thunk.cx:
+    movl    (%esp), %ecx
+    ret
+</code></pre>
+
+<p>
+理想的な関数からはまだ遠いが、今の出力よりははるかにマシだ。
+</p>
+
+</blockquote>
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。C++標準化委員会の文書集が公開されたが、これもすてがたかったのだ。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
