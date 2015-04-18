@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: The Old New Thing: なぜ環境変数にはTMPとTEMPがあるのか。どちらが正しいのか 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/04/the-old-new-thing-tmptemp.html">The Old New Thing: なぜ環境変数にはTMPとTEMPがあるのか。どちらが正しいのか</a></h1>
+
+<p>
+<a href="http://blogs.msdn.com/b/oldnewthing/archive/2015/04/17/10608077.aspx">Why are there both TMP and TEMP environment variables, and which one is right? - The Old New Thing - Site Home - MSDN Blogs</a>
+</p>
+
+<p>
+久しぶりにRaymond Chenの記事を翻訳する。
+</p>
+
+<blockquote>
+<p>
+環境変数を覗いてみると、一時ファイルを置いておく場所を指定する目的の変数が2つあることに気がつくだろう。TMPとTEMPだ。なぜ2つもあるのか。もし値が異なる場合、どちらが正しいのか。
+</p>
+
+<p>
+話は1973年にさかのぼる。この当時の一般的なマイクロコンピューター用のオペレーティングシステムはCP/Mだった。CP/Mオペレーティングシステムには環境変数がなかった。環境変数の話を始めるにしては不思議な時代だが、実は大事な話なのだ。環境変数が存在しなかったのだから、TMPやTEMPなどあるはずがない。当時、プログラムに一時ファイルを置いておく場所を指定したければ、プログラムごとに独自の方法で行う必要があった。たとえば、実行ファイルの特定の1バイトをパッチして一時オブジェクトを置いておくドライブレターを変更するなど。
+</p>
+
+<p>
+（筆者の記憶する限り、当時のほとんどのCP/Mプログラムはパッチによって設定していた。少なくとも、筆者はそのように設定していた。筆者はWordStarマニュアルに、どのバイトをパッチすればどのように動作するのかという記述があったことを覚えている。また、プリンター用に独自の動作を設定したい場合などに、利用者が独自のサブルーチンを書くことができる数十バイトのパッチスペースが設けられていた。筆者は、「プリンターは次の文字を受け取る用意があるか？」関数を書くのに使った。これでバックグラウンドでの印刷がスムーズになった。）
+</p>
+
+<p>
+1981年に話は飛ぶ。8086プロセッサーとMS-DOSオペレーティングシステムがやってきた。<a href="http://blogs.msdn.com/b/oldnewthing/archive/2004/01/05/47685.aspx">8086プロセッサーの設計</a>と、<a href="http://blogs.msdn.com/b/oldnewthing/archive/2008/07/07/8699128.aspx">MS-DOSおペーレーティングシステムの設計</a>は、CP/Mの影響を受けている。実際、<a href="http://www.patersontech.com/dos/byte%E2%80%93inside-look.aspx">8080プロセッサー用に書かれたCP/Mプログラムは、機械的に8086プロセッサー用のMS-DOSプログラムに変換できることが設計目標だった</a>。もちろん、変換器は自己改変コードとか、命令の途中にジャンプするとか、コードをデータとして扱うなどの変なトリックを使わないことを前提にしているが、健全なコードならば、変換器はプログラムを変換できたのだ。
+</p>
+
+<p>
+（8080プロセッサー用に書かれたコードを8086プロセッサー向けに機械変換できるという目標は、8086命令セットに存在するいくつかの不思議な制約を説明できる。たとえば、8080のHとLレジスターは、8086のBHとBLレジスターにマップされている。8080では、計算されたアドレスにアクセスできるレジスターはHLだけであった。これにより、なぜ8086の4つの基本的なレジスター、AX, BX, CX, DXのうち、メモリにアクセスできるのはBXだけなのかが説明できる）
+</p>
+
+<p>
+MS-DOSがCP/Mとの互換性以上に追加した機能として、環境変数がある。既存のCP/Mのプログラムは環境変数を使っていなかったので、初期のMS-DOSプログラムも使うことはなかった。なぜならば、最初のMS-DOS用のプログラムというのは、すべてCP/Mから移植されていたからだ。もちろん、TEMPやTMPといった環境変数を設定することはできるが、誰も注意を払うものなどいない。
+</p>
+
+<p>
+やがて、プログラムは最初からMS-DOS用に書かれるようになり、環境変数は設定データを格納するために使えることに皆気がついた。混沌とした市場から、2つの環境変数が、一時オブジェクトを格納する場所を記述するのに使われるようになった。TEMPとTMPである。
+</p>
+
+<p>
+MS-DOS 2.0はあるプログラムの出力をパイプして、別のプログラムの入力とする機能を追加した。MS-DOSはシングルタスクのオペレーティングシステムのため、この機能は、最初のプログラムの出力を一時ファイルにリダイレクトして、実行が終了するまで走らせ、しかる後に第二のプログラムを実行しつつ、入力は一時ファイルからリダイレクトするという方法でシミュレートされた。さて唐突に、MS-DOSは一時オブジェクトを作成する場所を必要とするようになった。何らかの理由で、MS-DOSの作者はTEMP環境変数を一時ファイルが作成される場所を指定する方法として使うことにした。
+</p>
+
+<p>
+ところで、COMMAND.comがTEMPを使うことにしたという決定は、他のプログラムがTEMPとTMPのどちらを使うかという選択には影響しない。作者の気分次第で選ばれるものだ。多くのプログラムは両方を確認するという折衷的な戦略を取った。そして、どちらの環境変数を先に確認するかというのも、やはり作者の気分次第で選ばれた。たとえば、昔のDISKCOPYとEDITプログラムは、TMPの前にTEMPを先に確認した。
+</p>
+
+<p>
+Windowsも似たような道をたどったが、何らかの理由で、GetTempFileName関数の作者は、TMPよりも先にTEMPを見にいった。
+</p>
+
+<p>
+結果として、特定のプログラムの一時ファイルに使われるディレクトリは、プログラムの種類次第となった。WindowsプログラムはGetTempFileName関数を使って一時ファイルを作成することが多く、その場合、TMPを優先する結果となった。
+</p>
+
+<p>
+環境変数の設定ダイアログをみると、まだ2つの変数、TMPとTEMPが生き残っていて、読者の興味をひきつけている。ギーク版のアディダスVSプーマのようなものだ。
+</p>
+</blockquote>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
