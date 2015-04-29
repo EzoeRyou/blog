@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: Linus Torvalds、「dbusはマジでクソだ」
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/04/linus-torvaldsdbus.html">Linus Torvalds、「dbusはマジでクソだ」</a></h1>
+
+<p>
+<a href="http://thread.gmane.org/gmane.linux.kernel/1930358/focus=1939166">Gmane Loom</a>
+</p>
+
+<p>
+Linus Torvaldsが、kdbusがdbusに比べてスピードアップしたということについてMLで話している。Linusの考えでは、dbusをカーネル側に持って行ったらコンテキストスイッチなどのオーバーヘッドを回避できるのでパフォーマンスアップにつながるという主張は間違っていて、現状のdbusのユーザースペースの処理が無駄にクソすぎるので遅いだけだという。
+</p>
+
+<blockquote>
+<pre>From: Linus Torvalds &lt;torvalds &lt;at&gt; linux-foundation.org&gt;
+Subject: Re: [GIT PULL] kdbus for 4.1-rc1
+Newsgroups: gmane.linux.kernel
+Date: 2015-04-27 22:00:09 GMT (1 day, 3 hours and 39 minutes ago)
+</pre>
+
+<p>
+On Mon, Apr 27, 2015 at 2:40 PM, Andy Lutomirski &lt;luto &lt;at&gt; amacapital.net&gt; wrote:
+</p>
+
+<p>
+&gt; "USER"を"SESSION"に変えてみては。
+</p>
+
+<p>
+動いた。
+</p>
+
+<p>
+&gt; ビルド方法は
+</p>
+
+<p>
+そんなこと誰がするか。俺はこうした。
+</p>
+
+<p>
+gcc client.c -o client $(pkg-config --cflags --libs gtk+-2.0)
+</p>
+
+<p>
+これでいけた。
+</p>
+
+<p>
+[訳注：先のLinusの発言]<br>
+&gt;&gt; とは言え、これはお前がpotatoでテストを動かしてるか、dubsが
+&gt;&gt; マジでクソかのどちらかだろ。1000バイトのメッセージを2万回往復
+&gt;&gt; するのに4秒以上もかかるのはありえん。とはいえ、さっきも言ったように
+&gt;&gt; 俺には何が起こっているのか確かめることもできん[訳注: Linusはdbusのビルドができなかった]
+&gt;
+&gt; いえーい、俺はこのメールをpotatoで書いているんだけど見てるー？
+</p>
+
+<p>
+いや、お前は正しいようだ。どうやらpotato説は違ったみたいだな。「dbusはマジでクソだ」説だ。
+</p>
+
+<p>
+こいつにカーネルフットプリントなどほぼありゃしねぇ。時間をすべてユーザースペースのオーバーヘッドで浪費してやがる。
+</p>
+
+<p>
+マジレスすると、プロファイルをちらっと見ただけでも、「kdbusはパフォーマンス上、重要だ」というのは完全に根拠のない話のようだ。これが問題の上位15だ。
+</p>
+
+<pre>   2.62%  gdbus    libc-2.20.so                [.] _int_malloc
+   2.43%  gdbus    libc-2.20.so                [.] free
+   2.31%  server   libc-2.20.so                [.] free
+   2.12%  gdbus    libc-2.20.so                [.] malloc
+   1.77%  gdbus    libglib-2.0.so.0.4200.2     [.] g_utf8_validate
+   1.43%  gdbus    libglib-2.0.so.0.4200.2     [.] g_slice_alloc
+   1.41%  gdbus    libglib-2.0.so.0.4200.2     [.] g_hash_table_lookup
+   1.28%  server   libc-2.20.so                [.] _int_malloc
+   1.27%  gdbus    libglib-2.0.so.0.4200.2     [.] g_mutex_lock
+   1.22%  gdbus    libglib-2.0.so.0.4200.2     [.] g_variant_unref
+   1.16%  server   libc-2.20.so                [.] malloc
+   1.14%  gdbus    libglib-2.0.so.0.4200.2     [.] g_bit_lock
+   1.07%  gdbus    libglib-2.0.so.0.4200.2     [.] g_slice_free1
+   1.05%  gdbus    libglib-2.0.so.0.4200.2     [.] g_bit_unlock
+   1.01%  gdbus    libglib-2.0.so.0.4200.2     [.] g_mutex_unlock
+</pre>
+
+<p>
+上位15にカーネル関数などありゃしねぇ。全部オーバーヘッドだ。これはサーバーサイドのものだが、クライアント側もほぼ同じだ。
+</p>
+
+<p>
+たぶんだが、kdbusのスピードアップとやらは、カーネルには一切関係がない。単にdbusサーバーのユーザースペースのクソを使わなくてすむようになったからだ。
+</p>
+
+<p>
+要するに、コンテキストスイッチを回避できるからとか宣う奴らはたぶん、単なるドアホだ。コンテキストスイッチじゃねーよ。クソなユーザースペースのコードのせいだ。
+</p>
+
+<p>
+Linus
+</p>
+
+</blockquote>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
