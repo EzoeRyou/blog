@@ -1,0 +1,223 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: GCC 5の変更点 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/04/gcc-5.html">GCC 5の変更点</a></h1>
+
+<p>
+GCC 5の変更点で興味深い部分を紹介してみる。
+</p>
+
+<p>
+<a href="https://gcc.gnu.org/gcc-5/changes.html">GCC 5 Release Series — Changes, New Features, and Fixes - GNU Project - Free Software Foundation (FSF)</a>
+</p>
+
+<p>
+まず、C言語のデフォルトが-std=gnu11になったことだ。C11にGCC拡張を付け加えたものがデフォルトとなる。
+</p>
+
+<p>
+__has_includeと__has_attributeのサポート
+</p>
+
+<p>
+__has_includeは、ヘッダーファイルがあるかどうかを確認できるプロプロセッサーの定数式の中で使える特殊な式で、特定のヘッダーファイルがあるかどうかを確認するのに使える特殊なマクロのように振る舞う。
+</p>
+
+<pre><code>// __has_includeが存在するか確認
+#ifdef __has_include
+// &lt;optional&gt;が存在するかどうか確認
+#   if __has_include(&lt;optional&gt;)
+#       include &lt;optional&gt;
+#   else
+#       define NO_OPTIONAL_HEADER 1
+#   endif
+#endif 
+</code></pre>
+
+<p>
+__has_attributeは、属性名に対して同様に働く。
+</p>
+
+<pre><code>#ifdef __has_attribute
+#   if __has_attribute(__noinline__)
+#       define ATTRIBUTE [[__noinline__]]
+#   else
+#       define ATTRIBUTE
+#   endif
+#endif
+</code></pre>
+
+<p>
+この機能は、C++の<a href="https://isocpp.org/std/standing-documents/sd-6-sg10-feature-test-recommendations">SD-6: SG10 Feature Test Recommendations</a>の実装だ。同時に、この提案のマクロも定義されている。
+</p>
+
+<p>
+__builtin_add_overflow, __builtin_sub_overflow, __builtin_mul_overflowの追加
+</p>
+
+<p>
+オーバーフローしたかどうかを返す。
+</p>
+
+<pre><code>void plus( unsigned int x, unsigned int y )
+{
+    unsigned int result ;
+
+    if ( __builtin_add_overflow( x, y, &amp;result ) )
+    {
+        // オーバーフローした
+    }
+    else
+    {
+        // オーバーフローしなかった
+    }
+}
+</code></pre>
+
+<p>
+3つの引数を取り、ひとつ目とふたつ目の引数を加算、減算、乗算したあと、結果をポインターとして取った3つめの引数に書き込む。また、戻り値として、オーバーフローしなかった場合はfalse, オーバーフローした場合はtrueを返す。
+</p>
+
+<p>
+変数テンプレートのサポート
+</p>
+
+<pre><code>template &lt; typename T, typename U &gt;
+constexpr bool is_same_v = std::is_same&lt;T, U&gt;::value ;
+
+constexpr bool b = is_same_v&lt;int, int&gt; ; // 
+</code></pre>
+
+<p>
+変数テンプレートは、変数宣言をテンプレートにできるC++14の新機能だ。
+</p>
+
+<p>
+テンプレートテンプレートパラメーターにおけるtypenameキーワードの許可
+</p>
+
+<pre><code>template &lt;
+    template &lt; typename T &gt;
+    typename U &gt;
+struct S ;
+</code></pre>
+
+<p>
+C++17に入った機能だ。
+</p>
+
+<p>
+アグリゲート初期化と非staticデータメンバー初期化子の併用ができるようになった。
+</p>
+
+<pre><code>struct S { int x ; int y = 2 ; } ;
+S s = { 1 } ; s.x == 1, x.y == 2
+</code></pre>
+
+<p>
+C++14のconstexprの制限緩和に対応。変数の宣言、変更、if分やループが書けるようになった。これにより、constexpr関数が普通に書けるようになった。
+</p>
+
+<pre><code>constexpr unsigned int f( unsigned int x )
+{
+    int temp = 0 ;
+    for ( ; x != 0 ; --x )
+    {
+        ++temp ;
+    }
+
+    return temp ;
+}
+</code></pre>
+
+<p>
+C++14のサイズ付き解放関数に対応。
+</p>
+
+<pre><code>void operator delete (void *, std::size_t) noexcept;
+void operator delete[] (void *, std::size_t) noexcept;
+</code></pre>
+
+<p>
+C++の最新の規格準拠のために、C++ライブラリのABIに非互換な変更が加えられた。新しいABIがデフォルトになる。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+今日は有給を取ったので仕事が休みだ。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
