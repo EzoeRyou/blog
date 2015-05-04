@@ -1,0 +1,203 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: constexprで非定数式の状態を保持
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/05/non-constant-constant-expressions-in-c.html">constexprで非定数式の状態を保持</a></h1>
+
+<p>
+<a href="http://b.atch.se/posts/non-constant-constant-expressions/">Non-constant constant-expressions in C++</a>
+</p>
+
+<p>
+なんと、C++のconstexpr関数を呼び出すたびに戻り値を変える方法があるという。つまり、以下のstatic_assertが引っかかるコードだ。
+</p>
+
+<pre><code>int main ()
+{
+    constexpr int a = f ();
+    constexpr int b = f ();
+
+    static_assert (a != b, "fail");
+}
+</code></pre>
+
+<p>
+なんと、constexpr関数は状態を保持できる計算能力を備えているというのだ。
+</p>
+
+<p>
+fはconstexpr関数である。
+</p>
+
+<p>
+読んでみたところ、要するにこうだ。
+</p>
+
+<p>
+noexcept演算子はオペランドが定数式かどうかを判別するのに使える。
+</p>
+
+<pre><code>// exprが定数式であればtrue
+constexpr bool b = noexcept( expr ) ;
+</code></pre>
+
+<p>
+未定義の関数は定数式ではない。
+</p>
+
+<pre><code>// 宣言
+constexpr int f( int ) ;
+
+void check1( )
+{
+    noexcept( f( 0 ) ) ; // false
+}
+
+// 定義
+constexpr int f( int ) { return 0 ; }
+
+void check2( )
+{
+    noexcept( f(0) ) ; // true
+}
+
+</code></pre>
+
+<p>
+friend宣言は関数の定義を書くことができる。
+</p>
+
+<pre><code>constexpr int f( int ) ;
+
+struct S
+{
+    friend constexpr int f( int ) { return 0 ; }
+} ;
+</code></pre>
+
+<p>
+friend宣言で定義した関数はADL経由でしか呼び出せないが、それは問題ではない。friend宣言が現れて初めてconstexpr関数fが定義され、呼び出しが定数式になるということだ。
+</p>
+
+<p>
+もし、frined宣言をするクラスをテンプレートにしたらどうなるだろうか。テンプレートが実体化した時だけ、関数fは定義されるということになる。
+</p>
+
+<pre><code>// 定義されたかどうかの1bitのフラグ
+constexpr int flag (int);
+
+// 関数を定義することでフラグ書き込む
+template&lt;class Tag&gt;
+struct writer {
+  friend constexpr int flag (Tag) {
+    return 0;
+  }
+};
+
+// writerの実体化を遅延させるためのラッパー
+template&lt;bool B, class Tag = int&gt;
+struct dependent_writer : writer&lt;Tag&gt; { };
+
+// 実際の使い方
+// 一回目に呼ばれた時点ではまだwriterが実体化しておらず、
+// flag&lt;int&gt;は定義されていない
+// 二度目以降に定義されるのでtrueとなる
+template&lt;
+  bool B = noexcept (flag (0)),
+  int    =   sizeof (dependent_writer&lt;B&gt;)
+&gt;
+constexpr int f () {
+  return B;
+}
+int main () {
+  constexpr int a = f ();
+  constexpr int b = f ();
+
+  static_assert (a != b, "fail");
+}
+</code></pre>
+
+<p>
+あとはこれを並べれば、何ビットでも状態が保持できる。
+</p>
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+GWは長い。今週は休みだが、有給を申請し忘れたので木金は出社する。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しているようですが、休暇中なのでa要素を使ってリンクしません。
+</p>
+
+<p>
+&lt;a href="http://info.dwango.co.jp/recruit/"&gt;採用情報｜株式会社ドワンゴ&lt;/a&gt;
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
