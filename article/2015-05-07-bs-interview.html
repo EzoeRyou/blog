@@ -1,0 +1,198 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: InfoQのC++17についてBjarne Stroustrupへのインタビュー記事の翻訳 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/05/infoqc17bjarne-stroustrup.html">InfoQのC++17についてBjarne Stroustrupへのインタビュー記事の翻訳</a></h1>
+
+<p>
+<a href="http://www.infoq.com/news/2015/04/stroustrup-cpp17-interview">Stroustrup: Thoughts on C++17 - An Interview</a>
+</p>
+
+<blockquote>
+<p>
+C++の設計者にして最初の実装者であるBjarne Stroustrupは、C++17の設計と新機能の議論の起爆剤となるための、<a href="https://isocpp.org/files/papers/D4492.pdf">ドラフト</a>を公開した。Stroustrupによれば、C++17は以下の3つの設計目標がある。
+</p>
+
+<ul>
+<li>巨大な依存関係のあるソフトウェアのサポートの改良</li>
+<li>並列実行に高級なモデルのサポートの提供</li>
+<li>コア言語を簡単にする</li>
+</ul>
+
+<p>
+上記の設計目標について、StroustrupはC++17に入る以下もしれない機能を列挙した。Stroustrupの好ましいと考える機能の例が以下だ。
+</p>
+
+<ul>
+<li><a href="http://www.open-std.org/JTC1/SC22/WG21/docs/papers/2015/n4465.pdf">モジュール</a>、ローカル性とコンパイル時間の改良</li>
+<li><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4378.pdf">契約</a>、仕様の改良</li>
+<li>型安全union、関数型プログラミング風の<a href="http://www.stroustrup.com/OpenPatternMatching.pdf">パターンマッチ</a>を土台にしたものになるだろう</li>
+<li><a href="http://www.open-std.org/JTC1/SC22/WG21/docs/papers/2015/n4361.pdf">コンセプト</a></li>
+<li><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4128.html">レンジ</a></li>
+<li><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4474.pdf">統一関数呼び出し記法</a>、仕様とテンプレートライブラリ利用を簡単にする</li>
+<li><a href="http://www.open-std.org/JTC1/SC22/WG21/docs/papers/2015/n4397.pdf">コルーチン</a>、レジューム可能関数</li>
+<li><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4454.pdf">SIMDベクトル演算</a>、近代的なハードウェアをより効率的に使う</li>
+</ul>
+
+<p>
+Stroustrupは、「言語とライブラリの新機能の一覧」をもって、C++17がどのようなものになるかを説明することはできないと注意を促している。C++17は、C++14と違い、メジャーリリースであるため、少なくとも、言語がユーザーに与える影響として「2つか3つほどの大きな機能」が入っているべきであるとしている。例えば、コンセプトやモジュールやレンジなど。
+</p>
+
+<p>
+この文書は興味深いことに、C++17が目指さないことについても書いてある。特に、Stroustrupが不適切であるとしたものは以下の通り。
+</p>
+
+<ul>
+<li>C++を急激に別言語にすることや、言語のサブセット言語を作ること</li>
+<li>「他の言語がみんなサポートしている」とか、新しいパラダイムをサポートするという理由だけによって、新機能を追加すること</li>
+<li>言語を複雑にしたり、システムプログラミング用の言語としての力を阻害すること</li>
+</ul>
+
+<p>
+InfoQはStroustrupと話す機会を得た。
+</p>
+
+<p>
+InfoQ、「C++17の機能一覧についてコメントをくれませんか。優先順位はありますか」
+</p>
+
+<p>
+Stroustrup:
+</p>
+
+<p>
+コンセプトは既存のジェネリックプログラミングへの考え方を改めるだろう。ジェネリックプログラミングをさらに主流のものとする。コンセプトはエラーメッセージが難解であるという不満への解決でもある。それには、標準ライブラリにコンセプトを対応させなければならない。
+</p>
+
+<p>
+モジュールはコンパイル時間とマクロの濫用を劇的に改善し、優れたC++のツール開発につながるだろう。
+</p>
+
+<p>
+高級な並列実行モデルは並列コードを書くのをとても簡単にし、低級なスレッドとロックによる並列コードよりも、結果のコードの実行を高速にするだろう。
+</p>
+
+<p>
+これらの機能はコードを簡単にすることで品質を向上させるので、理想的だ。
+</p>
+
+<p>
+InfoQ、「ここ数年と今後の標準化委員会のC++17働きにより、C++言語はよく議論される制限を克服しようとしているように見えます。これは、「委員会による設計」は実用的なものを生み出さないという意見を否定的に証明しているようです。委員会による設計についてコメントをください。どのようにすれば成功するのでしょうか。」
+</p>
+
+<p>
+Stroustrup:
+</p>
+
+<p>
+委員会による設計の問題を見過ごすことはできない。100人もの個人（会議に出てこないものまで含めれば、あるいは300人もの個人）からなる集団から、なにか新しい、信頼できる、統一感のあるものを創りだすのは並大抵ではない。
+</p>
+
+<p>
+我々がやっていけるのは驚異的なことだ。もちろん、もっとうまくやれた部分もある。もちろん、委員会として活動するのは埒が明かないときもある。しかし、このスケールは、個人ではやり遂げることができない。これは委員会か個人かどちらがよいかという問題ではなく、委員会として活動するのが必須であるというだけの話だ。この世界の重要なことで、個人によって成り立っているものは実に少ない。
+</p>
+
+<p>
+InfoQ、「C++17はC++が根本的に、低級（言語の意味をとても細かく操作できるという意味）で、マルチパラダイムで、複雑な言語であるということを示しています。しかし、委員会の目的に言語を使いやすくするということが含まれています。C++をより使いやすくするという委員会の思想についてお答えください。」
+</p>
+
+<p>
+Stroustrup:
+</p>
+
+<p>
+言語の低級性高級性について考えるのは間違いだ。C++はハードウェアを直接操作することを妨げないということと、それに加えて、隠匿の仕組みを用いて、必要であればより高級に隠匿できるものとして考えるべきだ。ハードウェアに近いプログラミングは必要だが、あまり快適ではない。C++はゼロオーバーヘッドの隠匿を可能とし、コストを加えずしてハードウェアから離れることができる。「ゼロ隠匿」というのは、手で書いた低級な実装よりも、1バイトも1サイクルも無駄にしないということだ。関数呼び出しのオーバーヘッド（特に間接的な関数呼び出し）ですら懸念される。ハードウェアアクセスと隠匿を同時に提供するのが、C++の考えだ。それを効率的に行うというのが、他の言語との違いだ。
+</p>
+
+<p>
+私はこれをもう「マルチパラダイム」とは呼んでいない。なぜならば、私はこの言葉が、言語のすべての力を活用するより、単にひとつのパラダイムを選択してソレだけを使うことを推奨してしまっていると気がついたからだ。残念ながら、私はこれに変わるいいバズワードを思いついていない。
+</p>
+
+<p>
+委員会が何らかのひとつの思想を持っているというのは公平ではないだろう。我々は多くの個人であり、それぞれ異なる事情と視点を持っている。多くはC++について上記のことに同意している。これがC++の精神であり、誤解してはいけない。我々は互換性を厳格に守らなければならないということについても同意している。C++業界は改良を求めるが、しかし、この業界は絶対に絶対に既存の何十億行ものコードが、その改良の結果として壊れることを望まない。どのような改良をしたかの詳細については重要だ。これはまともな時間内に実現可能でなければならないし、言語とライブラリでどのように表現するかということも重要だ。これは多くの集団で合意が得られにくいものだが、合意は必須だ。だからこの文書を書いたのだし、次の会議でもこのことについて話すのだ。
+</p>
+
+<p>
+私がC++とその標準化に多大な時間を費やしてきたのは、これが多くの業界にとって重要だからだ。コンピューター、セミコンダクター、交通、電信、ファイナンス、製造業、旅客機、娯楽業界、などなど。多くの重要なシステムやガジェットの中身を見てみると、だいたいC++が使われている。この事実と、ソフトウェアシステムによって科学に貢献していることが、私の動機だ。C++は<a href="http://www.stroustrup.com/applications.html">重要な財産</a>を作るために使うためのツールだ。
+</p>
+
+</blockquote>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。最近、ドワンゴがITSCJの規格賛助員になったので、いつかC++標準化委員会の国際会議にも出席してみたいものだ。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
