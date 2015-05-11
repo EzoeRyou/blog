@@ -1,0 +1,476 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: D4492: Bjarne StroustrupによるC++17の考察の翻訳
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/05/april-2015-standard-c-cwgml-what-will.html">D4492: Bjarne StroustrupによるC++17の考察の翻訳</a></h1>
+
+<p>
+<a href="https://isocpp.org/blog/2015/04/d4492">April 2015 : Standard C++</a>
+</p>
+
+<p>
+C++WG内部のMLで議論していた内容が、どこからか外部に流れて、様々なフォーラムで話題になっている。
+</p>
+
+<p>
+<a href="http://www.reddit.com/r/programming/comments/33us7z/what_will_c17_be_bjarne_stroustrup_on_c17_goals/">“What will C++17 be?” -- Bjarne Stroustrup on C++17 goals : programming</a>
+</p>
+
+<p>
+<a href="https://news.ycombinator.com/item?id=9441245">What will C++17 be? | Hacker News</a>
+</p>
+
+<p>
+<a href="http://forums.theregister.co.uk/forum/2/2015/04/27/c_daddy_bjarne_stroustrup_outlines_directions_for_v17/">C++ Daddy Bjarne Stroustrup outlines directions for v17 • The Register Forums</a>
+</p>
+
+<p>
+これを受けて、Bjarne Stroustrupは議論をまとめて標準化委員会の論文として公開することにしたが、それも時間がかかるので、ドラフトがC++財団にあがっている。
+</p>
+
+<p>
+<a href="https://isocpp.org/files/papers/D4492.pdf">[PDF注意] D4492</a>
+</p>
+
+<blockquote>
+<p>
+C++17の考察
+</p>
+
+<p>
+Bjarne Stroustrup
+</p>
+
+<p>
+このドラフトはLexena会議における議論の方向を定めるためのものである。
+</p>
+
+<p>
+これは標準化委員会内部のやり取りが外部に流通して広く議論されていたのを、ドキュメント化する価値があるので、意見を参考にまとめたものだ。委員会内のわかりにくい符牒は置き換えるようつとめた。内部で議論したり、Web上で議論した人間に感謝する。筆者はリンクも追加した。これは正式な論文や提案というよりは、議論のための考えの列挙に過ぎない。
+</p>
+
+<p>
+この文章は委員会のメンバーに向けて書かれたものだが、いつのまにか公に出回った。以下がWeb上のコメントの一部である。
+</p>
+
+<ul>
+<li>
+<a href="http://www.reddit.com/r/programming/comments/33us7z/what_will_c17_be_bjarne_stroustrup_on_c17_goals/">http://www.reddit.com/r/programming/comments/33us7z/what_will_c17_be_bjarne_stroustrup_on_c17_goals/</a>
+</li>
+
+<li>
+<a href="http://forums.theregister.co.uk/forum/1/2015/04/27/c_daddy_bjarne_stroustrup_outlines_directions_for_v17/%23c_2500733">http://forums.theregister.co.uk/forum/1/2015/04/27/c_daddy_bjarne_stroustrup_outlines_directions_for_v17/%23c_2500733</a>
+</li>
+
+<li>
+<a href="https://news.ycombinator.com/item?id=9441245">https://news.ycombinator.com/item?id=9441245</a>
+</li>
+
+</ul>
+
+<p>
+見てわかるように、委員会外の人間も、強い意見を持っている。これらの意見は、筆者が委員会内で聞くものとはかなりかけ離れているし、現実ともかけ離れている。
+</p>
+
+<p>
+筆者は、「C++17はどのようになるのか？」とか、「C++17は私に何をもたらすのか」といった質問をよくされる。「よくされる」というのは、「ほぼ毎週2回以上」程度である。私はC++17がどのようになるかを簡単に説明することができないので、この質問に対しては自信恥ずかしい思いをする。言語機能や標準ライブラリの一覧は、納得できる答えではない。
+</p>
+
+<p>
+筆者はC++98, C++11, C++14における目標について話そうと思う。今のC++を実現してきた目標とは何か。
+</p>
+
+<p>
+今と同じように、かつてもC++を委員会による設計の弊害を受けた汚らしい成れの果てだとみなす風潮があった。これは、委員会が組織される前から言われていたことだが、今や更にひどく言われているように思う。今やC++はより巨大になった（特に標準ライブラリを考慮すると）。そのことと、現在の大量の提案を考えれば、その指摘にも一理あるように見える。この手の連中が、変態的な技法を用いたパズルめいたものを提出して攻め立てるのはいらただしいことだ。その手のものは、筆者からすれば、「何か問題があるのかね。もちろんメタハンマーで頭を叩くのは痛いだろう。だからそんなことはするな」というカテゴリーに分類されるべきものである。連中は委員会の責め立てる。そのようなコードはたいてい、C++を貶めるために使われるものだ。よりよいソフトウェアを書いたりするのに役に立たないばかりか、。人々をC++の学習から遠ざけてしまう。
+</p>
+
+<p>
+物を作るより批判するほうが簡単だ。
+</p>
+
+<p>
+Robert Klarerが言うには、「委員会による設計に対する懸念は、必要以上に恐れられている。そもそも、この世界の殆どの者は委員会によって設計されているというのに。人間によって作られたもので、何らの協調作業も発生していないものは極めて少ない」と。我々はチームで作業しなければならない。他の方法はないのだ。
+</p>
+
+<p>
+C++は多くの利用例において最良のツールである。特に、リソースの制約が厳しいであるとか、巨大であるとか、利用期間が長いなどの過酷な用途に向いている。これをさらに改良し、かつ初心者にわかりやすくし、それほど過酷ではない仕事（ただし、大抵は急いでいる）に従事する人にも使いやすくしたい。
+</p>
+
+<p>
+さて、C++17はどのようなものになるべきか。私の考えはこうだ。
+</p>
+
+<ul>
+<li>巨大な依存のあるソフトウェアのサポートの改良</li>
+<li>高級な並列実行モデルのサポートの提供</li>
+<li>コア言語の利用を簡単にする。とくに、STLと並列実行と、主要な間違いの元を改良する</li>
+</ul>
+
+<p>
+最後の項目は、先の2つの項目の書き直しでもある。
+</p>
+
+<p>
+そして以下が、C++11やC++14で継続して行ってきたことの簡単なまとめだ。実際、C++の長期的な目標からはあまり違わない。
+</p>
+
+<ul>
+<li>B. Stroustrup: <a href="http://www.stroustrup.com/hopl2.pdf">A History of C++: 1979-1991</a>. Proc ACM History of Programming Languages
+conference (HOPL-2).</li>
+<li>B. Stroustrup: <a href="http://www.stroustrup.com/hopl-almost-final.pdf">Evolving a language in and for the real world: C++ 1991-2006</a>. ACM HOPL-III. June
+2007. (incl. slides and videos).</li>
+<li>B. Stroustrup: <a href="http://www.stroustrup.com/dne.html">The Design and Evolution of C++</a>. Addison Wesley, ISBN 0-201-54330-3.</li>
+</ul>
+
+<p>
+標準化委員会はC++の根本的な強みを維持しなければならない。
+</p>
+
+<ul>
+<li>ハードウェアに直接マッピング可能なこと（Cから）</li>
+<li>ゼロオーバーヘッドの隠匿(Simulaから)</li>
+</ul>
+
+<p>
+[訳注：Simulaは極めてオーバーヘッドが大きかったので反面教師的な意味合いか？]
+</p>
+
+<p>
+この強みから離れると、その言語はもはやC++ではなくなる。別の目標を持った言語は様々ある。他の言語とてすべての問題に対する解決を提供しているわけではない。当初の目標から外れず、変化を受け入れる姿勢こそが、理想に近づけるのだ。C++は計算機の歴史上、もっとも成功した言語の一つとなった。これを維持するためには、2つの落とし穴を避けねばならない。
+</p>
+
+<ul>
+<li>過去を捨て去ること（例、互換性を深刻に失うこと、C++は長期的に使われるシステムで多用されてきた）</li>
+<li>新しい問題への対処を怠ること（例、高級な並列実行モデルをサポートしないこと。C++は並列実行の需要を満たすために多用されている）</li>
+</ul>
+
+<p>
+さて、これが基本だ。以下が詳細だ（関連する論文へのリンクもある）
+</p>
+
+<ul>
+<li>
+<p>
+巨大な依存するソフトウェアのサポートの改良
+</p>
+
+<ul>
+<li>モジュール（ローカル性とコンパイル時間の改良、<a href="http://www.open-std.org/JTC1/SC22/WG21/docs/papers/2015/n4465.pdf">http://www.open-std.org/JTC1/SC22/WG21/docs/papers/2015/n4465.pdf</a>、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4466.pdf">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4466.pdf</a>）</li>
+
+<li>契約（仕様書の改良、<a href="http://www.open-
+std.org/jtc1/sc22/wg21/docs/papers/2015/n4378.pdf">http://www.open-
+std.org/jtc1/sc22/wg21/docs/papers/2015/n4378.pdf</a>、<a href="http://www.open-std.org/JTC1/SC22/WG21/docs/papers/2015/n4415.pdf">http://www.open-std.org/JTC1/SC22/WG21/docs/papers/2015/n4415.pdf</a>）</li>
+
+<li>
+型安全union（おそらく関数型プログラミング風のパターンマッチ、Mach7ライブラリを使ったUrbana発表をベースにしたものになる。Yuriy Solodkyy,
+Gabriel Dos Reis and Bjarne Stroustrup: <a href="http://www.stroustrup.com/OpenPatternMatching.pdf">Open Pattern Matching for C++</a>. ACM GPCE'13.
+implementability）
+</li>
+</ul>
+
+</li>
+
+<li>
+<p>
+高級な並列実行モデルのサポートの提供
+</p>
+
+<ul>
+
+<li>
+基本的なネットワークのためのasio（<a href="http://open-std.org/JTC1/SC22/WG21/docs/papers/2015/n4478.html">http://open-std.org/JTC1/SC22/WG21/docs/papers/2015/n4478.html</a>）
+</li>
+
+<li>
+SIMDベクトル演算（現代の高パフォーマンスハードウェアを効率的に使うため、例、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4454.pdf">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4454.pdf</a>。ただし、筆者は単なる並列ループを書くための方法ではなく、本物のベクトル演算がほしい。）
+</li>
+
+<li>
+futureの改良（例、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3857.pdf">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3857.pdf</a>、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3865.pdf">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n3865.pdf</a>）
+</li>
+
+<li>
+コルーチン（1990年以来、ようやく登場、<a href="https://isocpp.org/files/papers/N4402.pdf">https://isocpp.org/files/papers/N4402.pdf</a>、<a href="https://isocpp.org/files/papers/N4403.pdf">https://isocpp.org/files/papers/N4403.pdf</a>、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4398.pdf">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4398.pdf</a>）
+</li>
+
+<li>
+トランザクショナルメモリー、<a href="http://open-std.org/JTC1/SC22/WG21/docs/papers/2014/n4302.pdf">http://open-std.org/JTC1/SC22/WG21/docs/papers/2014/n4302.pdf</a>
+</li>
+
+<li>
+並列アルゴリズム（STLの並列実行版を含む、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4409.pdf">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4409.pdf</a>）
+</li>
+
+</ul>
+
+</li>
+
+<li>
+<p>
+コア言語の利用を簡単化する。特に、STLと並列関連。そして有名な間違いの元を断つ。
+</p>
+
+<ul>
+<li>
+コンセプト（<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3701.pdf">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3701.pdf</a>、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4361.pdf">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4361.pdf</a>）
+</li>
+
+<li>
+標準ライブラリのコンセプト（レンジの設計を参考、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4263.pdf">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4263.pdf</a>）
+</li>
+
+<li>
+レンジ（STLの利用を簡単化する。<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4128.html">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4128.html</a>、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4382.pdf">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4382.pdf</a>）
+</li>
+
+<li>
+デフォルト比較（基本的な操作の補完サポート、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4475.pdf">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4475.pdf</a>、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4476.pdf">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4476.pdf</a>）
+</li>
+
+<li>
+統一関数呼び出し記法（コンセプトとSTL風のライブラリの利用が便利になる。<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4474.pdf">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4474.pdf</a>）
+</li>
+
+<li>
+operator dot(プロクシーやスマートリファレンスが実装できる。<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4477.pdf">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4477.pdf</a>)
+</li>
+
+<li>
+array_viewとstring_view（範囲チェックの改良、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4480.html">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4480.html</a>）
+</li>
+
+<li>
+スタック上の配列（stack_array？　スタックオーバーフローを安全に処理できる方法について定める必要がある。<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4294.pdf">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4294.pdf</a>）
+</li>
+
+<li>
+optional（パターンマッチに取り込まれなければの話で、C++17には間に合わないと個人的には思う。<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4480.html">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4480.html</a>）
+</li>
+
+</ul>
+</li>
+
+</ul>
+
+
+<p>
+筆者はライブラリと言語機能を意図的に分割しなかった。そういう区別は一般ユーザーには無意味なものだからだ。
+</p>
+
+<p>
+筆者の予想では、C++17は2017年に制定される。標準的なISOの10年リリースサイクルに戻るべきだとは思わない。
+</p>
+
+<p>
+この表に好きな機能がないとしたら？　それはフレームワークに取り込んで使える機能だろうか？　C++の目標は変えるべきだろうか？　主要な目標は3つ程度であるべきで、後の2つは外せない重要なものだ。なにかよりよい目標を設定できるだろうか？
+</p>
+
+<p>
+もし、お気に入りの機能が今回入らなかったとして、C++20の時間枠に入るだろうか？　筆者は、単に自分の提案だからという理由ではなく、短期から中期（C++17, C++20）において、いま重要だと思うことに注力している。
+</p>
+
+<p>
+歴史的に、委員会は、目標にそぐわなかったとしても、自明に有用でよく使われているものを追加しようとしてきた。complex&lt;T&gt;はそのいい例だ。そのようなことは二度としないとはいわないが、頻繁に行うべきではない。そのような方向性の定まらないアイディアで、重要な目標や納期を見失ってはならない。
+</p>
+
+<p>
+C++17は、マイナーリリースだったC++03やC++14と違い、メジャーリリースとなる予定である。何か主要な機能を提供しなければ失望されるだろう。筆者の考えでは、2つか3つほどの主要機能と、いくつかの中規模な機能と、いくつかの小規模なものが、最低限の許容可能で実現可能なものだろう。筆者は規模の大小について、標準規格の文面の量ではなく、ユーザーに与える影響で考える。そのため、コンセプト、モジュール、レンジは大規模（そして筆者の好ましいと思う機能）で、デフォルト比較やstd::optionalは小規模だ。（とはいえ、筆者の好みの機能だ）
+</p>
+
+<p>
+無関係の機能やライブラリを大量に追加するのは、言語を複雑にし、初心者にも、「通常のプログラマー」にも、C++を恐れさせてしまう。一部のエキスパート（標準化委員の一部とその身内）は満足だろうが、目標を明確に見据えなければ、一般のプログラマーを惹きつける魅力は得られない。これを「マーケティング」と呼ぶ人もいるだろうが、筆者は、「設計」と呼びたい。
+</p>
+
+<p>
+わかりやすい例を出すと、STLはそのいい例だ。もしAlex Stepanovがたった数種類のコンテナーと数個のアルゴリズムしか提案しなかったのであれば、その提案は今よりとてもわかりやすかっただろうが、STLに与えた影響は今よりも軽微であっただろう。実際、STLは変わっていくものである。筆者はコンセプトとコンセプトベースの標準ライブラリが次のいい例となることを期待している。「委員会による設計」の典型例となって嫌われることは望まない。
+</p>
+
+<p>
+筆者がしたくないこと：
+</p>
+
+<ul>
+<li>C++を劇的に違う言語にすること</li>
+<li>分割された言語のサブセットを提供することで、C++の一部をさらに高級な言語とすること</li>
+<li>新しいパラダイムをサポートするためにC++に機能をツギハギすること</li>
+<li>C++が必要とされている分野でC++が使われることを妨げること</li>
+<li>99%の利用者にとってC++を使う際の複雑性を上げることによって、1%（標準化委員とその身内）を利すること</li>
+</ul>
+
+<p>
+このどれもが失敗のもとだ。
+</p>
+
+<p>
+これについては同意できるだろうが、果たして読者はその同意を維持できるだろうか。怪しいものだ。抽象的な目標について同意することはできても、その目標の意味する具体的なところについては、何かができなくなったり、納期に間に合わせるために後回しにしたりしなければならないため、この基本目標への同意は用意に破られやすい。「何を捨てるのか決定するのが難しいのだ」とはよく言ったものだ。
+</p>
+
+<p>
+もちろん、筆者は特定の一覧の他は一切C++を改良するための提案を行わないことを主張しているわけではないが、しかし、なにか優先度について合意をしておかなければ、委員会には何十もの「ほぼ完了した」主要機能が2016年に溜まり続け、機能追加を辞める段階になっても、どれも規格制定には至らない状態になっていることだろう。何十もの小規模な、独立した機能は、我々がプログラムを構築するのにそれほどの影響をもたらさないので、主要機能ほどの魅力はない。
+</p>
+
+<p>
+Pete Beckerの言葉を要約すれば、鉄の三原則とは、機能、品質、納期だ。2つまでならば選んでもよい。選択をしなければ、委員会は何も選ばなかったことになる。
+</p>
+
+<p>
+委員会の避けるべき悪い習慣、C++批判の燃料となる習慣：
+</p>
+
+<ul>
+<li>言語機能よりもライブラリのほうが標準化委員会で受け入れられやすいのでライブラリとして提供する（たとえその提供する機能が根本的なものであると主張する十分な材料があるとしても）</li>
+<li>既存の機能と組み合わせた使い方は互換性の問題を生ずるので、独立した機能として提供する。これは単に組み合わせを将来に先送りするだけだ</li>
+<li>2つの相反する選択肢がある場合に、両方とも採用する。あるいは選択肢を3つにして、最初の2つの選択肢を、投票権を持つ全員が喜ぶ形に書き直す（これは純粋に委員会による設計だ）</li>
+<li>自分のお気に入りの提案に費やす時間と労力が足りないために、別の提案に反対する</li>
+<li>超短期的な利益のみを追求する</li>
+<li>現在の自分の仕事に関係のない提案に反対する。他人を利する改良を停滞させる。</li>
+<li>論文の文面に注力して、ユーザーの需要を無視して、現在の文面に一致する技術的な選択をする。</li>
+<li>文法の多さはプログラマーを楽にするはずだという考え</li>
+<li>ライブラリ作者などのエキスパート達のみを相手にして、大多数の現在と潜在的な世間一般のC++プログラマーを無視する</li>
+<li>「現在の流行」を追い、C++のプログラミング流儀に与える影響と既存のC++機能との併用を考えずに、他の人気の言語からの機能をダメ押しする</li>
+<li>既存の機能との併用を避けるために、提案を自己完結させる</li>
+<li>すでに提案されている他の提案を無視する</li>
+<li>「原則」を神聖にして不可侵るものだと主張する</li>
+<li>完璧でないものを受け入れない</li>
+<li>何でもしようとする</li>
+</ul>
+
+<p>
+こういうことをしてはいけない。
+</p>
+
+<p>
+筆者がよく聞かれることに、特に、影響力がある有名人に聞かれることに、D&amp;E 2を予定していないかということがある。予定していない。筆者はC++の利用と改良にとても忙しい。しかし、もし引退するのが都合がいいと考えたならば、D&amp;E 2はよい企画だ。しかし、そのためには言語と友人をけなす必要が内容にしなければならない。委員会は自ら誇って語れるものを制定する必要がある。
+</p>
+
+<p>
+標準化委員会には長期的な目標が必要だが、そういう目標は、往々にして「カーチャンの味噌汁の味付け」のような絶対に反論不可能なものになる。委員会には短期的な目標も必要だ。さもなければ、現在の誰かの問題を解決するためだけの機能を追加し続けることになり、将来の発展の妨げになり、機能の重複にもつながる。これは、筆者が、「開発者視点の思考」と名付けるもので、何十年も存続する長期的なプロジェクトにはふさわしくない。目標についてよく考える必要がある。筆者の主要な目標は、長期的な利益の方にバイアスがかかっており、残りの2つは、C++17についてだ。
+</p>
+
+<p>
+標準化の仕事では、標準化委員は単なる開発者ではいられない。成功するためには、委員は、研究、目標の設定、計画、管理、実装、教育と普及などなどの様々な役割をこなさなければならない。
+</p>
+
+<p>
+標準化委員会はなにか大きなものをC++17で制定しなければならない。筆者が考えるに、委員会はその方向で動いている。実験と称して規格制定を遅らせたり、小さな改良のみに注力するのは大きな間違いだと思う。つまり、標準化委員会はいくつかの大きな問題と、それを支える小さな問題に注力しなければならない。筆者の恐れることは、委員会はすべてのことをしたがるあまりに、すべての提案を等しい優先度で扱い、結果として、全方向に僅かな改良だけが得られるということだ。明らかに、C++20まで先送りにしなければならないものもある。標準化委員会にはStudy GroupとTS(ISO Technical Specification)があり、両方共、標準化のために必要な諸々の作業を提供することができる。現在作業しているすべての労力がC++に入るわけではないし、好ましいもののみがC++17に入るわけでもない。大きな集団にありがちな、利己的な目標を達成するために規則を悪用するようなことにはなってほしくないものだ。
+</p>
+
+<p>
+「でさ、Bjarne」と私の友人の一部が笑いながら言う。「お前が本当に考えてることを聞かせてくれよ」と。つまり、私の考えていることはあまりにも尊大で誰かを侮辱するかもしれないということだ。私の考えることが、誰か、C++コミュニティの利益を考える人間を侮辱するということはない。実際、私の言っていることは侮辱ではない。
+</p>
+
+<p>
+さて、これが個人的なC++17のトップ10リストだ（順不同）
+</p>
+
+<ul>
+<li>コンセプト（ジェネリックプログラムを詳細に規程できる上、エラーメッセージの品質が悪いという不満を解消できる）</li>
+<li>モジュール（マクロから独立できる上、コンパイル時間の短縮になる）</li>
+<li>レンジとその他のコンセプトを使ったSTLコンポーネント（エラーメッセージの改良とSTL2としてのライブラリ文面の改良）</li>
+<li>統一関数呼び出し記法（仕様の簡単化とテンプレートライブラリ利用の簡略化）</li>
+<li>コルーチン（とても高速で簡単であるべき）</li>
+<li>ネットワークのサポート（TSのasioベース）</li>
+<li>契約（C++17の標準ライブラリで使われる必要はない）</li>
+<li>SIMDベクトル演算と並列アルゴリズム</li>
+<li>コルーチン[訳注：原文ママ]</li>
+<li>optional, variant, string_view, array_viewのような"vocabulary type"</li>
+</ul>
+
+<p>
+最後に、筆者は言語とライブラリと、新機能と、既存の機能との、一貫性の重要について再び記しておく。標準化委員会の目標は、関係性の曖昧な機能群ではなく、有用なアイディアのための一貫した言語でなければならない。
+</p>
+
+<p>
+この一覧表はすべて、C++17の標準規格の文面に入れるのに現実的であり、コンパイラーとライブラリの実装も現実的である。ほとんどの機能は、すでに何らかの形で存在している。重要なのは、どのように設計するか、どのようにコードを書くかである。
+</p>
+
+<p>
+これが、筆者の機能一覧だ。C++コミュニティの利益と、実現性を考えた結果だ。読者の機能一覧はこれとは異なるかもしれない。よく考えてもらいたい。私の好む提案で、特に筆者も著者となっている論文で、この一覧にあげていないものもある。解決すべき問題があるが、まだ技術的な解決法がないのだ。例えば、標準C++ABIなど。筆者が思うに、C++17にはまだいくつかの提案が出てくるだろうから、これを最終的な機能一覧だとは考えないでもらいたい。これは議論を集中させるための土台で、最終決定ではない。それに、まだTSもある。
+</p>
+
+<p>
+C++17制定後は、C++20がC++17を完成させるだろう。C++14がC++11に大してそうだったように。
+</p>
+
+
+</blockquote>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。この翻訳は疲れた。
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
