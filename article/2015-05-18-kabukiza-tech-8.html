@@ -1,0 +1,575 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 歌舞伎座.tech #8 「C++初心者会」を開催した
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/05/tech-8-c.html">歌舞伎座.tech #8 「C++初心者会」を開催した</a></h1>
+
+<p>
+<a href="http://kbkz.connpass.com/event/13905/">歌舞伎座.tech#8「C++初心者会」 - connpass</a>
+</p>
+
+<p>
+5月17日に、歌舞伎座.thch #8 「C++初心者会」を開催した。
+</p>
+
+<p>
+今回は、勉強会の初心者が発表できる場を設けようという意図から、発表枠には、初心者枠とガチ枠を設けた。これにより初心者が積極的に発表しやすくなるはずだ。さて、問題は参加者と発表者が集まるかどうかだ。いざフタを開けてみると閑古鳥が鳴いているようでは極めて痛い。
+</p>
+
+<p>
+さて、connpassで告知と募集を開始すると、参加枠が即座に埋まっていく。どうやら勉強会の需要はあるようでまずは一安心だ。発表枠も埋まり始めたが、その参加者を見ると、どうも、技術的、勉強会的にみて、初心者とは思われない。
+</p>
+
+<p>
+さて、公開直後の参加申し込みの波がひけてみると、参加枠と初心者枠は埋まっているものの、ガチ枠が埋まらない。どうやら、みなチョットデキル的な謙遜精神を発揮してしまったようだ。仕方がないので、ガチ枠をクソザコ枠に改名した。するとすぐに発表者で埋まった。しかし、発表者のプロフィールと発表タイトルをみると、どうもザコとも思われない。
+</p>
+
+<p>
+さて、当日、
+</p>
+
+<p>
+Eigenでオンライン機械学習アルゴリズムを実装したときの話
+</p>
+
+<p>
+C++初心者ではあるのかもしれないが、機械学習の初心者ではない人間が発表した。C++に関係のある部分としては、行列計算ライブラリとして、Boost.UBLASは使い勝手が悪く、Eigenの方がパフォーマンスも使い勝手もよいとのことだ。
+</p>
+
+<p>
+Seastar 高スループットなサーバアプリケーションの為の新しいフレームワーク
+</p>
+
+<p>
+C++初心者ではあるのかもしれないが、カーネル開発の初心者ではない人間が発表した。Seastarとは、カーネルではなくユーザーランドでネットワークスタックを実装して高パフォーマンス化を図るものだ。ネットワークスタックをユーザーランドで実装する利点として、カーネルからユーザーへのメモリコピーが省けるとのことだ。
+</p>
+
+<p>
+なるほど、これが必要になるのはどういう状況だろうか。100GbpsのNICが出たら話は変わるのかもしれないが。
+</p>
+
+<p>
+<a href="https://lwn.net/Articles/629155/">Improving Linux networking performance [LWN.net]</a>
+</p>
+
+<p>
+Seastarの提供するfutureがthenをサポートしているのも興味深かった。これはC++標準化委員会にconcurrency TSとして提案されている機能だ。そういう意味で、この発表者には是非ともC++標準化委員会に出てきて知見を上げてほしいものだ。
+</p>
+
+<p>
+Boost.Asioで可読性を求めるのは間違っているだろうか
+</p>
+
+<p>
+果たしてC++初心者はBoost.Asioを使えるのだろうか。Boost.AsioはC++標準化委員会で、ネットワーキングライブラリとしてTSに提案されている。既存のネットワークライブラリで、標準化委員会で合意に達することができるものは、Asioぐらいしかないであろうが、日本の標準化委員会の中では、Asioは使いづらいという意見が出ている。
+</p>
+
+<p>
+Boost.Spirit.QiとLLVM APIで遊ぼう
+</p>
+
+<p>
+果たして初心者がExpression Templatesの悪用の最たる例であるBoost.Spiritと、LLVM APIを使うだろうか。ただし、便利なライブラリのおかげで、コード自体はとても短く綺麗だった。
+</p>
+
+<p>
+任意の文をマングリングすることができないクソザコなのでconstexprラムダをライブラリで作った
+</p>
+
+<p>
+lambda式のクロージャーオブジェクトのoperator ()がconstexprではないのは、もし仮にそうであると、lambda式がSFINAEの文脈で使えてしまうので、任意の文のsubstitutionに成功するかどうかを判定する、極めて強力な悪用ができてしまう。その機能を実現するためには、任意の文を型としてマングリングしなければならない。そのような機能は、抜け穴的な技法ではなく、コンセプトのような、その目的のために特別に設計された機能で実現すべきだ。
+</p>
+
+<p>
+発表者は、Boost.LambdaのようにExpression Templatesを悪用して、コンパイル時に評価できるlambda式風のDSLをC++上に実装していた。これがザコのすることだろうか。
+</p>
+
+<p>
+Haskellを書きたい人生だった
+</p>
+
+<p>
+C++でExpression Templatesを悪用して、Haskell風のDSLを実装した話。ソースコードがまるでC++ではない上に、初心者のすることではない。
+</p>
+
+<p>
+文字列とC++
+</p>
+
+<p>
+これは初心者らしい発表だった。C++を学ぶときに引っかかった落とし穴をいくつか解説している。
+</p>
+
+<p>
+ロボティクスとC++
+</p>
+
+<p>
+Pythonを褒め称える発表だった。
+</p>
+
+<p>
+私が市販のロボットのプログラミング環境に思うことは、バイナリブロブでの配布が多すぎるということだ。そのプログラミング環境は、10年後に維持できない。使い捨てである。そんな使い捨て文化では、一向にソフトウェア資産がたまらない。発表者は個別に差異を吸収するレイヤーライブラリを書いて、自分のコードはその上に書けばよいと主張したが、そういう互換レイヤーは、個人個人で独立して書かれるので、一向にソフトウェア資産がたまらず、ロボット開発の未来は暗い。
+</p>
+
+<p>
+不自由ソフトウェアは長期的な利益をもたらさないので根本的に価値がない。
+</p>
+
+<p>
+クソ雑魚がC++のウェブフレームワークを食い散らかした話
+</p>
+
+<p>
+巷に転がっているC++で書かれたWebフレームワークをいくつか試してみたという発表。
+</p>
+
+<p>
+ビルドするのが極めて困難なフレームワークが多いという話だった。ビルド可能性はとても重要で、まともなシステム管理者がドキュメントを読んで数行のコマンドを入力するだけでビルドできるようにしておくべきだ。
+</p>
+
+<p>
+大学でC++03を教わった私が、便利そうだと思ったC++11の新機能
+</p>
+
+<p>
+これも初心者らしい話。聞説、発表者の大学では、この2015年に大昔の化石規格であるC++03を教えて、それで学位を与えているようだ。日本の教育機関は10年ほど前からC++標準化委員会と関わらなくなっているため、もはや日本の教育機関に最新のC++規格をまともに把握している人間はいない。そのため、C++11を教育できる人間がいないのだろう。
+</p>
+
+<p>
+この2015年にC++03しか教育できない教育者しかいない大学というのは何なのだろうか。しかも発表者によると、教育内容には規格上の誤りが多かったという。
+</p>
+
+<p>
+Visual C++で始めるOpenCV
+</p>
+
+<p>
+OpenCVという画像認識ライブラリの概要を説明する発表のようだった。
+</p>
+
+<p>
+組み込み向けC++のやり方を探る
+</p>
+
+<p>
+あまり内容を覚えていない。
+</p>
+
+<p>
+なぜC++は組み込みに採用されにくいのか
+</p>
+
+<p>
+C++はどのようなコードに落とし込まれるか人間が手動で推測しにくいので組み込みには向かないという発表であった。
+</p>
+
+<p>
+virtual関数の実装方法として主流なvtableによるクラスオブジェクトのサイズ増加や、関数のオーバーロードをされるとその処理コストがコードを見ただけではわからないという話。
+</p>
+
+<p>
+これは疑問で、Cでも実行時に決まる情報を元に分岐処理を行えば、vtable文のメモリ消費量増加はあるので同じだ。
+</p>
+
+<p>
+関数のオーバーロードでコストを見積もれないというのも不思議だ。組み込みの分野では、何度も行う処理を関数という単位に分割しないのであろうか。
+</p>
+
+<pre><code>class Something { } ;
+Something plus( Something const &amp;, Something const &amp; ) ;
+Something operator + ( Something const &amp;, Something constg &amp; ) ;
+</code></pre>
+
+<p>
+のようなライブラリがあったとして、
+</p>
+
+<pre><code>Something c = plus( a, b ) ;</code></pre>
+
+<p>
+と書くのと、
+</p>
+
+<pre><code>Something c = a + b ;</code></pre>
+
+<p>
+と書くのとで、その処理コストを手動で見積もる難易度に差があるとは思われない。
+</p>
+
+<p>
+発表者は、C++標準化委員会は組み込みでも使えるC++のサブセットを定義すべきであると主張したが、それはC++を分断するだけである。C++を分断すると、利用者も分断される。それは適切ではない。C++標準化委員会はC++のサブセットの定義は行わない方針である。
+</p>
+
+<p>
+<a href="http://www.slideshare.net/firewood/hello-world-48242471">C++でHello worldを書いてみた</a>
+</p>
+
+<p>
+これは一見すると実に初心者らしい、微笑ましいタイトルだ。しかし、ホットペプシと名乗るこの発表者のプロフィールを確認すると、競技プログラマーであるという。発表者の最近解いた問題を少し見るだけでも、もはやこの発表者はHello worldやFizzBuzzを書いて正しく動いたことを確認して喜ぶレベルはとっくに過ぎ去っていることが明らかである。
+</p>
+
+<p>
+以下がhello worldのC言語のコードである。
+</p>
+
+<pre><code>_[]={
+'('-'!'|((','-' ')&lt;&lt;('$'-' '))|(('$'-' '|(('$'-' ')&lt;&lt;('$'-' ')))&lt;&lt;('('-' '))|(('$'-' '|(('#'-'!')&lt;&lt;('$'-' '))|((('/'-' ')&lt;&lt;('$'-' '))&lt;&lt;('('-' ')))&lt;&lt;('='-'-'))
+,'('-' '|(('$'-' ')&lt;&lt;('$'-' '))|(('%'-' '|(('&amp;'-' ')&lt;&lt;('$'-' ')))&lt;&lt;('('-' '))|((','-' '|(('&amp;'-' ')&lt;&lt;('$'-' '))|((','-' '|(('&amp;'-' ')&lt;&lt;('$'-' ')))&lt;&lt;('('-' ')))&lt;&lt;('='-'-'))
+,'('-'!'|((','-' ')&lt;&lt;('$'-' '))|(('$'-' '|(('$'-' ')&lt;&lt;('$'-' ')))&lt;&lt;('('-' '))|(('$'-' '|(('#'-'!')&lt;&lt;('$'-' '))|(('$'-' '|(('/'-' ')&lt;&lt;('$'-' ')))&lt;&lt;('('-' ')))&lt;&lt;('='-'-'))
+,'/'-' '|(('&amp;'-' ')&lt;&lt;('$'-' '))|((','-' '|(('#'-'!')&lt;&lt;('$'-' ')))&lt;&lt;('('-' '))|((('#'-'!')&lt;&lt;('$'-' ')|(('('-'!'|(('('-'!')&lt;&lt;('$'-' ')))&lt;&lt;('('-' ')))&lt;&lt;('='-'-'))
+,'('-'!'|((','-' ')&lt;&lt;('$'-' '))|(('$'-' '|(('$'-' ')&lt;&lt;('$'-' ')))&lt;&lt;('('-' '))|(('$'-' '|(('#'-'!')&lt;&lt;('$'-' '))|(('('-' '|(('/'-' ')&lt;&lt;('$'-' ')))&lt;&lt;('('-' ')))&lt;&lt;('='-'-'))
+,'/'-' '|(('&amp;'-' ')&lt;&lt;('$'-' '))|(('#'-'!'|(('('-'!')&lt;&lt;('$'-' ')))&lt;&lt;('('-' '))|((','-' '|(('&amp;'-' ')&lt;&lt;('$'-' '))|(('$'-' '|(('&amp;'-' ')&lt;&lt;('$'-' ')))&lt;&lt;('('-' ')))&lt;&lt;('='-'-'))
+,'&amp;'-' '|(('&amp;'-' ')&lt;&lt;('$'-' '))|(('('-'!'|((','-' ')&lt;&lt;('$'-' ')))&lt;&lt;('('-' '))|(('$'-' '|(('$'-' ')&lt;&lt;('$'-' '))|(('$'-' '|(('#'-'!')&lt;&lt;('$'-' ')))&lt;&lt;('('-' ')))&lt;&lt;('='-'-'))
+,','-' '|(('/'-' ')&lt;&lt;('$'-' '))|((!!""|(('#'-'!')&lt;&lt;('$'-' ')))&lt;&lt;('('-' '))|(('*'-' '|(('*'-' '|(('+'-' ')&lt;&lt;('$'-' ')))&lt;&lt;('('-' ')))&lt;&lt;('='-'-'))
+,'.'-' '
+,'('-' '|(('$'-' ')&lt;&lt;('$'-' '))|(('+'-' '|(('+'-' ')&lt;&lt;('$'-' ')))&lt;&lt;('('-' '))|((!!"")&lt;&lt;('='-'-'))
+,('+'-' '|(('.'-' ')&lt;&lt;('$'-' '))|((')'-' '|((!!"")&lt;&lt;('$'-' ')))&lt;&lt;('('-' ')))&lt;&lt;('='-'-')
+,('('-' '|(('$'-' ')&lt;&lt;('$'-' '))|(('-'-' '|(('('-' ')&lt;&lt;('$'-' ')))&lt;&lt;('('-' ')))&lt;&lt;('='-'-')
+,'$'-' '|(('('-'!')&lt;&lt;('$'-' '))|(('$'-' '|(('#'-'!')&lt;&lt;('$'-' ')))&lt;&lt;('('-' '))|((('/'-' ')&lt;&lt;('$'-' ')|(('/'-' '|(('+'-' ')&lt;&lt;('$'-' ')))&lt;&lt;('('-' ')))&lt;&lt;('='-'-'))
+,!!""
+,')'-' '|(('('-' ')&lt;&lt;('$'-' '))|(('('-' '|(('/'-' ')&lt;&lt;('$'-' ')))&lt;&lt;('('-' '))|(('/'-' '|(('%'-' ')&lt;&lt;('('-' ')))&lt;&lt;('='-'-'))
+,!!""|(('#'-' ')&lt;&lt;('$'-' '))|(('/'-' '|(('/'-' ')&lt;&lt;('$'-' ')))&lt;&lt;('('-' '))|(('('-' '|(('+'-' ')&lt;&lt;('$'-' '))|((','-' '|(('#'-' ')&lt;&lt;('$'-' ')))&lt;&lt;('('-' ')))&lt;&lt;('='-'-'))
+,(('/'-' ')&lt;&lt;('('-' '))&lt;&lt;('='-'-')
+,'%'-' '|(('-'-' '|(('('-' ')&lt;&lt;('$'-' ')))&lt;&lt;('('-' '))|((','-' '|(('$'-' ')&lt;&lt;('$'-' '))|(('$'-' '|(('#'-'!')&lt;&lt;('$'-' ')))&lt;&lt;('('-' ')))&lt;&lt;('='-'-'))
+,('/'-' ')&lt;&lt;('$'-' ')|(('('-' '|(('+'-' ')&lt;&lt;('$'-' ')))&lt;&lt;('('-' '))|(('$'-' ')&lt;&lt;('='-'-'))
+,('-'-' '|((','-' ')&lt;&lt;('$'-' '))|((('('-' ')&lt;&lt;('$'-' '))&lt;&lt;('('-' ')))&lt;&lt;('='-'-')
+,!!""|(('#'-' ')&lt;&lt;('$'-' '))|(('+'-' '|(('-'-' ')&lt;&lt;('$'-' ')))&lt;&lt;('('-' '))|(('('-' '|(('+'-' ')&lt;&lt;('$'-' '))|((!!"")&lt;&lt;('('-' ')))&lt;&lt;('='-'-'))
+,(('-'-' '|((','-' ')&lt;&lt;('$'-' ')))&lt;&lt;('('-' '))&lt;&lt;('='-'-')
+,('('-' ')&lt;&lt;('$'-' ')
+};
+</code></pre>
+
+<p>
+このコードは、_という名前のint型の配列を定義している。その配列は.textセクションに配置される。配列のビット列は、x86とx86-64において"Hello, world!"と出力するものである。あとはプログラムのエントリーポイントを_startではなく_にしてリンクしてやれば、プログラムを実行するとこのビット列を実行しようとし、結果としてhello worldが出力される
+</p>
+
+<p>
+このコードは、記号のみを使っている。アルファベットや数字は一切使っていない。ではどうやって、任意の数値を表現するのか。記号文字を使えるということは、たとえば'-'とか'$'のような文字リテラルを使うことができる。文字コードを限定すれば、その値はわかる。あとは、ビット演算を用いて任意の値に変えてやればいいだけだ。
+</p>
+
+<pre><code>_[]={ // 名前_の暗黙のint型の配列の宣言
+'('-'!'|((','-' ')&lt;&lt;('$'-' ')) // 0xC7
+    |
+(('$'-' '|(('$'-' ')&lt;&lt;('$'-' ')))&lt;&lt;('('-' ')) // 0x44
+    |
+(('$'-' '|(('#'-'!')&lt;&lt;('$'-' ')) // 0x24
+    |
+((('/'-' ')&lt;&lt;('$'-' '))&lt;&lt;('('-' ')))&lt;&lt;('='-'-')) // 0xF0
+,... 
+
+// F0 24 C7 44
+// mov dword ptr[esp-16], imm
+</code></pre>
+
+<p>
+もちろん、これを手で生成するのはダルいので、これを生成するコード、hello_gen.ccを書く。
+</p>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+using namespace std;
+
+template &lt;unsigned int n&gt; struct Symbolizer {
+	string s;
+	Symbolizer() {
+		if (n &gt;= 0x10000) {
+			s = "(" + Symbolizer&lt;(n &gt;&gt; 16)&gt;().s + ")&lt;&lt;(" + Symbolizer&lt;16&gt;().s + ")";
+			if (n &amp; 0xffff) {
+				s = Symbolizer&lt;(n &amp; 0xffff)&gt;().s + "|(" + s + ")";
+			}
+		} else if (n &gt;= 0x100) {
+			s = "(" + Symbolizer&lt;(n &gt;&gt; 8)&gt;().s + ")&lt;&lt;(" + Symbolizer&lt;8&gt;().s + ")";
+			if (n &amp; 0xff) {
+				s = Symbolizer&lt;(n &amp; 0xff)&gt;().s + "|(" + s + ")";
+			}
+		} else if (n &gt;= 0x10) {
+			s = "(" + Symbolizer&lt;(n &gt;&gt; 4)&gt;().s + ")&lt;&lt;(" + Symbolizer&lt;4&gt;().s + ")";
+			if (n &amp; 0xf) {
+				s = Symbolizer&lt;(n &amp; 0xf)&gt;().s + "|(" + s + ")";
+			}
+		} else {
+			s = "(" + Symbolizer&lt;(n &gt;&gt; 1)&gt;().s + ")&lt;&lt;(" + Symbolizer&lt;1&gt;().s + ")";
+			if (n &amp; 1) {
+				s = Symbolizer&lt;1&gt;().s + "|(" + s + ")";
+			}
+		}
+	}
+};
+
+template &lt;&gt; Symbolizer&lt;0&gt;::Symbolizer() { s = "!\"\""; }
+template &lt;&gt; Symbolizer&lt;1&gt;::Symbolizer() { s = "!!\"\""; }
+template &lt;&gt; Symbolizer&lt;2&gt;::Symbolizer() { s = "'#'-'!'"; }
+template &lt;&gt; Symbolizer&lt;3&gt;::Symbolizer() { s = "'#'-' '"; }
+template &lt;&gt; Symbolizer&lt;4&gt;::Symbolizer() { s = "'$'-' '"; }
+template &lt;&gt; Symbolizer&lt;5&gt;::Symbolizer() { s = "'%'-' '"; }
+template &lt;&gt; Symbolizer&lt;6&gt;::Symbolizer() { s = "'&amp;'-' '"; }
+template &lt;&gt; Symbolizer&lt;7&gt;::Symbolizer() { s = "'('-'!'"; }
+template &lt;&gt; Symbolizer&lt;8&gt;::Symbolizer() { s = "'('-' '"; }
+template &lt;&gt; Symbolizer&lt;9&gt;::Symbolizer() { s = "')'-' '"; }
+template &lt;&gt; Symbolizer&lt;10&gt;::Symbolizer() { s = "'*'-' '"; }
+template &lt;&gt; Symbolizer&lt;11&gt;::Symbolizer() { s = "'+'-' '"; }
+template &lt;&gt; Symbolizer&lt;12&gt;::Symbolizer() { s = "','-' '"; }
+template &lt;&gt; Symbolizer&lt;13&gt;::Symbolizer() { s = "'-'-' '"; }
+template &lt;&gt; Symbolizer&lt;14&gt;::Symbolizer() { s = "'.'-' '"; }
+template &lt;&gt; Symbolizer&lt;15&gt;::Symbolizer() { s = "'/'-' '"; }
+template &lt;&gt; Symbolizer&lt;16&gt;::Symbolizer() { s = "'='-'-'"; }
+
+int main(int argc, char* argv[])
+{
+	cout &lt;&lt; "_[]={" &lt;&lt; endl;
+#include "numbers.cc"
+	cout &lt;&lt; "};" &lt;&lt; endl;
+	return 0;
+}
+</code></pre>
+
+<p>
+さて、.textセクションに書くバイナリ列はどのように生成するのか。これはhello_gen_gen.ccで、xbyakというライブラリを使って生成している。
+</p>
+
+<pre><code>#include &lt;string&gt;
+#include &lt;iostream&gt;
+#include &lt;cstring&gt;
+#define XBYAK32
+#include "xbyak/xbyak.h"
+
+class PutString: public Xbyak::CodeGenerator {
+	void syscall() { db(0x0F); db(0x05); }
+	void int80h() { db(0xCD); db(0x80); }
+public:
+	PutString(const std::string &amp;message) {
+		unsigned int *data = (unsigned int *)message.data();
+		mov(dword[esp - 16], data[0]);
+		mov(dword[esp - 12], data[1]);
+		mov(dword[esp - 8], data[2]);
+		mov(word[esp - 4], data[3]);
+		mov(edx, message.length());
+		dec(eax);
+		mov(ebx, 1);
+		jmp("@f");
+		add(byte[eax], al);
+		dec(eax);
+		lea(esi, ptr[esp - 16]);
+		mov(edi, 1);
+		mov(eax, edi);
+		syscall();
+		xor(edi, edi);
+		mov(eax, 60);
+		syscall();
+L("@@");
+		lea(ecx, ptr[esp - 16]);
+		mov(eax, 4);
+		int80h();
+		xor(ebx, ebx);
+		mov(eax, 1);
+		int80h();
+	}
+};
+
+int main(int argc, char * argv[])
+{
+	PutString put_string("Hello, world!\n");
+	unsigned int *bin = put_string.getCode&lt;unsigned int *&gt;();
+	size_t dwords = (put_string.getSize() + 3) / 4;
+	std::string delim = "";
+	for (size_t i = 0; i &lt; dwords; ++i) {
+		std::cout &lt;&lt; "cout &lt;&lt; " + delim + "Symbolizer&lt;" &lt;&lt; std::dec &lt;&lt; bin[i] &lt;&lt; "U&gt;().s &lt;&lt; endl;";
+		std::cout &lt;&lt; "  // " &lt;&lt; std::hex &lt;&lt; bin[i];
+		std::cout &lt;&lt; std::endl;
+		delim = "\",\" + ";
+	}
+}
+</code></pre>
+
+<p>
+また、生成するビット列は、面白い工夫をすることで、x86, x86-64どちらでも動くようになっている。
+</p>
+
+<p>
+実際にコードを入手して手元で動くことを確認したので、認めるしかない。
+</p>
+
+<p>
+<a href="https://github.com/firewood/test">https://github.com/firewood/test</a>
+</p>
+
+<p>
+<a href="https://github.com/herumi/xbyak">https://github.com/herumi/xbyak</a>
+</p>
+
+<p>
+ツール系で「BiiCodeとCLion」
+</p>
+
+<p>
+あまり覚えていない。パッケージマネージャーはOSが提供すべきだ。
+</p>
+
+<p>
+不遇の標準ライブラリ
+</p>
+
+<p>
+valarrayの話。
+</p>
+
+<p>
+Nicolai Josuttisが参考書に書いていたのだが、valarrayは標準化の途中で作者が途中で抜けたが、そのまま残ってしまったものらしい。標準ライブラリなので、ベクトル型としてコンパイラーが認識すれば最適化できるが、既存のほとんどの実装はvalarrayをベクトル型と認識した最適化をしない。
+</p>
+
+<p>
+ベクトル計算は、Expression Templatesによる最適化に研究が向かってしまったので、型情報としてのベクトル型は放置されてしまった。
+</p>
+
+<p>
+ただし、コンパイラーの最適化技術は進んだので、今ベクトル型として認識すれば、かなりいいコードが生成できる。現にiccはvalarrayをそれなりに最適化する。
+</p>
+
+<p>
+ただし、ベクトル型を定義するのであれば、今新たに設計したほうがいい設計になるだろうから、やはりvalarrayに価値はない。
+</p>
+
+<p>
+unique_ptrにポインタ以外のものを持たせる時
+</p>
+
+<p>
+std::unique_ptrはカスタムデリーターにネストされた形名pointerを定義すれば、ポインター以外のものも管理できそうだが、既存の実装はnullptrと比較していたりして結局動かなかった。
+</p>
+
+<p>
+C++標準化委員会には汎用RAIIラッパーが提案されている。
+</p>
+
+<p>
+その後、22時頃まで一部の参加者が残って雑談したあと、解散した。
+</p>
+
+<p>
+後片付けをした筆者が職場の自席に戻ると、日曜日なのに同僚のtayamaがいた。こんなに夜遅くに休日出勤なのだろうか。話しかけてみると、そうではなく、単に職場近くを通りかかったので、ついでに寄って、アニメを鑑賞しているだけだという。
+</p>
+
+<p>
+勉強会で競技プログラマーがすごいhello worldを書いていたという話に及び、そのついでに、AtCoderで問題開示後3秒でコードを提出して通った猛者がいるという話をした。chokudai氏によれば、「問題の流出は確認されていない」という声明を出すに及んだという。
+</p>
+
+<p>
+その場で調べてみると、3秒で提出されたコードは以下のものであった。
+</p>
+
+<p>
+<a href="http://arc030.contest.atcoder.jp/submissions/286413">Submission #286413 - AtCoder Regular Contest 030 | AtCoder</a>
+</p>
+
+<p>
+問題は以下の通り。
+</p>
+
+<p>
+<a href="http://arc030.contest.atcoder.jp/tasks/arc030_1">A: 閉路グラフ - AtCoder Regular Contest 030 | AtCoder</a>
+</p>
+
+<p>
+n個の頂点からなる閉路グラフがあって、その頂点のいくつかを取り除くことでグラフを分断し、最終的にk個の連結成分のみが残るグラフにできるかという問題である。
+</p>
+
+<p>
+問題文が意図的に難しく書かれているが、解法は、実際にグラフを生成して操作する必要はなく、単に\(k < \frac{n-1}{2}\)の場合は"YES"を、そうでなければ"NO"を出力すればいいだけだ。
+</p>
+
+<p>
+問題開示後3秒でコードを提出したので、もはや人間業ではない。AtCoderにログインしてページをダウンロードしてコードを生成してアップロードするまですべてが自動化されている。どうやら、問題文は無視して、入力と出力のサンプルから、入力に対する正しい出力の計算方法を推定して、コードを生成したようだ。
+</p>
+
+<p>
+ちなみに、問題の提出を探す仮定で、24秒で提出して通過したものなどが見つかった。こちらはどうやら手で書かれたようだ。問題は極めて簡単とは言え、人間業とは思えない。
+</p>
+
+<p>
+我々はひとしきり感心した後に、職場を後にした。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+ドワンゴは勉強会の会場を提供しています。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
