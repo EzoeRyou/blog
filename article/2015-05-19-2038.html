@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: Linuxカーネルを2038年問題に対応させるには 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/05/linux2038.html">Linuxカーネルを2038年問題に対応させるには</a></h1>
+
+<p>
+<a href="http://lwn.net/Articles/643234/">System call conversion for year 2038 [LWN.net]</a>
+</p>
+
+<p>
+lwn.netでLinuxカーネルを2038年問題に対応させるにはという記事が公開されている。
+</p>
+
+<p>
+32bit版Linuxカーネルのtime_tはsigned 32 bitなので、現行の32bit版Linuxカーネルをそのまま使い続けるシステムは、2038年問題の影響を受ける。
+</p>
+
+<blockquote>
+<p>
+問題の日付が近づくにつれ、32bitシステムは様々な楽しげな理由により障害を起こすことが予測されるので、今日のLWN読者は、退職から呼び戻されて、紀南を救うために英雄的な活躍をするだろう。今対策をしなければの話だが。
+</p>
+</blockquote>
+
+<p>
+さて、32bit Linuxカーネルでも、time_tなどの時間の表現に64bitの値を使えば2038年問題は解決できるか。実は、問題はそれほど単純ではない。
+</p>
+
+<p>
+カーネル内部の時間表現を64bitに移行するだけではない。ユーザースペースのインターフェースも変えなければならない。いずれは移行しなければならないとしても、現行のバイナリとのABI互換はどうするのか。
+</p>
+
+<p>
+このために、すべての時間を扱うシステムコールを、カーネル内部の64bit表現と、従来の32bit表現との変換を行う変換レイヤーとしてのシステムコールで置き換える。64bit時間表現のシステムコールには新しいシステムコール番号を割り当てる。もちろん、2038年までしか使えない。
+</p>
+
+<p>
+最終的には、既存のバイナリは一掃される。
+</p>
+
+<p>
+ところで、時間を扱うシステムコールと簡単に言うが、すべてを洗い出すのは難しい。ioctlには、現在何千も登録されているが、その一部は時間を扱っている。これをすべて洗い出して直していかねばならない。
+</p>
+
+<blockquote>
+<p>
+ext4はタイムスタンプを32bitのtime_t型で格納している。ディスク上の表現として34bitに拡張しているバージョンのext4もあるが、ext3はそういう対応はしていない。ext3は使用を辞めなければならない。NFSv3も同様の問題があり、おそらく同じ道をたどるだろう。<a href="https://lkml.org/lkml/2014/6/1/240">XFSは変更に問題を抱えている</a>。ファイルシステムの問題は、64bitシステムにも影響を及ぼす。他にも、ユーザースペースとカーネルスペース両方で問題になる場面が多々あるだろうは疑う余地がない。そのため、2038年にシステムを対応させるのは、単にシステムコールを64bit値に移行する以上の問題がある。とはいえ、システムコールを直すのは、まず第一歩である。
+</p>
+</blockquote>
+
+<p>
+2038年問題、一体どうなるのだろう。ファイルシステムのようなものは切り捨てるしかないのだろうか。NTPはどうするのだろう。GPSと同じようにするのだろうか。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
