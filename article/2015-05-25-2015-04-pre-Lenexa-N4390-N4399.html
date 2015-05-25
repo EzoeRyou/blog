@@ -1,0 +1,366 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 2015-04 pre-Lenexaのレビュー: N4390-N4399 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/05/2015-04-pre-lenexa-n4390-n4399.html">2015-04 pre-Lenexaのレビュー: N4390-N4399</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4390.html">N4390: Minimal incomplete type support for standard containers, revision 3</a>
+</h2>
+
+<p>
+std::vector, std::list, std::forward_listの要素型に不完全型を認める提案。
+</p>
+
+<p>
+これにより、以下のようなコードが書けるようになる。
+</p>
+
+<pre><code>struct Node
+{
+    // この時点で、Nodeはまだ不完全型
+    std::vector&lt;Node&gt; nodes ;
+} ; // Nodeはここから完全形
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4391.html">N4391: make_array, revision 4</a>
+</h2>
+
+<p>
+std::arrayを返すstd::make_arrayの提案。文字列リテラルからそれぞれの文字のarrayを作るto_arrayも提案されている。
+</p>
+
+<pre><code>// std::array&lt; int, 4 &gt;
+auto a = std::make_array( 1, 2, 3, 4 ) ;
+
+// std::common_typeにより型が決定される
+// std::array&lt; long, 2 &gt;
+auto b = std::make_array( 2, 3L ) ;
+
+// エラー、narrowing
+auto c = std::make_array( 2, 3U ) ;
+
+// OK、明示的な型指定
+auto d = std::make_array&lt;long&gt;( 2, 3U ) ; 
+
+// エラー、narrowing
+auto e = std::make_array&lt;unsigned&gt;( 2, 3U ) ;
+
+// std::array&lt; const char *, 1 &gt;
+auto f = std::make_array( "foo" ) ;
+
+// std::array&lt; char, 4 &gt;
+auto g = std::to_array( "foo" ) ;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4392.pdf">[PDF注意] N4392: C++ Latches and Barriers</a>
+</h2>
+
+<p>
+標準ライブラリにラッチとバリアーの提案。
+</p>
+
+<p>
+latchとは、初期化時にカウンター値を設定する。各スレッドはカウンターをアトミックに減少させることができる。カウンターが0になるとready状態になり、latchに対してwaitをしていたスレッドのブロックが解かれる。
+</p>
+
+<pre><code>
+
+std::experimantal::latch l( 10 ) ;
+
+void f()
+{
+    l.count_down_and_wait( ) ;
+}
+</code></pre>
+
+<p>
+barrierとは、繰り返し使えるlatchだ。
+</p>
+
+<p>
+flex_barrierとは、ready状態になった時に呼び出す関数オブジェクトを設定できるbarrierだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4393.pdf">[PDF注意] N4393: Noop Constructors and Destructors</a>
+</h2>
+
+<p>
+何もしないno-opコンストラクターとデストラクターを追加する提案。
+</p>
+
+<p>
+本当に何もしないコンストラクターとデストラクターが欲しい。バイト列を操作して、それをそのままクラスのオブジェクトとして扱うような場合だ。用途としてはdestructive moveや、オブジェクトの内部表現のバイト列をディスクに読み書きしたりする場合だ。
+</p>
+
+<p>
+提案では、文法例はさまざまある。仮に提案されている文法は、何らかのキーワード（バイク小屋議論を避けるために仮に__COOKIE__とする）をコンストラクターとデストラクターに渡すものだ。
+</p>
+
+<pre><code>struct X { ... } ;
+
+void f()
+{
+    alignas(X) char buf[sizeof(X)] ;
+    auto p = new(buf) X( __COOKIE__ ) ; // no-op constructor
+
+    p-&gt;~X( __COOKIE__ ) ; // no-op destructor
+}
+</code></pre>
+
+<p>
+no-opは本当に何もしない。バイト列がクラスの表現として正しいかどうかはプログラマーが責任を持つ。
+</p>
+
+<p>
+ポリモーフィックな型はno-opコンストラクターを使えない。(vtableなどの実装が操作する隠しバイト列があるため)
+</p>
+
+<p>
+自動ストレージ上に確保されたオブジェクトに対してno-opデストラクターを呼び出しても、依然として自動的にデストラクターは呼び出される。
+</p>
+
+<pre><code>struct X { ... }  ;
+void f()
+{
+    X x ;
+    x-&gt;~X( __COOKIE__ ) ; // no-op デストラクター
+    // デストラクターは呼び出される。
+}
+</code></pre>
+
+<p>
+どうも、reinterpret_castとあまり変わらない気がする。
+</p>
+
+<p>
+論文では、将来的な拡張案として、ポリモーフィック型に対応したり（vtableなどの隠しバイト列だけを初期化する）、自動的なデストラクター呼び出しを抑制するなどの案をあげているが、これは今の提案の骨子ではないとして今回は提案しないとしている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4394.html">N4394: PL22.16/WG21 draft agenda: 4-9 May 2015, Lenexa KS/US</a>
+</h2>
+
+<p>
+Lenexa会議の日程。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4395.pdf">[PDF注意] N4395: SIMD Types: ABI Considerations</a>
+</h2>
+
+<p>
+SIMDベクトル型を標準に追加する場合のABIに対する考察。
+</p>
+
+<p>
+単一アーキテクチャーの中の複数のマイクロアーキテクチャーにどうやって対応したらいいのか。例えば、x86-64は、SSE, AVX, AVX2という複数のSIMDベクトル演算のマイクロアーキテクチャーが存在する。それぞれ最も効率の良いABIが異なる。異なる翻訳単位をまたぐと、ABIが一致しない。さてどうするのか。
+</p>
+
+<p>
+論文では、ポリシーベースの実装が最も良いとしている。しかし、それは実装依存のアーキテクチャーを規格に盛り込まなければならないような気がする。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4396.pdf">[PDF注意] N4396: National Body Comments: PDTS 19841, Transactional Memory</a>
+</h2>
+
+<p>
+Transactional Memoryに対するNBコメント。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4397.pdf">N4397: A low-level API for stackful coroutines</a>
+</h2>
+
+<p>
+スタックフルコルーチンや協調型マルチタスクを実装するための低級APIの提案。Boot.Contextベースを参考に設計されている。
+</p>
+
+<p>
+stacklessとstackfulの違いや仕組みの解説が初歩的なところからよく書かれているので興味深い。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4398.pdf">[PDF注意] N4398: A unified syntax for stackless and stackful coroutines</a>
+</h2>
+
+<p>
+stacklessコルーチンとstackfulコルーチンの文法を統一しようという提案。
+</p>
+
+<blockquote>
+<p>
+概要
+</p>
+
+<p>
+本論文はstacklessとstackfulコルーチンの統一文法を提案する。文法はN4397を元にしている。
+</p>
+
+<p>
+主要な機能は、
+</p>
+
+<ul>
+<li>
+変数やコンテナーに格納できる第一級オブジェクト
+<li>
+
+<li>
+resumableキーワードを用いたlambda風の式の導入
+</li>
+
+<li>
+実行のシンメトリックな（訳注：呼び出し元以外の任意の実行媒体に実行を渡せる）転送。アシンメトリックな転送よりも高級な実行制御が可能になる。
+</li>
+
+<li>
+通常の関数の呼び出しとreturnは影響を受けない。
+</li>
+</ul>
+
+<p>
+stacklessとstackfulの統合というのは、
+</p>
+
+<p>
+関数をみて、
+</p>
+
+<p>
+コンテキストスイッチが発生していなければ、通常の関数。
+</p>
+
+<p>
+トップレベルでコンテキストスイッチが発生していれば、stackless コンテキスト
+</p>
+
+<p>
+その他の場合、stackfulコンテキスト
+</p>
+
+<p>
+だそうだ。
+</p>
+
+<p>
+N4397のstd::execution_contextとほぼ同じ設計になっているが、lambda風式がhint属性を取らず、stacklessかstackfulかは、コンパイラーが判断するようになっている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4399.html">N4399: Technical Specification for C++ Extensions for Concurrency, Working Draft</a>
+</h2>
+
+<p>
+Concurrency TSのドラフト
+</p>
+
+<p>
+futureの改良
+</p>
+
+<p>
+futureがready状態になったときに実行される関数オブジェクトを指定できるthenや、複数のfutureがすべてready状態になった時に実行される関数オブジェクトを指定できるwhen_all, 逆に、ひとつでもready状態になった時のwhen_any。最初からready状態になっているfutureを作るmake_ready_future。最初から例外状態になっているfutureを作るmake_exceptional_future。
+</p>
+
+<p>
+latchとbarrierライブラリ
+</p>
+
+
+<p>
+初期化時にカウンター値を指定して、アトミックにデクリメントし、カウンター0になるまで実行をブロックできる使い捨てのlatch。再利用ができるbarrier。カウンターが0になった時に実行される関数オブジェクトを指定できるflex_barrier。
+</p>
+
+<p>
+atomicなshared_ptr
+</p>
+
+<p>
+atomicに操作できるatomic_shared_ptrとatomic_weak_ptr
+</p>
+
+</blockquote>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+C++標準化委員会の論文がたまっている。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
