@@ -1,0 +1,183 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: Old New Thing: 超最新の実験的C++機能、オタマジャクシ演算子 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/05/old-new-thing-ctadpole.html">Old New Thing: 超最新の実験的C++機能、オタマジャクシ演算子</a></h1>
+
+<p>
+<a href="http://blogs.msdn.com/b/oldnewthing/archive/2015/05/25/10616865.aspx">New C++ experimental feature: The tadpole operators - The Old New Thing - Site Home - MSDN Blogs</a>
+</p>
+
+<blockquote>
+<p>
+僕はよくこういうコードを書いている。
+</p>
+
+<pre><code>x = (y + 1) % 10;
+x = (y + 1) * (z - 1);
+x = (double)(f(y) + 1);
+</code></pre>
+
+<p>
++と-の演算子は優先順位が極めて低いために、その周りに括弧を多用しなければならず、とても読みにくい深くネストされたコードができあがってしまう。
+</p>
+
+<p>
+Visual Studio 2015 RCには、実験的な演算子が2つ追加されている。その名もオタマジャクシ演算子。これは整数値から括弧を必要とすることなく1を加算、減算できる演算子である。
+</p>
+
+<pre><code>x = -~y % 10;
+x = -~y * ~-z;
+x = (double)-~f(y);
+</code></pre>
+
+<p>
+オタマジャクシ演算子と名付けられた理由は、オタマジャクシが値に向けて泳ぐ姿と、値から遠ざかって泳ぐ姿に似ているためである。チルダがオタマジャクシの頭で、ハイフンが尻尾だ。
+</p>
+
+<TABLE BORDER=1 BORDERCOLOR=black CELLPADDING=3
+    STYLE="border-collapse: collapse">
+<TR>
+    <TH>文法</TH>
+    <TH>意味</TH>
+    <TH>説明</TH>
+</TR>
+<TR>
+    <TD ALIGN=center><CODE>-~y</CODE></TD>
+    <TD ALIGN=center><CODE>y + 1</CODE></TD>
+    <TD>オタマジャクシが値に向かって泳ぐと大きくなる</TD>
+</TR>
+<TR>
+    <TD ALIGN=center><CODE>~-y</CODE></TD>
+    <TD ALIGN=center><CODE>y - 1</CODE></TD>
+    <TD>オタマジャクシが値から遠ざかって泳ぐと小さくなる</TD>
+</TR>
+</TABLE>
+
+<p>
+この実験的オタマジャクシ演算子を有効にするには、C++ファイルの上部に以下のような行を追加しなければならない。
+</p>
+
+<pre><code>#define __ENABLE_EXPERIMENTAL_TADPOLE_OPERATORS
+</code></pre>
+
+<p>
+例えば、以下はオタマジャクシ演算子を使ったコードの例である。
+</p>
+
+<pre><code>#define __ENABLE_EXPERIMENTAL_TADPOLE_OPERATORS 
+#include &lt;ios&gt;
+#include &lt;iostream&gt;
+#include &lt;istream&gt;
+ 
+int __cdecl main(int, char**)
+{
+   int n = 3;
+   std::cout &lt;&lt; "3 + 1 = " &lt;&lt; -~n &lt;&lt; std::endl;
+   std::cout &lt;&lt; "(3 - 1) * (3 + 1) " &lt;&lt; ~-n * -~n &lt;&lt; std::endl;
+   return 0;
+}
+</code></pre>
+
+<p>
+この演算子はまだ実験的機能であることに注意すること。公式なC++の一部ではない。しかし、使ってみて感想を教えてくれ。
+</p>
+
+</blockquote>
+
+<p>
+ちなみに、このオタマジャクシ演算子はx86とx86-64向けのGCCもClangもすでに実装済みであり、Borland 5.5やMSVC6.0といった超古代のコンパイラーすら対応している。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+整数を2の補数で表現する場合、
+</p>
+
+<p>
+\[-y = \sim{y} + 1\]
+\[ \sim{y} = -y -1 \]
+</p>
+
+<p>
+つまり、
+</p>
+
+<p>
+\[-\sim{y} = -(-y - 1) = y + 1\]
+\[\sim{-y} = \sim\sim{y} - 1 = y - 1\]
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
