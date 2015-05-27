@@ -1,0 +1,275 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書 2015-04 Pre-Lenexaのレビュー: N4400-N4409
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/05/c-2015-04-pre-lenexa-n4400-n4409.html">C++標準化委員会の文書 2015-04 Pre-Lenexaのレビュー: N4400-N4409</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4400.html">N4400: Concurrency TS Editor's Report, April 2015</a>
+</h2>
+
+<p>
+N4399 Concurrency TSドラフトの編集者による変更点の記述
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4401.html">N4401: Defaulted comparison operator semantics should be uniform</a>
+</h2>
+
+<p>
+現在、特別なメンバー関数としてデフォルトの比較演算子を生成する機能を追加しようという提案が出ているが、その提案では、ポインターとmutableな型のデータメンバーに対してはデフォルトの比較演算子を生成しないとしている。その理由は、ほとんどの場合でユーザーの意図しない結果となるだろうからとのことだ。
+</p>
+
+<p>
+この論文は、ポインターの比較方法はすでに厳密に定義されていてプログラマーも了解しているし、既存の特別なメンバー関数であるコピーコンストラクターは、ポインターだろうがmutableだろうがお構いなしにそのままコピーすることを引き合いに出し、これ以上特別なルールを付け加えることは無用の混乱を招くだけであるし、結果が利用者の意図した通りでないのは利用者の責任であるとして、その方針に反対している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4404.html">N4404: Extension to aggregate initialization</a>
+</h2>
+
+<p>
+C++11のアグリゲート初期化は便利だ。
+</p>
+
+<pre><code>
+struct user
+{
+    uint32_t id ;
+    std::string name ;
+} ;
+
+user u{ 10, "Alice" } ;
+</code></pre>
+
+<p>
+しかし、アグリゲート初期化は、基本クラスを持つ型には使えない。
+</p>
+
+<pre><code>struct common { } ;
+
+struct user : common
+{
+    uint32_t id ;
+    std::string name ;
+} ;
+
+user u{ 10, "Alice" } ;
+</code></pre>
+
+<p>
+この場合、従来通りコンストラクターを手で書かなければならない。
+</p>
+
+<pre><code>struct user : common
+{
+    uint32_t id ;
+    std::string name ;
+
+    user( uint32_t id, std::string name )
+        : id(id), name(name) { }
+} ;
+
+user u{ 10, "Alice" } ;
+</code></pre>
+
+<p>
+これは明らかに面倒だから、基本クラスがdefault constructibleな場合ならば、アグリゲート初期化を使えるようにしようという提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4405.htm">N4405: Type of the accumulaters of standard algorithms std::accumulate and std::inner_product</a>
+</h2>
+
+<p>
+ロシア人によって書かれたためか英語が少し拙い。
+</p>
+
+<p>
+標準規格では、std::accumulateとstd::inner_productの内部の作業中の変数の型が明記されていない。これにより、実装に差が生じ、同じコードが実装によって通ったり通らなかったりする。
+</p>
+
+<p>
+例えば、std::accumulateが以下のような実装になっている場合、
+</p>
+
+<pre><code>
+template &lt;class InputIterator, class T&gt;
+T accumulate( InputIterator first, InputIterator last, T init )
+{
+	T acc = init; // 作業用の変数
+
+	for ( ; first != last; ++first ) acc = acc + *first;
+
+	return acc;
+}
+</code></pre>
+
+<p>
+以下のようなコードは通らない
+</p>
+
+<pre><code>std::accumulate&lt;decltype( std::begin( a ) ), const int&gt;( std::begin( a ), std::end( a ), 0 ) ;
+</code></pre>
+
+<p>
+しかし、もし実装が、
+</p>
+
+<pre><code>auto acc = init ; // 作業用の変数
+</code></pre>
+
+<p>
+のようになっている場合、このコードは通る。
+</p>
+
+<p>
+また、利用者は値のコピーを防ぐために、リファレンスを明示的に使うかもしれない。
+</p>
+
+<pre><code>long long aac = 0 ;
+std::accumulate&lt; decltype( begin(a) ), long long &amp; &gt;( begin(a), end(a), acc ) ;
+</code></pre>
+
+<p>
+これも、実装によっては通ったり通らなかったりする。
+</p>
+
+<p>
+実装の差異を防ぐために、内部の変数の型について、規格で規定しなければならない。
+</p>
+
+<p>
+提案では、内部の変数の型は、あたかもT accのように宣言され、初期値で初期化される。Tにはリファレンス型もありえるという文面を提案している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4406.pdf">N4406: Integrating Executors with Parallel Algorithm Execution</a>
+</h2>
+
+<p>
+Parallelism TSとして、並列実行版アルゴリズムが提案されている。この提案は、並列実行が「どのように」行われるかを支持することはできるが、「どこで」行われるかを支持することはできない。
+</p>
+
+<p>
+並列実行の方法には様々なものがあり、その方法を、実行媒体(execution agent)と呼ぶ。OSの提供するネイティブのスレッドもあれば、ファイバーのような協調的マルチタスクを用いた軽量スレッドもある。他にも、SIMDやGPGPUのような実行媒体もある。この提案は、具体的な実行媒体を扱うexecutorをParallelism TSに導入する提案をしている。
+</p>
+
+<p>
+executorは共通のAPIを持つ。executorはどのような実行方式なのかを指し示す実行カテゴリーを持つ。executorは実行媒体を大量に確保するために、単一の呼び出しで多数の実行媒体を確保する方法を提供する。標準で提供されることが保証されている標準executorを用意する。実行を簡単に行える方法を提供する。
+</p>
+
+<p>
+実行カテゴリーとして提案されているのは、シーケンシャル実行、並列実行、ベクトル実行。
+</p>
+
+<p>
+標準executorとしては、シーケンシャルexecutorと並列executorとベクトルexecutor。また呼び出し元のスレッドで実行される版の並列/ベクトルexecutorもある。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4407.html">N4407: Technical Specification for C++ Extensions for Parallelism, Working Draft</a>
+</h2>
+
+<p>
+Parallelism TSのドラフト
+</p>
+
+<p>
+並列実行版のアルゴリズムライブラリ
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4408.pdf">N4408: Parallelism TS Editor's Report</a>
+</h2>
+
+<p>
+Parallelism TSドラフトの編集者による変更点の記録。今回はレイアウトの調整程度らしい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4409.pdf">N4409: Programming Languages -- Technical Specification for C++ Extensions for Parallelism</a>
+</h2>
+
+<p>
+内容はN4408とほぼ同じ。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+特に書くことがないが、今日はボドゲをせずに溜まったC++標準化委員会の文書を片付けている。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
