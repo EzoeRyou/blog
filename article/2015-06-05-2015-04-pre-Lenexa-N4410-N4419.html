@@ -1,0 +1,673 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書 2015-04-pre-Lenexaのレビュー: N4410-N4419 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/06/c-2015-04-pre-lenexa-n4410-n4419.html">C++標準化委員会の文書 2015-04-pre-Lenexaのレビュー: N4410-N4419</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4410.html">N4410: Responses to PDTS comments on Transactional Memory</a>
+</h2>
+
+<p>
+Transactional Memory TSに対するNBコメントに対する返答。
+</p>
+
+<p>
+日本からは反対意見をいくつか送った。
+</p>
+
+<p>
+JP1では、トランザクショナルセーフという概念がmath.hにも適用されるのは既存のコードのパフォーマンスの劣化を招く恐れがあるという反対意見を送った。例えば、浮動小数点数の精度を実行時に非トランザクショナルセーフに変更する実装が多いが、これをトランザクショナルセーフにするには、極めて高いコストを支払わなければならないという懸念だ。
+</p>
+
+<p>
+回答はrejectされた。math.hは意図的にトランザクショナルセーフから外されているとのことだ。
+</p>
+
+<p>
+前回のC++WG JPの会議では、それならば問題はないが、ドラフトにはそのような文面が見当たらないので要確認という結論になった。
+</p>
+
+<p>
+JP2では、関数のブロックスコープのstaticストレージ上の変数は非トランザクショナルセーフにすべきだという反対意見を送った。アトミック実行が非アトミック実行と同期しなければならなくなる懸念がある。
+</p>
+
+<p>
+回答は、rejectされた。関数のブロックスコープのstaticストレージ上の変数はトランザクショナルだろうが非トランザクショナルだろうが、アトミックであるべきだという合意があるからだという。現行の規程が、非トランザクショナルなコードパスに余計なオーバーヘッドをもたらす懸念はないという。
+</p>
+
+<p>
+これを受けての日本での議論は詳細に覚えていないが、まあ、コンパイラー屋も出席する会議でそういう合意が得られたのであればそうなのだろうという雰囲気だったような気がする。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4411.pdf">N4411: Task Block (formerly Task Region) R4</a>
+</h2>
+
+<p>
+fork-joinライブラリとして、Task Blockライブラリの提案。前回までの提案では、Task Regionと呼ばれていたが、OpenMPの文脈で別の意味に使われていて混同される可能性があるということ、task regionは名詞であるので、関数名としては、動詞が好ましいことから、task blockに解明された。また、task_region_finalに何らfinal的な意味合いはないのでdefine_task_block_restore_threadに改名した。task_blockクラスを作る関数をtask_regionをdefineプレフィクスをつけてdefine_task_blockにしたので、task_region_handleもhandleサフィックスをとってtask_blockに改名した。
+</p>
+
+<p>
+利用例
+</p>
+
+<pre><code>template&lt;typename Func&gt;
+int traverse(node *n, Func&amp;&amp; compute)
+{
+    int left = 0, right = 0;
+
+    define_task_block([&amp;](task_block&amp; tb) {
+        if (n-&gt;left)
+            tb.run([&amp;] { left = traverse(n-&gt;left, compute); });
+        if (n-&gt;right)
+            tb.run([&amp;] { right = traverse(n-&gt;right, compute); });
+    });
+
+    return compute(n) + left + right;
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4412.html">N4412: Shortcomings of iostreams</a>
+</h2>
+
+<p>
+i2015-02-24のCologne LWG会議でostreamの問題点の話し合いをまとめた文書らしい。
+</p>
+
+<p>
+XMLやJSONのようなデータのテキスト表現を行うプロトコルがあり、この場合の機械的に精製されたテキスト表現はロケールに依存すべきではない。
+</p>
+
+<p>
+整数や浮動小数点数と文字列との相互変換の方法が簡単にできない。
+</p>
+
+<p>
+浮動小数点数に関しては、値をテキスト表現に変換して戻す信頼できる方法が存在しない。
+</p>
+
+
+<p>
+std::streambufはBase64エンコードのようなバイトストリーム処理に適してない。
+</p>
+
+<p>
+std::filebufのようなものはコード変換を行うべきではない。コード変換はstd::streambufのフィルターとして行うべきだ。
+</p>
+
+<p>
+入出力操作におけるOSのエラー通知はユーザー側に渡されるべきで、ライブラリで握りつぶすべきではない。
+</p>
+
+<p>
+フォーマット方式はフラグで設定するが、これはstreamオブジェクトに状態として維持されてしまう。
+</p>
+
+<p>
+iostreamは文字型とchar_traitsによるテンプレート化がなされているが、char_traitsは現実的に使われていない。
+</p>
+
+<p>
+a&lt;&lt; b &lt;&lt; c &lt;&lt; dのようなチェインは、型安全に任意個の値を出力できるという点では成功したインターフェースだ。ただし、ソフトウェアの規模が大きくなると、オーバーロード解決が煩雑になる。解決不可能だ。
+</p>
+
+<p>
+C++11ならば、Variadic Templatesのよるprintfのようなインターフェースが可能になる。
+</p>
+
+<p>
+Matt Wilsonの<a href="http://sourceforge.net/projects/fastformat/">FastFormat</a>ライブラリや、Boostのlexical_castを参考にしたAPIを考察する価値がある。
+</p>
+
+<p>
+ユーザー定義型に対する入出力を拡張できる機能は必須だ。
+</p>
+
+<p>
+現在、moneyとtimeのfacetが使われていない。
+</p>
+
+<p>
+ロケールが深く組み込まれている。ロケールはグローバルオブジェクトなので、出力する関数呼び出しごとに二回の同期が必要になる。
+</p>
+
+<p>
+ロケールは不完全だ。ICUなどの現実的なライブラリを参考に設計すべきだ。
+</p>
+
+<p>
+テキストの内部表現は統一したほうが都合がいい。UTF-32は固定長エンコード（寝ぼけてるのか？）だがメモリーフットプリントがUTF-8より多い。
+</p>
+
+<p>
+個人的には、iostreamは完全に設計が破綻しているので、これ以上改良を加えるより、捨てたほうがいいと思う。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4414.pdf">[PDF注意] N4414: Executors and Schedulers Revision 5</a>
+</h2>
+
+<p>
+executorライブラリの提案。
+</p>
+
+<p>
+ある処理を並列実行するさいに、どのように並列実行するかという方法を、executorという概念から使うことができる。
+</p>
+
+<p>
+executorは、void spawn( Func &amp;&amp; )という共通のメンバー関数を持つ。
+</p>
+
+<p>
+標準では、thread_per_task_executor、thread_pool_executor、loop_executor（タスクを積んでいって一気に呼び出し元のスレッドで処理する）、serial_executor
+</p>
+
+<p>
+リファレンス実装が公開されている。
+</p>
+
+<p>
+<a href="https://github.com/ccmysen/executors_r5/tree/master/include">https://github.com/ccmysen/executors_r5/tree/master/include</a>
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4415.pdf">[PDF注意] N4415: Simple Contracts for C++</a>
+</h2>
+
+<p>
+契約プログラミングをコア言語でサポートするための提案。属性ベースの機能のようだ。
+</p>
+
+<p>
+契約とは、関数の事前条件と事後条件を保証するためのもので、高級なassertとみなすこともできる。
+</p>
+
+<p>
+ただし、その目的はエラー報告でもテストフレームワークでもない。期待する動作との齟齬を検出するための基礎的な機構だ。
+</p>
+
+<p>
+すでにライブラリによるサポートの提案は出ていたが、コア言語でのサポートの声も大きいので、これはコア言語でサポートをする提案となっている。
+</p>
+
+<p>
+契約は関数宣言に属性で記述する。契約に記述された式を評価した結果がfalseとなれば、契約は満たされない。
+</p>
+
+<p>
+契約は関数宣言に記述するが、型の一部ではない。ただし、関数は名前で直接呼び出されても、関数へのポインター経由で呼びだされても、契約によるチェックは行われる。
+</p>
+
+<p>
+この論文で提案されている文法は、属性を使うものだ。
+</p>
+
+<p>
+[[ expects : condition ]] で呼び出す前の事前条件を指定する。
+</p>
+
+<p>
+[[ ensures : condition ]] で呼び出した後の事後条件を指定する。
+</p>
+
+<p>
+たとえば、Vectorクラスの添字演算子の事前条件は、以下のように書ける
+</p>
+
+<pre><code>T &amp; operator [] ( size_t i ) [[ expects : i &lt; size() ]] ;
+</code></pre>
+
+<p>
+同様に、ArrayViewクラスのコンストラクターの事後条件は、以下のように書ける。
+</p>
+
+<pre><code>ArrayView( const vector&lt;T&gt; &amp; v ) [[ ensures : data() == v.data() ]] ;
+</code></pre>
+
+<p>
+契約はどのように動くのか。
+</p>
+
+<p>
+契約の条件式は型チェックされる。
+</p>
+
+<p>
+関数の本体が実行される前に、事前条件が評価される。結果がtrueであれば、関数の本体は通常通り実行される。結果がfalseであれば、実行の継続は保証されない。プログラムはabortするか、例外を投げるか、あるいは挙動が未定義ながらそのまま実行を続けるかなど、何らかの実装依存の挙動をする。つまり、規格準拠の実装は契約をすべてチェックしてもいいし、一部のみチェックしてもいいし、あるいは無視してもよいということだ。
+</p>
+
+<p>
+同様に、事後条件は関数の戻り値を返した後、ローカル変数を破棄した後、呼び出し元に処理が反る前に評価される。結果がtrueであれば、通常通り処理が継続する。結果がfalseであれば、プログラムは事前条件と同じように、異常終了など、何らかの実装依存の挙動をする。事後条件は例外によって関数を抜けた場合は評価されない。
+</p>
+
+<p>
+ここで提案している契約は、あたかもassert( condition )を関数の前後に配置して（ローカル変数などにアクセスできないという制約はあるが）実行したように振る舞う。この設計には現実的な理由がある。
+</p>
+
+<p>
+契約チェックの有効無効、一部のみ有効を切り替えることができる。マクロなどを使った切り替え方法を提供することは考えていない。正しいプログラムが正しいデータに対して実行された時は、契約を無視するのは、プログラムの観測可能な挙動に影響を与えないはずだ。つまり、デッドコードの除去的な最適化手法とみなすこともできる。実装は契約チェックの有効無効を切り替える方法を提供することが推奨される。
+</p>
+
+<p>
+契約チェックはどの粒度で行われるべきだろうか。関数の宣言単位だろうか。クラス定義定義だろうか、名前空間、翻訳単位、あるいはプログラム全体か？　関数ごととか、プログラム全体の粒度というのは、ほとんどのプログラムにとって現実的な粒度ではない。クラスごととか名前空間ごとなどというのも茨の道だ。この提案では、翻訳単位ごとの契約の切り替えを提案している。
+</p>
+
+<p>
+契約が満たされなかった時に、std::abortを呼び出すのは、プログラムによっては適切ではない場合もある。例外を投げたほうがいい場合もあるだろう。ただし、組込みシステムなどの資源が希少な環境でも使えるようにすることを考えると、例外を必須にはできない。関数へのポインターを設定することによるコールバック関数も、デッドコードの除去という点で難しい。多くの超重要なシステムは、不必要なコードを絶対に入れないという厳しいポリシーを持っている。
+</p>
+
+<p>
+2014年のUrbana, IL会議でも好まれたように、この提案では、契約違反の挙動を実装依存とし、契約チェックを、all, none, pre-condition, post-conditionだけに限定することを翻訳単位ごとに切り替えるようなことを認める。
+</p>
+
+<p>
+この提案に含まれないもの。
+</p>
+
+<p>
+この提案は単純化のために、契約プログラミングとして有益な機能の多くを省いた。たとえば、invariantsとか、abstract statesとか、関数の本体に入った際の最初の実引数の値を参照できる機能とか、事後条件で関数の戻り値を参照できる機能だとか、例外時の契約チェックだとかだ。これらの機能は、その価値を判断して無益だと結論したから取り入れなかったのではなく、C++に契約を入れるにあたって単純なものを先に入れ、進化的に改良していく手法をとりたいからだ。
+</p>
+
+<p>
+この提案は、既存のABIに変更を加える必要はない。単に型チェックだけを行って後は無視する実装も規格準拠の実装だ。また、実装は事前条件、事後条件に相当するassertを機械的に挿入するだけでも規格準拠となる。このような実装戦略はABIの変更を必要としない。実装は、契約による情報を、挙動を変えない限り、コード生成のヒントとして使うことができる。
+</p>
+
+<p>
+関数が複数箇所で宣言される場合、契約は全てに書くべきか。省略すべきか。理想では、契約は一箇所のみに書くべきであるが、単純化のために、以下のルールを提案する。ある翻訳単位で、宣言が契約を持つ場合、後続の宣言もすべて、ODR的に同一の式を持つ契約がなければならない。また、関数宣言が契約を持つ場合、その定義も契約を持たねばならない。実装には翻訳単位を超えて契約が正しいことを確認する義務はない。宣言では契約を書かず、定義だけ契約を書くことも許容される。これはインターフェースから契約を隠すことになるので、その意義は疑問だが。
+</p>
+
+<p>
+契約に書ける式とは何か
+</p>
+
+<p>
+契約の条件式は、副作用フリーであるべきだ。すなわち、その評価の有無はプログラムの観測可能な挙動に差を生じさせるべきではない。その意味では、constexpr関数に近い。ただし、constexpr関数に限定するのは現実的ではない。そのため、提案では、単に契約の式は副作用フリーであるべきだと記述するに留める。
+</p>
+
+<p>
+virtual関数について
+</p>
+
+<p>
+virtual関数のオーバーライドは、基本クラスのオーバーライドされるvirtual関数の契約も受け継ぐ。オーバーライダーが契約を記述する場合は、元の関数と同じ契約でなければならない。契約を弱めたり強めたりすることはできない。
+</p>
+
+<pre><code>struct A
+{
+    bool f() const ;
+    bool g() const ;
+    bool h() const ;
+
+    virtual void v() [[ expects : f() &amp;&amp; g() ] ;
+} ;
+
+struct B: A
+{
+    void v() ; // OK、継承する
+} ;
+
+struct C : A
+{
+    void v() [[ expects : f()  ]] ; // エラー、弱化
+} ;
+
+struct D : A
+{
+    void v() [[ expects : f() &amp;&amp; g() &amp;&amp; h() ]] // エラー、強化
+} ;
+</code></pre>
+
+<p>
+オーバーライド先で事前条件を弱めたり、事後条件を強めたりするのは、技術的に妥当だが、この提案は機能の簡潔さを目的としているので、そのような機能を今回は提案しない。
+</p>
+
+<p>
+クラスのメンバー関数の契約が参照できるメンバーとはなにか。
+</p>
+
+<p>
+契約はインターフェースの一部であるので、契約でprivateなメンバーを参照してしまうと、隠匿流出になってしまう。この提案では、契約の条件式は、メンバー関数のアクセス指定と同じだけのアクセスができると規定している。
+</p>
+
+<ul>
+<li>
+publicメンバー関数の契約は、publicなメンバーのみを参照できる
+</li>
+
+<li>
+protectedメンバー関数の契約は、publicとprotectedなメンバーを参照できる
+</li>
+
+<li>
+privateメンバー関数の契約は、すべてのメンバーを参照できる。
+</li>
+</ul>
+
+<p>
+friend宣言で関数を定義している場合は、publicなメンバーのみ参照できる。
+</p>
+
+<p>
+属性の文法拡張
+</p>
+
+<p>
+この提案は、現在のC++11で導入された属性にはない文法として、コロンを使っている。[[ expects : condition ]], [[ ensures : condition ]]。既存の属性の文法で書くと、[[ expects(condition ) ]], [[ ensures(condition) ]]となる。論文では、コロン記法は、C++11のLisp風の属性記法より、読みやすいので、契約以外にも有益であるとして、属性の拡張も提案している。
+</p>
+
+<p>
+関数ポインターは、契約の有無は問わない。
+</p>
+
+<pre><code>double f( double x ) [[ expects : x &gt;= 0.0 ]] ;
+double (*pf)( double ) = &amp;f ; // OK
+</code></pre>
+
+<p>
+ポインターを契約付きで宣言することもできる。契約がない関数へのポインターを契約付きの関数へのポインター宣言に代入しようとするとエラーになる。
+</p>
+
+<pre><code>
+double f( double x ) [[ expects : x &gt;= 0.0 ]] ;
+double (*pf)( double ) [[ expects : x &gt;= 0.0 ]] = &amp;f ; // OK
+
+double g( double x ) ;
+double (*pg)( double ) [[ expects: x != 0.0 ]] = &amp;g ; // エラー
+</code></pre>
+
+
+<p>
+コア言語に組み込むことで、解析ツールによるサポートもしやすくなった。
+</p>
+
+<p>
+Bloombergの提案N4378との比較
+</p>
+
+<p>
+Bloombergの提案は、「契約assertの言語サポート」という銘打っているものの、言語サポートについてはよく分からず、その実体は、いいところが単なるasertフレームワークでしかない。その設計はプログラマー外とする箇所に手動で仕込むことを想定している。インターフェースレベルで契約を表現する方法はないし、コンパイラーやツールが効率的に解析できる機構にもなっていない。この提案の想定は、契約とは非公式に英語で書かれるものであって、インターフェースレベルでコード上に書くものではないというものだろう。明らかに、これは解析ツールの役に立たず、契約内容を呼び出し元から見ることもできない。さらに、assert管理はグローバルであるため、assertの利用を完全に決定できる中央権威が存在しなければならない。これは、複数の部署、団体が書いたコードを組み合わせる、たいていの環境のプログラムには適用が難しい。契約assertのコンポーネント単位の管理をないがしろにしてはならない。
+</p>
+
+<p>
+N4293との違い
+</p>
+
+<p>
+文法をキーワードから属性にした。契約は、正しいプログラムであれば、取り除いても何ら観測可能な挙動に影響を与えないものであるから、属性を使うのは理にかなっている。
+</p>
+
+<p>
+N4293で提案されている機能のいくつかを、本提案は単純化のためにサポートしていない。これは将来の拡張に期待したい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4416.pdf">[PDF注意] N4416: Don't Move: Vector Can Have Your Non-Moveable Types Covered</a>
+</h2>
+
+<p>
+タイトルが面白い。
+</p>
+
+<p>
+vectorにコピーもムーブもできない要素型に対応させるためにメンバー関数テンプレートを追加する提案。
+</p>
+
+<p>
+C++03のvectorは、コピーできない要素型を扱えなかった。C++11になって、コピーできなくてもムーブできれば扱えるようになった。ただし、ムーブすらできない型は依然として扱うことができない。
+</p>
+
+<p>
+vectorがコピーかムーブを要求する理由は、内部ストレージのサイズが足りない場合に、より大きなストレージを確保してオブジェクトの移し替えを行うからだ。
+</p>
+
+<p>
+ところで、最近、mutexやatomicをデータメンバーに持つクラスが増えてきている。これらのクラスは、暗黙にコピーもムーブもできない。しかし、このクラスのオブジェクトの集合をvectorに入れて管理したい。
+</p>
+
+<p>
+ではどうするのか。提案では、厳密にストレージのサイズを指定するメンバー関数テンプレートと、ストレージのサイズの伸長を行わないemplaceを追加することで対応している。このメンバー関数テンプレートのみを使って要素の追加を行えば、ムーブ不可能な型でも対応できる。
+</p>
+
+<pre><code>void reserve_initially(size_type n)
+</code></pre>
+
+<p>
+コンテナーがempty()の時のみ、厳密にn個の要素分のストレージを確保する。
+</p>
+
+<pre><code>template &lt;class... Args&gt; void
+emplace_back_capped(Args&amp;&amp;... args)
+</code></pre>
+
+<p>
+size() &lt; capacityのときのみemplaceする。
+</p>
+
+<p>
+emplace_back_cappedが失敗した場合はどうするのか。例外を投げるのか。絶対失敗しないことを事前条件とするのか。提案では、既存のemplaceもストレージを確保できない時は例外を投げるし、既存の挙動と一致するので例外を投げるとしている。
+</p>
+
+<p>
+その他には、resizeがある。resize_capped(n,  args ...)は、empty()のときに、厳密にn個の要素分のストレージを確保してargs...で構築した要素でemplaceする。resize_downはn &lt;= size()のときにn個にリサイズする。
+</p>
+
+<p>
+提案では、一貫性を保つために、dequeやlistやvector<bool>、その他のコンテナーアダプターにも同等のメンバーテンプレートを追加することも考察している。
+</p>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4417.pdf">[PDF注意] N4417: Source-Code Information Capture</a>
+</h2>
+
+<p>
+__LINE__, __FILE__, __func__に変わるまともなソースコード情報を取得できるクラスライブラリの追加提案。静的リフレクション機能の一つだ。
+</p>
+
+<p>
+前回の提案であるN4129からの変更点は、offset_from_start_of_fileの削除と、コンストラクターにコンパイラーマジックがなくなったこと。かわりにcurrentが追加された。あとｐ
+</p>
+
+<pre><code>int main()
+{
+    std::source_location info ; // この場所のソースコード情報を保持
+
+    std::cout
+        &lt;&lt; "line: " &lt;&lt; info.line_number() // 行番号
+        &lt;&lt; "\ncolumn: " &lt;&lt; info.column() // 行頭からの文字数
+        &lt;&lt; "\nfile name: " &lt;&lt; info.file_name() // ファイル名
+        &lt;&lt; "\nfunction_name" &lt;&lt; info.function_name() // 関数の本体の中の場合関数名、それ以外の場合は空文字列
+        &lt;&lt; std::endl ;
+}
+</code></pre>
+
+<p>
+関数の引数に渡すために、特別なconstexpr staticメンバー関数currentが用意されている
+</p>
+
+<pre><code>// ログ記録用の関数
+void logger( std::source_location info ) ;
+
+int main()
+{
+    logger( std::source_location::current() ) ;
+}
+</code></pre>
+
+<p>
+currentは呼び出された箇所に相当するsource_locationの値を返す。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4418.pdf">[PDF注意] N4418: Parameter Stringization</a>
+</h2>
+
+<p>
+実引数として与えられた呼び出し元の式を文字列化して取得する機能を追加する提案。これも静的リフレクション機能に分類される。
+</p>
+
+<p>
+CプリプロセッサーマクロにできてC++にできないことのひとつに、引数式を文字列化するということがある。
+</p>
+
+<pre><code>
+void custom_assert( bool cond )
+{
+    if ( ! cond )
+    {
+        std::cout &lt;&lt; "assertion failure!: " &lt;&lt; "引数に渡した式の文字列" &lt;&lt; std::endl ;
+    }
+}
+
+void f( int * ptr, std::size_t size )
+{
+    custom_assert( ptr != nullptr ) ;
+
+    // ...
+}
+</code></pre>
+
+<p>
+このようなコードを実現するには、Cプリプロセッサーマクロの#演算子を使わなければならない。
+</p>
+
+<pre><code>
+void custom_assert_impl( bool cond, const char * expr_str )
+{
+    if ( ! cond )
+    {
+        std::cout &lt;&lt; "assertion failure!: " &lt;&lt; expr_str &lt;&lt; std::endl ;
+    }
+}
+
+#define custom_assert ( expr ) custom_assert_impl( (expr), #expr )
+
+void f( int * ptr, std::size_t size )
+{
+    custom_assert(( ptr != nullptr )) ;
+
+    // ...
+}
+</code></pre>
+
+<p>
+この提案は、C++にはこのプリプロセッサーの代替機能が必要であるとしている。具体的な文法についてはまだ深く考えられていない。
+</p>
+
+
+<h2><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4419.pdf">[PDF注意] N4419: Potential extensions to Source-Code Information Capture</a>
+</h2>
+
+<p>
+source_location提案に対する拡張提案。
+</p>
+
+<p>
+最新の提案では削除されたoffset_from_start_of_fileの追加
+</p>
+
+<p>
+行番号に対応するsource_locationを取得する機能の追加。
+</p>
+
+<p>
+取得する情報を選ぶことができる機能
+</p>
+
+<p>
+大量の長い関数名が存在するソースコードで、関数名情報を取得する場合は、バイナリに関数名を埋め込まなければならず、バイナリが肥大化する。そのために、必要な情報の一部だけを取得できるように、取得する方法を指定できる機能。
+</p>
+
+<p>
+ユーザー定義の情報をsource_locationに仕込める機能。
+</p>
+
+<p>
+function_nameで得られる名前はデマングルされていないものであることが予測されるので、デマングルした人間に読みやすい名前に変換する機能
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+最近、ドワンゴ社内で、何らかの理由により、業務外で交流のない人間と食事に行く需要がにわかに発生しているため、マッチングサービスの実装が望まれている。また、レコメンド機能があると便利かもしれない。「この社員と食事に言った人はこんな社員とも食事に行っています」
+</p>
+
+<p>
+また最近、ドワンゴ社内で始まった謎の制度のせいで、アマゾンで特定の技術書が売り切れるという現象が発生しているようだ。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
