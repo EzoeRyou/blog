@@ -1,0 +1,377 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会: 2015-04 pre-Lenexaのレビュー: N4420-N4429
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/06/c-2015-04-pre-lenexa-n4420-n4429.html">C++標準化委員会: 2015-04 pre-Lenexaのレビュー: N4420-N4429</a></h1>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4420.pdf">[PDF注意] N4420: Defining Test Code</a>
+</p>
+
+<p>
+C++の型システムにテストを追加する提案。
+</p>
+
+<p>
+テストは重要である。C++標準はテストをサポートする機能を提供していない。そのため、C++プログラムはサードパーティのマクロ満載のお互いに非互換なテスト用フレームワークを使わなければならない。
+</p>
+
+<p>
+この提案は、テストコードと非テストコードをプログラム中で明確に分断するための機能をテスト修飾子を提案している。
+</p>
+
+<pre><code>void f() test ; // テスト用コード
+
+void g() test
+{
+    f() ; // OK
+}
+
+void h()
+{
+    f() ; // ill-formed
+}
+</code></pre>
+
+<p>
+テスト修飾された関数やクラスは、非テスト修飾されたコードから使うことはできない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4421.html">N4421: C++ Standard Evolution Active Issues List</a>
+</h2>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4422.html">N4422: C++ Standard Evolution Completed Issues List</a>
+</h2>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4423.html">N4423: C++ Standard Evolution Closed Issues List</a>
+</h2>
+
+<p>
+C++の新機能提案に対する既存の問題、解決済みの問題、却下された問題。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4424.pdf">N4424: Inline Variables</a>
+</h2>
+
+<p>
+inline変数の提案。
+</p>
+
+<p>
+以下のようなコードを含むライブラリーがあるとする。
+</p>
+
+<pre><code>// library.h
+struct X
+{
+    static int data ;
+} ;
+</code></pre>
+
+<p>
+このライブラリーはヘッダーのみで使えることを想定した設計にしたい。さて、このstaticデータメンバーをどこかの翻訳単位で定義しなければならない。ではどこで定義すればいいのだろうか。
+</p>
+
+<p>
+これを解決するには、inline関数がstaticストレージ上の変数へのリファレンスを返せばよい。
+</p>
+
+<pre><code>namespace detail {
+    int &amp; get_data()
+    {
+        static int data ;
+        return data ;
+    }
+}
+</code></pre>
+
+<p>
+これは動くが、余計な関数をひとつ書かなければならないし、変数を使うときに冗長な関数呼び出し式を書かなければならない。
+</p>
+
+<p>
+N4424提案は、変数をinline宣言することで、プログラム中で共通の実体を指すようにしてくれるものだ。
+</p>
+
+<pre><code>// library.h
+struct X
+{
+    // クラス外に定義を書く必要はない
+    static inline int data ;
+} ;
+</code></pre>
+
+<p>
+以前提案されていたN4147は、inline変数というよりは、inline式とも言うべきもので、初期化子の式が、その副作用も含めて、変数を使った場所で評価されるというものだった。今回のN4424提案はどこかの翻訳単位に定義を書かずともプログラム中で共通の実体を指すという目的を限定したものになっている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4425.pdf">[PDF注意] N4425: Generalized Dynamic Assumptions</a>
+</h2>
+
+<p>
+コンパイラーは最適化のために様々な情報を必要とするが、そのような情報は外部の環境に依存していて、コード中から取得できないことがある。もし、プログラマーがそのような乗法をコンパイラーへのヒントとして記述することができれば、コンパイラーはよりよく最適化ができる可能性がある。この提案は、そのような前提条件を記述できるコア言語機能を追加する提案である。
+</p>
+
+<p>
+すでに、既存のC++コンパイラーで、コンパイラーに前提条件のヒントを与える独自拡張を提供しているものがある。
+</p>
+
+<p>
+MSVCは__assume(expression)というintrinsicを提供している。ここに書かれた式はtrueとなるとみなされる。コンパイラーはこの情報を使って最適化ができる。式は評価されない。
+</p>
+
+<p>
+IntelのC++コンパイラーも__assumeに加えて、__assume_alignedを提供している。これはポインターのアライメントの保証を記述するものである。
+</p>
+
+<p>
+IBMのXLコンパイラーは__alignxというポインターのアライメント保証を指定するための機能を提供している。
+</p>
+
+<p>
+Clangは__builtin_assumeと__builtin_assume_alignedというintrinsicを提供している。また、MSVC互換モードの場合、__assumeも受け付ける。
+</p>
+
+<p>
+GCCは__builtin_unreachableと__builtin_assume_alignedを提供している。
+</p>
+
+<p>
+提案されている文法は、既存のtrue/falseキーワードを再利用するものだ。
+</p>
+
+<p>
+true(expression)は、オペランドの式がtrueと評価されることを保証する。false(expression)は、式がfalseと評価されることを保証する。式は実際には評価されない。
+</p>
+
+<pre><code>
+true( ++i ) ; // 式は実際には評価されないので、iはインクリメントされない。
+
+true( i == 5 ) ; // コンパイラーはiは5と等しいとみなしてよい
+
+true( false ) ; // この文には到達しない（コンパイラーはこの文を含むコードパスを除去してよい）
+
+false( i &lt; 2 ) ; // iは2未満にならない
+
+void foo( int i )
+{
+    true( i &gt; 6 ) ; // iは6より大きい保証
+
+    // この分岐はコンパイル時に評価できるし、除去できる
+    if ( i &lt; 3 )
+    {
+        // ...
+    }
+}
+</code></pre>
+
+<p>
+また提案では、alingof演算子を拡張して、true/false演算子の中で使えるようにしている。
+</p>
+
+<pre><code>void bar( float * q, const float * p, int n, int m )
+{
+    true( alignof(p) == 16 &amp;&amp; alignof(q) == 16 ) ;
+    true( m % 16 == 0 ) ;
+
+
+    // mは16の倍数であることが保証されているので、
+    // コンパイラーは実行時のチェックなしに、
+    // このループを余さず展開したりベクトル化したりできる
+    for * int i = 0 ; i &lt; n ; ++i )
+    {
+        q[i] = p[i] + p[i+m] ;
+    }
+}
+</code></pre>
+
+<p>
+契約プログラミングをより低級にした感じだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4426.html">N4426: Adding [nothrow-]swappable traits</a>
+</h2>
+
+<p>
+std::is_nothrow_swappable&lt;T&gt;を追加する提案。
+</p>
+
+<p>
+加えて、この提案では、std::is_swappable&lt;T&gt;, std::is_swappable_with&lt;T, U&gt;, std::is_nothrow_swappable_with&lt;T, U&gt;も追加する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4427.pdf">[PDF注意] N4427: Agenda and Meeting Notice for WG21 Pre-Lenexa Telecon Meeting</a>
+</h2>
+
+<p>
+電話会議の予定表
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4428.pdf">[PDF注意] N4428: Type Property Queries (rev 4)</a>
+</h2>
+
+<p>
+静的リフレクション機能として、enum型とクラス型の情報を取得できるstd::enum_tratis<E>とstd::class_traits<C>の提案。
+</p>
+
+<p>
+enum_traitsは、テンプレートに渡したenum型の列挙子の識別子と値を取得できる。
+</p>
+
+<p>
+利用例
+</p>
+
+<pre><code>template &lt; typename T,  std::size_t I &gt;
+int print( )
+{
+    std::cout &lt;&lt; std::enum_traits&lt;T&gt;::enumerators::identifier &lt;&lt; '\n'
+        &lt;&lt; std::enum_traits&lt;T&gt;::enumerators::value &lt;&lt; std::endl ;
+    return 0 ;
+} 
+
+template &lt; typename ... dummy &gt;
+void expand( dummy ... ) { } 
+
+
+template &lt; typename T, std::size_t ... I &gt;
+void print_enumerators_impl( std::index_sequence&lt; I ... &gt; )
+{
+    // 引数の評価順序を固定しようというN4228提案が可決されることを信じている
+    expand( print&lt; T,  I &gt; ( ) ... ) ;
+}
+
+template &lt; typename T,
+    typename Indices = std::make_index_sequence&lt; std::enum_traits&lt;T&gt;::enumerators::size &gt; &gt;
+void print_enumerators( )
+{
+    print_enumerators_impl&lt;T&gt;( Indices() ) ;   
+}
+</code></pre>
+
+<p>
+class_traits<T>について詳しくは論文を参照してもらうとして、提案では基本クラスの型とvirtual基本クラスかどうか、メンバーの識別子とポインター、ネストされた形の識別子と型の一覧を取得できる。取得できるのはpublicなメンバーのみ。
+</p>
+
+<p>
+このようなtraitsにしておけば、将来の拡張は容易いとしている。
+</p>
+
+<p>
+また論文は、将来の拡張として、reflectidというキーワードを提案している。これは、reflectid(E)のように使う。オペランドに式を与えると、decltypeのように、式を評価した結果の型を使う。reflectid(E)のEがenum型の場合、結果はenum_traits&lt;E&gt;型になる。reflectid(C)のCがクラス型の場合、結果はclass_traits&lt;C&gt;になる。
+</p>
+
+<p>
+reflectidが必要な理由は、アクセス指定に対応するためだ。reflectidが導入されれば、reflectidが使われた文脈に応じた情報を列挙したclass_traitsが得られる。また、名前空間はテンプレートパラメーターで渡す方法がないため、reflectidのようなコア言語でのサポートが必要だ。テンプレートもテンプレートに渡すよりは、reflectidが欲しい。
+</p>
+
+<p>
+Clangベースの実験的実装が公開されている。
+</p>
+
+<p>
+<a href="https://github.com/ChristianKaeser/clang-reflection">ChristianKaeser/clang-reflection</a>
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4429.html">N4429: Rewording inheriting constructors (core issue 1941 et al)</a>
+</h2>
+
+<p>
+継承コンストラクターの挙動を変更する提案。継承コンストラクターはusing宣言の文法を使うが、挙動が異なる。これまで、派生先でコンストラクターを生成して、基本クラスのコンストラクターにデリゲートするような定義をされていた。これにより、using宣言とは違った挙動が生じてしまう。
+</p>
+
+<p>
+提案では、継承コンストラクターの挙動を、派生先クラスが基本クラスのコンストラクターを本当に継承したかのように定義する変更を提案している。これにより破壊的変更もあるが、挙動の不一致がなくなり、より自然になる。
+</p>
+
+<p>
+具体的な例は論文を参照してもらうとして、様々な例が上げられている。
+</p>
+
+<p>
+よい変更だと思う。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
