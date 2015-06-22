@@ -1,0 +1,490 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書 2015-04 pre-Lenexaのレビュー: N4430-N4439
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/06/c-2015-04-pre-lenexa-n4430-n4439.html">C++標準化委員会の文書 2015-04 pre-Lenexaのレビュー: N4430-N4439</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4430.html">N4430: Core Issue 1776: Replacement of class objects containing reference members</a>
+</h2>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_active.html#1776">Core Issues 1776</a>を解決するための文面変更。
+</p>
+
+<p>
+ストレージに構築されたクラスオブジェクトを破棄して、そのストレージ上にまたクラスを構築するとき、もとのクラスにconstなリファレンスのデータメンバーがあった際などに、規格の範囲内でoptionalが実装できない制限を緩和する。
+</p>
+
+<p>
+またこの文面では、std::launderというアドレスロンダリング用の関数テンプレートが追加されている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4431.pdf">[PDF注意] N4431: Working Draft, Standard for Programming Language C++</a>
+</h2>
+
+<p>
+最新のC++標準規格のドラフト
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4432.html">N4432: Editor's Report -- Working Draft, Standard for Programming Language C++</a>
+</h2>
+
+<p>
+N4431に加えられた変更点。今回は大きな変更はない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4433.html">N4433: Flexible static_assert messages</a>
+</h2>
+
+<p>
+static_assertの警告メッセージに、文字列リテラルだけではなく、文脈上const char*, const wchar_t*, const char16_t*, const char32_t*に変換できる定数式を許可しようというもの。
+</p>
+
+<pre><code>const char * msg = "hello" ;
+static_assert( false, msg ) ;
+</code></pre>
+
+<p>
+これは現在提案中のコンパイル時文字列ライブラリと組み合わせると強力に使える。
+</p>
+
+<pre><code>template &lt; typename ErrorCode, typename Message
+constexpr auto msg( ErrorCode code, Message message )
+{
+    return "My Lib: error code "S + code + ": "S + message ;
+}
+
+static_assert( sizeof(int) == 4, msg( "001"S, "This library assumes that sizeof(int) is 4." ) ) ;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4434.pdf">[PDF注意] N4434: Tweaks to Streamline Concepts Lite Syntax</a>
+</h2>
+
+<p>
+GCCのコンセプトブランチで、N4377で提案されているコンセプトを実装してみた経験から、現在の提案に対する改良の提案。
+</p>
+
+<p>
+boolは冗長。
+</p>
+
+<p>
+コンセプトは常に真偽値を返す。conceptキーワードはある。なぜboolキーワードが必要なのか。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+concept bool C() { return ... ; }
+
+template &lt; typename T &gt;
+concept bool C = ... ;
+</code></pre>
+
+<p>
+明らかにboolキーワードは冗長なので、省略できるようにすることを提案している。
+</p>
+
+
+<p>
+関数コンセプトと変数コンセプトは冗長
+</p>
+
+<p>
+コンセプトには、変数コンセプトと関数コンセプトが存在する。これらは定義する文法が異なる他にも、requires-clauseでの呼び出し方も異なる
+</p>
+
+<pre><code>template &amp;lt; typename T &amp;gt;
+concept bool C1() { return ... ; }
+
+template &amp;lt; typename T &amp;gt;
+concept bool C2 = ... ;
+
+template &lt; typename T &gt;
+requires C1&lt;T&gt;() &amp;&amp; C2&lt;T&gt; ;
+void f( T ) ;
+</code></pre>
+
+<p>
+関数コンセプトを利用するには、冗長な()を余計に記述しなければならない。かつ、コンセプトの利用者は、あるコンセプトが変数コンセプトなのか関数コンセプトなのか把握していなければならない。そんなことはどうでもいいことであり人間が把握すべきことではない。
+</p>
+
+<p>
+そもそも、コンセプトに2種類の文法が存在するのは、歴史的なアーティファクトに過ぎない。まだ変数テンプレートがなかった時代に関数コンセプトのみがあり変数テンプレートができたためにその文法を流用した変数コンセプトができたのだ。今の提案では、変数コンセプトのみを使っているので、関数コンセプトは不要だ。そもそも、関数コンセプトは利用時に冗長な()を必要とするのみならず、定義時にも冗長な()やreturnを必要とする。
+</p>
+
+<p>
+変数コンセプトに統一することを提案してる。
+</p>
+
+<p>
+コンセプトがコンセプト以外の場所で評価できないのは冗長なコードを生む。
+</p>
+
+<p>
+ある型TがあるコンセプトCを満たすかどうかを調べるにはどうするか。現行のコンセプトでは、コンセプトはrequires-clauseでしか使えないとされている。すると、ある型がコンセプトを満たすかどうかのbool値を取得するためには、コンセプトそれぞれに対して、以下のような冗長で機械的なラッパーを書かなければならない。
+</p>
+
+<pre><code>template&lt; class T &gt;
+constexpr bool
+satisfies_C( ) { return false; }
+template&lt; C T &gt; // equivalent to requires C&lt;T&gt; for class T
+constexpr bool
+satisfies_C( ) { return true; }
+</code></pre>
+
+<p>
+こんなコードを書かせるのは明らかに間違っている。コンセプトはbool値を期待するあらゆる文脈で使えるようにすべきだという提案。
+</p>
+
+<p>
+どれも正しいように思われる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4435.pdf">[PDF注意] N4435: Proposing Contract Attributes</a>
+</h2>
+
+<p>
+属性を使った契約プログラミングをサポートする文法の提案。precondition, postcondition, invariantsをサポート。
+</p>
+
+<p>
+契約プログラミングに関する提案論文は多数出ているが、実際の文法を考察した提案論文は少ない。この提案論文では、C++11に追加された属性を使った文法を考察している。
+</p>
+
+<p>
+まず、公式の機能に属性を使うのが正しいのかという議論がある。アライメント指定やoverrideは、属性でサポートすべきではないとして、キーワードが与えられた。N2761では、属性を使うべき状況として、「型システムに影響を与えず、属性の有無によってプログラムの意味に影響を与えない」ことを要件として提案している。契約は型の一部ではない。規格準拠の実装は、契約を単に受理だけして無視してもよいものである。これを考えると、契約を属性でサポートするのは理にかなっている。
+</p>
+
+<p>
+提案では、preconditionとして、[[ pre: expr ]]、postconditionとして、[[ post: expr ]]という文法を提案している。これらはどちらも、関数、関数テンプレート、メンバー関数、メンバー関数テンプレートに付与することができる。
+</p>
+
+<p>
+属性を記述する箇所として、論文は、現在の規格には存在しない、関数の宣言の後に記述できるように属性を拡張すべきだという提案をしている。
+</p>
+
+<pre><code>template&lt; class FwdIterator, class T &gt;
+bool
+std::binary_search( FwdIterator first, FwdIterator last, T const&amp; value)
+[[ pre:(std::is_sorted(first, last)) ]];
+</code></pre>
+
+<p>
+この理由は、関数の引数名を契約チェック式のスコープに含めたいためである。
+</p>
+
+<p>
+postconditionの例は以下の通り。
+</p>
+
+<pre><code>template&lt; class RandomAccessIterator &gt;
+void
+std::sort( RandomAccessIterator first, RandomAccessIterator last );
+[[ post:(std::is_sorted(first, last)) ]];
+</code></pre>
+
+<p>
+postconditionは、関数がreturn以外の方法（例外、longjmp等）で戻った場合はチェックされない。
+</p>
+
+<p>
+この提案では、他の契約プログラミング提案と違い、invariantsを含んでいる。invariantsは、preconditionとpostconditionを組み合わせた効果がある。これは、[[ inv : expr ]]という文法で記述できる。
+</p>
+
+<p>
+invariantsは、関数の他に、クラスとループ構文と変数に指定できる。
+</p>
+
+<p>
+クラスに付与した場合、クラスのpublicとprotectedなメンバー関数に契約チェックがかかる。privateなメンバーにはかからない。また、コンストラクターには、postconditionチェックのみがされる。デストラクターには、preconditionチェックのみがされる。これは、コンストラクターは未初期化の状態から値を設定するものであり、デストラクターは実行後に値を不定な状態にするものだからである。
+</p>
+
+<p>
+ループ構文にinvariantsを付与した場合、ループの実行毎に契約チェックが入る。
+</p>
+
+<p>
+変数にinvariantsを付与した場合、変数の構築時と変更時に契約チェックが入る。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4436.pdf">[PDF注意] N4436: Proposing Standard Library Support for the C++ Detection Idiom</a>
+</h2>
+
+<p>
+N3911で追加されたvoid_tを利用したdetection idiomのためのライブラリの提案。
+</p>
+
+<p>
+N3911では、以下のようなエイリアステンプレートvoid_tを標準ライブラリに追加した。
+</p>
+
+<pre><code>template &lt; typename ... &gt;
+using void_t = void ;
+</code></pre>
+
+<p>
+void_tは、任意個の型引数を受け取って、必ずvoid型を返す。このような単純なものに何の価値があるのかというと、SFINAEで活用できる。
+</p>
+
+<pre><code>template &lt; typename, typename = void_t&lt;&gt; &gt;
+struct has_type
+    : std::false_type { } ;
+
+template &lt; typename T &gt;
+struct has_type&lt; T, void_t&lt; typename T::type &gt; &gt;
+    : std::true_type { } ;
+</code></pre>
+
+<p>
+このように、void_tには任意個の型を渡せるので、SFINAEの文脈で使ってやれば、ネストされた形名typeを持っているかどうかでコンパイル時分岐ができる。
+</p>
+
+<p>
+decltypeを使えば、式を書くことも可能だ。
+</p>
+
+<pre><code>template &lt; typename, typename = void_t&lt;&gt; &gt;
+struct is_pre_incrementable
+    : std::false_type { } ;
+
+template &lt; typename T &gt;
+struct is_pre_incrementable&lt; T, void_t&lt; decltype(++std::declval&lt;T &amp;&gt;()) &gt; &gt;
+    : std::true_type { } ;
+</code></pre>
+
+<p>
+論文では、このような用法をdetection idiomと名づけている。
+</p>
+
+<p>
+Jonathan Wakelyによれば、libstdc++で_GLIBCXX_HAS_NESTED_TYPEマクロをvoid_tを使った上記の実装に置き換えたところ、従来の実装に比べて、コンパイラーフロントエンドのメモリ消費量とコンパイル時間が向上したとの報告がある。
+</p>
+
+<p>
+現在、規格の文面がpartial specializationでSFINAEが働くかについて曖昧であるという議論が起こっているが、SFINAEが働く方向に意見が向かっている。
+</p>
+
+<p>
+論文筆者はdetection idiomを使って既存の標準ライブラリを再実装する実験を行った。この結果、冗長なコードの重複が至るところでみられた。論文筆者は、再実装の過程で、この冗長なコードを隠匿する方法を発見した。論文はその手法をメタ関数コールバック(metafunction callback)と名づけている。そのフレームワークを標準ライブラリに提案している。
+</p>
+
+<p>
+このライブラリを使えば、上のhas_typeとis_pre_incrementableは以下のように書ける。
+</p>
+
+<pre><code>// メタ関数コールバック
+template &lt; typename T &gt;
+using has_type_op = typename T::type ;
+
+template &lt; typename T &gt;
+constexpr bool has_type_v = is_detected_v&lt; has_type_op, T &gt;
+
+
+// メタ関数コールバック
+template &lt; typename T &gt;
+using is_pre_incrementable_op = decltype( ++std::declval&lt;T &amp;&gt;() ) ;
+
+template &lt; typename T &gt;
+constexpr bool is_pre_incrementable =is_detected_v&lt; is_pre_incrementable_op, T &gt; ;
+</code></pre>
+
+<p>
+メタ関数コールバックは、テンプレートである。テンプレートをそのまま渡すと、中でテンプレート実引数を渡す。もしsubstitutionに失敗するか成功するかが実行結果だ。戻り値は、失敗したという情報か、成功した場合のテンプレートの型だ。成功した場合、is_detectedの::valueはtrueになり、::typeはメタ関数コールバックにテンプレート実引数を渡した型になる。失敗した場合、::valueはfalseとなり、::typeはvoid型になる。。メタ関数コールバックにはエイリアステンプレートを使うのが一般的になるだろう。
+</p>
+
+<p>
+上記の実装は、変数テンプレートを使っている。クラステンプレートで従来のメタ関数を実装するには、std::true_typeかstd::false_typeを返す必要がある。これには、detected_orが使える。これは、失敗した場合の型を指定できる。
+</p>
+
+
+<pre><code>template &lt; typename T, typename = typename T::type &gt;
+using has_type_op = std::true_type ;
+
+template &lt; typename T &gt;
+struct has_type :
+     detected_or_t&lt; std::false_type, has_type_op, T &gt; 
+{ } ;
+</code></pre>
+
+<p>
+他には、メタ関数コールバックのsubstitutionに成功し、かつ、型が指定した型かどうかを返すis_detected_exactと、それに似ているが、型が指定した型に変換可能かどうかを返すis_detected_convertibleが提案されている。
+</p>
+
+<p>
+また、voidもメタ関数コールバックの戻り値としてふさわしい場合に使える。nonesuchという型が提案されている。
+</p>
+
+<p>
+これはいいライブラリだ。標準に入るべきである。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4437.pdf">[PDF注意] N4437: Conditionally-supported Special Math Functions, v3</a>
+</h2>
+
+<p>
+TR1に存在した数学関数を、条件付きサポートとして規格に入れる提案。実装しなくても規格準拠である。
+</p>
+
+<p>
+TR1はC++11に追加されたが、数学関数だけは入らなかった。その理由は、これらの関数の実装をすべてのC++コンパイラーベンダーに強いるのは負担であるし、それに、「どうせ数学関数が実装されていなくても、ユーザーはうちの会社にカチこんできたりしない」からであった。
+</p>
+
+<p>
+この提案で&lt;cmath&gt;に追加される関数は、acosh, asinh, atanh, cbrt,
+copysign, erf, erfc, exp2, expm1, fdim, fma, fmax, fmin, hypot, ilogb, lgamma, llrint, llround, log1p, log2, logb,
+lrint, lround, nan, nearbyint, nextafter, nexttoward, remainder, remquo, rint, round, scalbln, scanbn, tgamma, truncと、末尾がfのfloat版と、末尾がlのlong double版。また、マクロと&lt;fenv.h&gt;(浮動小数点演算の例外状態を取得できるライブラリ)も入る。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4438.pdf">[PDF注意] N4438: Industrial Experience with Transactional Memory at Wyatt Technologies.</a>
+</h2>
+
+<p>
+Wyatt Technologies社によるトランザクショナルメモリーの知見。
+</p>
+
+<p>
+トランザクショナルメモリーは長年研究されているが、現場で使用した知見はなかなかない。Wyatt Technologies社は、Haskellを参考にしたトランザクショナルメモリーをライブラリで実装して、現場の製品に使用した。
+</p>
+
+<p>
+トランザクションの中で、すでに他のトランザクションが行われたかどうかをチェックできる。他のトランザクションが行われた場合、即座にトランザクションは再実行される。
+</p>
+
+<p>
+短いトランザクションが連続的に発生するため、長いトランザクションがいつまでたってもコミットできない飢餓状態という問題がある。実装では、許容可能なコンフリクト数を設定可能にしている。許容限度に達した場合、トランザクションの実行を諦めて例外を投げるか、実行ロックをかけるかが選べる。実行ロックとは、そのトランザクションがコミットされるまで、他のトランザクションを許さない排他的なロックである。これにより飢餓状態を解消する。
+</p>
+
+<p>
+このトランザクショナルメモリーの実装は、トランザクションをネストできる。ネストできない場合、すでにトランザクションの中であるかどうかを把握しなければならない。Haskellではネストできないので、この点が違っている。
+</p>
+
+<p>
+論文に書かれている内容では、トランザクションをネストしたり、トランザクションの中からトランザクションの状態をみたり操作したりできる実用本位の機能が多い。
+</p>
+
+<p>
+論文は、現場にトランザクショナルメモリーを導入した明示的にロックを使わないコードの結果は上々であったと報告している。トランザクショナルメモリーを現場に持ち込むことの問題として、新たに雇用する人間にトランザクショナルメモリーの経験のある人材がいないということがあるが、新しく雇ったプログラマーもすぐに覚えることができたと報告している。
+</p>
+
+<p>
+実装ではひとつのグローバルなmutexを使ったそうだ。
+</p>
+
+<p>
+結論として、トランザクショナルメモリーの経験は素晴らしかった。TMの理論上の問題点は、飢餓状態と副作用にあるが、どちらの問題も対処は難しくなかった。副作用の問題を型システムで対処できれば理想だが、ライブラリベースの実装では無理だ。ロックベースのプログラミングのために必要なコードが複雑になるコストを考えれば、副作用の問題は十分に許容できる範囲だ。
+</p>
+
+<p>
+また、retry(トランザクションの中で呼び出して、ある値が変更されるまでスリープする機能)と、after(トランザクションの中で呼び出して、コミット後に行われる副作用を登録する)機能を多用したので、この機能なしではトランザクショナルメモリーは使いづらいとしている。
+</p>
+
+<p>
+また、この報告の例は、極めてトランザクショナルメモリーに優しい環境であった。厳しいパフォーマンス上の制約もないし、リアルタイム性も必要ないし、ゲームにおける高フレームレートのような要件もないし、株取引でもない。パフォーマンスが必要な部分は装置から入力を読みだす部分だけで、そこはトランザクショナルメモリーではなくてロックフリーキューを用いた。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4439.pdf">[PDF注意] N4439: Light-Weight Execution Agents Revision 3</a>
+</h2>
+
+<p>
+スレッドよりも軽い、制約の多い、実行媒体(Execution Agent)のセマンティクスを定義している論文。
+</p>
+
+<p>
+実行媒体とは、スレッドの他にも、SIMDやGPGPUのようなもっと制約の多い実行媒体を想定している。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+先週、ボーナスがでたので、弊社のお金ない勢が銀座のさくら水産でオフ会(予算600円程度)を行った。そこでは浪費しすぎて給与が右から左にクレジットカードの支払いで消えていく社員たちが卵かけご飯を食べながらお金ない自慢をしあっていた。
+</p>
+
+<p>
+ところで、同日同時刻に、弊社のお金ある勢もザギンのシースー屋(ただし予算1000円程度)でオフ会を行ったそうだ。そこで出た結論とは、資産を即座に3倍に増やしたいのであれば、博打しかないとのことだそうだ。
+</p>
+
+<p>
+どうやら、弊社のお金ある勢とお金ない勢は、給与額よりは浪費癖で決まるようだ。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
