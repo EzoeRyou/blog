@@ -1,0 +1,375 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書 2015-04 pre-Lenexaのレビュー: N4440-N4449
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/06/c-2015-04-pre-lenexa-n4440-n4449.html">C++標準化委員会の文書 2015-04 pre-Lenexaのレビュー: N4440-N4449</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4440.html">N4440: Feature-testing recommendations for C++</a>
+</h2>
+
+<p>
+機能テストマクロの提案。C++17機能に対応するマクロが追加されている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4441.pdf">[PDF注意] N4441: SG5: Transactional Memory (TM) Meeting Minutes 2015-03-23 and 2015-04-06</a>
+</h2>
+
+<p>
+トランザクショナルメモリーの会議の議事録。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4442.htm">N4442: Default argument for second parameter of std::advance (Rev. 1)</a>
+</h2>
+
+<p>
+std::advanceの第二引数にデフォルト実引数として1を追加する提案。
+</p>
+
+<pre><code>std::advance( iter, 1 ) ;
+</code></pre>
+
+<p>
+のかわりに、
+</p>
+
+
+<pre><code>std::advance( iter ) ;
+</code></pre>
+
+<p>
+と書ける。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4443.htm">N4443: Introducing alias size_type for type size_t in class std::bitset (Rev. 1 )</a>
+</h2>
+
+<p>
+std::bitsetにネストされた型名size_typeを追加する提案。
+</p>
+
+<p>
+他のコンテナーとあわせることで、ジェネリックなコードやポータブルなコードを書きやすくなる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4444.html">N4444: Linux-Kernel Memory Model</a>
+</h2>
+
+<p>
+現行のC/C++のメモリーモデルがLinuxカーネル開発者のお気に召さなかった問題を受けて、Linuxカーネルのメモリモデルをまとめた文書。
+</p>
+
+<p>
+Linuxカーネルのメモリモデルについて解説した文書。前回のN4374からの変更点はREAD_ONCE()とWRITE_ONCE()マクロの解説。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4445.html">N4445: Overly attached promise</a>
+</h2>
+
+<p>
+promiseに共有状態を管理するためのリソースを破棄させるメンバー関数、resetとreleaseの追加。
+</p>
+
+<p>
+あるpromiseオブジェクトを使ったとする。
+</p>
+
+<pre><code>std::future&lt;int&gt; f()
+{
+    std::promise&lt;int&gt; p ;
+    auto future = p.get_future() ;
+    p.set_value( 42 ) ;
+
+    // これ以降、promiseは使わない
+
+    // 何らかの時間のかかる処理
+
+    // promiseオブジェクトが破棄される
+    return future ;
+}
+</code></pre>
+
+<p>
+上記の例では、何らかの時間のかかる処理をしているあいだ、promiseオブジェクトは生きている。すると、共有状態を維持するためのリソースも破棄されないまま維持されてしまう。リソースの制約の厳しい環境では、このような不必要なリソースを早期に破棄したい需要がある。
+</p>
+
+<p>
+現行規格でも、ムーブを使えばリソースの破棄は可能だ。以下のような方法でpromiseのオブジェクトpをムーブさせてリソースを開放させられる。
+</p>
+
+<pre><code>p = std::promise&lt;int&gt;{} ; // これでもよい。
+std::promise&lt;int&gt;( std::move(p) ) ; // こちらのほうがわかりやすい
+</code></pre>
+
+<p>
+しかし、どちらも冗長でわかりにくい。N4445では、promiseから共有状態のリソースを破棄するためのメンバー関数、resetとreleaseを追加する提案をしている。
+</p>
+
+<p>
+releaseは共有状態の破棄。resetは空のpromiseとswapをしたかのように働く。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4446.html">N4446: The missing INVOKE related trait</a>
+</h2>
+
+<p>
+ある型がある並びの引数の型で関数呼び出しできるかを調べるis_callableの提案。
+</p>
+
+<p>
+より厳密に説明すると、N4169で入ったinvokeが未評価オペランドにおいて合法かどうかを確かめる。is_callableの提案。
+</p>
+
+<pre><code>template &lt;class, class R = void&gt; struct is_callable; // not defined
+template &lt;class Fn, class... ArgTypes, class R&gt;
+  struct is_callable&lt;Fn(ArgTypes...), R&gt;;
+</code></pre>
+
+<p>
+たとえば、is_callable&lt; F ( A0, A1, A2 ) &gt;::valueは、std::invoke&lt; F, A0, A1, A2&gt;が合法の場合にtrueを、substitutionに失敗する場合にfalseを返す。
+</p>
+
+
+<pre><code>void f( std::string, std::vector ) ;
+
+constexpr bool b = std::is_callable_v&lt; decltype(&amp;f) ( std::string, std::vector) &gt; ;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4447.pdf">[PDF注意] N4447: From a type T, gather members name and type information, via variadic template expansion</a>
+</h2>
+
+<p>
+「型Tからメンバー名と型情報をVariadic Templates展開で得る」という、なんとも説明的で実用的なタイトルの提案論文。内容として派生的リフレクション機能だ。
+</p>
+
+<p>
+その提案内容も極めて実用的だ。typedef&lt;T, C&gt;, typename&lt;T, C&gt;, typeid&lt;T, C&gt;という文法を追加する。Tはクラス型で、Cはコンセプトか型名で、constexpr operator ()でbool値を返す。trueを返したメンバーだけが展開される。
+</p>
+
+<p>
+その動作は、サンプルコードを見たほうが良い。
+</p>
+
+<pre><code>
+using namespace std;
+
+namespace ns {
+    struct X {
+        int x, y;
+    };
+}
+
+vector&lt;std::string&gt; names{ typeid&lt;ns::X, is_member_object_pointer&gt;... };
+
+tuple&lt;typename&lt;ns::X, is_member_object_pointer&gt;...&gt;
+    mytuple = make_tuple(typedef&lt;ns::X, is_member_object_pointer&gt;...);
+</code></pre>
+
+<p>
+最後の二行のコードは、コンパイラーによって以下のように変換される。
+</p>
+
+<pre><code>vector&lt;string&gt; names { "x","y" };
+
+tuple&lt;ns::X::int, ns::X::int&gt;
+    mytuple = make_tuple(
+        &amp;ns::some_struct::x,
+        &amp;ns::some_struct::y);
+</code></pre>
+
+<p>
+この提案は新しいキーワードを必要としないしASTコントロールも必要としないし特別なコンパイラーマジックやライブラリーも必要としない。
+</p>
+
+<p>
+用途は、シリアライゼーション、メタプログラミング、型変換、イベント駆動開発。テスト駆動開発、GUIプロパティエディター、データベースオブジェクトのマッピングインターフェース、ドキュメントの自動化、コンセプトの自動チェック、コンストラクターのリフレクション。
+</p>
+
+<p>
+まあ、便利だとは思うのだが、なんとも低級な機能だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4448.html">N4448: Rounding and Overflow in C++</a>
+</h2>
+
+<p>
+演算の結果の丸めとオーバーフローの挙動を規定できるライブラリの提案。
+</p>
+
+<p>
+丸めモードにはすでにfenv.hがあるが、これは不十分だとしている。
+</p>
+
+<p>
+丸めモードに対しては、以下の挙動が提案されている。
+</p>
+
+<pre><code>enum class rounding {
+  all_to_neg_inf, all_to_pos_inf,
+  all_to_zero, all_away_zero,
+  all_to_even, all_to_odd,
+  all_fastest, all_smallest,
+  all_unspecified,
+  tie_to_neg_inf, tie_to_pos_inf,
+  tie_to_zero, tie_away_zero,
+  tie_to_even, tie_to_odd,
+  tie_fastest, tie_smallest,
+  tie_unspecified
+};
+</code></pre>
+
+<p>
+fastestは実行速度優先。smallestは誤差最小優先。
+</p>
+
+<p>
+関数には、convertと、divideとrshiftが用意されている。
+</p>
+
+<p>
+オーバーフローには、以下の挙動が提案されている。
+</p>
+
+<pre><code>enum class overflow {
+  impossible, undefined, abort, exception,
+  special,
+  saturate, modulo_shifted, modulo_dividend, modulo_divisor, modulo_positive
+};
+</code></pre>
+
+<p>
+impossible: オーバーフローは起こりえない。これを指定したプログラムは厳格な検証によりオーバーフローがー起こりえないことを証明すること。
+</p>
+
+<p>
+undefined: オーバーフローはまれにしか起こらないので考えなくてよい。
+</p>
+
+<p>
+abort: オーバーフローが起きたらabortする。検出が必要。
+</p>
+
+<p>
+exception: オーバーフローが起きたら例外を投げる。検出が必要。
+</p>
+
+<p>
+special: オーバーフローが起きたら特別な値を返す(IEE浮動小数点数など)
+</p>
+
+<p>
+saturate: オーバーフローが起きたら妥当な範囲の値で最も近いものを返す。
+</p>
+
+<p>
+オーバーフローを指定できる関数には、convertの他に、limit( lower, upper value )とその派生版と、lshiftが提案されている。
+</p>
+
+<p>
+最後に、丸めとオーバーフローを両方取るconvertとbshiftが提案されている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4449.html">N4449: Message Digest Library for C++</a>
+</h2>
+
+<p>
+暗号に使える強度を持ったハッシュ関数ライブラリの提案。
+</p>
+
+<p>
+「設計はPythonのhashlibモジュールから恥ずかしげもなくパクった」
+</p>
+
+<p>
+まだ文面が不完全だが、Pythonのhashlib風のインターフェースになっている。
+</p>
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+どうやら弊社では、自社から出た最新の参考書を自腹で買う社員が多いようだ。他ならぬKnuth本ならば仕方あるまい。しかし、ご存命のうちに完成するのだろうか。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
