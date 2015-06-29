@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: そんなにセキュアではないお粗末なNoScriptのホワイトリスト（修正済み）
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/06/noscript.html">そんなにセキュアではないお粗末なNoScriptのホワイトリスト（修正済み）</a></h1>
+
+
+<p>
+<a href="http://thehackerblog.com/the-noscript-misnomer-why-should-i-trust-vjs-zendcdn-net/">The NoScript Misnomer - Why should I trust vjs.zendcdn.net? | The Hacker Blog</a>
+</p>
+
+<p>
+「俺の環境はNoScriptを入れてるからセキュアだぜ」などと豪語する勘違い野郎に冷水を浴びせるために、デモ可能なNoScriptを迂回する方法を探していた人間が、NoScriptのお粗末なホワイトリスト指定を発見したそうだ。
+</p>
+
+<p>
+NoScriptはデフォルトで、非常に有名なドメイン名（CDN、超有名Webサイト等）をホワイトリストに入れている。
+</p>
+
+<p>
+しかし、このドメイン名をホワイトリストは、サブドメインもホワイトリストに入ってしまうという問題がある。もしサブドメインとページ内容を第三者が自由に作成できるようなドメインが入っていれば、信頼が破綻する。
+</p>
+
+<p>
+さて、リンク先の著者は、まずホワイトリストに入っているドメインのWebサイトのXSS脆弱性を探そうと考えた。ところが、それをするまでもなく、ある重大な発見をした。
+</p>
+
+<p>
+なんと、ホワイトリストに入っているドメイン名の一つ、zendcdn.netが誰にも所有されることなく空いていたのだ。
+</p>
+
+<p>
+とりあえず同ドメイン名を10.69ドルで購入してJavaScriptを仕込んでみると、見事NoScriptが迂回できた。
+</p>
+
+<p>
+しかし何故誰も所有していないドメイン名がホワイトリスト入りされているのか。
+</p>
+
+<p>
+どうやら、ユーザーが有名なCDNをホワイトリストに追加するようNoScriptに要請したようだ。
+</p>
+
+<p>
+<a href="https://forums.informaction.com/viewtopic.php?f=10&t=17066">InformAction Forums • View topic - JavaScript CDNs to add to whitelist</a>
+</p>
+
+<p>
+NoScript開発者のGiorgio Maoneに、この脆弱性について連絡を撮ったところ、彼の返事と対応は極めて迅速であり、一時間もしないうちに修正パッチがサイト上に上がり、2日後にはアップデートが全NoScriptユーザーに配布されたという。
+</p>
+
+<p>
+リンク先の人間は、NoScriptユーザーはホワイトリストを確認し、自分が信頼しないドメインは取り除くべきであると書いている。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
