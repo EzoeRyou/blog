@@ -1,0 +1,472 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書 2015-04-pre-Lenexaのレビュー: N4450-N4459 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/06/c-2015-04-pre-lenexa-n4450-n4459.html">C++標準化委員会の文書 2015-04-pre-Lenexaのレビュー: N4450-N4459</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4450.pdf">N4450: Variant: a typesafe union (v2)</a>
+</h2>
+
+<p>
+型安全unionとして、variantライブラリの提案。
+</p>
+
+<p>
+Boost.variantと似ているが、variantのネストはサポートしていない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4451.pdf">[PDF注意] N4451: Static reflection</a>
+</h2>
+
+<p>
+静的リフレクションとして、メタプログラミングでプログラムの構造を辿れる。
+</p>
+
+<p>
+論文の冒頭で、会議で上げられた懸念事項が書いてあるが、筆者も同感で、あまりにも巨大すぎる上に暴力的に強力な機能であると思う。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4452.pdf">[PDF注意] N4452: Use cases of reflection</a>
+</h2>
+
+<p>
+N4451で提案されている静的リフレクションは、あまりにも強力すぎる。初心者にそのような強力なツールを与えることは危険ではないか。という会議での懸念に対して、提案されている静的リフレクションの利用例を挙げている論文。
+</p>
+
+<p>
+プログラミングにおいては、機械的な雛形コードを手で書かなければならないことがよくある。プリプロセッサーマクロやテンプレートによるメタプログラミングは、そのようなコードの記述量を抑えることに貢献しているが、限界がある。リフレクションがあれば問題を解決できる。
+</p>
+
+
+<p>
+利用例1: ポータブルな型名
+</p>
+
+<p>
+std::type_infoのnameメンバー関数の返す文字列は規格化されていない。それどころか、人間が読める文字列を返すとも、ユニークな文字列を返すとも規定されていない。文字列まで規格化された機能が必要である。さらに、nameメンバー関数はconstexpr関数ではないのでコンパイル時に使えない。また、type_infoはtypedefを考慮しないので、これまたやりにくい。
+</p>
+
+<p>
+利用例2: ログ
+</p>
+
+<p>
+関数の実行時にログを取るさい、関数の引数名をログ出力に含めたいことはよくある。
+</p>
+
+<p>
+利用例3: シリアライゼーション
+</p>
+
+<p>
+あるクラスのインスタンスをXMLやJSONやXDRのような構造化されたフォーマットで出力したい。これにはクラスごとに個別でメンバーを列挙するコードを手で書かなければならない。リフレクションがあればこのような問題は簡単に解決できる。
+</p>
+
+<p>
+利用例4: Cross-cutting aspects
+</p>
+
+<p>
+特定の条件を満たした関数の前後に何らかの共通処理を追加したい場合、リフレクションがあれば冗長なコードを書かずに簡単にできる。
+</p>
+
+<p>
+利用例4: factory patternの実装
+</p>
+
+<p>
+論文では、追加の利用例として、強力な静的リフレクションを使う利用例を挙げている。
+</p>
+
+<p>
+特定のnamespace内にあるpersistent_で始まる変数名からSQLを生成。
+</p>
+
+<p>
+コンパイル時にC++ソースコードを生成
+</p>
+
+<p>
+デリゲートやデコレートの実装
+</p>
+
+<p>
+データメンバーの配置を変える
+</p>
+
+<pre><code>struct foo
+{
+    bool b;
+    char c;
+    double d;
+    float f;
+    std::string s;
+};
+</code></pre>
+
+<p>
+このようなクラスを与えると
+</p>
+
+<pre><code>struct rdbs_table_placeholder_foo
+{
+    column_placeholder&lt;bool&gt;::type b;
+    column_placeholder&lt;char&gt;::type c;
+    column_placeholder&lt;double&gt;::type d;
+    column_placeholder&lt;float&gt;::type f;
+    column_placeholder&lt;std::string&gt;::type s;
+};
+</code></pre>
+
+<p>
+このようなコードを生成できる。
+</p>
+
+<p>
+具体的にコード生成をするリフレクションを使ったコードは、論文を参照。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4453.pdf">[PDF注意] N4453: Resumable Expressions</a>
+</h2>
+
+<p>
+resumable expressionの提案。
+</p>
+
+
+<p>
+Urbana会議以前は、コルーチンとresumable関数というやや似通った性質をもつ2つの機能が提案されていた。そして、2つの機能を統一することで合意していたのだが、スタックレスとスタックフルとはまったく別々の需要を満たすための機能であって、多少の共通項があるとはいえ、独立した機能として別々に議論すべきだということになった。これにより、スタックフルコルーチンは、純粋にライブラリ実装にして、スタックフルコルーチンをライブラリ実装できる軽いスタックレスコルーチンをコア言語に導入すべきだという方向に話が進んだ。統一の話がなくなったのであるから、awaitとかyieldなどのキーワードは不要となった。
+</p>
+
+<p>
+resumable expressionsは、constexpr関数にヒントを得て設計された。
+</p>
+
+<p>
+constexpr関数は、関数をconstexprであると明示的にキーワードで修飾する。そして、任意の式で呼び出すことができる。
+</p>
+
+<pre><code>constexpr int twice( int x ) { return x * 2 }
+
+constexpr int a = twice( 2 ) ;
+int b = twice( 4 ) ;
+</code></pre>
+
+<p>
+普通の式で使うには、関数はconstexpr関数であるかどうかを気にする必要はない。resumable expressionsもこのような設計を参考にしている。
+</p>
+
+<p>
+まず、resumableキーワードを用いて、resumable関数を宣言する。
+</p>
+
+<pre><code>resumable void print_1_to_n( unsigned int n )
+{
+    for ( unsigned int i = 1 ; i &lt;= n ; ++i )
+    {
+        std::cout &lt;&lt; i &lt;&lt; std::endl ;
+
+        break resumable ;
+    }
+}
+</code></pre>
+
+<p>
+中断するところで、break resumableと記述する。
+</p>
+
+<p>
+あとは、resumable式から使うだけだ。
+</p>
+
+<pre><code>int main()
+{
+    resumable auto r = print_1_to_n( 10 ) ;
+
+    while( !r.ready() )
+    {
+        std::cout &lt;&lt; "resuming ... " ;
+        r.resume() ;
+    }
+}
+</code></pre>
+
+
+<p>
+resumable式は、以下の形で使う。
+</p>
+
+<pre><code>resumable auto r = expr ;
+</code></pre>
+
+<p>
+このときのrの型Rは実装が生成する。Rには、result_type, ready(), resume(), result()がある。
+</p>
+
+<p>
+yeildやawaitなどは、resumable式を使ってライブラリで実装できる。
+</p>
+
+<p>
+だいぶC++らしい小さなコア言語機能の提案だ。これは悪くなさそうだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4454.pdf">N4454: SIMD Types Example: Matrix Multiplication</a>
+</h2>
+
+<p>
+N4184で提案されているSIMD演算を使って行列の掛け算を実装する論文。利用例の例示として書かれた。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4455.html">N4455: No Sane Compiler Would Optimize Atomics</a>
+</h2>
+
+<p>
+「まともなコンパイラーはアトミックを最適化したりしない」という都市伝説は間違っていることを説いている論文。
+</p>
+
+<p>
+コンパイラーはアトミックも最適化する。この論文では、最適化の例を紹介している。
+</p>
+
+<p>
+コンパイラーは、プログラムをas-ifルールで最適化できる。これは、コンパイラーは、オリジナルのコードと挙動が変わらなければ、特定のアトミックを強くしたり弱くしたりできる。
+</p>
+
+<p>
+最適化の例として、たとえば、アトミックの中間の値をすっ飛ばす。
+</p>
+
+<pre><code>void inc(std::atomic&lt;int&gt; *y) {
+  *y += 1;
+}
+
+std::atomic&lt;int&gt; x;
+void two() {
+  inc(&amp;x);
+  inc(&amp;x);
+}
+</code></pre>
+
+<p>
+このようなコードを、最適化の結果、以下のようにしてもよい。
+</p>
+
+<pre><code>std::atomic&lt;int&gt; x;
+void two() {
+  x += 2;
+}
+</code></pre>
+
+<p>
+他にも、x86においては、lock付きadd/subをlock付きinc/decに置き換えることも可能だ。
+</p>
+
+<p>
+また、アトミックのまわりの処理も最適化の対象になる。
+</p>
+
+<pre><code>int x = 0;
+std::atomic&lt;int&gt; y;
+int dso() {
+  x = 0;
+  int z = y.load(std::memory_order_seq_cst);
+  y.store(0, std::memory_order_seq_cst);
+  x = 1;
+  return z;
+}
+</code></pre>
+
+<p>
+このコードは、以下のように最適化できる。
+</p>
+
+<pre><code>int x = 0;
+std::atomic&lt;int&gt; y;
+int dso() {
+  // デッドstore操作の除去
+  int z = y.load(std::memory_order_seq_cst);
+  y.store(0, std::memory_order_seq_cst);
+  x = 1;
+  return z;
+}
+</code></pre>
+
+<p>
+上と似ている以下のようなコードは、
+</p>
+
+<pre><code>int x = 0;
+std::atomic&lt;int&gt; y;
+int rlo() {
+  x = 0;
+  y.store(0, std::memory_order_release);
+  int z = y.load(std::memory_order_acquire);
+  x = 1;
+  return z;
+}
+</code></pre>
+
+
+<p>
+以下のように最適化できる（ただし、現在LLVMはこの最適化ができない）
+</p>
+
+<pre><code>int x = 0;
+std::atomic&lt;int&gt; y;
+int rlo() {
+  // デッドstore操作の除去
+  y.store(0, std::memory_order_release);
+  // 冗長なloadの除去
+  x = 1;
+  return 0; // 保存された値がここまで到達
+}
+</code></pre>
+
+
+<p>
+loadが除去されるのは、他のスレッドとの同期がないためだ。releaseの次にaquireがきているが、コンパイラーはstoreされた値が改変されないので、その次のloadは冗長だと判断する。
+</p>
+
+<p>
+なんだかこの最適化は極めて怖い。
+</p>
+
+<p>
+以下のようなコードは変換されない。
+</p>
+
+<pre><code>int x = 0;
+std::atomic&lt;int&gt; y;
+int no() {
+  x = 0;
+  y.store(0, std::memory_order_release);
+  while (!y.load(std::memory_order_acquire));
+  x = 1;
+  return z;
+}
+</code></pre>
+
+<p>
+論文は最後に、それぞれの立場に対して意見を述べている。
+</p>
+
+<p>
+標準化委員会へ：これらの最適化が起こらないと仮定するな。むしろ推奨しろ。よりハードウェアに近い最適化ができる既存の方法を標準化しろ。同期と並列実行をより簡単にできて、失敗しにくいライブラリを提供しろ。
+</p>
+
+<p>
+開発者へ：アセンブリを捨てろ。そんなに最適化できないし、そもそもコードを書いている時点で存在するアーキテクチャにしか対応できない。コンパイラーのパフォーマンスが期待通りでないのならばバグ報告を投げろ。標準化委員会に同期と並列実行を実現できる方法を提案しろ。ThreadSanitizerのようなツールをｔ受かってコード中の競合を発見しろ。
+</p>
+
+<p>
+ハードウェアベンダーへ：ハードウェアの能力を示せ。
+</p>
+
+<p>
+コンパイラー開発者へ：さっさと仕事にもどれ。まだ最適化できることと・・・ぶち壊れるコードは山ほどある。利用者がいいコードを書けるようにしろ。コンパイラーはアトミックの正しくない使い方を検出したならば、メッセージを吐くべきだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4456.pdf">N4456: Towards improved support for games, graphics, real-time, low latency, embedded systems</a>
+</h2>
+
+<p>
+N2771のEASTLの論文を考察している。現在のSTLに足りないもの、やや古い論文なので、現代ではもう意味がなくなったものなどを列挙している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4457.html">N4457: C++ Standard Core Language Active Issues</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4458.html">N4458: C++ Standard Core Language Defect Reports and Accepted Issues</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4459.html">N4459: C++ Standard Core Language Closed Issues</a>
+</h2>
+
+<p>
+コア言語に対する問題集。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
