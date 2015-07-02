@@ -1,0 +1,619 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書 2015-04-pre-Lenexaのレビュー: N4460-N4469
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/07/c-2015-04-pre-lenexa.html">C++標準化委員会の文書 2015-04-pre-Lenexaのレビュー</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4460.html">N4460: LWG 2424: Atomics, mutexes and condition variables should not be trivially copyable</a>
+</h2>
+
+<p>
+atomic, mutex, condition variableは、コピーができない。ただし、現行の規格の定義に従えば、trivially copyableになってしまう。
+</p>
+
+<p>
+これらのクラスは、コピー代入演算子を明示的にdeleted定義されているが、それだけではtrivially copyableの条件から逃れられない。しかし、コピー代入演算子をdeleted定義すればtrivially copyableにならないと規定してしまうと、以下のようなクラスがtrivially copyableではなくなってしまう。
+</p>
+
+<pre><code>struct X
+{
+    const int val ;
+} ;
+</code></pre>
+
+<p>
+このクラスは暗黙にコピー代入演算子がdeleted定義される。このクラスはtrivially copyableであるし、その挙動は変えたくない。
+</p>
+
+<p>
+明示的なdeleted定義と暗黙のdeleted定義の意味を変えるという方法は、明示と暗黙の違いをできるだけなくしたいという点から、採用できない。
+</p>
+
+<p>
+is_trivially_copyableとis_trivialに特殊化を記述する汚い方法はやりたくない。
+</p>
+
+<p>
+論文では、規格の文面上、trivially copyableではないと記述する方法を提案している。
+</p>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4461.html">N4461: Static if resurrected</a>
+</h2>
+
+<p>
+static ifの提案
+</p>
+
+<p>
+static ifは少し前までかなり真剣に議論されていて入るかもしれないような雰囲気だったのだが、コンパイラー実装者の強い反対にあったため規格には入らなかった。
+</p>
+
+<p>
+ここで提案されているstatic ifには、前回提案されていたものに比べて制約が多い。
+</p>
+
+<ul>
+<li>
+ブロックスコープのみ
+</li>
+
+<li>
+新しいスコープを作る
+</li>
+
+<li>
+片方ブランチがwell-formedとなる条件部の値がどちらのブランチに対しても存在する。
+</li>
+</ul>
+
+<p>
+GCCのRichard Smithによると、
+</p>
+
+<blockquote>
+<p>
+N3329の「問題ある」部分は、
+</p>
+
+<p>
+1) 新しいスコープを作らない
+</p>
+
+<p>
+2) 選択されなかった方のブランチは完全に無視される（トークン列はパース可能でなくても構わない）
+</p>
+
+<p>
+これは、少なくとも2つの有名なコンパイラーの実装で使われているテンプレートモデルと根本的に非互換である。
+</p>
+
+<p>
+もし、static ifが（このスレで提案されているように）新しいスコープを導入し、static ifのどちらの分岐もインスタンス化可能であるならば（つまり、テンプレートのトークン列と同じ制約）、コンパイラー実装者の、俺の屍を越えて行けレベルの反対はなくなるだろう。
+</p>
+</blockquote>
+
+<p>
+そのため、この論文で提案されているstatic ifは、Richard Smithの提示した制約を受け入れている。
+</p>
+
+<p>
+なぜstatic ifは必要なのか。例えば、パラメーターパックを展開したいとすると、以下のようにオーバーロードを書かなければならない。
+</p>
+
+<pre><code>template &lt;class T&gt; 
+void f(T&amp;&amp; t) 
+{
+    /* handle one T */
+} 
+
+template &lt;class T, class... Rest&gt; 
+void f(T&amp;&amp; t, Rest&amp;&amp;... r) 
+{
+    f(t); 
+    /* handle the tail */
+    f(r...); // I think I have a bug here if I don't have a zero-param overload
+}
+</code></pre>
+
+<p>
+これはstatic ifがあればもっと簡単に書ける。
+</p>
+
+<pre><code>template &lt;class T, class... Rest&gt; 
+void f(T&amp;&amp; t, Rest&amp;&amp;... r) 
+{
+    /* 
+      Tの処理
+    */
+    static_if (sizeof...(r)) {
+    /*
+      残りの処理
+    */
+        f(r...); // ゼロ引数のオーバーロードは必要ない。
+    }
+}
+</code></pre>
+
+<p>
+ある条件を満たすかどうかでコンパイル時に実装を切り替えるのも、とても簡単になる。現在はこう書かなければならないが、
+</p>
+
+<pre><code>template &lt;class T, class... Args&gt; 
+enable_if_t&lt;is_constructible_v&lt;T, Args...&gt;, unique_ptr&lt;T&gt;&gt; 
+make_unique(Args&amp;&amp;... args) 
+{
+    return unique_ptr&lt;T&gt;(new T(forward&lt;Args&gt;(args)...));
+}  
+
+template &lt;class T, class... Args&gt;  
+enable_if_t&lt;!is_constructible_v&lt;T, Args...&gt;, unique_ptr&lt;T&gt;&gt;
+make_unique(Args&amp;&amp;... args) 
+{
+    return unique_ptr&lt;T&gt;(new T{forward&lt;Args&gt;(args)...});
+}
+</code></pre>
+
+<p>
+static ifがあれば、以下のように書ける。
+</p>
+
+<pre><code>template &lt;class T, class... Args&gt; 
+unique_ptr&lt;T&gt;
+make_unique(Args&amp;&amp;... args) 
+{
+    static_if (is_constructible_v&lt;T, Args...&gt;) {
+        return unique_ptr&lt;T&gt;(new T(forward&lt;Args&gt;(args)...));
+    } else {
+        return unique_ptr&lt;T&gt;(new T{forward&lt;Args&gt;(args)...});
+    }
+}
+</code></pre>
+
+<p>
+明らかに簡単だ。
+</p>
+
+<p>
+コンセプトでも問題は解決できるが、定義が分散してしまい極めて読みにくいコードになる。また著者はコンセプトとstatic ifを組み合わせるとオーバーロードを書かずにすむと主張している。
+</p>
+
+<pre><code>template &lt;typename T, typename U&gt; void f(T, U)
+  requires C1&lt;T&gt; &amp;&amp; (C2&lt;U&gt; || C3&lt;U&gt;)
+{
+    static_if (C2&lt;U&gt;) 
+    {
+    } 
+    else if (C3&lt;U&gt;) 
+    {
+    }
+}
+</code></pre>
+
+<p>
+なるほど、確かにこれは便利だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4462.html">N4462: LWG 2089, Towards more perfect forwarding</a>
+</h2>
+
+<p>
+何らかの簡単なコンパイル時ディスパッチの必要性を訴える論文。
+</p>
+
+<p>
+make_unique, make_shared, allocator::constructといったファクトリー関数は、アグリゲートをうまく扱うことができない。
+</p>
+
+<pre><code>struct X { int a, b, c ; } ;
+
+int main()
+{
+    // OK、アグリゲート初期化
+    std::unique_ptr&lt;X&gt; p1( new X{1,2,3} ) ;
+
+    // エラー、呼び出し可能なコンストラクターがない。
+    auto p2 = std::make_unique&lt;X&gt;( 1, 2, 3 ) ;
+}
+</code></pre>
+
+<p>
+これはなぜかというと、allocator::constructが、以下のようになっているためだ。
+</p>
+
+<pre><code>template &lt; typename U, typename ... Args &gt;
+void allocator::construct(U * p, Args &amp;&amp; ... args ) 
+{
+    return new( static_cast&lt;void *&gt;(p) ) T( std::forward&lt;Args&gt;(args)... ) ;
+}
+</code></pre>
+
+<p>
+このままではアグリゲート初期化できない。しかし、一律リスト初期化{}にするのも問題だ。
+</p>
+
+<p>
+LWG2089では、以下のような修正を提案している。
+</p>
+
+<ul>
+<li>
+もし、is_constructible_v&lt;TargetType, Args...&gt;がtrueであれば、直接非リスト初期化を行う。
+</li>
+
+<li>
+そうでなければ、初期化リストを使う。
+</li>
+</ul>
+
+<p>
+これにより、最初の例が動くようになる。
+</p>
+
+<p>
+この変更は、ライブラリでアグリゲートが使えるようになるし、実行時オーバーヘッドもないし、既存のコードもほとんど壊さないだろうし、ビルド時間もさほど増えないだろうし、実装は簡単だし、言語側での変更も必要ない。
+</p>
+
+<p>
+要するに、この変更は望ましいものであって、さっさと規格入り作業を粛々と進めろとしか言う他ない。
+</p>
+
+<p>
+コンパイラーベンダーが標準ライブラリにこれを実装することは慣れているので簡単だ。だがしかし、普通のユーザーが同じことをしたいとしたらどうするだろうか。
+</p>
+
+<p>
+[超怖い話BEGIN] それには、非型boolテンプレート仮引数を取るクラステンプレートのstaticメンバー関数テンプレートにデリゲートし、クラステンプレートをfalseの場合に対して特殊化し、is_constructibleの結果によってディスパッチさせる[超怖い話END]
+</p>
+
+<pre><code>// 超怖い話の実装
+template &lt; bool &gt;
+struct construct_impl
+{
+    template &lt; typename U, typename ... Args &gt;
+    static auto invoke( U * p, Args &amp;&amp; ... args )
+    {
+         return new( static_cast&lt;void *&gt;(p) ) U( std::forward&lt;Args&gt;(args)... ) ;
+    }
+} ;
+
+
+template &lt; &gt;
+struct construct_impl&lt;false&gt;
+{
+    template &lt; typename U, typename ... Args &gt;
+    static auto invoke( U * p, Args &amp;&amp; ... args )
+    {
+         return new( static_cast&lt;void *&gt;(p) ) U{ std::forward&lt;Args&gt;(args)... } ;
+    }
+
+} ;
+
+template &lt; typename U, typename ... Args &gt;
+auto construct(U * p, Args &amp;&amp; ... args ) 
+{
+    return construct_impl&lt; std::is_constructible&lt; U, Args ... &gt;::value &gt;::invoke( p, std::forward&lt;Args&gt;(args)... ) ;
+}
+</code></pre>
+
+<p>
+あるいは、[超怖い話BEGIN] true_typeかfalse_typeかでタグ付けしたオーバーロードでディスパッチする[超怖い話END] 
+</p>
+
+<pre><code>// 超怖い話の実装
+template &lt; typename U, typename ... Args &gt;
+auto construct_impl( std::true_type, U * p, Args &amp;&amp; ... args )
+{
+     return new( static_cast&lt;void *&gt;(p) ) U( std::forward&lt;Args&gt;(args)... ) ;
+}
+
+template &lt; typename U, typename ... Args &gt;
+auto construct_impl( std::false_type, U * p, Args &amp;&amp; ... args )
+{
+     return new( static_cast&lt;void *&gt;(p) ) U{std::forward&lt;Args&gt;(args)... } ;
+}
+
+template &lt; typename U, typename ... Args &gt;
+auto construct( U * p, Args &amp;&amp; ... args )
+{
+    return construct_impl( typename std::is_constructible&lt; U, Args ...&gt;::type{}, p, std::forward&lt;Args&gt;(args)... ) ;
+}
+</code></pre>
+
+<p>
+超怖い話は、そのままコードに落とせば動くぐらい、メタプログラミングにおけるコンパイル分岐の手法を簡潔にまとめている。さて、ユーザーも同じことをしたくなった時のために、この手法を教育しなければならないのだろうか。この手法は一般人が書けるだろうか？ 書けないものはC++プログラマー失格なのだろうか？
+</p>
+
+<p>
+論文筆者は、我々には何らかのコンパイル時ディスパッチを簡単にする方法が必要であると提案している。
+</p>
+
+<p>
+static ifが入れば簡単に書けるようになりそうだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4463.pdf">[PDF注意] N4463: IO device requirements for C++</a>
+</h2>
+
+<p>
+イテレーター要件とかコンテナー要件などのように、IOデバイス要件を定める提案。
+</p>
+
+<p>
+デバイスとの入出力の方法、デバイスの設定可能な項目の取得、デバイスの設定状態の取得と変更、デバイスの機能一覧の取得などが行える。
+</p>
+
+<p>
+具体的にサポートするデバイスもないのにそんな要件だけ定めてなにか意味があるのだろうか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4464.pdf">[PDF注意] N4464: Pi-calculus syntax for C++ executors</a>
+</h2>
+
+<p>
+π-calculusをC++で実現した論文。λ計算がシーケンシャルな処理をすべて記述できる計算力を持っているように、π-calculusも並列処理をすべて記述できる計算力を持っている
+</p>
+
+<p>
+だが、誰が使うんだ？　なんでC++標準化委員会の文書として公開されているのか理解できない。コンピューターサイエンスの理論としては興味深いものがあるだろうが、π計算の演算子をC++に持ち込んでも、まったく実用的だとは思えない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4465.pdf">N4465: A Module System for C++ (Revision 3)</a>
+</h2>
+
+<p>
+モジュールの提案。
+</p>
+
+<p>
+#includeの代替機能。プリプロセッサーはなくなるのではなくて共存する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4466.pdf">[PDF注意] N4466: Wording for Modules</a>
+</h2>
+
+<p>
+モジュールの文面案
+</p>
+
+<p>
+提案されているモジュールは、新しいキーワードとしてimportとmoduleを追加する。
+</p>
+
+<p>
+ある翻訳単位をモジュールとするには、モジュール宣言を記述する必要がある。
+</p>
+
+<pre><code>module module-name ;
+</code></pre>
+
+<p>
+と記述する。module-nameは、識別子か、"モジュール名 . 識別子"となる。これは、std.vectorとかstd.stringとか、lib.math.random.knuthのような名前空間に似たモジュール名の分類を可能にする。
+</p>
+
+<p>
+モジュールの中のエンティティを外部から使うには、import宣言しなければならない。
+</p>
+
+
+
+<pre><code>import std.string
+import std.iostream
+
+int main()
+{
+    std::string buf ;
+    std::cin &gt;&gt; buf ;
+}
+</code></pre>
+
+<p>
+モジュールとなる翻訳単位の中のエンティティは、明示的にexportしない限り外部には見えない。
+</p>
+
+<pre><code>module mylib
+
+export void my_public_function() ;
+void my_private_function() ;
+
+
+// 囲むこともできる
+export { ... }
+</code></pre>
+
+<p>
+mylibをimportすると、my_public_functionのみが見える。my_private_functionは見えない。別の翻訳単位でmy_private_functionという名前の関数を定義しても、別々の定義であり、ODR違反にならない。
+</p>
+
+<p>
+module宣言で翻訳単位をモジュールにする。export宣言で外部に出したいエンティティをマーク。import宣言でモジュールを使う。というだけだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4468.pdf">[PDF注意] N4468: On Quantifying Memory-Allocation Strategies</a>
+</h2>
+
+<p>
+グローバルあロケーターに対してローカルなアロケーターはどのような条件でどのようなアロケーター戦略を使えばどのように効率的になるのかということを考察した論文。
+</p>
+
+<p>
+なぜかドナルドの絵が引用されている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4469.html">N4469: Template Argument Type Deduction</a>
+</h2>
+
+<p>
+非型テンプレートパラメーターの値を取るときに型も推定する機能を追加する提案。
+</p>
+
+<p>
+現行では、以下のようなコードを書かなければならない。
+</p>
+
+<pre><code>template &lt; typename T, T v &gt; struct S ;
+
+S&lt; decltype(x), x &gt; s ;
+<code></pre>
+
+<p>
+テンプレートパラメーターとして何らかの型の値を取りたいということは、まず型引数を得た上で、その型の値を取らなければならない。そのようなテンプレート使う側は、まず型を渡して、その後に値を渡さなければならない。ある値xがある場合は、decltypeでその型を得るのが最も手っ取り早い。
+</p>
+
+<p>
+しかし、これは明らかに面倒だ。以下のように書きたい。
+</p>
+
+<pre><code>S&lt;x&gt; s ;
+</code></pre>
+
+<p>
+コンパイラーはxの型を推定できるのであるから、推定して欲しい。
+</p>
+
+<p>
+さて、この機能をどのように実現するかについて、文法的に意見が分かれている。
+</p>
+
+<p>
+最も簡単なものは、usingキーワードを使う文法だ。
+</p>
+
+
+<pre><code>// Tは推定される
+template &lt; using typename T, T v &gt; struct S ;
+<code></pre>
+
+
+
+<p>
+このようにusing typenameと書くだけで、Tは推定される。
+</p>
+
+<p>
+この文法の問題点は、仮引数と実引数の順序がずれるということだ。
+</p>
+
+
+<pre><code>template &lt; using typename T, T v, using typename U, U w &gt; struct S ;
+
+S&lt; x, y &gt; s ;
+<code></pre>
+
+<p>
+そのため、using typenameは外に出す文法案もある。
+</p>
+
+<pre><code>template
+    using typename T, typename U
+    &lt; T v, U w &gt;
+    struct S ;
+</code></pre>
+
+<p>
+これはテンプレート仮引数とテンプレート実引数の位置関係が対応する。
+</p>
+
+<p>
+他にも、autoを使う文法案がある。
+</p>
+
+<pre><code>template &lt; auto v &gt; struct S ;
+</code></pre>
+
+<p>
+using typenameを使うほうが柔軟な型指定ができるが、autoの方が手軽だ。
+</p>
+
+<p>
+どちらの文法案も競合しないので、両方入れるという案もあるそうだ。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+社内で挙動が厳格に定義されている移植性に優れたuniform_int_distributionがほしいという声を聞いた。需要はあるのだろうか。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
