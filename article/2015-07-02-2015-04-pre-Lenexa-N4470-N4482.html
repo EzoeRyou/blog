@@ -1,0 +1,300 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書 2015-04-pre-Lenexaのレビュー: N4470-N4482 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/07/c-2015-04-pre-lenexa-n4470-n4482.html">C++標準化委員会の文書 2015-04-pre-Lenexaのレビュー: N4470-N4482 </a></h1>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4470.html">Variadic lock_guard</a>
+</h2>
+
+<p>
+std::mutexなどのlock/unlockするオブジェクトが複数ある場合は、ロックする順番を工夫しないと、デッドロックしてしまう。そこで、標準ライブラリには、ロックする順番を実装依存の方法でデッドロックを起こさないようにしてくれるstd::lockがある。
+</p>
+
+<p>
+また、標準ライブラリには、std::lock_guardという、RAIIラッパーがある。
+</p>
+
+<p>
+問題はこの2つを組み合わせるのが結構ダルい。
+</p>
+
+<pre><code>std::mutex m1, m2 ;
+
+void f()
+{
+    std::lock( m1, m2 ) ;
+
+    std::lock_guard&lt;std::mutex&gt; l1( m1, std::adopt_lock ) ;
+    std::lock_guard&lt;std::mutex&gt; l2( m2, std::adopt_lock ) ;
+}
+</code></pre>
+
+<p>
+そのため、lock_guardをVariadic Templatesにして、任意個のlockを受け取れるようにする提案。
+</p>
+
+<pre><code>std::lock_guard&lt; std::mutex, std::mutex &gt; l( m1, m2 ) ;
+</code></pre>
+
+<p>
+ぜひ入るべきだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4471.html">N4471: Template parameter deduction for constructors (Rev. 2)</a>
+</h2>
+
+<p>
+クラステンプレートのコンストラクターからテンプレート実引数を推定する提案。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+struct S
+{
+    S( T ) ;
+} ;
+
+// めんどくさい
+S&lt;int&gt; s1(0) ;
+// N4471提案
+S s2(0) ; // S&lt;int&gt;
+</code></pre>
+
+<p>
+ぜひ入って欲しい。
+</p>
+
+<p>
+ただし、単純にコンストラクターから推定できない場合もある。
+</p>
+
+<pre><code>vector&lt;X&gt; v1 = { ... } ;
+auto v2 = vector( v1.begin(), v1.end() ) ; // v2はvector&lt;X&gt;になってほしい
+</code></pre>
+
+<p>
+この場合は推定できない。提案では、typed constructorを導入するという案がある。
+</p>
+
+<pre><code>template&lt;typename T, typename Alloc = std::allocator&lt;T&gt;&gt; struct vector {
+  // Option 1: Typed constructor in primary template only
+  template &lt;typename Iter&gt; vector&lt;iter::value_type&gt;(Iter b, Iter e);
+};
+// Option 2: Typed constructor given globally
+template&lt;typename Iter&gt; vector&lt;typename iterator_traits&lt;Iter&gt;::value_type&gt;(Iter b, Iter e);
+template&lt;typename Iter&gt; vector(Iter b, Iter e) -&gt; vector&lt;typename iterator_traits&lt;Iter&gt;::value_type&gt;
+</code></pre>
+
+<p>
+これはちょっとやり過ぎな感がある。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4472.html">N4472: constexpr goto</a>
+</h2>
+
+<p>
+constexpr関数の中でgotoの使用を認める提案。
+</p>
+
+<p>
+現在、constexpr関数の中でgotoを使うことはできない。しかし、条件分岐やループは使うことができる。gotoが使えないのは本当に技術上の制約なのか。はた、単なる好みの問題なのか。ネストされたループから抜けるにはgotoを使うのが最も手っ取り早いし、広く使われている。gotoは本当に禁止すべきなのか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4473.html">N4473: noexcept(auto), again</a>
+</h2>
+
+<p>
+noexcept(auto)復活論。
+</p>
+
+<p>
+noxcept(auto)例外指定は、関数の本体が例外を投げる可能性があればnoexcept(false)に、例外を投げなければnoexcept(auto)になる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4474.pdf">[PDF注意] N4474:Unified Call Syntax: x.f(y) and f(x,y) </a>
+</h2>
+
+<p>
+統一関数呼び出し記法の提案。
+</p>
+
+<p>
+x.f(y)に対して、もし呼び出しが妥当ではない場合、f(x,y)を試みる。
+</p>
+
+<p>
+p->f(y)に対して、もし呼び出しが妥当ではない場合、f(p,y)を試みる
+</p>
+
+<p>
+f(x,y)に対して、もし呼び出しが妥当ではない場合で、xに対して-&gt;が定義されている場合、x-&gt;f(y)を試みる。そうでなければx.f(y)を試みる。
+</p>
+
+<p>
+begin/end/swapと言った共通の処理をするのに、メンバー関数で実装されているのかフリー関数で実装されているのかがわからないため、。ジェネリックコードから使いにくいという問題を解決する。
+</p>
+
+<p>
+ただし、これを真面目に考えると、"hello".puts()や2.0 .sqrt() (スペースは必要)も合法になる。
+</p>
+
+<p>
+std::FILE *型の変数fpにたいして、fp-&gt;fclose()などが呼び出せるので、静的解析ツールによる補完がやりやすくなるという意見もあるが、for_eachなども補完されてしまうの、果たして便利だろうか。論文はこの懸念を載せていないが。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4475.pdf">[Bjarneは論文をPDFで書くのをやめろ] N4475:Default comparisons (R2) </a>
+</h2>
+
+<p>
+デフォルトの比較演算子を暗黙に生成する機能の提案。
+</p>
+
+<p>
+クラスのデータメンバーが比較可能なとき、クラスのメンバーごとの比較を行う比較演算子を自動で生成できる機能。
+</p>
+
+<p>
+ポインター型のデータメンバーがある場合は==と!=を生成しない。mutableは比較しないという、批判論文の意見は無視した形の提案となっている。
+</p>
+
+<p>
+私はポインターもmutableメンバーも等しく評価されるべきだと思う。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4476.pdf">[Bjarneは論文をPDFで書くのをさっさとやめろ ] N4476: Thoughts about Comparisons (R2)</a>
+</h2>
+
+<p>
+比較演算子の自動生成に対する様々な戦略について考察している。 
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4477.pdf">[BjarneはとにかくPDFをやめろ] N4477: Operator Dot (R2)</a>
+</h2>
+
+<p>
+operator .をオーバーロードできるようにする提案。プロクシークラスが書けるようになる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4478.html">N4478: Networking Library Proposal (Revision 5)</a>
+</h2>
+
+<p>
+ネットワークライブラリの提案。Boost.Asioが土台になっている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4479.html">N4479: Merge Fundamentals V1 into V2</a>
+</h2>
+
+<p>
+提案されているライブラリ拡張のLibrary Fundamentals V2をV1にマージするという文書。NB投票の際に混乱を防ぐためにV1とV2は分割していたそうだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4480.html">N4480: C++ Extensions for Library Fundamentals, DTS</a>
+</h2>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4481.html">N4481: C++ Extensions for Library Fundamentals, Version 2, Tentative Working Draft</a>
+</h2>
+
+<p>
+ライブラリ拡張提案のドラフト
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4482.html">N4482: Some notes on executors and the Networking Library Proposal</a>
+</h2>
+
+<p>
+ネットワークライブラリにおけるexecutorについて、別の論文で提案されている、軽量実行媒体との用語のすり合わせや、最新の会議での合意内容とのすり合わせ、また先行研究への言及。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+毎週木曜日はドワンゴのボルダリング部の活動日。最近、4級が登れるようになってきた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
