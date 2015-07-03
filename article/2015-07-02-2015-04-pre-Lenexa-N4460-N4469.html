@@ -509,7 +509,7 @@ module宣言で翻訳単位をモジュールにする。export宣言で外部�
 <pre><code>template &lt; typename T, T v &gt; struct S ;
 
 S&lt; decltype(x), x &gt; s ;
-<code></pre>
+</code></pre>
 
 <p>
 テンプレートパラメーターとして何らかの型の値を取りたいということは、まず型引数を得た上で、その型の値を取らなければならない。そのようなテンプレート使う側は、まず型を渡して、その後に値を渡さなければならない。ある値xがある場合は、decltypeでその型を得るのが最も手っ取り早い。
@@ -537,7 +537,7 @@ S&lt; decltype(x), x &gt; s ;
 
 <pre><code>// Tは推定される
 template &lt; using typename T, T v &gt; struct S ;
-<code></pre>
+</code></pre>
 
 
 
@@ -553,7 +553,7 @@ template &lt; using typename T, T v &gt; struct S ;
 <pre><code>template &lt; using typename T, T v, using typename U, U w &gt; struct S ;
 
 S&lt; x, y &gt; s ;
-<code></pre>
+</code></pre>
 
 <p>
 そのため、using typenameは外に出す文法案もある。
