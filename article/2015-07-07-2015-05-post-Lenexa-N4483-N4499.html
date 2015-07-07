@@ -1,0 +1,430 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書 2015-05 post-Lenexaのレビュー: N4483-N4499 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/07/c-2015-05-post-lenexa-n4483-n4499.html">C++標準化委員会の文書 2015-05 post-Lenexaのレビュー: N4483-N4499</a></h1>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4483.pdf">[PDF注意] N4483: Read-copy-update</a>
+</h2>
+
+<p>
+Linuxカーネルで多用されているRCU(Read-Copy-Update)の解説文書。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4484.html">N4484: C++ Standard Library Active Issues List</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4485.html">N4485: C++ Standard Library Defect Report List</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4486.html">N4486: C++ Standard Library Closed Issues List</a>
+</h2>
+
+<p>
+標準ライブラリの既知の問題集
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4487.pdf">N4487: Constexpr lambdas</a>
+</h2>
+
+<p>
+constexpr lambdaの提案。
+</p>
+
+<p>
+lambda式のクロージャーオブジェクトのデータメンバー、つまりキャプチャする変数の初期化が定数式ならば、定数式のなかで利用できる。
+</p>
+
+<p>
+クロージャーオブジェクトがリテラル型ならば、定数式の中で評価できる。
+</p>
+
+<p>
+constexpr指定子をlambda式に記述できる。
+</p>
+
+<pre><code>auto f = []( int x ) constexpr { return x ; }
+constexpr int x = f( 1 ) ;
+</code></pre>
+
+<p>
+constexpr指定子は省略できる。その場合、lambda式がconstexpr関数の条件を満たせば、関数呼び出し式はconstexprになる。
+</p>
+
+<pre><code>auto f = []( int x ) { return x ; }
+constexpr int x = f( 1 ) ;
+</code></pre>
+
+<p>
+クロージャー型の関数ポインター型への変換関数はconstexprになる。
+</p>
+
+<p>
+この提案は、lambda式を未評価式の中に記述することを提案していない。つまり、テンプレート仮引数のデフォルトテンプレート実引数に使ってSFINAEトリックに使うことはできない。
+</p>
+
+<p>
+Clangベースの実験的実装が公開されている。
+</p>
+
+<p>
+<a href="https://github.com/faisalv/clang/tree/constexpr-lambdas">https://github.com/faisalv/clang/tree/constexpr-lambdas</a>
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4488.html">N4488: Responses to PDTS comments on Transactional Memory, version 2</a>
+</h2>
+
+<p>
+トランザクショナルメモリーTSに対するPDTSコメントに対する返答。
+</p>
+
+<p>
+日本からは、JP1として、トランザクショナルメモリーがmath.hに対してトランザクショナルセーフを要求しているので、対応のためにパフォーマンスの低下が懸念されるとコメントを送ったが、回答は、math.hは明確に除外されているとしてリジェクトされた。
+</p>
+
+<p>
+math.hが明確に除外されている文面について、日本は把握していない。
+</p>
+
+<p>
+JP2として、関数のローカルstatic変数の初期化がアトミックに行われるべきだと主張したが、これもトランザクショナルセーフで定める範囲ではないとしてリジェクトされた。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4489.html">N4489: WG21 2015-04-24 Telecon Minutes</a>
+</h2>
+
+<p>
+4月24日に行われた電話会議の議事録。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4490.html">N4490: WG21 2015-05 Lenexa Minutes</a>
+</h2>
+
+<p>
+5月4日から9日にかけてLenexaで行われた会議の議事録。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4491.pdf">[PDF注意] N4491: PL22.16 2015-05 Lenexa Minutes (Draft)</a>
+</h2>
+
+<p>
+N4490のドラフトと見える。内容はほぼ同じ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4492.pdf">[PDF] N4492: Thoughts about C++17</a>
+</h2>
+
+<p>
+Bjarne StroustrupによるC++17の考察。
+</p>
+
+<p>
+ドラフト版の翻訳をすでに行っている。
+</p>
+
+<p>
+<a href="http://cpplover.blogspot.jp/2015/05/april-2015-standard-c-cwgml-what-will.html">本の虫: D4492: Bjarne StroustrupによるC++17の考察の翻訳</a>
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4494.html">N4494: Multidimensional bounds, offset and array_view, revision 6</a>
+</h2>
+
+<p>
+連続したストレージを多次元配列に見せかけるarray_viewライブラリの提案。前回からの変更点は、一部の識別子の変更や文面の変更など。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4495.html">N4495: Smart Objects, an alternative approach to overloading operator dot</a>
+</h2>
+
+<p>
+operator .をオーバーロードする機能の提案。N4477とは設計が違う。
+</p>
+
+<p>
+N4477のoperator .は、何らかのリファレンスを返すものであった。
+</p>
+
+<pre><code>// N4477提案
+struct Callable
+{
+    template &lt; typename ... Types &gt;
+    void operator () ( Types ... args ) { }
+} ;
+
+struct X
+{
+    Callable c ;
+
+    Callable &amp; operator . ( )
+    {
+        return c ;   
+    }
+} ;
+
+int main()
+{
+    X x ;
+    x.foo() ;
+    x.bar( 1, 2, 3 ) ;
+}
+</code></pre>
+
+<p>
+何らかのリファレンスを返さなければならないということは、結構面倒な制約だ。第一、そのリファレンスが保持された場合どうするのか？ その寿命がいつまで存続するのかは、operator .の実装次第だ。
+</p>
+
+<pre><code>// 寿命はいつまで？
+auto ref = x.member ;
+</code></pre>
+
+<p>
+N4495では、operator .にコンパイラーが生成する関数オブジェクトが実引数として渡される。
+</p>
+
+<p>
+たとえば、
+</p>
+
+<pre><code>x.some_name ;</code></pre>
+
+<p>
+と書いて、xにsome_nameというメンバーが存在しない場合、
+</p>
+
+<pre><code>x.opeator .( synthesized_function_type{} ) ;</code></pre>
+
+<p>
+というコードに変換される。synthesized_function_typeはコンパイラーにより生成される型で、以下と同等のものになる。
+</p>
+
+<pre><code>struct synthesized_function_type {
+    template&lt;class T&gt;
+    auto operator()(T&amp;&amp; t) -&gt; decltype(t.some_name) noexcept(t.some_name) {
+        return t.some_name;
+    }
+};
+</code></pre>
+
+<p>
+some_nameに対してintの値を返したい場合、これを受けるxのoperator .は、テンプレートを使って以下のように書ける。
+</p>
+
+<pre><code>struct some_name_t
+{
+    int some_name = 0 ;
+} ;
+
+struct X
+{
+    some_name_t data ;
+
+    template &lt; typename T &gt;
+    auto operator . ( T &amp;&amp; t )
+    {
+        return t( data ) ;
+    }
+
+} ;
+</code></pre>
+
+<p>
+メンバー関数呼び出しの場合、実引数に渡す式は、コンパイラーが関数オブジェクトを構築する前に評価される。rvalue性は正しくforwardされる。
+</p>
+
+<pre><code>
+x.some_name( a, foo(), foo() ) ;
+</code></pre>
+
+<p>
+は、以下のように変換される。
+</p>
+
+<pre><code>x.operator.(synthesized_function_type{a, foo(), foo()});
+</code></pre>
+
+<p>
+コンパイラーによって生成されるsynthesized_function_typeは、以下のようになる。
+</p>
+
+<pre><code>struct synthesized_function_type {
+    // `a' or `foo' may not be visible in that context
+    // used here lexically just for demonstration purposes
+    typedef decltype((a)) T0;
+    typedef decltype(foo()) T1;
+    typedef decltype(foo()) T2;
+    T0 a0;
+    T1 a1;
+    T2 a2;
+
+    template&lt;class T&gt;
+    auto operator()(T&amp;&amp; t) -&gt; decltype(t.some_name(static_cast&lt;T0&amp;&amp;&gt;(a0), static_cast&lt;T1&amp;&amp;&gt;(a1), static_cast&lt;T2&amp;&amp;&gt;(a2))) noexcept(t.some_name(static_cast&lt;T0&amp;&amp;&gt;(a0), static_cast&lt;T1&amp;&amp;&gt;(a1), static_cast&lt;T2&amp;&amp;&gt;(a2))) {
+        return t.some_name(static_cast&lt;T0&amp;&amp;&gt;(a0), static_cast&lt;T1&amp;&amp;&gt;(a1), static_cast&lt;T2&amp;&amp;&gt;(a2));
+    }
+};
+</code></pre>
+
+<p>
+コンパイラーによって生成される関数オブジェクトに、メンバー名の文字列やメンバー関数であるかどうかを取得できるリフレクション機能をつける拡張も将来的に追加できる設計となっている。例えば、リフレクションをサポートする例として、以下のような関数オブジェクトが生成される。
+</p>
+
+<pre><code>struct synthesized_function_type {
+    template&lt;class T&gt;
+    auto operator()(T&amp;&amp; t) -&gt; decltype(t.some_name) noexcept(t.some_name) {
+        return t.some_name;
+    }
+
+    static constexpr const char* name() { return "some_name"; }
+    static constexpr bool is_member_function = false;
+};
+</code></pre>
+
+
+<p>
+うーむ・・・やりたいことはわかるのだが、この設計はもう少しなんとかならないものか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4496.html">N4496: WG21 2014-11 Urbana Minutes (revision 1)</a>
+</h2>
+
+<p>
+2014年11月3日から8日にかけてUrbanaで行われた会議の議事録の改訂版とみられる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4497.pdf">[PDF注意] N4497: PL22.16 2014-11 Urbana Minutes (Final)</a>
+</h2>
+
+<p>
+上記議事録の最終校のようなタイトル。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4498.html">N4498: Variadic lock_guard (Rev. 2)</a>
+</h2>
+
+<p>
+lock_guardをVariadic Templatesを使い、任意個のロックを管理できるようにしようという提案。
+</p>
+
+<p>
+これまで、複数のLockable要件を満たす型をロックするのに
+</p>
+
+<pre><code>std::mutex m1, m2 ;
+
+void f()
+{
+    std::lock( m1, m2 ) ;
+    std::lock_guard&lt; std::mutex &gt;( m1, std::adopt_lock ) ;
+    std::lock_guard&lt; std::mutex &gt;( m2, std::adopt_lock ) ;
+}
+</code></pre>
+
+<p>
+のようなコードを書かなければならなかったが、N4498提案では、
+</p>
+
+<pre><code>void f()
+{
+    std::lock_guard&lt; std::mutex, std::mutex &gt;( m1, m2 ) ;
+}
+</code></pre>
+
+<p>
+と書くだけでよい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4499.pdf">[PDF注意] N4499:  Draft wording for Coroutines (Revision 2)</a>
+</h2>
+
+<p>
+コルーチンのドラフト。まだまだ色々変更がありそうなので詳細に読む気にならない。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+最近、社内で計算方法が厳密に規定されているdistributionクラスが標準ライブラリに欲しいという話がでている。デバッグ目的で全く同一の乱数列を移植性の高い方法で生成したい。C++の乱数ライブラリは、生の乱数を生成するエンジンと、乱数を目的の範囲の値に分布させるディストリビューションに分かれている。エンジンクラスの乱数の生成方法は厳密に規定されているが、ディストリビューションクラスの実装方法は規定されていない。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
