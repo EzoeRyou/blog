@@ -1,0 +1,157 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書 2015-05 post-Lenexaのレビュー: N4501-N5409
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/07/c-2015-05-post-lenexa-n4501-n5409.html">C++標準化委員会の文書 2015-05 post-Lenexaのレビュー: N4501-N5409</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4501.html">N4501: Technical Specification for C++ Extensions for Concurrency, Working Draft</a>
+</h2>
+
+<p>
+同期まわりの標準ライブラリに対する拡張TS、futureの改良、latch/barrierライブラリ、アトミックスマートポインター。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4502.pdf">[PDF注意] N4502: Proposing Standard Library Support for the C++ Detection Idiom, V2</a>
+</h2>
+
+<p>
+void_tを使ったdetection idiomのためのライブラリを追加する提案の改訂版
+</p>
+
+<p>
+前回のN4436と比べて、具体的な文面案が追加されているようだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4505.pdf">[PDF注意] N4505: Working Draft, Technical Specification for C++ Extensions for Parallelism</a>
+</h2>
+
+<p>
+並列版アルゴリズムライブラリであるParallelism TSのドラフト。既存のアルゴリズムと同じインターフェースにポリシーを指定すると並列実行してくれる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4506.pdf">[PDF注意] N4506: Parallelism TS Editor's Report</a>
+</h2>
+
+<p>
+Parallelism TSの編集者による変更点の記述。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4507.pdf">[PDF注意] N4507: Technical Specification for C++ Extensions for Parallelism</a>
+</h2>
+
+<p>
+Parallelism TSの文面。内容なN4505と同じ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4508.html">N4508: A proposal to add shared_mutex (untimed) (Revision 4)</a>
+</h2>
+
+<p>
+C++11のshared_mutexは、C++14でshared_timed_mutexに改名された。C++11のshared_mutexは、実際にはtimed lock要件を満たす必要があるためである。さて、開いたshared_mutexに、timed lockではなく、素のLockable要件のみを満たすものを追加しようという提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4509.html">N4509: constexpr atomic&lt;T&gt;::is_always_lock_free</a>
+</h2>
+
+<p>
+atomicの実装は、クリティカルセクションのようなロックを必要とする実装であっても、規格準拠である。これは、ロックフリーのアトミック操作を直接提供していないアーキテクチャ上でもatomicを実装可能であり、移植性の向上につながる。
+</p>
+
+<p>
+しかし、プログラマーは実装がロックフリーかどうかを知って、それによって実装を切り替えたがるものだ。規格はその需要を満たすために、bool atomic&lt;T&gt;::is_lock_freeメンバー関数を提供している。また、ATOMIC_..._LOCK_FREEマクロもある。
+</p>
+
+<p>
+問題は、実装が常にロックフリーかどうかは、コンパイル時にわからないこともある。そこで、マクロの値は、0,1,2のいずれかを取り、それぞれ、ロックフリーではない、条件付きでロックフリー、常にロックフリーという意味を持つ。
+</p>
+
+<p>
+このため、常にロックフリーであることを示す、SFINAEで使いやすいconstexperメンバー関数、constexpr bool atomic&lt;T&gt;::is_always_lock_freeを追加しよう
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+チャーハンと名乗る同僚がおすすめするうまいチャーハンを出す悟空という店に行ってきた。名にし負うチャーハンが推薦するチャーハン屋なのだから、さぞかしうまいであろうと期待していたところ、実際にうまかった。ただし量が多すぎる。また、完全禁煙ではないので二度と行かない。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
