@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: Hacking Teamから流出したとされるコードにブラウザーヒストリーの改変をするためとおぼしきものが発見される 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/07/hacking-team.html">Hacking Teamから流出したとされるコードにブラウザーヒストリーの改変をするためとおぼしきものが発見される</a></h1>
+
+<p>
+国家の諜報機関に攻撃的なリモート操作ツールを売りつけている極めて非人道的な商売をしているHacking Teamから、400GBものデータが流出したという真偽不明のニュースが流れている。流出したデータの中には、FlashやSELinuxのゼロデイ脆弱性が含まれていることが発見されている。
+</p>
+
+<p>
+さて、その流出したコードのなかに、ブラウザーのヒストリーを改変すると思しきコードが含まれていて話題になっている。
+</p>
+
+<p>
+<a href="https://github.com/hackedteam/rcs-common/blob/38290d4eab2b2c295bea021429848a3666647827/lib/rcs-common/evidence/file.rb#L17">rcs-common/file.rb at 38290d4eab2b2c295bea021429848a3666647827 · hackedteam/rcs-common</a>
+</p>
+
+<p>
+URLを指定しなかったときのデフォルトが、["C:\\Utenti\\pippo\\pedoporno.mpg", "C:\\Utenti\\pluto\\Documenti\\childporn.avi", "C:\\secrets\\bomb_blueprints.pdf"].sampleなどとなっていて、何やらユーモアと悪意と恐怖を感じる。
+</p>
+
+<p>
+そのデフォルトのプレイスホルダー的な文字列や、evidenceという単語からみて、証拠を偽造する目的のように思えてくる。
+</p>
+
+<p>
+流出したデータの信頼性が怪しいので、本当のところはわからない。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
