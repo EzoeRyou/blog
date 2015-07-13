@@ -1,0 +1,232 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書のレビュー: N5410-N5419 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/07/c-n5410-n5419.html">C++標準化委員会の文書のレビュー: N5410-N5419</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4510.html">N4510: Minimal incomplete type support for standard containers, revision 4</a>
+</h2>
+
+<p>
+vector, list, forward_listに対して、非完全形を要素型に認める提案。
+</p>
+
+<p>
+以下のようなコードが書けるようになる。
+</p>
+
+<pre><code>struct Node
+{
+    std::vector&lt; Node &gt; nodes ;
+    // ...
+} ;
+</code></pre>
+
+<p>
+クラスは定義の終了を持って完全形となるので、この場合のvectorに渡すNode型は不完全型である。つまり、sizeofが取れないなどの問題がある。しかし、不完全型をサポートする実装は可能であり、このコードは実装によって通ったり通らなかったりしていた。
+</p>
+
+<p>
+上記のパターンのコードは利用価値があることから、これを認める提案。まず、最も無難なコンテナーに限って認める。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4511.html">N4511: Adding [nothrow-]swappable traits (Revision 1)</a>
+</h2>
+
+<p>
+&lt;type_traits&gt;にstd::is_swappable&lt;T&gt;, std::is_swappable_with&lt;T, U&gt;, std::is_nothrow_swappable&lt;T&gt;, std::is_nothrow_swappable_with&lt;T, U&gt;を追加する提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4512.html">N4512: Multidimensional bounds, offset and array_view, revision 7</a>
+</h2>
+
+<p>
+連続したストレージを多次元配列に見せかけるラッパーライブラリ、array_viewの提案。前回の提案N4494に比べて、細かな変更が加えられている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4513.pdf">[PDF注意] N4513: Technical Specification for C++ Extensions for Transactional Memory</a>
+</h2>
+
+<p>
+トランザクショナルメモリーTSのドラフト
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4514.pdf">[PDF注意] N4514: Technical Specification for C++ Extensions for Transactional Memory</a>
+</h2>
+
+<p>
+トランザクショナルメモリーTS。内容はドラフトと同じ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4515.html">N4515: Editor's Report: Technical Specification for C++ Extensions for Transactional Memory</a>
+</h2>
+
+<p>
+トランザクショナルメモリーの編集者による変更点の報告書。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4516.pdf">[PDF注意] N4516: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4516.pdf</a>
+</h2>
+
+<p>
+ライブラリベースの型安全なunionライブラリ、variantの提案。boost.variantの機能削減版といったところだ。
+</p>
+
+<p>
+なお、このvariantは空状態を許容する。理由は、別の型のオブジェクトを代入された時に、元の型のオブジェクトを破棄した後で、代入に失敗した時の状態をどうするのかと考えると、空の状態を許容する設計になったそうだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4517.pdf">[PDF注意] N4517: Record of Response: National Body Comments ISO/IEC PDTS 19841</a>
+</h2>
+
+<p>
+トランザクショナルメモリーTSに対するNBコメントに対する返答。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4518.html">N4518: Make exception-specifications be part of the type system, version 2</a>
+</h2>
+
+<p>
+例外指定を型の一部に含める提案。現状では、例外指定はポインター同士の代入を制限すると規定されている。しかし、ポインターのポインターを介せば、例外の異なる関数へのポインター型が相互に代入できてしまう。
+</p>
+
+<p>
+たとえば、core issue 92は以下のようなコードを問題視している。
+</p>
+
+<pre><code>void (*p)() throw(int);
+void (**pp)() throw() = &amp;p;   // not currently an error
+</code></pre>
+
+<p>
+これに対し、対応はしないと結論したものの、やはりなにかおかしい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4519.pdf">N4519: Source-Code Information Capture</a>
+</h2>
+
+<p>
+ソースファイルの情報を取得できるリフレクションライブラリの提案、__LINE__などのようなプリプロセッサーで取得していた情報が、まともな方法で取得できるようになる。
+</p>
+
+<pre><code>#include &lt;experimantal/source_location&gt;
+
+int main()
+{
+    auto sl = std::experimental::source_location::current() ;
+
+    std::cout
+            &lt;&lt; sl.line() &lt;&lt; '\n'
+            &lt;&lt; sl.column() &lt;&lt; '\n'
+            &lt;&lt; sl.file_name() &lt;&lt; '\n'
+            &lt;&lt; sl.function_name() &lt;&lt; std::endl ;
+}
+</code></pre>
+
+<p>
+source_location::currentは、呼び出した場所のsource_locationオブジェクトを返すconstexpr staticメンバー関数である。
+</p>
+
+<p>
+なお、source_location::currentをデフォルト実引数で呼び出した場合、呼び出し元の情報が得られる。
+</p>
+
+<pre><code>
+void logger( std::experimantal::source_location sl = std::experimental::source_location::current() )
+{
+    // slにはlogger関数を呼び出した元の情報が入る。
+}
+</code></pre>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+最近、ドワンゴがかなりガチな3DCGエンジニアを募集しているようだ。
+</p>
+
+<p>
+<a href="https://progres05.jposting.net/pgdwango/u/job.phtml?job_code=1015&job_employment=">【新規事業】3DCGエンジニア(正社員)｜募集職種一覧｜採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
