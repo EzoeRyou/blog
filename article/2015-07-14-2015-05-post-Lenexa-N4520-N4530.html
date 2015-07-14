@@ -1,0 +1,228 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書 2015-05 post-Lenexaのレビュー: N4521-N4530
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/07/c-2015-05-post-lenexa-n4521-n4530.html">C++標準化委員会の文書 2015-05 post-Lenexaのレビュー: N4521-N4530</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4521.html">Merge Fundamentals V1 into V2</a>
+</h2>
+
+<p>
+Library Fundamentals TSのV1とV2をマージする提案。
+</p>
+
+<p>
+V1とV2が分かれていた理由は、NB投票をする際の混乱を防ぐためだったそうだ。
+</p>
+
+<p>
+余計に分かりづらかった気がするのだが。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4522.html">N4522: std::atomic_object_fence(mo, T&&...)</a>
+</h2>
+
+<p>
+atomic_object_fenceの提案。atomic_thread_fenceと似ているが、これはVariadic Templatesで任意個のリファレンスを取る。リファレンスに取ったオブジェクト以外の順序は未規定である。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4523.html">N4523: constexpr std::thread::hardware_{true,false}_sharing_size</a>
+</h2>
+
+<p>
+C++にキャッシュラインサイズを取得するライブラリの追加。
+</p>
+
+<p>
+C++11では、std::thread::hardware_concurrency()が追加された。これは、独立して実行できるスレッドの数を返す（例えばコア数）。これは実装の際のヒントに使える。
+</p>
+
+<p>
+同じ考え方で、キャッシュラインサイズをヒントとして取得したい。標準ライブラリに入れることで、移植性の高い方法でキャッシュラインサイズが取得できる。しかし、キャッシュラインそのものの定義が実装ごとに異なり移植性がない。
+</p>
+
+<p>
+そのためこの提案では、目的を絞った二種類のキャッシュラインサイズ情報を取得できるようにしている。false-sharing sizeとtrue-sharing sizeだ。
+</p>
+
+<p>
+false-sharingとは、2つの独立したオブジェクトが同じキャッシュライン上に乗っているがために、一方のオブジェクトに変更が加えられると、もう片方も同期のためにストールすることをいう。false-sharing sizeとは、2つのオブジェクトがfalse-sharingを避けるために取るべきオフセット値を返す。
+</p>
+
+<p>
+true-sharingとは、2つのオブジェクトを合わせたメモリーフットプリントとアラインメントが同じキャッシュラインに乗るサイズを返す。
+</p>
+
+<p>
+これらの値は、alignas()の中で使うのに最適である。
+</p>
+
+<pre><code>namespace std {
+  class thread {
+    // ...
+  public:
+    static constexpr size_t hardware_false_sharing_size = /* implementation-defined */;
+    static constexpr size_t hardware_true_sharing_size = /* implementation-defined */;
+    // ...
+  };
+}
+</code></pre>
+
+<p>
+著者はGoogle社員とnVidia社員になっている。nVidia社員が著者になるのはなかなか珍しい気がする。
+</p>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4524.pdf">N4524: Respect vector::reserve(request) Relative to Reallocation</a>
+</h2>
+
+<p>
+std::vector::reserveは指定したサイズ以上のストレージを確保することが規格で規定されている。この提案は、reserveは指定したサイズを確保するように文面を変更する提案である。
+</p>
+
+<p>
+初心者が期待している挙動として、サイズを指定したら、それ以上にストレージを浪費してほしくないということがまずある。また、既存のlibstdc++, libc++, MSVC2013は、指定されたサイズをそのままあロケーターに渡す実装をしている。そのため、これは単に既存の挙動を標準化するだけである。
+</p>
+
+<p>
+この提案は、vector&lt;bool&gt;には変更を加えない。また、basic_stringにもreserveはあるものの、vectorとは性質が違うので、この提案では何もしない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4525.html">N4525: C++ Standard Library Issues Resolved Directly In Lenexa</a>
+</h2>
+
+<p>
+Lenexa会議で解決された標準ライブラリの小粒な問題集。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4526.pdf">[PDF注意] N4526: Towards improved support for games, graphics, real-time, low latency, embedded systems</a>
+</h2>
+
+<p>
+「ゲーム、グラフィック、リアルタイム、低レイテンシー、組み込み系のサポートの改良に向けて」と題された壮大な論文。
+</p>
+
+<p>
+内容は、N2271のEASTLを検証するものとなっている。EASTLはEAが自社内で設計して使っているSTL風のライブラリで、ゲーム用にパフォーマンスを重視した設計になっている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4527.pdf">[PDF注意] N4527: Working Draft, Standard for Programming Language C++</a>
+</h2>
+
+<p>
+C++の最新のドラフト
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4528.html">N4528: Editor's Report -- Working Draft, Standard for Programming Language C++</a>
+</h2>
+
+<p>
+C++ドラフトの編集者による報告書。
+</p>
+
+<p>
+今回の変更点はshared_mutexか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4529.html">N4529: C++ Extensions for Library Fundamentals, Version 2, Working Draft</a>
+</h2>
+
+<p>
+Library Fundamentals TSのドラフト。様々なこれまでに提案されて可決された比較的小粒なライブラリが含まれている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4530.html">N4530: Editor's Report — Library Fundamentals TS</a>
+</h2>
+
+<p>
+Library Fundamentals TSドラフトの編集者の報告書。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+KADOKAWA系列のenterbrainから出版されているニンジャスレイヤーが社内に転がっているので、最近、ニンジャスレイヤーの面白さに目覚めた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
