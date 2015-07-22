@@ -1,0 +1,338 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書 2015-05 post-Lenexaのレビュー: M4531-N4544
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/07/c-2015-05-post-lenexa-m4531-n4544.html">C++標準化委員会の文書 2015-05 post-Lenexaのレビュー: M4531-N4544</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4531.html">N4531: std::rand replacement, revision 3</a>
+</h2>
+
+<p>
+めでたくdeprecatedされたrandの代わりになるお手軽に使える乱数ライブラリ、randintの提案。
+</p>
+
+<p>
+randintは関数テンプレートとなっていて、整数型に対して特殊化できる。
+</p>
+
+<pre><code>// -10から10までの間のint型の乱数を生成
+auto a = std::randint( -10, 10 ) ;
+// 0Lから10Lまでの間のlong型の乱数を生成
+auto b = std::randint( 0L, 10L ) ;
+</code></pre>
+
+<p>
+randintの乱数を生成するために、スレッドごとにdefault_random_engine型のオブジェクトが予測不可能な状態に初期化される。つまり、プログラムの実行ごとにrandintの結果は変わる。
+</p>
+
+<p>
+乱数エンジンの状態を再び予測不可能な状態にするには、std::reseed()を呼び出す。
+</p>
+
+<p>
+reseedに値を指定すると、状態を予測可能にできる。これは、デバッグ目的に使える。
+</p>
+
+<p>
+その他に、乱数生成を関数オブジェクトとして引数に取らない版のshuffle, sampleアルゴリズムが追加される。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4532.html">N4532: Proposed wording for default comparisons</a>
+</h2>
+
+<p>
+クラスにデフォルトの比較演算子を生成する提案の文面案。
+</p>
+
+<p>
+クラスにvirtual基本クラス、virtualメンバー関数、mutableメンバー、ポインター型の非staticデータメンバー、ユーザー提供されたコピー/ムーブコンストラクターと代入演算子はデフォルトの比較演算子は生成されない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4533.html">N4533: Make exception-specifications be part of the type system, version 3</a>
+</h2>
+
+<p>
+例外指定を型の一部に含める提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4534.html">N4534: Data-Invariant Functions (revision 3)</a>
+</h2>
+
+<p>
+サイドチャネル攻撃を防ぐためのライブラリ。
+</p>
+
+<p>
+value&lt;T&gt;の形で利用して、値の比較ができる。値によって外部から観測可能な物理的挙動（実行時間やメモリアクセスパターンなど）が異なる場合、SONO物理的挙動を外部から観測することで、値が推測できてしまう。valueライブラリは、物理的挙動の差をなくしてくれる。
+</p>
+
+<p>
+今回の提案では、barrierが入っていたり、イテレーターの範囲の値がそれぞれ等しいか比較するequal、条件でどちらかのイテレーターの範囲をコピーするcopy_conditional、イテレーターを進めるlookupが入っている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4535.html">N4535: Feature-testing preprocessor predicates for C++17</a>
+</h2>
+
+<p>
+機能テスト推奨で提案されていた__has_includeと__has_cpp_attributeをC++17に追加する提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4536.html">N4536: clamp: An algorithm to 'clamp' a value between a pair of boundary values (Draft) -</a>
+</h2>
+
+<p>
+clamp( value, min, max )の提案。
+</p>
+
+<pre><code>#include &lt;functinal&gt;
+
+int main()
+{
+    auto a = std::clamp( 5, 1, 10 ) ; // 5
+    auto b = std::clamp( 11, 1, 10 ) ; // 10
+    auto c = std::clamp( -1, 1, 10 ) ; // 1
+}
+</code></pre>
+
+<p>
+ある値をある範囲に収めることはプログラミングではよくある処理である。標準にその方法がない場合、非統一的な方法で書かれてしまう。例えば以下のように。
+</p>
+
+<pre><code>
+auto clamped_value = std::min( std::max( value, min_value ), max_value );
+</code></pre>
+
+<p>
+また、範囲版も提案されている。
+</p>
+
+<pre><code>
+std::vector&lt;int&gt; v = { 1, 2, 3, 4, 5, 6, 7, 8, 9 } ;
+
+// { 3, 3, 3, 4, 5, 5, 5, 5, 5 } 
+std::clamp_range( v.begin(), v.end(), v.begin(), 3, 5 ) ;
+</code></pre>
+
+<p>
+ちなみに、ドワンゴ社内ではclamp( min, value, max )という引数の並びを好む人もいるようだ。また、clampを関数オブジェクトを返す関数にして、clamp(min, max)(value)などという文法を好む人もいるようだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4537.html">N4537: Adding Symmetry Between shared_ptr and weak_ptr</a>
+</h2>
+
+<p>
+weak_ptrに欠けているshared_ptrの機能を追加する提案。
+</p>
+
+<p>
+shared_ptr&lt;vector&lt;int&gt;&gt;のような型から、vectorのある要素へのポインターを返すweak_ptrがほしいとする。shared_ptrにはそのための機能がある。所有権を管理するポインターと、getで変えるポインターをコンストラクターの引数で別々に指定することができるのだ。
+</p>
+
+<pre><code>shared_ptr&lt;int&gt; first_elt_strong(const shared_ptr&lt;vector&lt;int&gt;&gt;&amp; vec)
+{
+    return shared_ptr&lt;int&gt;(vec, &amp;vec-&gt;at(0));
+}
+</code></pre>
+
+<p>
+さて、戻り値に返すポインターに、それほど強い参照が欲しくない場合、戻り値の型をweak_ptrに変えることが考えられる。すると、以下のようになる。
+</p>
+
+<pre><code>weak_ptr&lt;int&gt; first_elt_strong(const shared_ptr&lt;vector&lt;int&gt;&gt;&amp; vec)
+{
+    return shared_ptr&lt;int&gt;(vec, &amp;vec-&gt;at(0));
+}
+</code></pre>
+
+<p>
+これは動く。ただし、必要以上に非効率的である。まず、shared_ptrを作るので参照カウンターがインクリメントされる。次に、weak_ptrが作られるので、weak参照カウンターがインクリメントされる。そして、shared_ptrが破棄されるので、参照カウンターがデクリメントされる。
+</p>
+
+<p>
+実に3回もの不可避なメモリアクセスが発生しているではないか。技術的には、メモリアクセスはweak参照カウンターの一回だけにできるはずである。しかし、weak_ptrのコンストラクターにはshared_ptrのコンストラクターがない。そのため、shared_ptrを経由しなければweak_ptrが作れない。
+</p>
+
+<p>
+この問題を解決するために、提案ではweak_ptrにも同等のコンストラクターを追加している。
+</p>
+
+<pre><code>weak_ptr&lt;int&gt; first_elt_strong(const shared_ptr&lt;vector&lt;int&gt;&gt;&amp; vec)
+{
+    return weak_ptr&lt;int&gt;(vec, &amp;vec-&gt;at(0));
+}
+</code></pre>
+
+<p>
+もうひとつの問題は、shared_ptrからweak_ptrを作り出すには、キャストが必要だということだ。以下の例を考えてみる。
+</p>
+
+<pre><code>template &lt; ObjectType &gt;
+void f( ObjectType &amp; obj )
+{
+    auto sp = obj.get_shared_ptr() ;
+    auto wp = weak_ptr&lt;ObjectType&gt;(sp) ;
+    // ...
+}
+</code></pre>
+
+<p>
+このコードは、あまりジェネリックではない。もし、obj.get_shared_ptr()の返すshared_ptrが、shared_ptr&lt;ObjectType&gt;ではなく、shared_ptr&lt;BaseClassOfObjectType&gt;であるかもしれない。あるいは、std::shared_ptrではなく、独自のcustom_shared_ptrを返すかもしれない。
+</p>
+
+<p>
+そもそも、このコードでは明示的に型を指定している部分は、弱体化(weakening)している部分だけである。weakeningに明示的で具体的な型を必要とするのはおかしい。
+</p>
+
+<p>
+そのため、論文ではshared_ptrにweak_ptrを返すunlockメンバー関数の導入を提案している。
+</p>
+
+
+<pre><code>template &lt; ObjectType &gt;
+void f( ObjectType &amp; obj )
+{
+    auto sp = obj.get_shared_ptr() ;
+    auto wp = sp.unlock() ;
+    // ...
+}
+</code></pre>
+
+<p>
+weak_ptrからshared_ptrを作り出す既存のメンバーとしてlockがあるので、その逆としてunlockだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4538.pdf">[PDF注意] N3538: Technical Specification for C++ Extensions for Concurrency</a>
+</h2>
+
+<p>
+Concurrency TS。非同期処理のための様々なライブラリの改良と追加。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4539.html">N4539: C++ Standard Evolution Active Issues List</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4540.html">N4540: C++ Standard Evolution Completed Issues List</a><br>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4541.html">N4541: C++ Standard Evolution Closed Issues List</a>
+</h2>
+
+<p>
+C++の新機能提案に対する既知の問題集
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4542.pdf">[PDF注意] N4542: Variant: a type-safe union (v4).</a>
+</h2>
+
+<p>
+型安全unionライブラリ、variantの提案。boostのものとはvariantのネストを認めないなどで違っている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4543.pdf">[PDF注意] N4543: A polymorphic wrapper for all Callable objects</a>
+</h2>
+
+<p>
+std::functionのコピー不可能版のstd::unique_functionの提案。
+</p>
+
+<p>
+std::functionは関数オブジェクトがコピー可能であることを要求する。コピー可能ではない型は格納できない。std::unique_ptrはコピー不可能な型を格納できる。
+</p>
+
+<p>
+コピー不可能であること以外は、std::functionと同等のインターフェースを持っている。std::functionでstd::unique_functionを初期化することはできる。逆はできない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4544.htm">N4544: October 2015 WG21 Meeting (Kona)</a>
+</h2>
+
+<p>
+2015年10月にハワイで行われる会議の案内。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+先週の土曜日に、ドワンゴのセミナールームでTopCoderの競技プログラミングの予選、TCO15 in Tokyoが開催された。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
