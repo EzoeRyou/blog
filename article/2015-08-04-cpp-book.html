@@ -1,0 +1,142 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++参考書、C＋＋11/14 コア言語を9月に出版予定
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/08/cc1114-9.html">C++参考書、C＋＋11/14 コア言語を9月に出版予定</a></h1>
+
+<p>
+C++11/14のコア言語の参考書。「C++11/14コア言語」が出版社ドワンゴ、販売KADOKAWAとして、9月に出版される。内容は、以下を書籍にしたものだ。内容としてはすでにすべて読むことができる。
+</p>
+
+<p>
+<a href="https://github.com/EzoeRyou/cpp-book">EzoeRyou/cpp-book</a>
+</p>
+
+<p>
+<a href="https://github.com/EzoeRyou/cpp14-appendix">EzoeRyou/cpp14-appendix</a>
+</p>
+
+
+<p>
+アマゾンには情報が掲載されたようだ。
+</p>
+
+<p>
+<a href="http://www.amazon.co.jp/dp/4048694243/">Amazon.co.jp： C＋＋11/14 コア言語: 江添 亮: 本</a>
+</p>
+
+<p>
+紙の本の他にも、KindleとepubとPDF版も現時点で出す予定だ。また、もちろん本のソースコードも公開される。
+</p>
+
+<p>
+ソースコードは、Markdown形式だ。もともとこの本はXHTMLで手書きされたが、それでは扱いづらいため、これを一度Markdownに変換した上で修正し、pandoc経由でtexに変換してから各フォーマットを生成している。不自由なフォント以外のソースコードは公開できるだろう。
+</p>
+
+<p>
+本の帯に書く短い説明として、「他の解説書ではわからないC++コア言語の詳細を不必要なまでに解説」などと冗談で言ったら、本当に採用されてしまった。本の内容は、通常C++を書くのであれば、まず書かないだろうコードが合法かどうかや、その意味まで解説している。規格としては、コードは合法か違法かを規定しなければならず、また合法の場合は、その挙動も規定しなければならないからだ。
+</p>
+
+<p>
+例えば、クラスやenumは名前は、変数やデータメンバーの名前によって隠されるという規程がある。
+</p>
+
+<pre><code>class ClassName {} ;
+
+void f()
+{
+    ClassName ClassName ; // OK、ClassName型の変数、ClassName
+
+    ClassName x ; // エラー、ClassNameは、ここでは変数名を指す。
+
+    class ClassName x ; // OK、明示的にクラス名であると指定している。
+}
+</code></pre>
+
+<p>
+クラス名を変数名で隠すこのようなコードは、現実ではお作法的に推奨できないが、規格上は合法である。
+</p>
+
+<p>
+この参考書は、このような些細な、現実的な実務で使うコードには推奨できないような例も多い。規格上は興味深いが、それを知っても日々のコーディング力にはあまり貢献しないような些細な詳細が書かれている。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+出版社はKADOKAWAとなっているが、販売がkADOKAWAで、出版はドワンゴが行う。組版などの作業はドワンゴ社内で行われた。編集者は私の席のとなりに座っていたため、極めてやりやすい。しかし、出版社が私の雇用主で、編集者が同僚というのはなかなかない環境ではなかろうか。
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
