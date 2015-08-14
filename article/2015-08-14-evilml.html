@@ -1,0 +1,561 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: MLからC++テンプレートへのコンパイラー 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/08/mlc.html">MLからC++テンプレートへのコンパイラー</a></h1>
+
+<p>
+<a href="http://akabe.github.io/evilml/">Evil ML: ML to C++ template language</a>
+</p>
+
+<p>
+<a href="https://github.com/akabe/evilml">akabe/evilml</a>
+</p>
+
+<p>
+MLからC++テンプレートメタコードへのコンパイラーが公開されている。
+</p>
+
+<p>
+以下のMLにおけるクイックソートが、
+</p>
+
+<pre><code>(* Example: quick sort *)
+
+type 'a list = [] | :: of 'a * 'a list
+
+let rec foldr f xs acc = match xs with
+  | [] -&gt; acc
+  | x :: xs -&gt; f x (foldr f xs acc)
+
+let length xs = foldr (fun _ acc -&gt; acc + 1) xs 0
+let append xs ys = foldr (fun y acc -&gt; y :: acc) xs ys
+let filter f xs = foldr (fun x acc -&gt; if f x then x :: acc else acc) xs []
+
+let rec qsort xs = match xs with
+  | [] -&gt; []
+  | [x] -&gt; [x]
+  | pivot :: rest -&gt;
+    let ys = qsort (filter (fun x -&gt; x &lt; pivot) rest) in
+    let zs = qsort (filter (fun x -&gt; x &gt;= pivot) rest) in
+    append ys (pivot :: zs)
+
+let rec nth i xs = match xs with
+  | [] -&gt; error
+  | x :: xs -&gt; if i = 0 then x else nth (i-1) xs
+
+let l1 = [5; 4; 8; 1; 6; 3; 7; 2]
+let l2 = qsort l1
+let x0 = nth 0 l2
+let x1 = nth 1 l2
+let x2 = nth 2 l2
+let x3 = nth 3 l2
+let x4 = nth 4 l2
+let x5 = nth 5 l2
+let x6 = nth 6 l2
+let x7 = nth 7 l2
+
+(*!
+// This is C++ code.
+
+#include &lt;cstdio&gt;
+
+int main () { // We use printf in order to output readable assembly code.
+  std::printf("%d  ", x0::val);
+  std::printf("%d  ", x1::val);
+  std::printf("%d  ", x2::val);
+  std::printf("%d  ", x3::val);
+  std::printf("%d  ", x4::val);
+  std::printf("%d  ", x5::val);
+  std::printf("%d  ", x6::val);
+  std::printf("%d\n", x7::val);
+  return 0;
+}
+*)
+</code></pre>
+
+<p>
+以下のような素敵なC++テンプレートメタコードに変換される。
+</p>
+
+<pre><code>#include "evilml.hpp"
+
+
+struct __ml_nil {
+  static const int tag = 1000123519;
+};
+
+template &lt;class x0, class x1&gt;
+struct __ml_cons {
+  static const int tag = 478463344;
+  typedef x0 fst;
+  typedef x1 snd;
+};
+
+struct foldr {
+  template &lt;class f, class xs, class acc&gt;
+  class fun {
+  private:
+    struct __then2 {
+      template &lt;class&gt;
+      struct fun {
+        static const int tag = 0;
+        typedef acc type;
+      };
+    };
+    struct __else2 {
+      template &lt;class&gt;
+      class fun {
+      private:
+        struct __then1 {
+          template &lt;class&gt;
+          class fun {
+          private:
+            typedef typename xs::fst x;
+            typedef typename xs::snd xs1;
+          public:
+            static const int tag = 0;
+            typedef typename
+              f::template fun
+                &lt;x, typename foldr::template fun&lt;f, xs1, acc&gt;::type&gt;::type type;
+          };
+        };
+        struct __else1 {
+          template &lt;class&gt;
+          struct fun {
+            static const int tag = 0;
+            typedef void type;
+          };
+        };
+      public:
+        static const int tag = 0;
+        typedef typename
+          __ml_if&lt;(xs::tag == 478463344), __then1, __else1&gt;::type::
+            template fun&lt;void&gt;::type type;
+      };
+    };
+  public:
+    static const int tag = 0;
+    typedef typename
+      __ml_if&lt;(xs::tag == 1000123519), __then2, __else2&gt;::type::template fun
+        &lt;void&gt;::type type;
+  };
+};
+
+struct length {
+  template &lt;class xs&gt;
+  class fun {
+  private:
+    struct __fun1 {
+      template &lt;class, class acc&gt;
+      struct fun {
+        static const int tag = 0;
+        typedef __ml_int&lt;(acc::val + 1)&gt; type;
+      };
+    };
+  public:
+    static const int tag = 0;
+    typedef typename
+      foldr::template fun&lt;__fun1, xs, __ml_int&lt;0&gt; &gt;::type type;
+  };
+};
+
+struct append {
+  template &lt;class xs, class ys&gt;
+  class fun {
+  private:
+    struct __fun2 {
+      template &lt;class y, class acc&gt;
+      struct fun {
+        static const int tag = 0;
+        typedef __ml_cons&lt;y, acc&gt; type;
+      };
+    };
+  public:
+    static const int tag = 0;
+    typedef typename foldr::template fun&lt;__fun2, xs, ys&gt;::type type;
+  };
+};
+
+struct filter {
+  template &lt;class f, class xs&gt;
+  class fun {
+  private:
+    struct __fun3 {
+      template &lt;class x, class acc&gt;
+      class fun {
+      private:
+        struct __then3 {
+          template &lt;class&gt;
+          struct fun {
+            static const int tag = 0;
+            typedef __ml_cons&lt;x, acc&gt; type;
+          };
+        };
+        struct __else3 {
+          template &lt;class&gt;
+          struct fun {
+            static const int tag = 0;
+            typedef acc type;
+          };
+        };
+      public:
+        static const int tag = 0;
+        typedef typename
+          __ml_if&lt;f::template fun&lt;x&gt;::type::val, __then3, __else3&gt;::type::
+            template fun&lt;void&gt;::type type;
+      };
+    };
+  public:
+    static const int tag = 0;
+    typedef typename foldr::template fun&lt;__fun3, xs, __ml_nil&gt;::type type;
+  };
+};
+
+struct qsort {
+  template &lt;class xs&gt;
+  class fun {
+  private:
+    struct __then8 {
+      template &lt;class&gt;
+      struct fun {
+        static const int tag = 0;
+        typedef __ml_nil type;
+      };
+    };
+    struct __else8 {
+      template &lt;class&gt;
+      class fun {
+      private:
+        struct __then7 {
+          template &lt;class&gt;
+          class fun {
+          private:
+            typedef typename
+              xs::fst x;
+            struct __then6 {
+              template &lt;class&gt;
+              struct fun {
+                static const int tag = 0;
+                typedef __ml_cons&lt;x, __ml_nil&gt; type;
+              };
+            };
+            struct __else6 {
+              template &lt;class&gt;
+              class fun {
+              private:
+                struct __then5 {
+                  template &lt;class&gt;
+                  class fun {
+                  private:
+                    typedef typename xs::fst pivot;
+                    typedef typename
+                      xs::snd rest;
+                    struct __fun4 {
+                      template &lt;class x&gt;
+                      struct fun {
+                        static const int tag = 0;
+                        typedef __ml_bool&lt;__ml_lt&lt;x, pivot&gt;::val&gt; type;
+                      };
+                    };
+                    typedef typename
+                      qsort::template fun
+                        &lt;typename filter::template fun&lt;__fun4, rest&gt;::type&gt;::
+                        type ys;
+                    struct __fun5 {
+                      template &lt;class x8&gt;
+                      struct fun {
+                        static const int tag = 0;
+                        typedef __ml_bool&lt;__ml_ge&lt;x8, pivot&gt;::val&gt; type;
+                      };
+                    };
+                    typedef typename
+                      qsort::template fun
+                        &lt;typename filter::template fun&lt;__fun5, rest&gt;::type&gt;::
+                        type zs;
+                  public:
+                    static const int tag = 0;
+                    typedef typename
+                      append::template fun&lt;ys, __ml_cons&lt;pivot, zs&gt; &gt;::type type;
+                  };
+                };
+                struct __else5 {
+                  template &lt;class&gt;
+                  struct fun {
+                    static const int tag = 0;
+                    typedef void type;
+                  };
+                };
+              public:
+                static const int tag = 0;
+                typedef typename
+                  __ml_if&lt;(xs::tag == 478463344), __then5, __else5&gt;::type::
+                    template fun&lt;void&gt;::type type;
+              };
+            };
+          public:
+            static const int tag = 0;
+            typedef typename
+              __ml_if&lt;(xs::snd::tag == 1000123519), __then6, __else6&gt;::type::
+                template fun&lt;void&gt;::type type;
+          };
+        };
+        struct __else7 {
+          template &lt;class&gt;
+          class fun {
+          private:
+            struct __then4 {
+              template &lt;class&gt;
+              class fun {
+              private:
+                typedef typename xs::fst pivot;
+                typedef typename
+                  xs::snd rest;
+                struct __fun6 {
+                  template &lt;class x9&gt;
+                  struct fun {
+                    static const int tag = 0;
+                    typedef __ml_bool&lt;__ml_lt&lt;x9, pivot&gt;::val&gt; type;
+                  };
+                };
+                typedef typename
+                  qsort::template fun
+                    &lt;typename filter::template fun&lt;__fun6, rest&gt;::type&gt;::type ys;
+                struct __fun7 {
+                  template &lt;class x10&gt;
+                  struct fun {
+                    static const int tag = 0;
+                    typedef __ml_bool&lt;__ml_ge&lt;x10, pivot&gt;::val&gt; type;
+                  };
+                };
+                typedef typename
+                  qsort::template fun
+                    &lt;typename filter::template fun&lt;__fun7, rest&gt;::type&gt;::type zs;
+              public:
+                static const int tag = 0;
+                typedef typename
+                  append::template fun&lt;ys, __ml_cons&lt;pivot, zs&gt; &gt;::type type;
+              };
+            };
+            struct __else4 {
+              template &lt;class&gt;
+              struct fun {
+                static const int tag = 0;
+                typedef void type;
+              };
+            };
+          public:
+            static const int tag = 0;
+            typedef typename
+              __ml_if&lt;(xs::tag == 478463344), __then4, __else4&gt;::type::
+                template fun&lt;void&gt;::type type;
+          };
+        };
+      public:
+        static const int tag = 0;
+        typedef typename
+          __ml_if&lt;(xs::tag == 478463344), __then7, __else7&gt;::type::
+            template fun&lt;void&gt;::type type;
+      };
+    };
+  public:
+    static const int tag = 0;
+    typedef typename
+      __ml_if&lt;(xs::tag == 1000123519), __then8, __else8&gt;::type::template fun
+        &lt;void&gt;::type type;
+  };
+};
+
+struct nth {
+  template &lt;class i, class xs&gt;
+  class fun {
+  private:
+    struct __then11 {
+      template &lt;class&gt;
+      struct fun {
+        static const int tag = 0;
+        typedef void type;
+      };
+    };
+    struct __else11 {
+      template &lt;class&gt;
+      class fun {
+      private:
+        struct __then10 {
+          template &lt;class&gt;
+          class fun {
+          private:
+            typedef typename xs::fst x;
+            typedef typename
+              xs::snd xs1;
+            struct __then9 {
+              template &lt;class&gt;
+              struct fun {
+                static const int tag = 0;
+                typedef x type;
+              };
+            };
+            struct __else9 {
+              template &lt;class&gt;
+              struct fun {
+                static const int tag = 0;
+                typedef typename
+                  nth::template fun&lt;__ml_int&lt;(i::val - 1)&gt;, xs1&gt;::type type;
+              };
+            };
+          public:
+            static const int tag = 0;
+            typedef typename
+              __ml_if&lt;(i::val == 0), __then9, __else9&gt;::type::template fun
+                &lt;void&gt;::type type;
+          };
+        };
+        struct __else10 {
+          template &lt;class&gt;
+          struct fun {
+            static const int tag = 0;
+            typedef void type;
+          };
+        };
+      public:
+        static const int tag = 0;
+        typedef typename
+          __ml_if&lt;(xs::tag == 478463344), __then10, __else10&gt;::type::
+            template fun&lt;void&gt;::type type;
+      };
+    };
+  public:
+    static const int tag = 0;
+    typedef typename
+      __ml_if&lt;(xs::tag == 1000123519), __then11, __else11&gt;::type::
+        template fun&lt;void&gt;::type type;
+  };
+};
+
+typedef __ml_cons
+  &lt;__ml_int&lt;5&gt;, __ml_cons
+     &lt;__ml_int&lt;4&gt;, __ml_cons
+        &lt;__ml_int&lt;8&gt;, __ml_cons
+           &lt;__ml_int&lt;1&gt;, __ml_cons
+              &lt;__ml_int&lt;6&gt;, __ml_cons
+                 &lt;__ml_int&lt;3&gt;, __ml_cons
+                    &lt;__ml_int&lt;7&gt;, __ml_cons&lt;__ml_int&lt;2&gt;, __ml_nil&gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; l1;
+
+typedef qsort::fun&lt;l1&gt;::type l2;
+
+typedef nth::fun&lt;__ml_int&lt;0&gt;, l2&gt;::type x0;
+
+typedef nth::fun&lt;__ml_int&lt;1&gt;, l2&gt;::type x1;
+
+typedef nth::fun&lt;__ml_int&lt;2&gt;, l2&gt;::type x2;
+
+typedef nth::fun&lt;__ml_int&lt;3&gt;, l2&gt;::type x3;
+
+typedef nth::fun&lt;__ml_int&lt;4&gt;, l2&gt;::type x4;
+
+typedef nth::fun&lt;__ml_int&lt;5&gt;, l2&gt;::type x5;
+
+typedef nth::fun&lt;__ml_int&lt;6&gt;, l2&gt;::type x6;
+
+typedef nth::fun&lt;__ml_int&lt;7&gt;, l2&gt;::
+  type x7;
+
+// This is C++ code.
+
+#include &lt;cstdio&gt;
+
+int main () { // We use printf in order to output readable assembly code.
+  std::printf("%d  ", x0::val);
+  std::printf("%d  ", x1::val);
+  std::printf("%d  ", x2::val);
+  std::printf("%d  ", x3::val);
+  std::printf("%d  ", x4::val);
+  std::printf("%d  ", x5::val);
+  std::printf("%d  ", x6::val);
+  std::printf("%d\n", x7::val);
+  return 0;
+}
+</code></pre>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に見つけたのでメモ代わりに書いた。
+</p>
+
+<p>
+ドワンゴ社内に関数型プログラマーが何人いるかは把握していない。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
