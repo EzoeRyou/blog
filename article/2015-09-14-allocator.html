@@ -1,0 +1,401 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++のアロケーター 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/09/c.html">C++のアロケーター</a></h1>
+
+<p>
+次のC++標準化委員会の文書が出るまで、アロケーターのことでも書くことにした。
+</p>
+
+<p>
+アロケーターとは、ストレージを確保するためのライブラリだ。標準ライブラリには、std::allocator&lt;T&gt;がある。
+</p>
+
+<pre><code>#include &lt;memory&gt;
+
+int main()
+{
+    std::allocator&lt; std::string &gt; a ;
+    auto raw_ptr = a.allocate( 1 ) ; // std::string一つ分のストレージを確保
+    a.deallocate( raw_ptr, 1 ) ; // 解放、確保した個数を引数に渡す
+}
+</code></pre>
+
+
+<p>
+独自の方法でストレージの確保をしたい場合、独自のアロケーター要求を満たすクラスを実装して、アロケーターをサポートしているライブラリに渡せばよい。
+</p>
+
+<pre><code>class custom_allocator ;
+
+int main()
+{
+    // デフォルト実引数でcustom_allocatorがデフォルト初期化されて渡される    
+    std::vector&lt;int, CustomAllocator&gt; v( ) ; 
+}
+</code></pre>
+
+<p>
+アロケーターをわざわざ書くのは面倒なので、C++11では、allocator_traits&lt;T&gt;が導入された。これは、以下のように使うライブラリだ。
+</p>
+
+<pre><code>int main()
+{
+    std::allocator&lt; std::string &gt; a ;
+    using t = std::allocator_traits&lt; decltype(a) &gt; ;
+
+    // ストレージ確保
+    auto ptr = t::allocate( a, 1 ) ;
+    // ストレージ上にオブジェクトを構築
+    // Variadic Templatesにより第三引数以下に構築時の実引数を渡せる
+    t::construct( a, ptr, "hello" ) ;
+    // オブジェクトを破棄
+    t::destroy( a, ptr ) ;
+    // ストレージ解放
+    t::deallocate( a, ptr, 1 ) ;
+}
+</code></pre>
+
+<p>
+allocator_traitsは、テンプレート実引数にアロケーターを指定すると、そのアロケーターのラッパーとして働く。これにより、独自のアロケーターにネストされた型として、pointerだのconst_pointerだのvoid_ponterだのといった、今まで要求されていた様々なメンバーを実装する必要がなくなった。
+</p>
+
+<p>
+また、クラス型でさえあれば何でも指定することができる。アロケータークラスでストレージ確保を実装するのではなく、allocator_traitsの特殊化で実装することも可能だ。
+</p>
+
+<pre><code>class empty ;
+
+template &lt; &gt;
+struct std::allocator_traits&lt; empty &gt;
+{
+// 実装
+} ;
+</code></pre>
+
+<p>
+C++11からの標準ライブラリは、アロケーターを直接使わず、allocator_traitsを介して使うよう規定されている。
+</p>
+
+<p>
+C++11では、この他にもアロケーター自身に機能追加が行われた。
+</p>
+
+<p>
+コンテナのオブジェクトをコピー/ムーブするとき、アロケーターオブジェクトもコピー/ムーブされる。この際のアロケーターのコピー/ムーブの方法を制御できる機能だ。
+</p>
+
+<pre><code>std::vector&lt;int&gt; a ;
+std::vector&lt;int&gt; b = a ; // アロケーターがコピー構築される
+b = a ; // アロケーターがコピー代入される
+std::vector&lt;int&gt; c = std::move(b) ; // アロケーターがムーブ構築される
+b = std::move(c) ; // アロケーターがムーブ代入される
+</code></pre>
+
+<p>
+コピー/ムーブと、構築/代入の組み合わせの4種類について、その方法を選べる機能が追加された。
+</p>
+
+<pre><code>template &lt; typename Allocator &gt;
+class Container
+{
+    Allocator a ;
+    using t = std::allocator_traits&lt;Allocator&gt; ;
+public :
+    // デフォルト初期化
+    Container( Allocator &amp; alloc = Allocator() )
+        : a( alloc ) { }
+} ;
+</code></pre>
+
+<p>
+このようなコンテナーがあるとする。
+</p>
+
+<p>
+select_on_container_copy_construction
+</p>
+
+<p>
+コンテナーがコピー構築されるときは、必ずこの関数が呼ばれる。具体的には、コピーコンストラクターが以下のような実装になる。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+Container::Container( Container const &amp; ref )
+    : a( t::t::select_on_container_copy_construction(ref.a) )
+{ }
+</code></pre>
+
+<p>
+アロケーターは、自分自身を返すか、あるいは別のオブジェクトを返すかを選ぶことができる。
+</p>
+
+<p>
+これにより、コピーできないアロケーターを使ったコンテナーでもコピーできるようになる。
+</p>
+
+<p>
+propagate_on_container_copy_assignment<br>
+propagate_on_container_move_assignment<br>
+propagate_on_container_swap
+</p>
+
+<p>
+コンテナーをコピー代入、ムーブ代入、swapするときは、アロケーターのオブジェクトも変更される。上の3つの名前のメンバーがアロケーターでstd::false_typeと定義されている場合は、アロケーターは変更しない。
+</p>
+
+<pre><code>class no_propagate_allocator
+{
+public :
+    using propagate_on_container_copy_assignment = std::false_type ;
+    using propagate_on_container_move_assignment = std::false_type ;
+    using propagate_on_container_swap = std::false_type ;
+
+    // その他の実装
+} ;
+
+template &lt; typename T &gt;
+using vec = std::vector&lt;T, no_propagate_allocator &gt; ;
+
+int main()
+{
+    std::vector&lt;int&gt; a, b ;
+    a = b ; // aのアロケーターオブジェクトは変更される。
+
+    vec&lt;int&gt; c, d ;
+
+    c = d ; // cのアロケーターオブジェクトは変更されない。   
+} ;
+</code></pre>
+
+
+<pre><code>
+is_always_equal
+</code></pre>
+
+<p>
+すべてのアロケーターのオブジェクトが等しい場合、std::true_typeと定義される。たとえば、std::allocatorのis_always_euqalはstd::true_typeである。
+</p>
+
+<p>
+これは、アロケータークラスが何らかの異なると比較される状態を持っているかどうかを調べるのに使える。
+</p>
+
+<pre><code>template &lt; typename Allocator &gt;
+void f()
+{
+    using t = std::allocator_traits&lt;Allocator&gt; ;
+    bool b = t::is_always_equal() ; // true
+}
+</code></pre>
+
+<p>
+allocator_arg
+</p>
+
+<p>
+allocator_argは以下のように定義されている。
+</p>
+
+<pre><code>namespace std {
+    struct allocator_arg_t { };
+    constexpr allocator_arg_t allocator_arg{};
+}
+</code></pre>
+
+<p>
+allocator_argは単なるタグとして型情報を利用するためだけのクラスだ。これは一部のコンテナーのオーバーロード解決に使われる。
+</p>
+
+<p>
+たとえば、std::tupleは、アロケーターをサポートしている。しかし、tuple自体にアロケーターを渡したい場合もある。
+</p>
+
+<pre><code>int main()
+{
+    std::tuple&lt; std::allocator&lt;int&gt; &gt; t( std::allocator&lt;int&gt;{} ) ;
+}
+</code></pre>
+
+<p>
+オーバーロード解決のために、tupleにアロケーターを渡すときは、allocator_argを渡す。
+</p>
+
+
+<pre><code>int main()
+{
+    std::tuple&lt; std::allocator&lt;int&gt; &gt; t( std::allocator_arg, custom_allocator, std::allocator&lt;int&gt;{} ) ;
+}
+</code></pre>
+
+<p>
+現在、標準ライブラリでは、std::tuple, std::function, std::promise, std::packaged_taskがstd::allocator_arg_tを引数に取るオーバーロードを提供している。
+</p>
+
+
+<p>
+uses_allocator&lt;T, Alloc&gt; traits
+</p>
+
+<p>
+uses_allocator traitsはstd::true_typeかstd::false_typeから派生している。std::true_typeから派生している場合、コンテナーの要素型はコンテナーに渡されたアロケーターのオブジェクトを使って初期化される。例えば、std::queueやstd::stackに渡したアロケーターオブジェクトが、内部のコンテナー型のアロケーターの初期化にも使われる。
+</p>
+
+<p>
+scoped_allocator_adaptor
+</p>
+
+<p>
+scoped_allocator_adaptorは、コンテナーの要素型のアロケーターまで、アロケーターオブジェクトを指定させる目的で使う。
+</p>
+
+<p>
+たとえば、あるアロケータークラスは、オブジェクトごとに内部で状態（ヒープメモリ等）を持っている。
+</p>
+
+<pre><code>class allocator
+{
+    std::shared_ptr&lt;heap_area&gt; ptr ;
+// その他
+} ;
+</pre></code>
+
+<p>
+メモリ確保はこのアロケーターのオブジェクトを経由して行わせたい。あるコンテナーに、このアロケーターのあるオブジェクトを使わせたい場合、つまり単一のヒープ領域からストレージを確保させたいは、以下のようにアロケーターを指定すれば事足りるだろうか。
+</p>
+
+<pre><code>class allocator ;
+
+int main()
+{
+    allocator a ;
+    std::vector&lt; std::string, allocator &gt; v(a) ;
+    v.push_back( std::string("hello") ) ;
+}
+</code></pre>
+
+<p>
+こうすれば、外側のvectorは確かにallocatorを使ってくれるものの、内側のstring(std::basic_string&lt;char, std::char_traits&lt;char&gt;,. std::allocator&lt;char&gt; &gt;)は、依然としてstd::allocatorを使う。
+</p>
+
+<p>
+とすれば、以下のようにすべきだろうか。
+</p>
+
+<pre><code>using str = std::basic_string&lt; char, std::char_traits&lt;char&gt;, allocator &gt; ;
+using vec = std::vector&lt; str, allocator &gt; ;
+
+int main()
+{
+    allocator a ;
+    vec v(a) ;
+    // 同じヒープ領域から確保させるためには、同じアロケーターのオブジェクトからコピーさせる必要がある。
+    v.emplace("hello", a ) ;
+}
+</code></pre>
+
+<p>
+これは動くが面倒だ。特に、コンテナーのネストが増えるともっと面倒になる。
+</p>
+
+<pre><code>using str = std::basic_string&lt; char, std::char_traits&lt;char&gt;, allocator &gt; ;
+using str = std::basic_string&lt; char, std::char_traits&lt;char&gt;, allocator &gt; ;
+template &lt; typename T &gt;
+using vec = std::vector&lt; T, allocator &gt; ;
+
+int main()
+{
+    allocator a ;
+    vec&lt; vec&lt;str&gt; &gt; v( a ) ;
+    v.emplace( a ) ;
+    v[0].emplace( "hello", a ) ;
+}
+<code></pre>
+
+<p>
+scoped_allocator_adaptorは、アロケーターをラップして、このような内側のコンテナーへのアロケーターに同じオブジェクトを使いまわせる。
+</p>
+
+<p>
+というのが、現行の規格の文面とN2554を読む限りのscoped_allocator_adaptorの機能だと思うのだが、どうもうまく動いていない。というのも、内側のコンテナーなり要素なりを外側のコンテナーに追加するとき、insertにしろemplaceにしろ、やはり内側のコンテナーにアロケーターオブジェクトを手動で渡さなければならないことには変わりがないので、scoped_allocator_adaptorを使う利点が全く理解できない。世の中に転がっているサンプルは全部間違っているように思われる。一体どういうことなのだろうか。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
