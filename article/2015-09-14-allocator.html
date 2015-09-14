@@ -216,9 +216,9 @@ int main()
 </code></pre>
 
 
-<pre><code>
+<p>
 is_always_equal
-</code></pre>
+</p>
 
 <p>
 すべてのアロケーターのオブジェクトが等しい場合、std::true_typeと定義される。たとえば、std::allocatorのis_always_euqalはstd::true_typeである。
@@ -357,7 +357,7 @@ int main()
     v.emplace( a ) ;
     v[0].emplace( "hello", a ) ;
 }
-<code></pre>
+</code></pre>
 
 <p>
 scoped_allocator_adaptorは、アロケーターをラップして、このような内側のコンテナーへのアロケーターに同じオブジェクトを使いまわせる。
