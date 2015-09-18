@@ -1,0 +1,305 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: memory_resourceについて 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/09/memoryresource.html">memory_resourceについて</a></h1>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4529.html#memory.type.erased.allocator">N4529: C++ Extensions for Library Fundamentals, Version 2, Working Draft</a>では、Library Fundamentalsという標準ライブラリに対する拡張が規定されている。これは、いずれC++規格に取り入れられる予定である。
+</p>
+
+<p>
+さて、この拡張提案の中で、メモリ確保に新しいライブラリが加わった。memory_resourceだ。
+</p>
+
+<p>
+メモリーリソースとは、アロケーターと同じように、メモリーの確保と解放をするためのインターフェースだ。アロケーターがテンプレートで渡されることを前提とした満たすべき要件となっているのに対し、メモリーリソースは、abstractクラスとなっている。
+</p>
+
+<pre><code>class memory_resource {
+
+public:
+  virtual ~memory_resource();
+
+  void* allocate(size_t bytes, size_t alignment = max_align);
+  void deallocate(void* p, size_t bytes,
+                  size_t alignment = max_align);
+
+  bool is_equal(const memory_resource&amp; other) const noexcept;
+
+protected:
+  virtual void* do_allocate(size_t bytes, size_t alignment) = 0;
+  virtual void do_deallocate(void* p, size_t bytes,
+                             size_t alignment) = 0;
+
+  virtual bool do_is_equal(const memory_resource&amp; other) const noexcept = 0;
+};
+</code></pre>
+
+<p>
+memory_resourceは、publicなメンバーであるallocate, deallocate, is_equalを使う。これらは、同名のdo_foobarを呼び出すようになっている。memory_resourceはabstractクラスなので、実際のストレージ確保は、memory_resourceを基本クラスとしたクラスで実装する。
+</p>
+
+<p>
+allocateでストレージを確保し、deallocateでストレージを解放する。is_equalは、thisでallocateしたポインターがotherのdeallocateに渡すことと、その逆に、otherでallocateしたポインターがthisのdeallocateに渡すこととが、両方ともできる場合に、trueを返す。
+</p>
+
+<p>
+例えば、::operator newとdeleteを使う単純なメモリーリソースは以下のように実装できる
+
+</p>
+
+<pre><code>#include &lt;experimental/memory_resource&gt;
+
+class new_delete_resource : public std::experimental::pmr::memory_resource
+{
+protected :
+    void * do_allocate( std::size_t bytes, size_t alignment )
+    {
+        return ::operator new( bytes ) ;
+    }
+
+    void do_deallocate( void* p, std::size_t bytes, std::size_t alignment )
+    {
+        ::operator delete( p ) ;
+    }
+
+    // 常にtrue
+    bool do_is_equal( memory_resource const &amp;amp; )
+    {
+        return true ; 
+    }
+} ;
+</code></pre>
+
+<p>
+このようにして作ったメモリーリソースは、メモリーリソースのインターフェースをアロケーターのインターフェースにあわせるラッパー、polymorhipc_allocator&lt;T&gt;に渡すことで、アロケーターとして使えるようになる。
+</p>
+
+<pre><code>#include &lt;experimental/memory_resource&gt;
+
+template &lt; typename T &gt;
+using pa = std::experimental::pmr::polymorphic_allocator&lt;T&gt; ;
+
+template &lt; typename T &gt;
+using vec = std::vector&lt; T, std::experimental::pmr::polymorphic_allocator&lt;T&gt; &gt; ;
+
+int main()
+{
+    auto mr = std::make_unique&lt;new_delete_resource&gt;() ;
+
+    pa&lt;int&gt; a( mr.get() ) ;
+    vec&lt;int&gt; v( a ) ;
+}
+</code></pre>
+
+<p>
+このnew_delete_resourceのようなメモリーリソースへのポインターを返すnew_delete_resource関数がLibrary Fundamentalsに入っている。また、get/set_default_resourceという関数もある。
+</p>
+
+<p>
+Library Fundamentalsでは、2つのメモリーリソースを標準で提供している
+</p>
+
+<p>
+プールリソース
+</p>
+
+<p>
+プールリソースとはメモリー確保を、キリのいい種類のブロックサイズごとに区切って（例えば8, 16, 32, 64バイト...など）、ブロックサイズごとにプールと呼ばれるメモリーの「チャンク」を管理して、そのプールからメモリーを割り当てる戦略を取るメモリーリソースだ。
+</p>
+
+<p>
+synchronized_pool_resourceとunsynchronized_pool_resourceとがある。違いは、複数のスレッドから同期処理を行わずにアクセスできるかどうかだ。
+</p>
+
+<pre><code>int main()
+{
+    std::experimental::pmr::synchronized_pool_resource pool ;
+    std::experimental::pmr::polymorphic_allocator&lt;int&gt; poly(pool) ;
+
+    vec&lt;int&gt; v( poly ) ;
+}
+</code></pre>
+
+<p>
+プールリソースは、ブロックサイズの上限を超えるサイズのストレージを確保する際は、あらかじめ上流メモリーリソース(Upstream memory resource)を使う。上流メモリーリソースは、デフォルトではデフォルトリソース(get_default_resource)が使われる。自前のメモリーリソースを使わせたい場合は、コンストラクターで指定できる。
+</p>
+
+<pre><code>
+std::experimental::pmr::synchronized_pool_resource
+    pool( custom_resource{} ) ;
+</code></pre>
+
+<p>
+また、pool_options型の引数をコンストラクターに渡すと、ブロックサイズの上限を指定できる。pool_options型は以下のように定義されている。
+</p>
+
+<pre><code>struct pool_options {
+  size_t max_blocks_per_chunk = 0;
+  size_t largest_required_pool_block = 0;
+};
+</code></pre>
+
+<p>
+max_blocks_per_chunkは、上流メモリーリソースから一度に確保するブロックの数を指定する。0の場合や、実装の上限を上回る場合は、実装の上限が使われる。
+</p>
+
+<p>
+largest_required_pool_blockは、プールする最大のブロックサイズを指定する。0の場合や、実装の上限を上回る場合は、実装の上限が使われる。
+</p>
+
+
+<p>
+モノトニックバッファーリソース
+</p>
+
+<p>
+monotonic_buffer_resourceは、限定的な条件で、とても高速なメモリ確保と解放を行うメモリーリソースだ。
+</p>
+
+<p>
+monotonic_buffer_resourceのallocateは上流メモリーリソースから十分な大きさのストレージを確保して、必要なサイズに切り分けて返す。deallocateは、何もしない。つまり、確保されたストレージは、monotonic_buffer_resourceのオブジェクトが生存する間、開放されることがない。そのため、メモリ使用量はmonotonicに増え続ける。
+</p>
+
+<p>
+使用済みオブジェクトをすべて一括して解放したい場合にきわめて効率的に動く。
+</p>
+
+<p>
+monotonic_buffer_resourceは、単一のスレッドからアクセスすることを想定している。allocateとdeallocateは同期しない。
+</p>
+
+<p>
+コンストラクターは、上流メモリーリソースと、確保するストレージの初期サイズを指定することができる。
+</p>
+
+<pre><code>std::experimental::pmr::monotonic_buffer_resource( 10 * 1014 * 1024, get_default_resource() ) ;
+</code></pre>
+
+<p>
+メンバー関数にはreleaseがあり、呼び出すと今まで確保したストレージをすべて解放する。デストラクターはreleaseを呼び出す。
+</p>
+
+<p>
+polymorphic_allocatorは、実行時ポリモーフィズムにより、アロケーターの挙動を実行時に変えるメモリーリソースのインターフェースを、既存のアロケーターのインターフェースにすりあわせるためのラッパーである。つまり、メモリーリソースは実行時に変えることができる。
+</p>
+
+<pre><code>int main()
+{
+    std::string input
+    std::cin &gt;&gt; input ;
+
+    std::experimental::pmr::memory_resource * ptr = get_default_resource ;
+
+    std::unique_ptr&lt; memory_resource &gt; raii ;
+
+    if ( input == "pool" )
+    {
+        raii.reset( new std::experimental::pmr::synchronized_pool_resource() ) ;
+        ptr = raii.get() ;
+    }
+    else if( input == "monotonic" )
+    {
+        raii.reset( new std::experimental::pmr::monotonic_resource() ) ;
+        ptr = raii.get() ;
+    }
+
+    std::experimental::pmr::polymorphic_allocator poly( ptr ) ;
+
+    std::vec&lt; int &gt; v( poly ) ;
+
+}
+</code></pre>
+
+<p>
+アロケーターを実行時に決める機能はなかなか便利だ。既存のアロケーターにも欲しい。そのため、Library Fundamentalsには、既存のアロケーターのインターフェースをメモリーリソースのインターフェースにすりあわせるラッパーも用意されている。
+</p>
+
+<pre><code>std::experimental::pmr::resource_adaptor&lt; std::allocator&lt;char&gt; &gt; adaptor ;
+std::experimental::pmr::memory_resource * ptr = &amp;adaptor ;
+</code></pre>
+
+<p>
+ただし、アロケーターはすべての特殊化がcharにrebindできる制約を満たさなければならない。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。9月25日に筆者の書いた「C++11/14コア言語」がアスキードワンゴから出版される。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
