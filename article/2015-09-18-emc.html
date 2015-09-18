@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: Effective Modern C++の見本が届いた 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/09/effective-modern-c.html">Effective Modern C++の見本が届いた</a></h1>
+
+<p>
+Effective Modern C++の見本が届いた。
+</p>
+
+<p>
+なぜ私のもとに見本が送られてきたかというと、知人が査読をしたのだという。
+</p>
+
+<p>
+中を見てみたが、C++11の新機能のさわりの解説と、いくつかの落とし穴の照会と、落とし穴を避けるためのいくつかのお作法が含まれているようだ。
+</p>
+
+<p>
+最後の方の並列APIの章は、なんだかまとまりが無いように感じた。threadのことは一切解説しないのにthreadはjoin可能な状態で放置するな（デストラクターでstd::terminateが走るため）というお作法だけ書くのはよくわからない。また、atomic操作のさわりだけ教えても意味がないように思う。
+</p>
+
+<p>
+weak_ptrも何故紹介したのかわからない。weak_ptrとatomic操作は、素人が付け焼き刃で使える機能ではない。
+</p>
+
+<p>
+この本の浅い解説から考えると、大半の読者はweak_ptrやatomicを使う必要に迫られることはまずないし、使う資格もないだろうと思う。このように浅く存在だけ解説すると、必要もないのに使ってみたくなる人間が増えはすまいか。心配になる。
+</p>
+
+<p>
+とはいえ、考えてみると、この本は初心者を対象にしたものではない。この本を読むには、すでにC++をある程度実用的に書ける必要がある。かつ、Effective C++などの過去のHerb SutterのC++本を読んでいて、C++03時代のC++は知っていることを前提にしている。
+</p>
+
+<p>
+また、そもそも、今C++を書く人間は、到底素人ではないからこれでいいのだという意見も聞いた。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
