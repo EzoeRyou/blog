@@ -1,0 +1,314 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書2015-09 pre-Konaのレビュー: P0001R0-P0009R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/10/c2015-09-pre-kona.html">C++標準化委員会の文書2015-09 pre-Konaのレビュー: P0001R0-P0009R0</a></h1>
+
+<p>
+今回から、文書番号の規則が変わっている。PxxxxRxというフォーマットになっている。Pxxxxが文書番号で、Rxがリビジョン番号だろう。たしかに、今までどの文章がどの文章の改訂版かわかりにくかったので、いい変更だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0001r0.html">P0001R0: Remove Deprecated Use of the register Keyword</a>
+</h2>
+
+<p>
+registerキーワードを廃止する提案。registerキーワードは2011年にdeprecatedになり、将来のために予約されることになった。C++17では廃止する。
+</p>
+
+<p>
+廃止するにあたっての懸念は、Cとの互換性だ。例えば、関数のシグネチャがCとC++で変わってしまう。とはいえ、registerキーワードの使用はCでも廃れているし、もっと利用例があるrestrictキーワードでさえ、この15年の間、CとC++との互換性にそれほど大きな問題を引き起こしていないので、大丈夫とのこと。
+</p>
+
+<p>
+register機能は廃止されるが、registerキーワードは、将来の利用のために予約される。一般的な英単語のキーワードは極めて貴重である。
+</p>
+
+<p>
+registerを予約語から消してユーザーに識別子として解放する案は、会議により否決された。
+</p>
+
+<p>
+キーワードといえば、asmも実質廃止しても良さそうな気がする。というのも、C++規格のasmの文法は極めて使いづらいので、現実のコンパイラーは__asmなどの独自のキーワードを使ってインラインアセンブリを提供している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0002r0.html">NP0002R0: Remove Deprecated operator++(bool)</a>
+</h2>
+
+<p>
+boolに対するoperator ++を廃止する提案。以下のようなコードが違法になる。
+</p>
+
+<pre><code>bool b = true ;
+
+++b ; // false
+++b ; // true
+</code></pre>
+
+<p>
+boolに対するoperator ++は、そもそも正式な規格以前の機能で、C++98ですらdeprecated扱いになっている。もう20年以上の猶予期間を与えてやったのだから、いい加減にいいだろうということだ。
+</p>
+
+<p>
+なお、後置演算子はまだ利用価値がある。というのも、現在の値を得つつ値を変更できるからだ。
+</p>
+
+<pre><code>void f( bool b )
+{
+    g( b++ ) ; // 値を渡しつつ変更
+}
+</code></pre>
+
+<p>
+この代替機能として、ライブラリにstd::exchangeが導入された。
+</p>
+
+<pre><code>void f( bool b )
+{
+    g( std::exchange( b, !b ) ) ;
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0003r0.html">P0003R0: Removing Deprecated Exception Specifications from C++17</a>
+</h2>
+
+<p>
+動的例外指定を廃止する提案。
+</p>
+
+<p>
+まともに利用されなかったので、すでにC++11でdeprecated扱いされている。
+</p>
+
+<p>
+throw()だけは残されるが、noexcept(true)と同じ意味になる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0005r0.html">P0005R0: Adopt 'not_fn' from Library Fundamentals 2 for C++17</a>
+</h2>
+
+<p>
+Library Fundamentals TSにあるnot_fnを標準ライブラリに追加する提案。
+</p>
+
+<pre><code>auto f = []( bool b ){ return b ; } ;
+auto nf = not_fn(f) ;
+
+f( true ) ; // true
+nf( true ) ; // false
+</code></pre>
+
+<p>
+not_fnは小さいし、not_fnが依存する他のライブラリもないので、not1, not2の代替機能として。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0006r0.html">P0006R0: Adopt Type Traits Variable Templates from Library Fundamentals TS for C++17</a>
+</h2>
+
+<p>
+Library Fundamentalsにある変数テンプレートを使ったtype traitsのラッパーを標準ライブラリに追加する。traits::valueのかわりに、traits_vで値が返。is_same&lt;T, U&gt;::valueと書くかわりに、is_same_v&lt;T, U&gt;と書ける。
+</p>
+
+<p>
+変数テンプレートは以下のように使う。
+</p>
+
+<pre><code>template &lt; typename T, typename U &gt;
+constexpr bool is_same_v = std::is_same&lt; T, U&gt;::value ;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0007r0.html">P0007R0: Constant View: A proposal for a 'std::as_const' helper function template</a>
+</h2>
+
+<p>
+constなlvalueリファレンスを返す関すテンプレート、as_constを追加する。
+</p>
+
+<p>
+利用例は以下の通り。
+</p>
+
+<pre><code>struct X {  } ;
+
+void f( X &amp; ) ; 
+void f( X const &amp; ) ;
+
+int main()
+{
+    X x ;
+
+    // 非const版
+    f( x ) ; 
+
+    // const版
+    f( std::as_const(x) ) ;
+}
+</code></pre>
+
+<p>
+関数を呼ぶときに、意図的に非constなオブジェクトから、const版のオーバーロードを呼び出したいときに使える。
+</p>
+
+<p>
+わざわざconst_cast&lt; const T &amp; &gt;( object )と書くのはだるい。しかもobjectの型Tを明示的に書かなければならない。const_cast&lt; std::add_const&lt; decltype( object ) &gt;::type &amp; &gt;( object )と書けば明示的に型を書く必要はないが、極めてダルい。
+</p>
+
+<p>
+実装例
+</p>
+
+<pre><code>template &lt;class T&gt; add_const_t&lt;T&gt;&amp; as_const(T&amp; t) noexcept
+{
+    return t ;
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0008r0.pdf">P0008R0: 	C++ Executors</a>
+</h2>
+
+<p>
+スレッド風の実行媒体であるexecutorの提案。asyncをかなり高機能にしたものとも言える。スレッドプールなexecutorなどが提供される。
+</p>
+
+<p>
+N4414で提案されていたtype erasure executorは懸念事項があるため見送り。
+</p>
+
+<p>
+executorがシャットダウンするタイミングについては、main関数の実行を抜けたら自動的にシャットダウン。明示的にシャットダウンさせる方法については、まだ検討中。その他様々な会議での議論内容が書かれている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0009r0.html">P0009r00 : Polymorphic Multidimensional Array View</a>
+</h2>
+
+<p>
+連続したストレージを多次元配列に見せかけるラッパー、array_viewが提案されているが、この論文は、array_viewはゼロオーバーヘッドの原則を満たさないし、異なるメモリレイアウトに対するゼロオーバーヘッドabstractionもできない欠陥品だとしている。この論文は、array_viewに対抗したviewライブラリを提案している。extentやstrideをconstexprで提供することによりコンパイラーの最適化の余地を高め、様々なハードウェアが直接サポートするレイアウトに直接マッピングできるようにするなどの設計になっている。とてもシンプルなので、viewというシンプルな名前こそがふさわしいと主張してる。
+</p>
+
+<p>
+array_viewでfloat型の三次元配列[5][5][5]を宣言するには以下のようになる。
+</p>
+
+<pre><code>std::size_t size = 5 * 5 * 5 ;
+float buffer[ size ] ;
+array_view&lt; float, 3&gt;( size, buffer ) ;
+</code></pre>
+
+<p>
+対して、viewでは以下のように宣言する。
+</p>
+
+<pre><code>std::size_t size = 5 * 5 * 5 ;
+float buffer[ size ] ;
+view&lt; float[5][5][5]&gt; a( buffer ) ;
+</code></pre>
+
+<p>
+要素数がわからない場合は、以下のように設定する。
+</p>
+
+<pre><code>int x = 5, y = 5, z = 5 ;
+float buffer[ x * y * z ] ;
+view&lt; float[][][] &gt; a( buffer, x, y, z ) ;
+</code></pre>
+
+<p>
+コンパイル時にサイズがわかる箇所だけ書ける。
+</p>
+
+<pre><code>view&lt; float [][5][] &gt; a( ... ) ;
+</code></pre>
+
+<p>
+このような記法を可能にするため、コア言語にも手を入れる。
+</p>
+
+<p>
+すごく大胆な提案だ。使い勝手は確かによい。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
