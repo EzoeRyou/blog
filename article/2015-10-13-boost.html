@@ -1,0 +1,153 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: Boost.勉強会 #18 大阪で発表してきた 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/10/boost-18.html">Boost.勉強会 #18 大阪で発表してきた</a></h1>
+
+<p>
+<a href="https://osakaboostjp.doorkeeper.jp/events/30797">Boost.勉強会 #18 大阪 - Boost.勉強会 大阪 | Doorkeeper</a>
+</p>
+
+<p>
+Boost.勉強会 #18 大阪で発表してきた。発表資料はGitHubに上げている。
+</p>
+
+<p>
+<a href="https://github.com/EzoeRyou/boost-benkyo-18">EzoeRyou/boost-benkyo-18</a>
+</p>
+
+<p>
+発表内容は、2週間前に公開されたpre-Kona mailingの提案から興味深いものを抜粋している。
+</p>
+
+<p>
+Boost勉強会が大阪であるので、ドワンゴに金を出してもらって出張という名目で発表してきた。
+</p>
+
+<p>
+なんでも午前11時から始まるそうだ。当日に東京から新幹線で大阪まで向かうので、7時頃には家を出なければならない。眠いのを我慢しながら家を出て、新幹線に乗り、大阪に向かった。
+</p>
+
+<p>
+そして、大阪駅で30分ほど迷った。大阪梅田のあたりはますます複雑なプロシージャルダンジョン生成アルゴリズムを導入したと見える。
+</p>
+
+<p>
+11時をやや遅れながら会場に到着すると、何と誰もいない。何でも、発表者が少ないので13時からに変更になったという。
+</p>
+
+<p>
+さて、発表開始だ。
+</p>
+
+<p>
+まず最初は、区間演算ライブラリを開発したという発表だった。区間演算ライブラリは多数あるし、Boostにもあるが、皆Partial Orderingでの比較しかサポートしていない。Weak orderingとTotal orderingもサポートしたライブラリを作ったという。しかし利用者がいないという。
+</p>
+
+<p>
+発表者に投げられた厳しい意見としては、そもそも何に応用することを目的としたライブラリなのか。既存のライブラリがPrtial orderingしかサポートしていないのには相応の理由があるはずで、用途を考えずに単に純粋に計算だけするライブラリがあっても使われるはずがないとのことであった。
+</p>
+
+<p>
+次にでちまるさんの兄のタグ付き共用体の発表のはずであったが、当日の朝にMicrosoftの不自由なPower Pointを購入してスライド資料を作り始めたので、まだ出来上がっていないとのことであった。怠惰はプログラマーの美徳とはいいながら、スライド資料の遅延評価はお勧めできない。
+</p>
+
+<p>
+代わりに私が発表した
+</p>
+
+<p>
+その次にでちまるさんの兄が発表した
+</p>
+
+<p>
+次の発表は、Boostに追加が予定されている新時代のメタプログラミングライブラリ、Boost.Hanaの紹介だった。型計算と値計算を相互に行き来できるライブラリだそうだ。
+</p>
+
+<p>
+最後の発表は、Proxygenを使ったWebアプリケーションの発表。なんだかWebの歴史を一通り見ているような内容だった。ブラウザーが高速化のために複数のHTTPコネクションをサーバーにはっていた時代があったことを思い出した。
+</p>
+
+<p>
+その後は近所の安い飲み屋で懇親会を行った。Boost勉強会の規模が年々縮小しているという話を聞いた。果たしていつまで続くだろうか。また、大阪は学生の発表が多いという話だが、それは事情が違っていて、職業プログラマーはみんな東京に行ってしまうので、学生しか関西に残っていないのだという話だった。
+</p>
+
+<p>
+10時半ごろに確保していたホテルに向かったが、極めて常識はずれなことに旅行会社が喫煙可の部屋を手配したので、極めて煙草臭かった。翌日の始発で家に帰った。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
