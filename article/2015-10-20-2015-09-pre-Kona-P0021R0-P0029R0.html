@@ -1,0 +1,333 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書のレビュー: P0021R0-P0029R0 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/10/c-p0021r0-p0029r0.html">C++標準化委員会の文書のレビュー: P0021R0-P0029R0 </a></h1>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0021r0.pdf">P0021R0: Working Draft, C++ Extensions for Ranges</a>
+</p>
+
+<p>
+Range TSのドラフト。コンセプトを使ったRangeライブラリの提案。
+</p>
+
+<p>
+イテレーターのペアを扱うよりも、Rangeという単位で簡単に扱うことができる。
+</p>
+
+<p>
+ユーザーにわかりやすい恩恵としては、algorithmにイテレーターのペアではなくコンテナーを渡せるようになる。単に使う際にはコンセプトを意識する必要はない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0022r0.html">P0022R0: Proxy Iterators for the Ranges Extensions</a>
+</h2>
+
+<p>
+vector&lt;bool&gt;のようなプロクシーイテレーターをRangeに対応させるためにRange提案を修正する提案。既存のiter_swapに加えて、iter_moveを追加して、プロクシーイテレーターのためのカスタマイゼーションポイントとする。
+</p>
+
+<p>
+コンセプトにマップがあればもっと楽になるのに。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0024r0.html">P0024R0: The Parallelism TS Should be Standardized</a>
+</h2>
+
+<p>
+既存のalgorithmを並列実行させ、また並列計算のためにnumericライブラリを追加するParallelism TSを、標準規格に取り入れるべきだという提案。
+</p>
+
+<p>
+Parallelism TSの実装経験は豊富であり、C++17に加えるに足る。
+</p>
+
+<p>
+Parallelism TSは、たとえば、以下のようにvector&lt;int&gt;の各要素に処理を加えるコードがある。
+</p>
+
+<pre><code>void process_data( std::vector&lt;int&gt; const &amp; data )
+{
+    std::for_each( std::begin(data), std::end(data),
+        []( auto e ) { DoSomething(e) ; } 
+    ) ;
+}
+</code></pre>
+
+<p>
+このコードは、以下のように変更を加えるだけで、並列実行させることができる。
+</p>
+
+<pre><code>
+std::for_each( std::par, std::begin(data), std::end(data), ...
+</code></pre>
+
+<p>
+このように、既存のalgorithmに並列実行版のオーバーロードを加える。また、並列計算用のnumericが用意されている。
+</p>
+
+<p>
+すでに、Microsoft, HPX, Codeplay, HSA, Thibaut Lutz, NVIDIAが独立してParallelism TSを公に実装している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0025r0.html">P0025R0: clamp: An algorithm to 'clamp' a value between a pair of boundary values (Draft) -</a>
+</h2>
+
+<p>
+標準ライブラリにclamp( value, min_value, max_value )を追加する提案。valueがmin_valueより小さいならmin_valueを、max_valueより大きいならmax_valueを、そうでなければvalueを返す。
+</p>
+
+<p>
+比較関数をとるオーバーロード、clamp( value, min, max, comp)も追加される。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0026r0.pdf">P0026R0: multi-range-based for loops</a>
+</h2>
+
+<p>
+Range-based forの拡張提案。
+</p>
+
+<p>
+range-based forはコンテナーの各要素に対する処理を簡単に書くことができる。
+</p>
+
+<pre><code>std::vector&lt;int&gt; v ;
+
+for ( auto &amp;&amp; elem : v )
+{
+    DoSomething( elem ) ;
+}
+</code></pre>
+
+<p>
+しかし、現実では、複数のコンテナーのそれぞれの各要素を先頭から同時にアクセスしたいことがよくある。そういう場合、古典的なforループを使わざるを得ない。
+</p>
+
+<pre><code>std::vector&lt;int&gt; v1, v2 ;
+
+auto iter1 = v1.begin() ;
+auto iter1_end = v1.end() ;
+auto iter2 = v2.begin() ;
+auto iter2_end = v2.end() ;
+
+for( ; iter1 != iter1_end &amp;&amp; iter2 != iter2_end ;
+    ++iter1, ++iter2 )
+{
+    DoSomething( *iter1, *iter2 ) ;
+}
+</code></pre>
+
+<p>
+そこで、range-based forを拡張して、セミコロンで区切ることで、複数のRangeを受け取れるようにする。
+</p>
+
+<pre><code>// P0026提案
+
+for ( auto &amp;&amp; e1 : v1 ; auto &amp;&amp; e2 : v2 )
+{
+    DoSomething( e1, e2 ) ; 
+}
+</code></pre>
+
+<p>
+レンジの要素の数が同じではない場合、要素数が少ないレンジの終端に達した時点でループが打ち切られる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0027r0.pdf">P0027R0: Named Types</a>
+</h2>
+
+<p>
+名前付きの型を作り出す機能の提案。
+</p>
+
+<p>
+typedef名は、型に別名をつけることができる。
+</p>
+
+<p>
+typedef double Force ;
+typedef double Mass ;
+typedef double Accel ;
+
+Force calc_force( Mass m, Accel a ) { return m * a ; }
+</p>
+
+<p>
+問題は、typedef名はあくまで別名であって、新しい型ではない。そのため、double型を渡すことができる。
+</p>
+
+<pre><code>void f( Object o )
+{
+    Mass m = o.get_mass() ;
+    Accel a = o.get_accel ;
+
+    // コンパイルエラーにならない
+    Force f = calc_force( m, m ) ;
+}
+</code></pre>
+
+<p>
+これを解決して、論理的に間違っている場合にコンパイルエラーを出すためには、新しい型を作り出す必要がある。
+</p>
+
+<pre><code>newtype double Force ;
+newtype double Mass ;
+newtype double Accel ;
+</code></pre>
+
+<p>
+提案では、何らかの新しいキーワード(仮にnewtype)を使って新しい型名を宣言する文法を提案している。まだ具体的な文面案がないので、どのようになるかは詳しく書かれていない。
+</p>
+
+<p>
+少なくとも、暗黙の型変換は阻害されて欲しいし、テンプレート実引数で異なる特殊化をされてほしい。
+</p>
+
+<p>
+提案は先行事例としてAdaを挙げている。また、Adaにはある値の範囲を定める機能: newtype Age is int(0...130)のような案も漏らしている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0028r0.pdf">P0028R0: Using non-standard attributes</a>
+</h2>
+
+<p>
+attributeは、アノテーションを記述するのに便利なので、すでによく使われている。たとえば、<a href="http://repara-project.eu/">| Reengineering and Enabling Performance and poweR of Applications</a>では、attributeを使って、GPUやDSPに処理をオフロードするアノテーションを記述できる。
+</p>
+
+<p>
+問題は、inとかoutとかの短くてわかりやすい単語を使いたいが、他の実装依存のattributeとかぶるとまずいため、attribute名前空間を用いている。これは記述を煩雑にする。
+</p>
+
+<pre><code>void f() {
+    [[ rpr::kernel, rpr::target(cpu,gpu)]]
+    do_task();
+}
+</code></pre>
+
+<p>
+そこで、同一のattribute内であるattribute名前空間内のattributeトークンをグローバルスコープに持ち込むための機能を提案している。
+</p>
+
+<pre><code>void f() {
+    [[using(rpr), kernel, target(cpu,gpu)]]
+    do_task();
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0029r0.html">P0029R0: A Unified Proposal for Composable Hashing</a>
+</h2>
+
+<p>
+unorderedコンテナーのキーは、ハッシュ値を計算できる必要がある。基本型と標準ライブラリの型はstd::hashでハッシュ値が計算できる。しかし、ユーザーがハッシュ計算可能な型を組み合わせたクラスを作った場合、標準ライブラリはそのような型にハッシュ値を計算させる簡単な方法を提供していない。ユーザーが独自の方法でハッシュ値を計算しなければならない。
+</p>
+
+<p>
+ハッシュ値の計算は素人には難しい。そこで、既存のハッシュ計算可能な型のオブジェクトを任意個ぶち込めばハッシュを計算してくれるライブラリhash_valueとhash_combineを提案している。
+</p>
+
+<p>
+struct Foo
+{
+    int i ;
+    std::string str ;
+    bool b ;
+
+    friend std::hash_code hash_value( std::hash_code h, const Foo &amp; foo ) ;
+} ;
+
+std::hash_code hash_value( std::hash_code h, const Foo &amp; foo )
+{
+    return std::hash_combine( std::move(h), foo.i, foo.str, foo.b ) ;
+}
+</p>
+
+<p>
+このようにすれば、Foo型はstd::hashでハッシュ計算ができるようになり、unorderdコンテナーのキーとして使うことができるようになる。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
