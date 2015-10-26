@@ -1,0 +1,539 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書のレビュー: P0030R0-P0039R0 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/10/c-p0030r0-p0039r0.html">C++標準化委員会の文書のレビュー: P0030R0-P0039R0</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0030r0.pdf">[PDF] P0030R0: Proposal to Introduce a 3-Argument Overload to std::hypot</a>
+</h2>
+
+<p>
+C++11で追加されたstd::hypotに3引数版のオーバーロードを追加する提案。
+</p>
+
+<p>
+std::hypot( x, y )は、\(\sqrt{ x^2 + y^2}\)を、計算過程でオーバーフロー、アンダーフローが発生しない方法で計算する関数だ。
+</p>
+
+<p>
+hypotの応用方法として、二次元空間における2点間の距離の計算、\(\sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2}\)　に使える。
+</p>
+
+<pre><code>struct point
+{ double x, y ; } ;
+
+double dist( point a, point b )
+{
+    return std::hypot( a.x - b.x, a.y - b.y ) ;
+}
+</code></pre>
+
+<p>
+しかし、多くの分野では、三次元空間における2点間の距離を計算、、\(\sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2 (z_q - z_2)^2}\)したいことがよくある。hypotは2引数なので、現状では以下のように使わなければならない
+</p>
+
+<pre><code>struct point
+{ double x, y, z ; } ;
+
+double dist( point a, point b )
+{
+    return std::hypot( a.x - b.x, std::hypot( a.y - b.y, a.z - b.z ) ) ;
+}
+</code></pre>
+
+<p>
+hypotに3引数版のオーバーロードを追加すると、以下のように書ける。
+</p>
+
+<pre><code>
+std::hypot( a.x - b.x, a.y - b.y, a.z - b.z ) ;
+</code></pre>
+
+<p>
+論文では、Variadic templatesを利用した任意個の引数を取る汎用的な関数の提案も考えたが、そのような関数の利用例が明らかではないとして、今回の提案では3引数版のみにとどめたという。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0031r0.html">P0031R0: A Proposal to Add Constexpr Modifiers to reverse_iterator, move_iterator, array and Range Access</a>
+</h2>
+
+<p>
+array, reverse_iterator, move_iteratorをconstexprに対応させる提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0032r0.pdf">P0032R0: Homogeneous interface for variant, any and optional</a>
+</h2>
+
+<p>
+現在提案されているvariant, any, optionalには、機能は同じだがメンバー名や引数などが異なるメンバーがあるので、統一を図る。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0033r0.html">P0033R0: Re-enabling shared_from_this</a>
+</h2>
+
+<p>
+現行のenable_shared_from_thisの文面では、挙動が明確に規定されていないコードが存在してしまう。
+</p>
+
+<p>
+enable_shared_from_thisは、shared_ptrで管理する型の基本クラスとすることで、shared_from_thisというメンバー関数を追加できる。このメンバー関数を呼び出すと、そのオブジェクトを所有している既存のshared_ptrが返される。以下のように使える。
+</p>
+
+<pre><code>// CRTPとして使う
+struct X : public std::enable_shared_from_this&lt;X&gt;
+{ } ;
+
+int main()
+{
+    auto sp1 = std::make_shared&lt;X&gt;() ;
+
+    // sp1と所有権を共有するshared_ptrが得られる
+    auto sp2 = sp1-&gt;shared_from_this() ; 
+}
+</code></pre>
+
+<p>
+ところが、現行の文面では、以下のようなコードの挙動が未定義になってしまう。
+</p>
+
+<pre><code>int main()
+{
+  struct X : public enable_shared_from_this&lt;X&gt; { };
+  auto xraw = new X;
+  shared_ptr&lt;X&gt; xp1(xraw);  // #1
+  { // 破棄時にdeleteしないので安全
+    shared_ptr&lt;X&gt; xp2(xraw, [](void*) { });  // #2
+  }
+  xraw-&gt;shared_from_this();  // #3
+}
+</code></pre>
+
+<p>
+shared_from_thisの前提条件として、オブジェクトを所有するshared_ptrのオブジェクトが存在しなければならない。このコードでは、存在している。問題は、複数のshared_ptrが独立して存在しているということだ。ただし、後から構築される#2のオブジェクトのデリーターは何もしないので、このコードは二重にdeleteするという問題はない。すると、このコードは合法なのだろうか。
+</p>
+
+<p>
+しかし、合法だとして、この場合はどちらのshared_ptrと所有権を共有するオブジェクトが返るのだろうか。#1だろうか、#2だろうか。
+</p>
+
+<p>
+#1が返る場合、#2のshaared_ptrの構築時には、xraw-&gt;_weak_thisがアップデートされないことになる。#2が返る場合、アップデートされる。
+</p>
+
+<p>
+問題は、shared_from_thisのpostconditionに照らし合わせると、どちらの挙動もweak_ptrがらみのpostconditionを満たせないので、規格上挙動が規定されていない。
+</p>
+
+<p>
+さて、既存の実装であるDinkumware, GNU, LLVMの実装は、いずれも#2が_weak_thisをアップデートする挙動になっている。これは設計上意図的なものではない。
+</p>
+
+<p>
+一方、Boostの実装では、ユーザーの意見を取り入れた結果、#2は_weak_thisをアップデートしない挙動に意図的にしている。つまり、一番最初に作られたshared_ptrと所有権を共有するshared_ptrを返す。
+</p>
+
+<p>
+現在、既存の実装の挙動に依存したコードはなく、Boostの挙動の方が実際の需要があるため、Boostの挙動にあわせる変更を提案している。
+</p>
+
+<p>
+また、この提案では、weak_ptrを得るweak_from_thisの追加も提案されている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0034r0.html">P0034R0 – Civil Time</a>
+</h2>
+
+<p>
+軽量な日付ライブラリの提案。
+</p>
+
+<p>
+Boost. Date Timeはあまりにも巨大すぎるし、作者が標準ライブラリに追加することに興味を示していないので、軽量な日付ライブラリを提案している。
+</p>
+
+<p>
+このライブラリは、グレゴリオ暦以前の日付はtime_tのオーバーフロー、time_t以上の精度でうるう秒を扱うことは考慮しない。タイムゾーンが使える。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0035r0.html">P0035R0: Dynamic memory allocation for over-aligned data</a>
+</h2>
+
+<p>
+待望のオーバーアライメントしてくれる確保関数の提案。
+</p>
+
+<p>
+C++の現行規格では、確保関数はオーバーアライメントする必要はない。例えば、floatのアライメントが4バイトで、SIMD命令の都合上、floatの配列を16バイトアライメントしたいとする。以下のようなコードを書いても、16バイトアライメントされる保証はない。
+</p>
+
+<pre><code>class alignas(16) float4 {
+	float f[4];
+};
+float4 *p = new float4[1000];
+</code></pre>
+
+<p>
+C++の規格上は4バイトアライメントされれば十分なのだ。オーバーアライメントは規格上必須ではない。
+</p>
+
+<p>
+シグネチャは以下のようになる。
+</p>
+
+<pre><code>namespace std {
+    enum class align_val_t: size_t;
+}
+void* operator new(std::size_t size, std::align_val_t alignment);
+void* operator new(std::size_t size, std::align_val_t alignment,
+			const std::nothrow_t&amp;) noexcept;
+void operator delete(void* ptr, std::align_val_t alignment) noexcept;
+void operator delete(void* ptr, std::align_val_t alignment,
+			const std::nothrow_t&amp;) noexcept;
+void* operator new[](std::size_t size, std::align_val_t alignment);
+void* operator new[](std::size_t size, std::align_val_t alignment,
+			const std::nothrow_t&amp;) noexcept;
+void operator delete[](void* ptr, std::align_val_t alignment) noexcept;
+void operator delete[](void* ptr, std::align_val_t alignment,
+			const std::nothrow_t&amp;) noexcept;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0036r0.pdf">P0036R0: Unary Folds and Empty Parameter Packs (Revision 1)</a>
+</h2>
+
+<p>
+folding expressionに空のパラメーターパックを指定した時のフォールバックを、operator &amp;&amp;, operator ||, operator , だけに留める提案。
+</p>
+
+<p>
+デフォルトで0が変えるとまずい場合がある。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0037r0.html">P0037R0: Fixed_Point_Library_Proposal</a>
+</h2>
+
+<p>
+固定少数点ライブラリの提案。
+</p>
+
+<pre><code>template &lt; class ReprType, int Exponent &gt;
+class fixed_point ;
+</code></pre>
+
+<p>
+ReprTypeは内部でつかう整数型で、Exponentは、ビットを指定された数だけシフトする。fixed_pointの精度は、pow(2, Exponent)であり、最小値と最大値は、pow(2, Exponent)にstd::numeric_limites&lt;ReprType&gt;::min()/max()を掛けた値になる。
+</p>
+
+<p>
+Exponentを指定するのは面倒だ。固定少数は、基数ビット数と少数ビット数を記述することで指定できる。プログラマーの多くはこの記述方法を好む。
+</p>
+
+<p>
+そこで、fixed_pointのエイリアスが用意される。
+</p>
+
+<pre><code>template &lt;unsigned IntegerDigits, unsigned FractionalDigits = 0, bool IsSigned = true&gt;
+    using make_fixed ;
+
+template &lt;unsigned IntegerDigits, unsigned FractionalDigits = 0&gt;
+    using make_ufixed ;
+</code></pre>
+
+<p>
+例えば、8bitの符号なしの固定少数で、基数と少数のビット数にそれぞれ4ビット割り当てたい場合は、
+</p>
+
+<pre><code>make_ufixed&lt;4, 4&gt; value{ 15.9375 } ;
+</code></pre>
+
+<p>
+32bit、符号あり、基数が2ビット、少数が29ビットにしたい場合は、
+</p>
+
+<pre><code>make_fixed&lt;2, 29&gt; value { 3.141592653 } ;
+</code></pre>
+
+<p>
+固定少数と組み込みの整数型は相互に明示的に変換できる。
+</p>
+
+<p>
+丸め誤差は発生する。
+</p>
+
+<pre><code>make_ufixed&lt;4, 4&gt;(.006) == make_ufixed&lt;4, 4&gt;(0)
+</code></pre>
+
+<p>
+このコードは丸められた結果trueとなり得る。
+</p>
+
+<p>
+整数に普通に使える演算子は固定少数にもオーバーロードされていて普通に使える。シフト演算子と比較演算子以外では、二項演算子は固定少数同士や、固定少数と他の演算型を組み合わせてオペランドに取れる。
+</p>
+
+<p>
+組み合わせが同じ固定少数型ではない場合、簡単なプロモーション風のルールによって、戻り値の型が決定される。
+</p>
+
+<ol>
+<li>どちらの実引数も固定少数の場合、大きなサイズの型が選ばれる。どちらか片方が符号付きならば、符号付きになる</li>
+<li>どちらかの実引数が浮動小数点数型の場合、結果の型は入力と同じかそれ以上大きい、最小の浮動小数点数型になる</li>
+<li>どちらかの実引数が整数型の場合、結果は他方の固定少数型になる</li>
+</ol>
+
+<p>
+例
+</p>
+
+<pre><code>make_ufixed&lt;5, 3&gt;{8} + make_ufixed&lt;4, 4&gt;{3} == make_ufixed&lt;5, 3&gt;{11};  
+make_ufixed&lt;5, 3&gt;{8} + 3 == make_ufixed&lt;5, 3&gt;{11};  
+make_ufixed&lt;5, 3&gt;{8} + float{3} == float{11};  
+</code></pre>
+
+<p>
+提案では、このプロモーションルールの理由を、挙動を簡単に推測できるためとパフォーマンス上の理由から、各ルールについて以下のように説明している。
+</p>
+
+<ol>
+<li>
+固定少数のみが使われていた場合に、最小の計算のみが行われることを保証する。
+</li>
+
+<li>
+型を混ぜた演算のプロモーションルールをまねた。固定少数の範囲から外れるようなexponentを持つ値も作り出せるようにし、浮動小数点数から整数へのコストのかかる変換を避ける
+</li>
+
+<li>
+入力として与えられた固定少数型を維持する。処理に重要なのは意図的に固定少数型である
+</li>
+</ol>
+
+<p>
+シフト演算子は右辺に整数型を取り、オーバーフロー、アンダーフローしない新しい型を返す。
+</p>
+
+<p>
+比較演算子は、プロモーションルールにしたがって入力を共通の型に変換した上で、比較して、結果をtrueかfalseで返す。
+</p>
+
+<p>
+符号付きと符号なしの固定少数のオーバーフローは、未定義の挙動となる。符号なしの整数型のオーバーフローの挙動が規定されている基本型とは異なる。
+</p>
+
+<pre><code>// オーバーフローの例
+make_fixed&lt;4, 3&gt;(15) + make_fixed&lt;4, 3&gt;(1)
+</code></pre>
+
+<p>
+アンダーフローが発生して精度が失われることは許容されている。
+</p>
+
+<pre><code>
+make_fixed&lt;4, 3&gt;(15) + make_fixed&lt;4, 3&gt;(1) ;
+</code></pre>
+
+<p>
+この結果は7になるが、これは許容されている。
+</p>
+
+<p>
+ただし、すべてのビットがアンダーフローによって失われた場合、その値は「フラッシュされた」状態になり、未定義の挙動となる。
+</p>
+
+<p>
+固定少数の精度を上下させるpromote/demote関数がある。これは、基数部と小数部のビット数をそれぞれ、2倍、1/2倍する。
+</p>
+
+<pre><code>// make_fixed&lt; 4, 4 &gt;
+promote( make_fixed&lt; 2, 2 &gt;(1) ) ;
+// make_fixed&lt; 2, 2 &gt;
+promote( make_fixed&lt; 4, 4&gt;(1) ) ;
+</code></pre>
+
+<p>
+オーバーフローを防ぐために精度を上げつつ計算する関数が用意されている。
+</p>
+
+<p>
+単項演算子としては、trunc_reciprocal, trunc_square, trunc_sqrt, promote_reciprocal, promote_square
+</p>
+
+<p>
+二項演算子としては、trunc_add, trunc_subtract, trunc_multiply, trunc_divide, trunc_shift_left, trunc_shift_right, promote_add, promote_sub, promote_multiply, promote_divide
+</p>
+
+<p>
+trunc_は、入力よりも大きくはない結果を返すが、exponent部分をオーバーフローを避けるために変更される。
+</p>
+
+<p>
+promote_は、オーバーフローとアンダーフローが起きないほど十分に大きな型を結果として返す
+</p>
+
+<p>
+_multiplyと_squareは、64bit型には提供される保証がない。
+</p>
+
+<p>
+_multiplyと_squareは、入力が最小負数である場合、未定義の挙動となる。
+</p>
+
+<p>
+_squareは符号なし型を返す
+</p>
+
+<p>
+_divideと_reciprocalは、ゼロ除算チェックは行わない
+</p>
+
+<p>
+trunc_shift_は、最初の入力と同じ型を返す。
+</p>
+
+<p>
+関数はまだ追加される余地がある。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0038r0.html">P0038R0: Flat Containers</a>
+</h2>
+
+<p>
+Boost.ContainerにあるFlat Associative Container(flat_map, flat_set, flat_multimap, flat_multiset)の追加。
+</p>
+
+<p>
+フラット連想コンテナーとは、従来の連想コンテナーであるmapやsetのように、キーと対応する値をもっていて、キーによって値を高速に検索できる特性を持つ。従来のノードベースの連想コンテナーと違い、連続したストレージ上に要素が確保される。
+</p>
+
+<p>
+実装方法は2つある。ひとつは要素を常にキーでソート済みにしておくこと。もうひとつはヒープ構造を用いること。Boostの実装はソートを使っている。ヒープを使った実装はキャッシュのローカル性を保ちやすいので、理論上優れた実装であるとされ、会議では関心が高かったが、実装経験が少ないため、さらなる検証が必要であるとしている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0039r0.html">P0039R0: Extending raw_storage_iterator</a>
+</h2>
+
+<p>
+raw_storage_iteratorを改良する提案。
+</p>
+
+<p>
+raw_storage_iteratorにムーブ代入演算子を追加し、ムーブに対応させる。
+</p>
+
+<p>
+raw_storage_iteratorを作るのは面倒なので、factory関数を追加する。
+</p>
+
+<pre><code>template&lt;class T&gt;
+auto make_storage_iterator( T&amp;&amp; iterator)
+{
+ return raw_storage_iterator&lt;std::remove_reference&lt;T&gt;::type, decltype(*iterator)&gt;( std::forward&lt;T&gt;(iterator));
+}
+</code></pre>
+
+<p>
+raw_storage_iteratorの目的は、主にplacement newで使うためだが、placement newの文法はraw_storage_iteratorをサポートしていない。これを直接サポートする。
+</p>
+
+<pre><code>template&lt;class T, class U&gt;
+void* operator new(size_t s, raw_storage_iterator&lt;T,U&gt; it) noexcept
+{
+ return ::operator new(s, it.base() );
+}
+
+template&lt;class T, class U&gt;
+void operator delete ( void* m, raw_storage_iterator&lt;T,U&gt; it) noexcept
+{
+ return ::operator delete(m, it.base() );
+}
+</code></pre>
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務中に書かれた。来月は有給を取りまくる必要のある事情がある。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
