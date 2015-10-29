@@ -1,0 +1,409 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書のレビュー: P0040R0-P0048R0 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/10/c-p0040r0-p0048r0.html">C++標準化委員会の文書のレビュー: P0040R0-P0048R0</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0040r0.html">P0040R0: Extending memory management tools</a>
+</h2>
+
+<p>
+イテレーターを取り、イテレーターの範囲の未初期化のストレージに対して、構築や破棄をする関数destroy, uninitialized_move, uninitialized_move_n, uninitialized_value_construct, uninitialized_default_constructの追加。
+</p>
+
+<p>
+たとえば、destroyは以下のように実装できる。
+</p>
+
+<pre><code>template &lt; typename ForwardIterator &gt;
+void destroy( ForwardIterator begin, ForwardIterator end )
+{
+    using type = iterator_traits&lt;ForwardIterator&gt;::value_type ;
+    while ( begin != end )
+    {
+        begin-&gt;~type() ;
+        ++begin ;
+    }
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0041r0.html">P0041R0: Unstable remove algorithms</a>
+</h2>
+
+<p>
+unstable_removeアルゴリズムの提案。
+</p>
+
+<p>
+従来のeraseは、消した要素の穴を、後続の要素をシフトさせることによって埋める必要がある。これは、要素の順序を変えない安定した動作が要求されているためである。
+</p>
+
+<pre><code>std::vector&lt;int&gt; v = { 1, 2, 3, 4, 5, 6, 7, 8, 9 } ;
+
+// v = { 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+std::remove( begin(v), end(v), 2 ) ;
+// v = { 1, 3, 4, 5, 6, 7, 8, 9, ? }   
+</code></pre>
+
+<p>
+要素を一つづつコピー/ムーブして穴を埋める動作は、要素の具体的な型にもよるが、コストがかかる。
+</p>
+
+<p>
+ここで、もし要素の順序を変える不安定な動作が許されるのであれば、末尾の要素で埋めるなどして、コピー/ムーブの回数を減らせる。
+</p>
+
+<pre><code>// v = { 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+std::unstable_remove( begin(v), end(v), 2 ) ;
+// v = { 1, 9, 3, 4, 5, 6, 7, 8, ? }   
+</code></pre>
+
+<p>
+そこで、unstable_removeの提案となる。他にも、unstable_remove_if, unstable_remove_copy, unstable_remove_copy_ifも追加される。
+</p>
+
+<p>
+提案では拡張案として、メンバー間数版であるeraseにもunstable_eraseを加える案が考察されている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0042r0.pdf">P0042R0: std::recover: undoing type erasure</a>
+</h2>
+
+<p>
+function, any, variant, optionalなど、C++にはtype erasureを使ったライブラリが多い。問題は、ライブラリごとに元の型を得る方法がバラバラで、全く統一されていないということだ。たとえば、functionはtargetメンバー関数を使うし、anyはany_castというフリー関数を使う。variantはstd::getをオーバーロードしていて、std::optionalは、型が入っていないとbad_optional_access例外を投げる。
+</p>
+
+<p>
+今後、type erasureを使うライブラリが増えるたびに、bad_library_name_accessなる例外クラスが増えるのでは、ますます標準ライブラリを肥大化させるだけだ。元の型を得るという同じような処理は、共通の汎用的な方法で扱えるべきだ。
+</p>
+
+<p>
+そのために、この提案では、ErasureClassコンセプトを定義し、type erasureを行うクラスが実装すべきメンバーの要件を定義している。
+</p>
+
+<p>
+そして、ErasureClassコンセプトを使って元の型を取り出すフリー関数recoverが追加される。
+</p>
+
+<pre><code>void f() { }
+
+int main()
+{
+    function&lt; void () &gt; a = &amp;f ;
+    std::experimantal::any b = &amp;f ;
+
+    auto c = a-&gt;target() ;
+    auto d = any_cast&lt; void (*)() &gt;( b ) ;
+}
+</code></pre>
+
+<p>
+このようにバラバラの方法で取り出していたのが、
+</p>
+
+<pre><code>auto c = std::recover&lt;void (*)()&gt;(a) ; 
+auto d = std::recover&lt;void (*)()&gt;(b) ; 
+</code></pre>
+
+<p>
+このように統一化された方法で取り出すことができるようになる。型チェックに失敗すると、bad_recovery_access例外が投げられる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0043r0.pdf">[PDF注意] P0043R0: Function wrappers with allocators and noexcept</a>
+</h2>
+
+<p>
+functionをアロケーターに対応させるにあたって、type erasureを使ってアロケーターを格納する方法を採用した。これは様々な問題を生む。たとえばnoexceptにできなくなる。
+</p>
+
+<p>
+そこで、functionの挙動変更と、ひとつのアロケーターオブジェクトを要素であるfunctionに渡すfunction_containerを提案している。
+</p>
+
+<p>
+文章がやたらと不親切で読みにくい上に、提案している機能が不必要に複雑で、一般人が使いこなせるとは思えない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0044r0.pdf">[PDF注意] P0044R0: unwinding_state: safe exception relativity</a>
+</h2>
+
+<p>
+uncaught_exceptionsをdeprecatedさせて、新たにunwinding_stateを導入する提案。
+</p>
+
+<p>
+uncaught_exceptionは、ハンドルされていない例外が存在するかどうかをbool値で返す。つまり、例外がthrowされたことによるstack unwindingが発生しているかどうかを調べることができる。これは、デストラクターの挙動を変えるのに使える。
+</p>
+
+<pre><code>struct X
+{
+    ~X()
+    {
+        if ( std::uncaght_exception() )
+        {
+            // 通常の破棄
+        }
+        {
+            // do_somethingが例外を投げたので
+            // stack unwinding中
+        }
+    }
+} ;
+
+int main()
+{
+    try {
+        X x ;
+        do_something() ;
+    } catch ( ... ) { }
+}
+</code></pre>
+
+<p>
+問題は、stack unwindingの最中にも、例外スコープは作成されるということだ。
+</p>
+
+<pre><code>struct Y
+{
+
+    ~Y()
+    {
+        if ( std::uncaught_exceptions() )
+        {
+            try {
+                X x ;
+                do_recovery_thing() ;
+            } catch( ... ) { }
+        }
+    }
+}
+</code></pre>
+
+<p>
+この場合は、通常のtryスコープを抜けたxの破棄であっても、xのデストラクターはstack unwinding中であると認識してしまう。
+</p>
+
+<p>
+これを防ぐために、uncaught_exceptionsが追加された。これは、現在ハンドルされていない例外の数をint値で返す。
+</p>
+
+<p>
+問題は、未ハンドルの例外の数を返すということは、現在の未ハンドルの例外数をどこかに保存しておいて、それを比較しなければならないということだ。
+</p>
+
+<pre><code>struct X
+{
+private :
+    static int e ; // 別のところで書き込まれる
+public :
+    X() : e( std::uncaught_exceptions() ) { }
+
+    ~X()
+    {
+        if ( std::uncaught_exceptions() == e )
+        {
+            // 通常の破棄
+        }
+        else
+        {
+            // stack unwinding中
+        }
+    }
+
+} ;
+</code></pre>
+
+<p>
+uncaught_exceptionsを正しく使うには、このように例外が発生する前に例外数を記録しておいて、例外が発生しているかもしれない箇所で、前回の例外数と異なるかどうかを比較しなければならないのだ。
+</p>
+
+<p>
+そもそも、例外数を返すというのは、Itanimu ABIに例外数を記録するためのグローバル変数があるからだ。他の実装も考えられる。例えば、ARM EHABIは、現在未ハンドルの例外をリンクリストで管理することを規定している。
+</p>
+
+<p>
+現在の例外数を取得することに需要はない。需要は、現在stack unwinding中かどうかを判定することだ。そのため、例外ハンドルの状況が変わったかどうかだけを調べる方法があればよい。
+</p>
+
+<p>
+そこで、unwindling_stateクラスが提案されている。このクラスは、非staticメンバーのガードオブジェクトとして使うことができる。
+</p>
+
+<pre><code>struct X
+{
+private :
+    std::unwinding_state s ;
+public :
+
+    ~X()
+    {
+        if ( 1s )
+        {
+            // 通常の破棄
+        }
+        else
+        {
+            // stack unwinding中
+        }
+    }
+
+} ;
+</code></pre>
+
+<p>
+unwinding_stateのコンストラクターは、現在のstack unwindingの状態を記録する。operator boolは、現在のunwindingがオブジェクト構築時に保存したunwindingと同一かどうかをboolで返す。
+</p>
+
+<p>
+operator boolはexplicitとなっているので、lvalueとして使わなければならない。以下のような誤った記述はできない。
+</p>
+
+<pre><code>if ( unwinding_state() )
+</code></pre>
+
+<p>
+コピーやムーブは普通にできる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0045r0.pdf">[PDF注意] P0045R0: Overloaded and qualified std::function</a>
+</h2>
+
+<p>
+オーバーロード可能なfunctionの提案。既存のstd::functionにVariadic Templatesで複数のシグネチャを指定可能にするというもの。
+</p>
+
+<p>
+以下のようなコードが書けるようになる。
+</p>
+
+<pre><code>int main()
+{
+    std::function&lt; void ( int ) , void ( std::string ) &gt; f ;
+
+    f = []( int ) { } ;
+    f = []( std::string ) { } ;
+
+    f = []( auto ) { } ;
+
+    f( 0 ) ;
+    f( std::string("hello") ) ;
+}
+</code></pre>
+
+<p>
+これを実現するために、target型ごとにグローバルなtupleを作ってディスパッチさせる、いわゆるvtableを実装している。正直ついていけない。
+</p>
+
+<p>
+しかし思うのだが、コア言語にあるvtableが非効率的なので独自vtableを自作しましたというのはなんだか本末転倒ではないか。もちろん、通常の関数ポインターまで含めたtype erasureを、本来その目的に設計されていなかった組み込みvtableで実装するので、そういう非効率さが発生するのだが。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0046r0.html">P0046R0: Change is_transparent to metafunction</a>
+</h2>
+
+<p>
+連想コンテナーでHeterogeneous lookupを実現するために、比較関数にis_transparentというネストされた型があるかどうかをヒントにしてきたが、これは使いにくいので、permits_heterogenous_lookupというtraitsを追加する提案。
+</p>
+
+<p>
+正直すごく使いづらい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0047r0.pdf">P0047R0: Transactional Memory (TM) Meeting Minutes 2015/06/01-2015/09/21</a>
+</h2>
+
+<p>
+トランザクショナルメモリー会議の議事録
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0048r0.pdf">P0048R0: Games Dev/Low Latency/Financial Trading/Banking Meeting Minutes 2015/08/12-2015/09/23</a>
+</h2>
+
+<p>
+ゲーム開発、低レイテンシー、アルゴリズム取引、銀行に関する会議の議事録。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
