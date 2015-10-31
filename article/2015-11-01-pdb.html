@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: MicrosoftがPDBフォーマットの構造体定義のソースコードを公開 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/11/microsoftpdb.html">MicrosoftがPDBフォーマットの構造体定義のソースコードを公開</a></h1>
+
+<p>
+<a href="https://github.com/Microsoft/microsoft-pdb">Microsoft/microsoft-pdb</a>
+</p>
+
+<p>
+MicrosoftがPDBファイルを扱うのに使っているMSVCのソースコードの一部をMITライセンスで公開している。ソースコード、cvinfo.hの中身の大半は、構造体定義のようだ。
+</p>
+
+<blockquote>
+<p>
+このレポジトリは、MicrosoftにおけるPDB(プログラムデータベース) <a href="https://msdn.microsoft.com/en-us/library/windows/desktop/aa363368(v=vs.85).aspx">シンボルファイル</a>フォーマットの情報を載せている。
+</p>
+
+<p>
+PDBフォーマットはこれまで公式のドキュメント化されておらず、他のコンパイラーやツールセット（例えばClang/LLVM）がWindows上で動作したり、Visual Studioデバッガーとのやり取りを困難にしていた。MicrosoftはオープンソースコンパイラーがWindowsプラットフォームで動作するのを支援する。
+</p>
+
+<p>
+このレポジトリの中身の大半は、VC++コンパイラーツールセットにおける実際のソースコードである。ソースコードは究極のドキュメントである(^_^;)。役に立てば幸いだ。もし、他の情報が必要であれば、<a href="https://github.com/microsoft/microsoft-pdb/issues">Issues</a>を投げて知らせてもらいたい。
+</p>
+</blockquote>
+
+<p>
+シンボルファイルフォーマットが今まで公式に非公開だったことに驚いている。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
