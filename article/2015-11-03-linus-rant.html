@@ -1,0 +1,193 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: Linus Torvals、クソコードにブチギレ 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/11/linus-torvals.html">Linus Torvals、クソコードにブチギレ</a></h1>
+
+<p>
+<a href="http://lkml.iu.edu/hypermail/linux/kernel/1510.3/02866.html">Linux-Kernel Archive: Re: [GIT] Networking</a>
+</p>
+
+<p>
+Linus TorvalsがGCCの独自拡張を使った整数演算のオーバーフロー検知コードがあまりにクソすぎるためにブチギレしている。
+</p>
+
+<blockquote>
+<p>
+On Wed, Oct 28, 2015 at 3:32 PM, David Miller &lt;davem@xxxxxxxxxxxxx&gt; wrote:
+</p>
+
+<blockquote>
+リリースサイクルのこの後半に入れるのはちょっと怖いと思われるかもしれないが、小規模なドライバーの修正をあちこちに施しただけだよ。
+</blockquote>
+
+<p>
+マジかよテメーら、こりゃクソだ。
+</p>
+
+<p>
+コンフリクトはGCCの新しいクソヘッダーファイルのせいなんだが、俺がブチギレてるのはそこじゃなくてこいつがクソなせいだ。
+</p>
+
+<p>
+net/ipv6/ip6_output.cの以前のコードはこれだ。
+</p>
+
+<pre><code>mtu -= hlen + sizeof(struct frag_hdr);
+</code></pre>
+
+<p>
+そして、こいつが新しい、「改良された」コードだ。最近流行りのコンパイラーマジックな組み込み機能を使っていて、その機能がない場合に備えて泥臭いラッパー関数を使ってる。
+</p>
+
+<pre><code>if (overflow_usub(mtu, hlen + sizeof(struct frag_hdr), &amp;mtu) ||
+mtu &lt;= 7)
+goto fail_toobig;
+</code></pre>
+
+<p>
+この上記のコードに対して、
+</p>
+
+<p>
+(a) 読みやすい
+</p>
+
+<p>
+(b) 効率的(しかもコンパイラーマジックまでサポートしてやがるぜ)
+</p>
+
+<p>
+(c) とても安全
+</p>
+
+<p>
+なんて考える奴は無能だしこの場にいる資格すらねぇ。
+</p>
+
+<p>
+上記のコードはクソだ。しかもクソコードを生成しやがる。見た目がクソでしかも不必要なクソだ。
+</p>
+
+<p>
+このコードは、簡単に、たった一つの、わかりやすい条件分岐だけで書けるし、しかもコンパイラーはもっとマシなコードを吐き出す上に、コードは見た目にマシでわかりやすい。なんでこうしないんだ。
+</p>
+
+<pre><code>if (mtu &lt; hlen + sizeof(struct frag_hdr) + 8)
+goto fail_toobig;
+mtu -= hlen + sizeof(struct frag_hdr);
+</code></pre>
+
+<p>
+これは同じ行数だし、何をするか誰も知らんキチガイみたいなヘルパー関数使う必要がないし、実際に何をするか明白だ。
+</p>
+
+<p>
+こっちの明白版の方が読むのも簡単だし理解するのも簡単だ。反論はあるか？
+</p>
+
+<p>
+いやマジで、なんで2つも条件分岐を使うマヌケなコードと、ピカピカの真新しいコンパイラーサポートを必要とする非標準の関数を使って、まともに見えないコードでクソコードを吐かせる必要があるのか、誰か教えてくれよ。
+</p>
+
+<p>
+他では使う必要がないピッカピカのこの関数は、単にコンパイラーがシコってるだけだろ。
+</p>
+
+<p>
+ああ、それから、"hlen + xyz"という式がオーバーフローしたら、やっぱりオーバーフローは起こるだろ。だが、"overflow_usub()"コードにも同じ問題がある。というわけでその心配をしているのならば、そもそも最初から間違ってるってこった。
+</p>
+
+<p>
+この手の完全にアホくさいクソが存在する理由がわからん。
+</p>
+
+<p>
+いや、この完全にキチガイな上にrc7というこの時期にコンフリクトを起こすようなものを俺がpullするわけがねーし、読めないほどクソになる理由すらないんだが、どういうこった？
+</p>
+
+<p>
+このコードは、新しい"overflow_usub()"コードを使いたいために設計されたかのように思える。関数を使う言い訳としてな。
+</p>
+
+<p>
+頭イカれてる言い訳にすらならんぞ。
+</p>
+
+<p>
+申し訳ございませんが、こちらと致しましてもこのようなよろしくないコードのために好ましくないインターフェースを追加するわけにはまいりません。
+</p>
+
+<p>
+まあ、これがネットワークレイヤーの仲にいたならば、俺も気が付かなかっただろうよ。だが俺が気づいたからには、こいつは絶対pullしねぇ。いいかお前らみんなに知っていてもらいたいんだが、こういうコードは絶対受け付ける気がない。こういうコードが最近流行りのオーバーフロー検出を使っているから「安全」だとか「セキュア」だとか考える奴は、場違いにも程があるし、冗談にしても笑えねぇ。
+</p>
+
+<p>
+このクソが成し遂げた唯一のことは、まともな人間が読めないコードを作り出しただけだ。
+</p>
+
+<p>
+取り除け。俺はこんなクソをもう二度と見たくねぇ。
+</p>
+
+<p>
+Linus。
+</p>
+
+</blockquote>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
