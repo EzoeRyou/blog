@@ -1,0 +1,171 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: GoogleのエンジニアがAmazonで猛烈にUSBケーブルをレビューしている 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2015/11/googleamazontype-c-usb.html">GoogleのエンジニアがAmazonで片っ端からType-C USBケーブルをレビューしている</a></h1>
+
+<p>
+<a href="http://www.amazon.com/gp/pdp/profile/A25GROL6KJV3QG/ref=cm_cr_rdp_pdp">Amazon.com: Profile for Benson Leung</a>
+</p>
+
+<p>
+GoogleのChromebook PixelのエンジニアであるBenson Leungが、アマゾンで売られているType-C対応を謳っているUSBケーブルとアダプターを片っ端からレビューしている。
+</p>
+
+<p>
+なぜそんなことをしているのか。Googleの製品であるChromebook PixelはUSB Type-Cによる充電ができるが、巷に出回っている自称USB Type-C対応の製品の多くが、USB規格に違反していたり、十分な性能がない欠陥品だったりするからだ。
+</p>
+
+<p>
+そもそも、USB Type-C規格は、3A, 5V, 15Wの電力供給ができる。3Aの電力供給は、途中の経路がすべてUSB Type-C対応の製品である場合に限る。例えば、途中にUSB 2.0などのレガシーケーブルを挟む場合は、USB Type-C規格準拠のケーブルは、それを検知し、3Aが供給できない状態にあることを通知するようになっている。
+</p>
+
+<p>
+問題は、世の中の自称USB Type-C対応のUSBケーブルとアダプターには、Type-C規格で定められた方法で3A対応を謳いながら、実際には3Aもの電流を流せない粗悪な製品が多い。
+</p>
+
+<p>
+そのような粗悪なUSBケーブルを使って充電を行うと、充電ができないか、充電はできるがUSBケーブル、ハブ、USBホストが損傷する危険がある。
+</p>
+
+<p>
+以下はそのような粗悪な製品のレビューの一例である。
+</p>
+
+<blockquote>
+<p>
+<a href="http://www.amazon.com/review/R3K356NQ7PPBI4/ref=cm_cr_rdp_perm">Amazon.com: Benson Leung's review of For the Christmas Gift !Monba Type c to US...</a>
+</p>
+
+<p>
+私はBenson、GoogleでChromebook PixelとPixel C開発部に所属している。このケーブルを購入して、様々なUSB micro-b typeのケーブルを使ってChromebook Pixelで検証してみたが、このアダプターはChromebook Pixelを充電できない。
+</p>
+
+<p>
+詳しく調べてみると、このケーブルはUSB Type-C規格バージョン1.1に正しく準拠していない。規格はusb.orgのdevelopers/usbtypecにある。
+</p>
+
+<p>
+このアダプターがChromebook Pixel 2015を充電dけいないのは、アダプターがC-Cラインを浮かせているからだ。規格ではRpがvbusをpullupしてケーブルがレガシーアダプターかケーブルであることを通知するよう規定している。
+<p>
+
+<p>
+"USB Type-C Specification Release 1.1.pdf"という名前のドキュメントのセクション4.11と以下の注釈を参照されたし。
+</p>
+
+<p>
+1. USB Type-CからUSB 3.1 Standard-Aケーブル、USB Type-CからUSB 2.0 Standard-Aケーブル、USB Type-CからUSB 2.0 Micro-Bアダプター、USBホストに接続されているUSB Type-C captiveケーブルに接続されているUSB Type-Cプラグは、56 kΩ ± 5% を使うことによって、V BUSとGNDにおけるIR低下に対応すること。
+</p>
+
+<p>
+この製品はUSB Type-CをUSB 2.0 Micro-Bに接続するものであるから、製造者は56kΩの抵抗をpullupとして使わなければならない。このアダプターは使っていない。
+</p>
+
+<p>
+Pixelと互換性のあるUSB Type-C規格に準拠したUSB Type-Cアダプターを探しているならば、このアダプターを使ってはならない。
+</p>
+
+</blockquote>
+
+<p>
+ようやくまともな製品を発見した時のレビューは、記述に義憤が感じられる。
+</p>
+
+<blockquote>
+<p>
+<a href="http://www.amazon.com/review/R1N75NIR0UU1G1/ref=cm_cr_rdp_perm">Amazon.com: Benson Leung's review of FRiEQ Hi-speed USB 3.1 Type C Cable - 3.3f...</a>
+</p>
+
+<p>
+これは私がアマゾンで発見できた最初のUSB規格準拠のSuperSpeedケーブルだ。
+</p>
+
+<p>
+<a href="http://www.amazon.com/review/R2W2ODOBXHBD25/ref=cm_aya_cmt?ie=UTF8&ASIN=B010VFFU1W#wasThisHelpful">Amazon.com: Benson Leung's review of Type C, iOrange-E&trade; 6.6 Ft (2M) Braid...</a>
+</p>
+
+<p>
+このiOrange-E USB Type-AからType-Cへのケーブルは、サードパーティ（GoogleやAppleから提供されているものではないという意味）によって製造されたUSB製品における私の期待を上回るものである。
+</p>
+
+<p>
+コネクターの品質はとても良い...略
+</p>
+
+<p>
+技術面としては、このケーブルはUSB Type-C規格バージョン1.1に準拠している。これは正しくvbusに56kΩ pullupによって、正しくレガシーUSBケーブルのType-Cであると通知している。充電用としては、このケーブルはBC 1.2充電速度に対応している。最大で2.4A 5Vだ。
+</p>
+
+<p>
+アマゾンで買える他のケーブルは、3A充電を対応していると主張しているが、USB Type-C規格に準拠しておらず、3A充電に対応しているかどうかを識別する抵抗を使わず、3Aに対応しないType-Aコネクターがもう一方に接続されているかどうかを確かめるすべがない。3A充電対応を謳うA-C変換ケーブルはすべて、レガシーUSBハブ、PC,充電器を破損する恐れがある。このiOrange-Eのケーブルは正しく規格に従っているため、その恐れはない。
+</p>
+
+<p>
+さて、まとめると、これはいいケーブルだ。ようやくType-C規格に準拠したサードパーティケーブルが見つかった！
+</p>
+</blockquote>
+
+<p>
+調査には以下の機器を使っているらしい。
+</p>
+
+<p>
+<a href="https://www.chromium.org/chromium-os/twinkie">USB-PD Sniffer - The Chromium Projects</a>
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
