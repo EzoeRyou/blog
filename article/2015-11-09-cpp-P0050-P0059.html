@@ -1,0 +1,635 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書: P0050R0-P0059R0 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/11/c-p0050r0-p0059r0.html">C++標準化委員会の文書: P0050R0-P0059R0</a></h1>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0050r0.pdf">[PDF] P0050R0: C++ generic match function</a>
+</p>
+
+<p>
+variantやoptionalなど、type erasureを使って複数の型を格納するsum typeは、それぞれが独自のvisitorインターフェースを提供している。例えば、std::experimantal::variantはvisitを、Boost.variantはapply_visitorを提供している。
+</p>
+
+<p>
+ライブラリごとに異なる方法で要素にアクセスするのは汎用的ではない。そこで、この提案では、汎用的にtype erasureされた要素にアクセスできるmatch関数テンプレートを提案している。
+</p>
+
+<p>
+matchは以下のように宣言されている。
+</p>
+
+<pre><code>template &lt;class R, class F&gt;
+R match(ST const&amp;, F&amp;&amp; );
+</code></pre>
+
+<p>
+戻り値の型Rがないバージョンもある。
+</p>
+
+<p>
+matchはライブラリによるcustomization pointであり、ライブラリが対応させる。
+</p>
+
+<p>
+たとえば、Boost.variantをmatchに対応させる場合は、以下のような実装になる。
+</p>
+
+<pre><code>namespace boost {
+template &lt;class R, class F, class ...Ts &gt;
+R match(variant&lt;Ts...&gt; const&amp; v, F&amp;&amp; f)
+{
+    return apply_visitor(std::forward&lt;F&gt;(f), v); }
+}
+</code></pre>
+
+<p>
+std::variantでvisitを使うには、以下のように書く。
+</p>
+
+<pre><code>std::experimantal::variant&lt; int, double &gt; a = 2 ;
+std::experimental::visit( []( auto x ) { }, a ) ;
+</code></pre>
+
+<p>
+これをmatchで書き直すと、以下のようになる。
+</p>
+
+<pre><code>std::experimental::variant&lt; int, double &gt; a = 2 ;
+std::experimental::match( a, []( auto x ) { } ) ;
+</code></pre>
+
+<p>
+variantのvisitがvisitorを先に書くのに対し、matchは後に書く。
+</p>
+
+<p>
+また、P0051が提案するoverloadライブラリを使うと、以下のように書くこともできる。
+</p>
+
+<pre><code>std::experimental::match( a, overload( 
+    []( int x ) { },
+    []( double x ) { } ) ;
+</code></pre>
+
+<p>
+複数のsum typeに対するvisitorも書ける。
+</p>
+
+<pre><code>std::experimental::variant&lt;int, X&gt; a = 2;
+std::experimental::variant&lt;int&gt; b = 2;
+std::experimental::visit(overload(
+    [](int i, int j )
+    {
+    },
+    [](auto i, auto j )
+    {
+        assert(false);
+    }
+   ), a, b);
+</code></pre>
+
+<p>
+現在、戻り値の型の決定方法、customization pointとしてどの関数を洗濯するかmatchより既存のvisitの方がわかりやすいか、引数の順序などの議論があるらしい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0051r0.pdf">[PDF注意] P0051: C++ generic overload function</a>
+</h2>
+
+<p>
+選択した関数オブジェクト群を保持する関数オブジェクトを返し、呼び出すとオーバーロード解決して最適関数を呼び出してくれるoverload関数テンプレートの提案。
+</p>
+
+<pre><code>auto o = overlord(
+    []( int ) { },
+    []( double ) { },
+    []( std::string ) { } ) ;
+
+o( 0 ) ; // int
+o( 0.0 ) ; // double
+o( "hello" ) ; // std::string
+<code></pre>
+
+<p>
+簡易的な実装は以下の通り。
+</p>
+
+<pre><code>template &lt; typename ... Functors &gt;
+struct overloader ;
+
+template &lt; &gt;
+struct overloader &lt; &gt;
+{
+    void operator () () { }
+} ;
+
+template &lt; typename Functor0, typename ... Functors &gt;
+struct overloader&lt; Functor0, Functors ... &gt;
+    : Functor0, overloader&lt; Functors ... &gt;
+{
+    overloader( Functor0 &amp;&amp; functor0, Functors &amp;&amp; ... functors )
+        : Functor0( std::forward&lt;Functor0&gt;(functor0) ),
+          overloader&lt; Functors ... &gt;( std::forward&lt;Functors&gt;( functors ) ... )
+    { }
+
+    using Functor0::operator () ;
+    using overloader&lt; Functors ... &gt;::operator () ;
+} ;
+
+template &lt; typename ... Functors &gt;
+overloader &lt; Functors ... &gt;
+overload( Functors &amp;&amp; ... functors )
+{
+    return overloader&lt; Functors ... &gt; ( std::forward&lt;Functors&gt;(functors) ... ) ;
+}
+</code></pre>
+
+<p>
+渡されたすべての関数オブジェクトから派生し、すべての関数オブジェクトのoperator ()をusing宣言で最も派生したクラスのスコープに持ち込むことにより、オーバーロード解決を実現している。
+</p>
+
+<p>
+この実装では、関数オブジェクトが関数ポインターやメンバー関数ポインターの場合は動かないが、ラッパーを挟めばオーバーヘッドなしに対応できる。提案では関数ポインターやメンバー関数ポインターもサポートするようになっている。
+</p>
+
+<p>
+興味本位でざっと実装したら以下のようになった。
+</p>
+
+<pre><code>// std::invoke
+  template&lt;typename Functor, typename... Args&gt;
+  typename std::enable_if&lt;
+    std::is_member_pointer&lt;typename std::decay&lt;Functor&gt;::type&gt;::value,
+    typename std::result_of&lt;Functor&amp;&amp;(Args&amp;&amp;...)&gt;::type
+  &gt;::type invoke(Functor&amp;&amp; f, Args&amp;&amp;... args)
+  { 
+    return std::mem_fn(f)(std::forward&lt;Args&gt;(args)...); 
+  }
+   
+  template&lt;typename Functor, typename... Args&gt;
+  typename std::enable_if&lt;
+    !std::is_member_pointer&lt;typename std::decay&lt;Functor&gt;::type&gt;::value,
+    typename std::result_of&lt;Functor&amp;&amp;(Args&amp;&amp;...)&gt;::type
+  &gt;::type invoke(Functor&amp;&amp; f, Args&amp;&amp;... args)
+  { 
+    return std::forward&lt;Functor&gt;(f)(std::forward&lt;Args&gt;(args)...); 
+  }
+
+  template&lt;typename Return, typename Functor, typename... Args&gt;
+  Return invoke(Functor&amp;&amp; f, Args&amp;&amp;... args)
+  {
+    return invoke(std::forward&lt;Functor&gt;(f), std::forward&lt;Args&gt;(args)...);
+  }
+
+// simple callable wrapper
+template &lt; typename Functor, typename ... Args &gt;
+struct sfun_impl
+{
+    Functor f ;
+
+    sfun_impl( Functor f ) : f( f ) { }
+
+    auto operator() ( Args &amp;&amp; ... args )
+    {
+        return invoke( f, std::forward&lt;Args&gt;(args)... ) ;
+    }
+} ;
+
+// function pointer
+template &lt; typename R, typename ... Args &gt;
+sfun_impl&lt; R (*)( Args ... ), Args ... &gt;
+sfun( R (*p)( Args ... ) )
+{
+    return sfun_impl&lt; R (*)( Args ... ), Args ... &gt;( p ) ;
+}
+
+// member function pointer with class pointer
+template &lt; typename R, typename C, typename ... Args &gt;
+sfun_impl&lt; R (C::*)( C *, Args ...), C *, Args ... &gt;
+sfun( R (C::* p)( C *, Args ...) )
+{
+    return sfun_impl&lt; R (C::*)( C *, Args... ), C *, Args ... &gt;( p ) ;
+}
+
+// member function pointer with class reference
+template &lt; typename R, typename C, typename ... Args &gt;
+sfun_impl&lt; R (C::*)( C &amp;&amp;, Args ...), C &amp;&amp;, Args ... &gt;
+sfun( R (C::* p)( C &amp;&amp;, Args ...) )
+{
+    return sfun_impl&lt; R (C::*)( C &amp;&amp;, Args... ), C &amp;&amp;, Args ... &gt;( p ) ;
+}
+
+// just to pass class type T
+// lazy conditional can be used instead.
+template &lt; typename T &gt;
+void sfun( T &amp;&amp; ) ;
+
+
+template &lt; typename T &gt;
+using sfun_if =
+    typename std::conditional&lt;
+        std::is_function&lt; typename std::remove_pointer&lt; typename std::remove_reference&lt;T&gt;::type &gt;::type &gt;::value ||
+        std::is_member_function_pointer&lt;T&gt;::value || 
+        std::is_member_object_pointer&lt;T&gt;::value, 
+            
+        decltype(sfun( std::declval&lt;T&gt;() ) ), T &gt;::type ;
+
+// primary template
+template &lt; typename ... Functors &gt;
+struct overloader ;
+
+// terminator
+template &lt; &gt;
+struct overloader &lt; &gt;
+{
+    void operator () () { }
+} ;
+
+template &lt; typename Functor0, typename ... Functors &gt;
+struct overloader&lt; Functor0, Functors ... &gt; : sfun_if&lt;Functor0&gt;, overloader&lt;Functors...&gt;
+{
+    overloader( Functor0 &amp;&amp; func0, Functors &amp;&amp; ... funcs )
+        : sfun_if&lt;Functor0&gt;( std::forward&lt;Functor0&gt;(func0) ),
+          overloader&lt;Functors ...&gt;( std::forward&lt;Functors&gt;(funcs) ... )
+    { }
+
+    using sfun_if&lt;Functor0&gt;::operator () ;
+    using overloader&lt;Functors...&gt;::operator () ; 
+} ;
+
+
+
+template &lt; typename ... Functors &gt;
+overloader&lt; Functors ... &gt;
+overload( Functors &amp;&amp; ... functors )
+{
+    return overloader&lt; Functors ... &gt;( std::forward&lt;Functors&gt;(functors) ... ) ;
+} 
+</code></pre>
+
+<p>
+また、提案では、登録順で呼び出し可能な最初の関数を呼び出す、first_overloadも提案している。
+</p>
+
+<pre><code>
+auto fo = first_overload (
+    []( void * ) { },
+    []( double ) { },
+    []( int ) { } ) ;
+
+fo( 123 ) ; // double
+</code></pre>
+
+<p>
+これは、おそらくtupleのようなものに格納した上で、is_callable(実装方法はN4446を参照)のようなメタ関数を適用するのだろう。
+</p>
+
+<p>
+便利なライブラリだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0052r0.pdf">[PDF] P0052R0: Generic Scope Guard and RAII Wrapper for the Standard Library</a>
+</h2>
+
+<p>
+汎用RAIIラッパーとライブラリ版finallyの提案。
+</p>
+
+<p>
+ヘッダーファイル&lt;scope&gt;をincludeすることで使える。
+</p>
+
+<p>
+scope_exit
+</p>
+
+<p>
+scope_exitは、ライブラリ版のfinallyだ。ブロックスコープを抜ける際に指定した関数オブジェクトを実行してくれる。
+</p>
+
+<pre><code>void f()
+{
+    scope_exit s( [](){/* 処理 */} ) ;
+
+    // デストラクターが自動的に処理を実行してくれる
+}
+</code></pre>
+
+<p>
+自動ストレージ上に確保する習慣をつけさせるため、make_scope_exit関数も用意されている。
+</p>
+
+<p>
+unique_resource
+</p>
+
+<p>
+汎用RAIIラッパー
+</p>
+
+<pre><code>
+void f()
+{
+    auto fp = make_unique_resource( fopen( ... ),
+        []( FILE * fp )
+        {
+            if ( fp != NULl )
+                fclose( fp ) ;
+        } ) ;
+
+        fread( ..., fp.get() ) ;
+
+    // デストラクターがデリーターを実行してくれる
+}
+</code></pre>
+
+<p>
+はやくほしい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0053r0.html">P0053R0: C++ Synchronized Buffered Ostream</a>
+</h2>
+
+<p>
+同期バッファつきostream、osyncstreamの提案。
+</p>
+
+<p>
+ストリーム出力は競合を起こさないと規定されているが、結果については規定されていない。そこで、出力をバッファして、途中に他の出力を挟まずに一括して出力できる機能の提案。
+</p>
+
+<pre><code>
+{
+    std::osyncstream bout( std::cout ) ;
+    bout &lt;&lt; "hello," &lt;&lt; "world" &lt;&lt; std::endl ;
+    // boutのデストラクターはバッファを一括して出力
+}
+<code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0054r0.html">P0054R0: Coroutines: Reports from the field</a>
+</h2>
+
+<p>
+現在提案中のコルーチン、レジューム可能関数を実装しているコンパイラーがでてから丸一年になる。実際の使用経験から得られた知見をもとに、設計を見直す提案。様々な変更が提案されている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0055r0.html">P0055R0: On Interactions Between Coroutines and Networking Library</a>
+</h2>
+
+<p>
+ネットワークライブラリの非同期処理は、futureによる継続ベースの処理と、コールバック関数による処理ができるが、コルーチンを使うとオーバーヘッドがさらに削減できるのでコルーチンに対応させる提案。
+</p>
+
+<p>
+また、直接関係ないが、コルーチンは[[nodiscard]]の恩恵を受けるということが書かれていて面白い。await f()と書くべきレジューム可能関数fを、f()のみで使った場合はコンパイルエラーにできる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0056r0.html">P0056R0: Soft Keywords</a>
+</h2>
+
+<p>
+ソフトなキーワードを導入する提案。
+</p>
+
+<p>
+C++標準化員会の会議では、よく、「いいヤツは全部使われてるから、変なヤツを使わなきゃならん」という発言が行われる。ヤツというのは、キーワードのことだ。
+</p>
+
+<p>
+最近の提案に含まれているキーワードを、既存のコードベースと比較するだけでも、await, concept, requires, synchronized, module, inspect, whenは、すでに変数名やフィールド名や引数名や名前空間名として使われている。
+</p>
+
+<p>
+そこでこの提案では、ソフトキーワードを提案している。ソフトキーワードは、std名前空間に暗黙に定義されるエンティティである。
+</p>
+
+<pre><code>void yeild(int) ;
+
+auto f()
+{
+    yeild( 1 ) ; // ::yeild
+    std::yeild( 2 ) ; // キーワード
+}
+</code></pre>
+
+<p>
+名前の衝突がない場合、using宣言を使うことでスコープ解決演算子を省略できる。
+</p>
+
+<pre><code>auto f()
+{
+    using std::yeild ;
+    yeild( 3 ) ;
+}
+</code></pre>
+
+<p>
+しかし、using宣言を書くのも面倒だ。提案では、ソフトキーワードに対する名前検索が何も見つけられなかった時に、ソフトキーワードだと認識するようにする提案もしている。
+</p>
+
+<p>auto f()
+{
+    yeild( 1 ) ; // std::yeild
+}
+
+void yeild( int ) ;
+
+auto g()
+{
+    yeild( 2 ) ; // ::yeild
+}
+</p>
+
+<p>
+ただし、この変更を受け入れた場合でも、テンプレートの場合は、依存名の解決のために、std::が必要だ。
+</p>
+
+<pre><code>
+template < typename T >
+auto f( T t )
+{
+    yeild( 0 ) ; // 非依存名、std::yeild
+
+    std::yeild( t ) ; // 依存名
+}
+</code></pre>
+
+<p>
+typenameやtemplateと同じで、Two-Phase lookupについてはすでに知られているので、テンプレートコードを書くプログラマーならば対処できる些細な問題だろう。
+</p>
+
+<p>
+ただし、using namespace stdを使った既存のコードが壊れる可能性がある。これを防ぐには、using directiveはソフトキーワードには働かない例外条項を付け加えればよいという提案もしている。
+</p>
+
+<p>
+確かに便利だが、ものすごいツギハギ感がある。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0057r0.pdf">[PDF] P0057R0: Wording for Coroutines (Revision 3)</a>
+</h2>
+
+<p>
+コルーチンの文面案。
+</p>
+
+<p>
+まだ、awaitとyeildのキーワードが固まっていない。
+</p>
+
+<p>
+久しぶりに文面案を見ると、だいぶ変わっている。
+</p>
+
+<p>
+まず、キーワードとして、await-keywordとyeild-keywordがある。このキーワードはプレイスホルダーで、将来的には何らかのキーワードが割り当てられる。
+</p>
+
+<p>
+await式は、オペランドの式の実行が完了するまで、コルーチンの評価を停止させる。
+</p>
+
+<pre><code>auto read_from_disk()
+{
+    await read_gigabytes_of_file() ;
+}
+</code></pre>
+
+<p>
+yeildキーワードは、await式を適用した後に、コルーチンのpromiseオブジェクトpに対して、p.yeild_value(yeilded value)を呼び出す。つまりシンタックスシュガーだ。yeild式は、generatorを作るのに使える。
+</p>
+
+<pre><code>auto gen( )
+{
+    for ( int i = 0 ; i &lt; 10 ; ++i )
+        yeild i ;
+}
+</code></pre>
+
+<p>
+しかし、戻り値の型がよくわからない。await式のみが使われているとき、await式とyeild式が両方使われているとき、yeild式のみが使われているときで、型が変わる。どうも、その型はコルーチンpromiseを実装した型で、どうもユーザーが実装しなければならないようだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0058r0.pdf">[PDF] P0058R0: An Interface for Abstracting Execution</a>
+</h2>
+
+<p>
+様々な実行媒体を隠匿して扱えるライブラリの提案。
+</p>
+
+<p>
+実行媒体には、スレッドプールを始めとして、ファイバーやGPUスレッドやSIMDなど様々なものがあるが、この提案では、それらの多種多様な実行媒体を効率的に隠匿できる設計にしていると主張している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0059r0.pdf">[PDF] P0059R0: Add rings to the Standard Library</a>
+</h2>
+
+<p>
+リングアダプターの提案。既存のコンテナーをリングと呼ばれる固定サイズのキューとして扱えるコンテナアダプター。
+</p>
+
+<p>
+既存のキューアダプターは、dequeやlistの上に構築されていて、動的にサイズを増加させる。これはメモリを断片化させる問題がある。リングアダプターは、arrayやvectorといった連続したストレージを使うコンテナーのアダプターで、動的にサイズを増やすことがない。
+</p>
+
+<p>
+すでにBoostにはcircular_bufferがあるが、これはあまりにもでかすぎる。双方向である上にランダムアクセスイテレーターまで提供している。
+</p>
+
+<p>
+インターフェースは既存のqueueを模倣している。ただし、pushとemplaceに加えて、try_pushとtry_emplaceが追加されている。これはリングが満杯の時に呼び出すと失敗する。
+</p>
+
+<p>
+arrayがデフォルトのコンテナーになっているfixed_ringと、vectorがデフォルトのコンテナーになっているdynamic_ringがある。dynamic_ringという名前だが、サイズを実行時の初期化時に指定できるだけで、サイズがあとから伸長されることはない。後からサイズを増やしたければ、すでにあるqueueにvectorを指定して使えばいいだけだ。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+明日はFallout 4が解禁されるために有給を取る。
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
