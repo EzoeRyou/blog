@@ -1,0 +1,575 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書のレビュー: P0060R0-P0069R0 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/11/c-p0060r0-p0069r0.html">C++標準化委員会の文書のレビュー: P0060R0-P0069R0</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0060r0.html">P0060R0: Function Object-Based Overloading of Operator Dot</a>
+</h2>
+
+<p>
+operator .をオーバーロード可能にする提案。
+</p>
+
+<p>
+この提案は、リファレンスを返す提案とは異なり、コンパイラーが関数オブジェクトを生成する提案となっている。
+</p>
+
+<p>
+operator .をオーバーロードしてるユーザー定義型がある。
+</p>
+
+<pre><code>struct X
+{
+    // なにもしない
+    template &lt; typename T &gt;
+    void operator .( T &amp;&amp; ) { }
+}
+</code></pre>
+
+<p>
+そのような型の非staticデータメンバーの名前検索(たとえば.some_name)をして、名前が見つからない場合、コンパイラーは以下のような型を生成し、そのオブジェクトをoperator .のオーバーロード関数の実引数に渡す
+</p>
+
+<pre><code>struct synthesized_function_type {
+    template&lt;class T&gt;
+    auto operator()(T&amp;&amp; t) -&gt; decltype(t.some_name) noexcept(t.some_name) {
+        return t.some_name;
+    }
+};
+</code></pre>
+
+<p>
+その結果、以下のように書ける。
+</p>
+
+<pre><code>X x ;
+x.hoge ; // OK
+x.hage ; // OK
+</code></pre>
+
+<p>
+メンバー関数の場合は、以下のような型が生成される。
+</p>
+
+<pre><code>struct synthesized_function_type {
+    template&lt;class T, class... Args&gt;
+    auto operator()(T&amp;&amp; t, Args&amp;&amp;... args) -&gt; decltype(t.some_name(std::forward&lt;Args&gt;(args)...)) noexcept(t.some_name(std::forward&lt;Args&gt;(args)...)) {
+        return t.some_name(std::forward&lt;Args&gt;(args)...);
+    }
+};
+</code></pre>
+
+<p>
+これを使って、例えばスマートリファレンスを作成できる。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+class Ref
+{
+    T t ;
+public :
+    template &lt; typename F &gt;
+    auto operator . ( F &amp;&amp; f )
+    {
+        return f( t ) ;
+    }
+
+    template &lt; typename F, typename ... Args &gt;
+    auto operator . ( F f, Args &amp;&amp; ... args )
+    {
+        return f( std::forward&lt;Args&gt;( args ) ... ) ;
+    }
+} ;
+
+struct Point
+{
+    int x, y ;
+    void func( int x ) { }
+} ;
+
+Ref&lt;X&gt; r ;
+
+r.x ;
+r.y ;
+r.func( 0 ) ;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0061r0.html">P0061R0: Feature-testing preprocessor predicates for C++17</a>
+</h2>
+
+<p>
+SG-6が推奨している機能テストマクロに含まれている、__has_includeと__has_cpp_attributeを正式にC++17に提案している。
+</p>
+
+<p>
+__has_includeは指定したヘッダーファイルがあるかどうかを調べることができる。__has_cpp_attributeはattributeが存在するかどうか調べることができる。
+</p>
+
+<pre><code>#ifdef __has_include(&lt;optional&gt;)
+#   include &lt;optional&gt;
+#else
+#   include "my_optional"
+#endif 
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0062r0.html">P0062R0: When should compilers optimize atomics?</a>
+</h2>
+
+<p>
+atomicではすべての最適化が無効になると考えている者もいるが、atomicは最適化できる。たとえば、load( x, memory_order_x ) + load( x, memory_order_x )は、2 * load( x, memory_order_x )に変換することができる。しかし、非volatileなatomic loadが使われてはいないからといって、消してしまうのは異論が多い。
+</p>
+
+<p>
+この論文では、c++std-parallelで議論された、異論のある最適化についてまとめている。
+</p>
+
+<pre><code>// 途中経過表示用の変数
+atomic&lt;int&gt; progress(0);
+
+f() {
+    for (i = 0; i &lt; 1000000; ++i) {
+        // 処理
+        ++progress;
+    }
+}
+</code></pre>
+
+<p>
+このようなコードがあるとする。atomic変数progressは処理の進行具合を記録していて、他のスレッドはこの変数を参照してユーザーに処理の進行具合をプログレスバーで表示している。
+</p>
+
+<p>
+過剰に最適化するコンパイラーは、以下のようにコードを変換するかもしれない。
+</p>
+
+<pre><code>atomic&lt;int&gt; progress(0);
+f() {
+    int my_progress = 0; // レジスタ割り当てされた非atomic変数
+    for (i = 0; i &lt; 1000000; ++i) {
+        // ...
+        ++my_progress;
+    }
+    progress += my_progress;
+}
+</code></pre>
+
+<p>
+コードがこのように変換されると、他のスレッドがprogressを参照した時に、0か999999しか見えない。
+</p>
+
+<p>
+他には以下のような例がある。
+</p>
+
+<pre><code>x.store(1); // アトミック操作
+while (...) { … } // ループ
+</code></pre>
+
+<p>
+コンパイラーは以下のように変換するかもしれない。
+</p>
+
+<pre><code>while (...) { … }
+x.store(1);
+</code></pre>
+
+<p>
+これも規格上問題ないが、ループを始める前にアトミック操作を行って他のスレッドに通知したいと考えるプログラマーの意図とは異なるだろう。
+</p>
+
+<p>
+Peter Dimovによれば、過剰な最適化は好ましいという。例えば、shared_ptrのカウンターの増減を除去できる。
+</p>
+
+<p>
+Paul McKennryによれば、上記のプログレスバー問題を解決するのによく使われる手法は、アトミック変数をvolatile修飾することだという。しかし、これでは問題のない好ましい最適化まで抑制されてしまう。コンパイラーがそこまで過剰に最適化を行わない場合はパフォーマンスの損失につながる。
+</p>
+
+<p>
+論文筆者のHans Boehmの考えでは、コンパイラーはアトミック変数を過剰に最適化するべきではない。属性などで過剰に最適化させる方法を提供すべき。としている。
+</p>
+
+<p>
+過剰な最適化は、shared_ptrの例のようにとてもよいこともあれば、プログレスバーの例のようにとても悪いこともある。コンパイラーにとって、良い悪いは判断できない。判断できないのであれば、どちらがわにも倒さずにコードをそのままにしておくべきだ。
+</p>
+
+<p>
+とはいえ、過剰な最適化の利点はあるので、そのための方法を提供すべきだ。
+</p>
+
+<p>
+論文は最後に、規格の文面に追記する注釈案を載せている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0063r0.html">P0063R0: C++17 should refer to C11 instead of C99</a>
+</h2>
+
+<p>
+C++規格が参照するC規格をC99からC11に引き上げる提案。
+</p>
+
+<p>
+単に参照先を買えるだけではない変更も考察されている。シグナルハンドラー内ではthread_local変数は使えない。新たに追加されたCヘッダーに対してはC++規格からは参照しない。Atomicsについては、_Atomic(T)がatomic&lt;T&gt;になっていると嬉しい。C言語に新しく追加された有益な機能のC++版がないなど。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0065r0.pdf">[PDF] P0065R0: Movable initializer lists, rev. 2</a>
+</h2>
+
+<p>
+initalizer_list&lt;T&gt;のbegin/endの戻り値の型は、const T *である。そのため要素をムーブできない。この提案は、非constなT *を返すbegin/endを持ったown_initializer_list&lt;T&gt;を提案している。
+</p>
+
+<p>
+初期化リストから推定される型Tが、非トリビアルなムーブコンストラクターを持っている場合は、型はown_initializer_list&lt;T&gt;になる。そうでない場合は、initializer_list&lt;T&gt;になる
+</p>
+
+
+<pre><code>// std::initializer_list&lt;int&gt;
+auto x = { 1, 2, 3 } ; 
+// std::own_initializer_list&lt;std::string&gt;
+auto y = { std::string("hello") } ;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0066r0.pdf">[PDf] P0066R0: Accessors and views with lifetime extension</a>
+</h2>
+
+<p>
+一時オブジェクトをリファレンスに束縛すると、一時オブジェクトの寿命がリファレンスの存在期間中延長されるが、現行の規程は問題が多い。
+</p>
+
+<pre><code>std::string const &amp; f( std::string const &amp; ref ) { return ref ; }
+
+int main()
+{
+    // 寿命が延長されない。
+    auto const &amp; ref = f( std::string("hello") ) ;
+}
+</code></pre>
+
+<p>
+initializer_listだけはこのような一時オブジェクトの寿命延長をコンパイラーマジックによって行っている。
+</p>
+
+<p>
+一時オブジェクトの寿命延長を関数やクラスのサブオブジェクトを経由してもユーザーが行えるようにする寿命修飾子を提案しているのだが、どう考えても非現実的な机上の空論のクソ機能にしか思えない。ABIに変更をもたらすのもクソだ。真面目に読んで損をした。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0067r0.html">P0067R0: Elementary string conversions</a>
+</h2>
+
+<p>
+整数と文字列、浮動小数点数と文字列間の相互変換のみを行うライブラリ、to_string, from_stringの提案。
+</p>
+
+<p>
+JSONやXMLなどのテキストベースのフォーマット利用が拡大している現代では、数値と文字列間の高速な変換が必要である。変換はinternationalizationを行う必要はない。
+</p>
+
+<p>
+そのためには、以下の要件を満たす必要がある。
+</p>
+
+<ul>
+<li>フォーマット文字列の実行時パースを行わない</li>
+<li>インターフェース上動的メモリ確保をしない（大抵のインターフェースは必要とする）</li>
+<li>localeを考慮しない</li>
+<li>関数ポインターを経由した関節アクセスを行わない</li>
+<li>バッファーオーバーランを防ぐ</li>
+<li>文字列をパースするとき、エラーと有効な数値は区別できる</li>
+<li>文字列をパースするとき、空白文字などが静かに無視されたりしない</li>
+</ul>
+
+<p>
+既存の標準ライブラリで提供されている方法はすべて、localeに依存している。
+</p>
+
+<p>
+また、変換処理は、教科書通りの実装では速くない。高速な実装方法が多数ある。
+</p>
+
+<p>
+この提案では、極めて原始的なインターフェースを採用している。char *型のイテレーターベースのインターフェースだ。数値を文字列に変換するにはto_string、文字列を数値に変換するにはfrom_stringを使う
+</p>
+
+<pre><code>char * to_string(char * begin, char * end, T value, その他の引数) ;
+</code></pre>
+
+<p>
+T型の数値valueを文字列に変換したものが、[begin, end)に書き込まれる。戻り値は書き込んだ最後の要素の一つ次のポインターになる。文字列を書き込むスペースが足りない場合、endが返される。スペースが足りない場合に書き込まれる内容は未規定である。
+</p>
+
+<p>
+整数型は以下のような関数になる。
+</p>
+
+<pre><code>char * to_string(char * begin, char * end, T value, int base = 10);
+</code></pre>
+
+<p>
+baseの範囲は2から36までで、10から36までの数値はaからzで表現される。valueが負数の場合、マイナス符号が先頭に書き込まれる。
+</p>
+
+<p>
+浮動小数点数型は、変換する文字列のフォーマットごとに、以下のような2つの関数が提供されている
+</p>
+
+<p>
+31415e-4のようなフォーマットの文字列に変換 
+</p>
+
+<pre><code>char * to_string(char * begin, char * end, T value);
+</code></pre>
+
+<p>
+valueが負数の場合はマイナス符号が先頭に書き込まれる。文字列は10進数で、整数部が少なくともひと桁あり、オプショナルで小文字eに続いてexponentが記述される。表現は最小文字数かつ、from_stringによって元のvalueが正確に復元できるものとなる。valueが無限大の場合、infか-infとなる。NaNの場合、nanか-nanとなる。
+<p>
+
+<p>
+3.1415のようなフォーマットの文字列に変換
+</p>
+
+<pre><code>char * to_string(char * begin, char * end, T value, int precision);
+</code></pre>
+
+<p>
+小数部の桁数はprecisionになる。
+</p>
+
+<p>
+文字列を数値に変換するfrom_stringは以下の通り
+</p>
+
+<pre><code>const char * from_string(const char * begin, const char * end, T&amp; value, std::error_code&amp; ec, 残りの引数 );
+</code></pre>
+
+<p>
+戻り値はパターンにマッチしない最初の文字へのポインター。
+</p>
+
+<p>
+整数型に変換する場合は以下の通り
+</p>
+
+<pre><code>const char * from_string(const char * begin, const char * end, T&amp; value, std::error_code&amp; ec, int base = 10);
+</code></pre>
+
+<p>
+浮動小数点数型に変換する場合は以下の通り
+</p>
+
+<pre><code>const char * from_string(const char * begin, const char * end, T&amp; value, std::error_code&amp; ec);
+</code></pre>
+
+<p>
+文字列に変換する際のinfやnanも正しく認識される。
+</p>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0068r0.pdf">[PDF] P0068: Proposal of [[unused]], [[nodiscard]] and [[fallthrough]] attributes</a>
+</h2>
+
+<p>
+タイトル通り、[[unused]], [[nodiscard]], [[fallthrough]] attributeの提案。
+</p>
+
+<p>
+[[unused]]
+</p>
+
+<p>
+[[unused]]が指定されたエンティティは、何らかの理由で使われていないように見えるという意味を持つ。これによって、実装による未使用警告を抑制できる。
+</p>
+
+<pre><code>int x ; // 警告、xは未使用
+[[unused]] int x ; // 警告が抑制される
+</code></pre>
+
+<p>
+[[nodiscard]]
+</p>
+
+<p>
+[[nodiscard]]が指定された関数は、戻り値がdiscardされてはならないことを意味する。戻り値が捨てられた場合、警告が出る。
+</p>
+
+<pre><code>[[nodiscard]] bool do_something_that_may_fail() ;
+
+int main()
+{
+    do_something_that_may_fail() ; // 警告、戻り値が捨てられてい
+
+    // OK
+    if ( do_something_that_may_fail() )
+    {
+    }
+    else
+    {
+    }
+}
+</code></pre>
+
+<p>
+[[nodiscard]]が型に指定された場合、その型を戻り値の型に使う関数が[[nodiscard]]指定される。
+</p>
+
+<pre><code>
+[[ nodiscard]] class error_code { ... } ;
+
+// 関数fは[[nodiscard]]指定される
+error_code f() ;
+</code></pre>
+
+<p>
+[[fallthrough]]
+</p>
+
+<p>
+[[fallthrough]]は文のように記述される。これをfallthrough文という。
+</p>
+
+<pre><code>[[fallthrough]] ;
+</code></pre>
+
+<p>
+[[fallthrough]]はcaseラベルの直前に書く。これによって、複数のケースを突き抜けたコードに対しての警告を抑制できる。
+</p>
+
+<pre><code>switch( x )
+{
+case 0 :
+    do_something() ;
+    // 警告、fallthrough
+case 1 ;
+    do_something() ;
+    [[fallthrough]]
+    // 警告なし
+case 2 ;
+    do_something() ;
+
+} 
+</code></pre>
+
+<p>
+いい提案だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0069r0.pdf">[PDF] P0069R0: A C++ Compiler for Heterogeneous Computing</a>
+</h2>
+
+<p>
+GPU用に現在提案されているGPUのサポートも視野に入れた機能をC++コンパイラーに実装した経験の報告書。
+</p>
+
+<p>
+開発したのコンパイラー、HCC(Heterogeneous C++ Compiler)は、Clang/LLVMベースのコンパイラーだ。HCCはホストプロセッサー用のコード(x86)とアクセラレーター用のコード(AMD GPU/HSA)を同時に生成する。HCC自体は公開されていないようだ。
+</p>
+
+<p>
+問題となるのは、コードのどこの部分をどちらのプロセッサー用のコードで生成するかだ。すべてのコードをすべてのプロセッサー向けにコード生成を行うと、コンパイル時間が増大する上に、プロセッサーごとの特性もあるので、逆に遅くなる。
+</p>
+
+<p>
+C++提案では、特定の領域に対して機能を制限してコンパイラーにヒントを与える機能があるが、これはあまり役に立たなかったと報告している。
+</p>
+
+<p>
+HCCがかわりに開発したのは、プログラマーがコンパイラーがコード中の並列部分を指示できる機能云々
+</p>
+
+<p>
+なんだかOpenMPのようだ。
+</p>
+
+<p>
+モダンなGPUはC++の機能のほとんどを実行できるようになった。たとえば、間接的な関数呼び出し、バイト単位のメモリアクセス、基本型、アライメントされていないメモリへのアクセス、スタック、gotoなどだ。
+</p>
+
+<p>
+HCCはC++のほとんどの機能をアクセラレーター向けにコード生成できる。例外はtry/catchブロックなどだ。try/catchブロックの実装は技術的に可能であるが、現在のところ実装していない。論文著者は、アクセラレーター向けにC++のサブセットを定義する必要はないと報告している。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>

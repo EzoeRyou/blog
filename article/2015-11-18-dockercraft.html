@@ -1,0 +1,211 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: Minecraftクライアントからdockerの管理ができるminecraftサーバー: Dockercraft 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/11/minecraftdockerminecraft-dockercraft.html">Minecraftクライアントからdockerの管理ができるminecraftサーバー: Dockercraft</a></h1>
+
+<p>
+<a href="https://github.com/docker/dockercraft">docker/dockercraft</a>
+</p>
+
+<p>
+公式の未改変Minecraftクライアントから接続してDockerの管理ができるMinecraft互換サーバー、Dockercraftが公開されている。
+</p>
+
+
+<blockquote>
+<p>
+Dockercraft
+</p>
+
+<p>
+Dockercraftの実行方法
+</p>
+
+<p>
+1. Minecraftのインストール: <a href="https://minecraft.net/">Minecraft</a>
+</p>
+
+<p>
+Minecraftクライアントは改変していないので、公式リリースをそのまま使える。
+</p>
+
+<p>
+2. Dockercraftイメージをpullするかビルドする。
+</p>
+
+<pre><code>docker pull dockercraft
+</code></pre>
+
+<p>
+もしくは、
+</p>
+
+<pre><code>git clone git@github.com:docker/dockercraft.git
+docker build -t dockercraft dockercraft
+</code></pre>
+
+<p>
+3. Dockercraftコンテナーを実行する
+</p>
+
+<pre><code>docker run -t -i -d -p 25565:25565 \
+-v /var/run/docker.sock:/var/run/docker.sock \
+--name dockercraft \
+dockercraft
+</code></pre>
+
+<p>
+Docker remote APIを使うには/var/run/docker.sockをコンテナー内でマウントする必要がある。
+</p>
+
+<p>
+Minecraftサーバーのデフォルトのポートは25565だ。他のポートがいいのであれば、"-p &lt;port&gt;:25565"
+</p>
+
+<p>
+4. Minecraft &gt; Multiplayer &gt; Add Serverを開く
+</p>
+
+<p>
+サーバーアドレスはDockerホストのIP。デフォルトのものを使っているのであればポート番号を指定する必要はない。
+</p>
+
+<p>
+<a href="https://docs.docker.com/machine/install-machine/">Docker Machine</a>を使っているのであれば、"docker-machine ip &lt;machine_name&gt;"
+</p>
+
+<p>
+5. サーバーにjoinする。
+</p>
+
+<p>
+少なくともひとつのコンテナーが世界に見えるはずだ。それはDockercraftサーバーをホストしているものである。
+</p>
+
+<p>
+レバーとボタンを操作することで、コンテナーをスタート、ストップ、リムーブできる。Minecraftのチャットウインドウから一部のDockerコマンドがサポートされている。チャットウインドウはTキー（デフォルト）か/キーで表示される。
+</p>
+
+<p>
+実装
+</p>
+
+<p>
+Mnecraftクライアント自体は改変していない。操作は全てサーバーサイドで行われている。
+</p>
+
+<p>
+Minecraftサーバーには、<a href="http://cuberite.org/">Cuberite.org</a>を用いた。C++で書かれた独自のMinecraft互換ゲームサーバーだ。<a href="https://github.com/cuberite/cuberite">GitHubレポジトリ</a>
+</p>
+
+<p>
+サーバーはLUAで書かれたスクリプトをプラグインとして受け付ける。そこでDocker用のものを書いた。(world/Plugins/Docker)
+</p>
+
+<p>
+残念ながら、このプラグインと通信するいいAPIがない。ただしwebadminがあり、プラグインは"webtabs"に応答できる。
+</p>
+
+<pre><code>Plugin:AddWebTab("Docker",HandleRequest_Docker)
+</code></pre>
+
+<p>
+つまり、プラグインは、http://127.0.0.1:8080/webadmin/Docker/Dockerに送られたPOSTリクエストを見ることができる。
+</p>
+
+<p>
+Goproxy
+</p>
+
+<p>
+Docker remote APIのイベントはGoで書かれた小さなデーモン(go/src/goproxy)によってLUAプラグインに送られる。
+</p>
+
+<pre><code>func MCServerRequest(data url.Values, client *http.Client) {
+    req, _ := http.NewRequest("POST", "http://127.0.0.1:8080/webadmin/Docker/Docker", strings.NewReader(data.Encode()))
+    req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+    req.SetBasicAuth("admin", "admin")
+    client.Do(req)
+}
+</code></pre>
+
+<p>
+デーモンにリクエストを送るため、LUAプラグインからgoproxyバイナリを匹数付きで実行することもできる。
+</p>
+
+<pre><code>function PlayerJoined(Player)
+    -- refresh containers
+    r = os.execute("goproxy containers")
+end
+</code></pre>
+
+<p>
+貢献
+</p>
+
+<p>
+Dockercraftをハックしたいならば、<a href="https://github.com/docker/docker/blob/master/CONTRIBUTING.md">Docker's contributions guidelines</a>を参照。
+</p>
+
+</blockquote>
+
+<p>
+これで、仕事中にMinecraftで遊んでいても、「Dockerを管理をビジュアライズしてくれる便利なツールなんです」という言い訳がたつ。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
