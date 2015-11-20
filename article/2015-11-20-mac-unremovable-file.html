@@ -1,0 +1,202 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: Mac OS Xで削除がとても難しいファイルを作成する方法 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/11/mac-os-x.html">Mac OS Xで削除がとても難しいファイルを作成する方法</a></h1>
+
+<p>
+2013年の記事だが、Mac OS XとそのHFS+はこの上なくクソなので何があっても驚きはしないが、Mac OS Xで削除しにくいシンボリックリンクファイルを作成する方法があるらしい
+</p>
+
+<p>
+<a href="http://galvanist.com/post/67485688849/os-x-and-the-unremovable-file">OS X and the Unremovable File - galvanist</a>
+</p>
+
+<blockquote>
+<p>
+HFS+上で、削除しにくいシンボリックリンクを作成できる。
+</p>
+
+<pre><code># be root, for example with: sudo -i
+str1=$(python -c "print '1' * 255")
+str2=$(python -c "print '2' * 255")
+str3=$(python -c "print '3' * 255")
+str4=$(python -c "print '4' * 253")
+mkdir -p  $str1/$str2/$str3/$str4
+ln -s ftw $str1/$str2/$str3/$str4/L
+</code></pre>
+
+<p>
+さて、このように作った以上、OS X v10.9では以下のコマンドでは削除できない。
+<p>
+
+<pre><code>
+# still as root...
+unlink 1*/2*/3*/4*/L
+unlink $str1/$str2/$str3/$str4/L
+rm -rf 1*
+rm -rf $str1
+rm -rf $str1/$str2/$str3/$str4
+rm -rf $str1/$str2/$str3/$str4/L
+(cd $str1/$str2/$str3/$str4; unlink L)
+(cd $str1/$str2/$str3/$str4; rm -rf L)
+</code></pre>
+
+<p>
+すべて、以下のようなエラーとなる。(読みやすさのために[...]で省略)
+</p>
+
+<pre><code>root# pwd
+/private/tmp/111[ ... ]111/222[ ... ]222/333[ ... ]333/444[ ... ]444
+root# ls
+L
+root# rm -f L
+rm: L: No space left on device
+root# df -H
+Filesystem      Size   Used  Avail Capacity   iused     ifree %iused  Mounted on
+/dev/disk1      250G   108G   142G    44%  26385563  34601956   43%   /
+[...]
+</code></pre>
+
+<p>
+念の為、システムコールを直接呼び出すコードを書いてみる。/tmp/fixit.cにおいてあるとする。
+</p>
+
+<pre><code>#include &lt;unistd.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;errno.h&gt;
+
+int main(int argc, char* argv[]) {
+    printf("Unlink returned %i\n", unlink("L"));
+    perror("Error was");
+    return 0;
+}
+</code></pre>
+
+<p>
+実行してみるが、
+</p>
+
+<pre><code>root# pwd
+/private/tmp/111[ ... ]111/222[ ... ]222/333[ ... ]333/444[ ... ]444
+root# gcc -o /tmp/fixit /tmp/fixit.c 
+root# /tmp/fixit 
+Unlink returned -1
+Error was: No space left on device
+</code></pre>
+
+<p>
+ENOSPCだと。<a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man2/unlink.2.html">unlink(2) Mac OS X Developer Tools Manual Page</a>に返すとは書かれていないエラーだぞ。
+</p>
+
+<p>
+状況は複雑だ。
+</p>
+
+<ul>
+<li>一般ユーザーが作ったのならば、一般ユーザーは、rm -rfで消すことができる</li>
+<li>一般ユーザーが作ったのならば、rootは消すことができない。おかしい</li>
+<li>rootが作ったのならば、rootは消すことができない</li>
+<li>rootが作ったのならば、通常通りの権限により、一般ユーザーは削除が行えない</li>
+<li>rootが作ったものであっても、chmod -hとchown -hで権限を変えれば、一般ユーザーにも消せるはずである</li>
+<li>rootが作ったものを、chmod -hとchown -hしようとすると、ENOSPCが返る。</li>
+<li>rootが作ったものに対し、"mkdir -p some/containing/paths; mv 1111* some/containing/paths/"は動くが、その後、"rm -rf some"しても動かない。</li>
+</ul>
+
+<p>
+Workaround
+</p>
+
+<p>
+なぜか、パスはシンボリックリンクを作るには短いが、削除するには長すぎるようだ。パスを短縮すれば消せる。
+</p>
+
+<pre><code>root# pwd
+/private/tmp/111[ ... ]111/222[ ... ]222/333[ ... ]333/444[ ... ]444
+root# ls
+L
+root# mv /private/tmp/1* /private/tmp/one
+root# pwd
+/private/tmp/one/222[ ... ]222/333[ ... ]333/444[ ... ]444
+root# rm L
+root# ls
+root# rm -rf /tmp/one
+root# 
+</code></pre>
+
+<p>
+workaroundは十分なのか。
+</p>
+
+<p>
+そういうわけで、一応workaroundはあるのだが、しかし疑問がある。
+</p>
+
+<ul>
+<li>アンチウイルスソフトウェアはマルウェアがこのような方法で保存されていた場合、ちゃんと消せるよう作られているのか？　アンチウイルスソフトウェアはすでに<a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man2/chflags.2.html">chflags(2)</a>の問題に対処しなければならないが、こういうパスと複数のchflagsで構成されていた場合はどうか</li>
+<li>マルウェアや悪意ある人物がディスクをこのようなもので埋め尽くした時に、rm -rfの代替品となるツールは存在するのか？</li>
+</ul>
+
+</blockquote>
+
+<p>
+ちなみに、これは2013年の記事だが、Yosemiteまでは同じ問題があるそうだ。El Capitainだと、ファイルパスが長すぎて作成できないエラーが返るらしい。そもそも、Mac OS XのカーネルであるXNUのファイルパスの上限が2024文字なのに2025文字のファイルパスを作成できてしまうのがおかしいようだ。
+</p>
+
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
