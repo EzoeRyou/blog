@@ -1,0 +1,539 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書のレビュー : P0070R0-P0079R0 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/11/c-p0070r0-p0079r0.html">C++標準化委員会の文書のレビュー : P0070R0-P0079R0</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0070r0.html">P0070R0: Coroutines: Return Before Await</a>
+</h2>
+
+<p>
+現在のコルーチン提案では、関数がコルーチンかどうかを宣言から判定できない。そのような判定をさせるタグ機能は議論の結果却下された。しかし、awaitかyieldをみるまで関数がコルーチンかどうかわからないのは不便なので、コルーチン関数では、通常のreturnキーワードを使ったreturn文のかわりに、特別なco_returnキーワードを使ったreturn文の使用を強制させるようにしようという提案に対して、その必要はないとする論文。
+</p>
+
+<p>
+理由は、MSVCやGCCは、すでに最適化のために、関数の全体を見るまで意味解析を行わないようになっているので、そんな技術的制約上の機能は必要ないとのこと。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0071r0.html">P0071R0: Coroutines: Keyword alternatives</a>
+</h2>
+
+<p>
+現在のコルーチンの提案では、awaitとyieldに当たるキーワードが未定である。理想世界においては、awaitとyieldというキーワードは機能をこれ以上なく明白に指し示したものである。しかし、現実世界においては、awaitやyieldのような既存のコードと衝突するようなキーワードを導入できない。
+</p>
+
+<p>
+これに対して、いくつかの解決策が示されている。
+</p>
+
+<p>
+ソフトキーワード：std名前空間に暗黙に宣言されている名前で、他の名前と衝突しない場合、キーワードとして認識される。
+</p>
+
+<p>
+マジック関数: std名前空間内にある特別な関数で、コンパイラーが認識する。
+</p>
+
+<p>
+問題は、文法が関数呼び出し式になってしまうので、すこし汚い。
+</p>
+
+<pre><code>await expr ;
+</code></pre>
+
+<p>
+が、
+</p>
+
+<pre><code>std::await( expr ) ;
+</code></pre>
+
+<p>
+になってしまう。
+</p>
+
+<p>
+その他のキーワード案: exportキーワードが余っているではないか。yieldexpr/yield_exprはどうか。coyield/co_yieldはどうか。
+</p>
+
+<p>
+論文では、awaitとyieldに変わる良いキーワードはないとした上で、ソフトキーワードかマジック関数のどちらかを採用すべきだとしている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0072r0.pdf">[PDF] P0072: Light-Weight Execution Agents</a>
+</h2>
+
+<p>
+スレッドよりも制約の強い実行媒体(Execution Agent、スレッドプール、ファイバー、GPGPU、SIMDなど)を扱うために、実行媒体とその保証について定義する提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0073r0.pdf">[PDF] P0073R0: On unifying the coroutines and resumable functions proposals</a>
+</h2>
+
+<p>
+コルーチンとレジューム可能関数を統合したことについて
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0074r0.html">P0074R0: Making std::owner_less more flexible</a>
+</h2>
+
+<p>
+std::onwer_lessという関数オブジェクトがある。これは、2つのshared_ptrとweak_ptrが、同じオブジェクトを所有しているかを判定してくれる機能を提供している。しかし、このインターフェースが悪いため、とても単純な例でしか動かない。
+</p>
+
+<pre><code>  shared_ptr&lt;int&gt; sp1;
+  shared_ptr&lt;void&gt; sp2;
+  shared_ptr&lt;long&gt; sp3;
+  weak_ptr&lt;int&gt; wp1;
+
+  owner_less&lt;shared_ptr&lt;int&gt;&gt; cmp;
+  cmp(sp1, sp2);   // error, doesn't compile
+  cmp(sp1, wp1);
+  cmp(sp1, sp3);   // error, doesn't compile
+  cmp(wp1, sp1);
+  cmp(wp1, wp1);   // error, doesn't compile
+</code></pre>
+
+<p>
+最初の例は、owner_less&lt;shared_ptr&lt;void&gt;&gt;を使うことで解決できるが、単純にそれだけを使ってもコンパイルが通らない。なぜならば、sp1はshared_ptr&lt;void&gt;にもweak_ptr&lt;void&gt;にも変換可能だからだ。そのため、明示的に変換してやらなければならない。
+</p>
+
+<pre><code>owner_less&lt;shared_ptr&lt;void&gt;&gt; cmpv;
+cmpv(shared_ptr&lt;void&gt;(sp1), sp2);
+</code></pre>
+
+<p>
+これは冗長でわかりにくいだけではなく、一時オブジェクトを作り出し、参照カウンターを増減させる。
+</p>
+
+<p>
+shared_ptr::owner_beforeとweak_ptr::owner_beforeはどちらもshared_ptr&lt;A&gt;とweak_ptr&lt;B&gt;といった異なる型同士での比較を許しているのに、owner_lessは無用の制限をかけている。
+</p>
+
+<p>
+owner_lessを改良して、上のコードが全てコンパイルが通るようにする提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0075r0.pdf">[PDF] P0075R0: Template Library for Index-Based Loops</a>
+</h2>
+
+<p>
+インデックスベースループの並列版をライブラリとしてParallelism TSに付け加える提案。
+</p>
+
+<pre><code>void ( int * p1, int * p2, std::size_t size )
+{
+    std::for_loop( std::seq, 0, size,
+        [&amp;]( auto i )
+        {
+            p1[i] = p2[i] ;
+        }
+    ) ;
+}
+</code></pre>
+
+<p>
+このコードは以下のように書くのと同等だ。
+</p>
+
+<pre><code>void ( int * p1, int * p2, std::size_t size )
+{
+    for ( std::size_t i = 0 ; i != size ; ++i )
+    {
+        p1[i] = p2[i] ;
+    }
+    
+}
+</code></pre>
+
+<p>
+他のParalellism TSのアルゴリズムのように、std::secをstd::parに変更すると、並列実行版にある。
+</p>
+
+<p>
+for_loop_stridedは、インクリメントの刻み幅を設定できる。
+</p>
+
+<pre><code>for_loop_strided( std::par, 0, 100, 2, []( auto i ) { } ) ;
+</code></pre>
+
+<p>
+iは0, 2, 4, 6とインクリメントされていく。
+</p>
+
+<p>
+提案はfor_loopとともに使えるreductionとinductionをサポートしている。
+</p>
+
+<p>
+reductionはOpenMPの文法を参考に、純粋にライブラリベースで使えるように設計されている。
+</p>
+
+<pre><code>float dot_saxpy(int n, float a, float x[], float y[]) {
+    float s = 0;
+    for_loop( par, 0, n,
+        reduction(s,0.0f,std::plus&lt;float&gt;()),
+        [&amp;](int i, float&amp; s_) {
+            y[i] += a*x[i];
+            s_ += y[i]*y[i];
+        });
+    return s;
+}
+</code></pre>
+
+<p>
+reductionは、reduction( var, identity, op )のように使う。それぞれ、reductionの結果をうけとるlvalue, reduction操作のためのidentity value, reduction操作となる。
+</p>
+
+<p>
+reductionの個別のsのコピーはfor_loopの関数オブジェクトに追加の引数として与えられる。for_loopはvariadic templatesを利用していて、reductionやinductionを受け取れるようになっている。最後の実引数が関数オブジェクトとなる。
+</p>
+
+<p>
+ループのイテレーションごとに異なる可能性のあるsのコピーが渡され、それに対してreduction操作、最後にすべてのsのコピーがsに対してreduction操作が行われる。結果として、以下のコードを実行したのと同じ結果（ただしシーケンスとreductionの順序の制約がゆるい）が得られる。
+</p>
+
+<pre><code>float serial_dot_saxpy (int n, float a, float x[], float y[]) {
+    float s = 0;
+    for( int i=0; i&lt;n; ++i ) {
+        y[i] += a*x[i];
+        s += y[i]*y[i];
+    }
+    return s;
+}
+</code></pre>
+
+<p>
+簡便化のために、identitiy valueがreduction操作に合わせてT()やT(1)など無難なものになった上に、reduction操作も固定されている、reduction_plusなどが用意されている。上記の例は、reduction_plus( s ) と書くこともできる。
+</p>
+
+<p>
+inductionもreductionと同じように指定する。
+</p>
+
+<pre><code>float* zipper(int n, float* x, float *y, float *z) {
+    for_loop( par, 0, n,
+        induction(x),
+        induction(y),
+        induction(z,2),
+        [&amp;](int i, float* x_, float* y_, float* z_) {
+            *z_++ = *x_++;
+            *z_++ = *y_++;
+        });
+    return z;
+}
+</code></pre>
+
+<p>
+この分野の知識が乏しいのでinductionの意味がよくわからない。以下のコードとシリアル実行という点を除いては同じ意味になるようだが、単にlambda式でキャプチャーしてはダメなのだろうか。
+</p>
+
+<pre><code>float* zipper(int n, float* x, float *y, float *z) {
+    for( int i=0; i&lt;n; ++i ) {
+        *z++ = *x++;
+        *z++ = *y++;
+    }
+    return z;
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0076r0.pdf">[PDF] P0076R0: Vector and Wavefront Policies</a>
+</h2>
+
+<p>
+Parallelism TS(STLのアルゴリズムに並列実行版のオーバーロードを追加する規格)に、新しい実行ポリシーとしてvecとunseqを追加する提案。
+</p>
+
+<p>
+unseqはseqより実行時特性の制約がゆるいが、実行は単一のOSスレッド上に限定される。vecはシーケンスの制約がunseqより強い。vecはSIMDなどのベクトル演算を想定している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0077r0.html">P0077R0: is_callable, the missing INVOKE related trait</a>
+</h2>
+
+<p>
+指定した型が指定した実引数型で呼び出して指定した戻り値の型を返すかどうかを調べられる、is_callable traitsの提案。
+</p>
+
+<pre><code>template &lt;class, class R = void&gt; struct is_callable; // not defined
+
+    template &lt;class Fn, class... ArgTypes, class R&gt;
+      struct is_callable&lt;Fn(ArgTypes...), R&gt;;
+
+    template &lt;class, class R = void&gt; struct is_nothrow_callable; // not defined
+    template &lt;class Fn, class... ArgTypes, class R&gt;
+      struct is_nothrow_callable&lt;Fn(ArgTypes...), R&gt;;
+</code></pre>
+
+<p>
+以下のように使う。
+</p>
+
+<pre><code>void f( int, double ) ;
+
+constexpr bool b = std::is_callable< f ( int, double ), void >::value ; // true
+</code></pre>
+
+<p>
+is_callable&lt; Fn( args ... ), R &gt;は、INVOKE( declval&lt;Fn&gt;(), declval&lt;args&gt;()..., R )が合法かどうかを返す。
+</p>
+
+<p>
+上記の条件に加えて、無例外保証も調べるis_nothrow_callableもある、
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0078r0.pdf">[PDF] P0078R0: The [[pure]] attribute</a>
+</h2>
+
+<p>
+[[pure]]属性を追加する提案。
+</p>
+
+<p>
+[[pure]]属性は関数に指定することができる。指定された関数はpureとなる。pure関数には様々な制約がある。
+</p>
+
+<p>
+pure関数は、与えられた入力に対して出力を返す。同じ入力が与えられた場合、必ず同じ出力を返す。副作用を発生させてはならない。戻り値の型がvoidであってはならない（純粋に数学的な関数は常に戻り値を返す）
+</p>
+
+<p>
+現在の文面案は以下の通り。
+</p>
+
+<p>
+関数fがpureである場合、数学的な関数を実現している。すなわち、(a) 同じ値の実引数に対して、fは常に同じ答えを返す。(b) fはクライアントコードと実引数リストと戻り値のみを使ってやり取りする。(c) 常に呼び出し元に戻る。(d) fはその実行外において観測可能な副作用を発生させない。関数gの本体の中の文Sがpureである場合、Sが実行されたならば、pure gの挙動から外れた挙動を示してはならない。pure関数、あるいは文の反対は、impureである。すべての関数と文は、pureであると指定されない限り、impureとなる。
+</p>
+
+<p>
+[ 例：関数fは、以下の場合、pureではない。
+</p>
+
+<ul>
+<li>実引数が値で渡されていない</li>
+<li>グローバルメモリへの読み書きアクセス</li>
+<li>戻り値の型がvoid</li>
+<li>impure関数を呼び出す</li>
+<li>
+<p>
+呼び出し元や他のスレッドがfによる変更を感知できること、たとえば、
+</p>
+
+<ol>
+<li>関数にローカルではない変数やデータ構造に依存するか書き変える</li>
+<li>動的にメモリーを確保する</li>
+<li>例外をcatchしないで外に投げる</li>
+</ol>
+</li>
+</ul>
+
+<p>
+pure関数には様々な利点がある。pure関数を使った式は除去したりmemoizationにより簡易化できる。同期やスレッドセーフ、コード順序の変更も大胆に行えるので、最適化の余地が広がる。pure関数はテストしやすい。
+</p>
+
+<p>
+pure関数には問題もある。副作用を発生させることができないので、I/Oや動的メモリ確保ができないし、impure関数を呼び出すこともできない。コンパイラーはpure指定された関数はpureであるという前提のもとコード生成を行うので、pure関数に副作用を発生させるバグがある場合、不可思議な挙動を示し、特定が困難になるかもしれない。
+</p>
+
+<p>
+論文は既存のプログラミング言語におけるpure関数の実装例も紹介しているので興味のある人は読むと良い。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0079r0.pdf">P0079R0: Extension methods in C++</a>
+</p>
+
+<p>
+統一感数記法に変わる軽量な拡張メソッドの提案。
+</p>
+
+<p>
+統一感数記法は、メンバー関数呼び出しとフリー関数呼び出しの文法を統一し、どちらで呼び出しても良いようにするものであった。
+</p>
+
+<pre><code>struct A { } ;
+void foo( A &amp; ) ;
+
+struct B { void foo() ; }
+
+int main()
+{
+    A a ;
+    a.foo() ; // OK
+
+    B b ;
+    foo(b) ; // OK 
+} 
+</code></pre>
+
+<p>
+目的としては、ジェネリックなコードで、型によってメンバー関数とフリー関数によって呼び出す文法を変えなければならないのは面倒なので、どちらで呼び出してもコンパイラーが勝手に変換してくれるようにしようというものだ。
+</p>
+
+<p>
+しかし、この機能はあまりにも大きすぎる変更なので、既存のコードに問題を引き起こす恐れがある。そこで、この提案では、もう少し軽量な、明示的なopt-inが必要となる機能、拡張メソッドを提案している。
+</p>
+
+<p>
+拡張メソッドは、フリー関数で、第一引数として明示的なthisポインターを取る。仮引数名は必ずthisとする。
+</p>
+
+<pre><code>struct A { } ;
+
+// 拡張メソッド
+void foo( A * this, int ) ;
+
+int main()
+{
+    A a ;
+    a.foo( 0 ) ; // OK
+}
+</code></pre>
+
+<p>
+オーバーロード解決では、メンバー関数と拡張メソッドでは、メンバー関数のほうが優先される。
+</p>
+
+<pre><code>
+struct A
+{
+    void f() ;
+} ;
+
+void f( A * this ) ;
+
+int main()
+{
+    A a ;
+    a.f() ; // メンバー関数
+}
+</code></pre>
+
+<p>
+拡張メソッドは、アクセス指定においては特別扱いされない。
+</p>
+
+<pre><code>struct A
+{
+private :
+    int x ;
+} ;
+
+void f( A * this )
+{
+    this-&gt;x ; // エラー
+} 
+</code></pre>
+
+<p>
+コンセプトと組み合わせることで、メンバー関数を持っている場合のみ呼び出す拡張メソッドが書ける。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+concept bool has_foo()
+{
+    return requires( T &amp; t )
+    {
+        { t.foo() } -&gt; void ;
+    } ;
+}
+
+void foo( has_foo * this )
+{
+    this-&gt;foo() ;
+}
+</code></pre>
+
+<p>
+C#にある拡張メソッドを参考にしているらしい。
+</p>
+
+<p>
+なんだか素朴な案だ。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
