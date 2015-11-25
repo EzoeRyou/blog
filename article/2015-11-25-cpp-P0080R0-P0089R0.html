@@ -1,0 +1,312 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書のレビュー: P0080R0-P0089R0 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/11/c-p0080r0-p0089r0.html">C++標準化委員会の文書のレビュー: P0080R0-P0089R0</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0080r0.pdf">P0080R0: Variant: Discriminated Union with Value Semantics</a>
+</h2>
+
+<p>
+variantライブラリの提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0081r0.pdf">P0081R0: A proposal to add sincos to the standard library</a>
+</h2>
+
+<p>
+sinとcosを同時に計算してくれるsincosライブラリの提案。
+</p>
+
+<p>
+ある値に対してsinとcosを同時に両方共計算したいことはよくある。同じ値を二度引数として別の関数に渡すのは間違いのもとである。また、x86などの一部のアーキテクチャには、sinとcosを同時に計算してくれる効率的な命令が用意されている。
+</p>
+
+<p>
+GCCにあるsincosは、結果をポインターで受け取るが、ポインターが絡むとエイリアスなどの問題が出てくるので、提案されている文法は、単に値をpairで返す。
+</p>
+
+<pre><code>#include &lt;utility&gt;
+namespace std {
+
+pair&lt;double, double&gt; sincos(double x) noexcept;
+
+// その他、floatなどのオーバーロード関数
+}
+
+</code></pre>
+
+<p>
+std::tieを使えば、pairは意識せずにすむ。
+</p>
+
+<pre><code>#include &lt;tuple&gt;
+
+void f( double x )
+{
+    double s, c ;
+
+    std::tie( s, c ) = std::sincos( x ) ;
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0082r0.pdf">[PDF] P0082R0: For Loop Exit Strategies (Revision 1)</a>
+</h2>
+
+<p>
+forループから、条件式がfalseになって抜けた時と、breakで抜けた時に実行されるブロック文を記述できるif for文の提案。
+</p>
+
+<pre><code>if for ( ... ; 条件 ; ... )
+    {
+        // for文のブロック文
+    }
+{
+    // 条件がfalseになって抜けた時に実行される   
+}
+else
+{
+    // breakで抜けた時に実行される。
+}
+</code></pre>
+
+<p>
+この論文筆者が主張するには、以下のようなコードより読みやすいらしい
+</p>
+
+<pre><code>
+for ( ; 条件 ; )
+{
+    // for文のブロック文
+}
+
+if ( !条件 )
+{
+    // 条件がfalseで抜けた
+}
+else
+{
+    // breakで抜けた
+}
+</code></pre>
+
+<p>
+どうも必要性がわからない。そういう複雑なfor文は関数として切り分ける方が読みやすいし、lambda式のある現在、ライブラリベースの実装でも良い気がする。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0083r0.pdf">[PDF] P0083R0: Splicing Maps and Sets (Revision 2)</a>
+</h2>
+
+<p>
+std::listには、spliceという機能がある。これを使えば、あるlistコンテナーで管理されている要素を、所有権ごと別のコンテナーに移動することができる。
+</p>
+
+<pre><code>
+    std::list<int> a { 1, 2, 3 } ;
+    std::list<int> b { 4, 5, 6 } ;
+
+    a.splice( a.end() , b ) ;
+
+    // a = { 1,2,3,4,5,6}
+    // b = { }
+</code></pre>
+
+<p>
+たといint型のようにコピーやムーブの処理が軽くても、メモリの動的な確保と解放のコストは大きい。spliceは、所有権ごと要素を移すことで、不要なコストを削減できる。
+</p>
+
+<p>
+しかしmapとsetには、このようなspliceがないし、簡単に提供できない。
+</p>
+
+<p>
+そこで、連想コンテナーから要素の所有権を切り離せるextract、所有権が切り離された要素を管理するnode_ptr、node_ptrを受け取るinsertを追加する提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0084r0.pdf">[PDF] P0084R0: Emplace Return Type</a>
+</h2>
+
+<p>
+emplaceが構築したオブジェクトへのリファレンスを返すようにする提案。
+</p>
+
+<p>
+emplaceは、コンテナーに挿入すべきオブジェクトを渡すのではなく、オブジェクト構築時の引数を渡す。しかし、構築後のオブジェクトを操作したい場合、コンテナーからそのオブジェクトをわざわざ引っ張り出してこないといけない。
+</p>
+
+<pre><code>struct X
+{
+    X( int, int, int ) ;
+
+    void do_something() ;
+} ;
+
+int main()
+{
+    std::vector&lt;X&gt; v ;
+
+    // 構築
+    v.emplace_back( 1, 2, 3 ) ;
+
+    // 構築後のオブジェクトを引っ張りだして操作
+    v.back().do_something() ;
+}
+</code></pre>
+
+<p>
+emplaceが構築後のオブジェクトへのリファレンスを戻り値として返すようにすれば、このコードは簡略化できる。
+</p>
+
+<pre><code>v.emplace_back( 1, 2, 3 ).do_something() ;
+</code></pre>
+
+<p>
+提案では、emplace_frontとemplace_backを変更するよう提案している。従来のfrontとbackは戻り値を返さないが、これはどうせオブジェクトを実引数で渡すので、コピー/ムーブされたオブジェクト
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0085r0.html">P0085R0: Oo... adding a coherent character sequence to begin octal-literals</a>
+</h2>
+
+<p>
+新しい8進数リテラル0oを追加する提案。
+</p>
+
+<pre>
+0o11 ; // 10進数で9
+0O11 ; // 9
+</pre>
+
+<p>
+既存のプレフィクス0から始まる8進数リテラルは、現代人には馴染みが薄く混乱のもとである。このリテラルは、まだコンピューターが原始的で、パーソナル・コンピューターといえば個人が8bit CPUや16bit CPUを使って自力で作っていた時代からの名残である。
+</p>
+
+<p>
+この提案では、新しい8進数リテラルのプレフィクス0o(数字ゼロにアルファベットの大文字小文字のオー)を追加する。
+</p>
+
+<p>
+新しい8進数リテラルの追加によって、8進数リテラルへの注目度を上げ、この新しい8進数リテラルを解説する時は、古い8進数リテラルへの注意も併記して問題認識を高め、いずれ既存の8進数リテラルをdeprecated扱いにして、除去することを目指している。
+</p>
+
+<p>
+プレフィクス0oの8進数リテラルは、すでに、haskell, OCaml, Python 3.0, Ruby, Tcl Version 9でサポートされていて、ECMAScript 6もサポートする予定であるという。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0086r0.pdf">[PDF] P0086R0: Variant design review</a>
+</h2>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0087r0.pdf">[PDF] P0087R0: Variant: a type-safe union without undefined behavior (v2)</a>
+</h2>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0088r0.pdf">[PDf] 0088R0: Variant: a type-safe union that is rarely invalid (v5)</a>
+</h2>
+
+<p>
+ライブラリベースの型安全unionを実現するvariantライブラリの設計事情と、議論が別れている設計の差異について。
+</p>
+
+<p>
+variantはinvalid/emptyな状態を許容すべきかどうか。その状態をクエリー可能にすべきかどうか。
+</p>
+
+<p>
+純粋な数学的観点からinvalid/emptyなvariantは認めるべきではないという意見と、その場合、ユーザーが自前でダブルバッファリングをしなければならないので結局使いづらい。variantがダブルバッファリングを提供すべきだ。例外を投げないムーブのある型の場合、メタプログラミングでvariantのダブルバッファリングは除去できるし、将来的にはTransactional Memoryであらゆる型のダブルバッファリングが除去できるなどと豪語する壮大なお花畑意見まである。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0089r0.pdf">[PDF] 0089R0: Quantifying Memory-Allocatiom Strategies</a>
+</h2>
+
+<p>
+メモリ確保にローカルアロケーターを使うことによるパフォーマンス向上のベンチマークと考察
+</p>
+
+<p>
+ローカルアロケーターを使い、個々のオブジェクトのデストラクターを呼ばずに、一括して解放することによる、パフォーマンスの向上の余地は十分にあると主張している。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
