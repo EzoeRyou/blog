@@ -1,0 +1,400 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++30周年を記念してCFrontのバグ調査をしてみた
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/11/c30cfront.html">C++30周年を記念してCFrontのバグ調査をしてみた</a></h1>
+
+<p>
+<a href="http://www.i-programmer.info/programming/cc/9212-finding-bugs-in-the-first-c-compiler-what-does-bjarne-think.html">Finding Bugs In The First C++ Compiler - What does Bjarne Think!</a>
+</p>
+
+<p>
+CFrontの30週年を記念して、C++の設計者にして最初の実装者であるBjarne Stroustrupの実装したC++実装、CFrontに静的解析ツールをかけてバグを洗い出してみた記事が上がっている。
+</p>
+
+<blockquote>
+<p>
+C++の最初のコンパイラーのバグの調査：Bjarneは何考えてたんだ！
+</p>
+
+<p>
+C++は先月30周年を記念したので、PVS-Studio開発部署は自前の静的コード解析ツールを使って、最初のC++コンパイラーであるCFrontのバグを探してみようと思い立った。これは奇妙なお祝いの仕方のように思われるだろう、とくに、C++の創始者であるBjarne Stroustrupを問い詰めるわけだから。彼の返答も載っている。
+</p>
+
+<p>
+C++の30年の歩み、<a href="http://cpp-lang.io/30-years-of-cpp-bjarne-stroustrup/">Bjarne Stroustrup on the 30th anniversary of Cfront (the first C++ compiler)</a>
+</p>
+
+<p>
+Bjarne Stroustrupによって開発されたC++は、C with Classesと認知されていた[訳注: これは謝り、C++はC with Classesの経験を元に新たに設計された]。C++の30周年を祝って作成されたこの時系列表は、この言語が1979年に始まって、1985年の10月14日に、BjarneのThe C++ Programming Language初版本とともにリリースされたと書いている。
+</p>
+
+<p>
+この時系列表によれば、1985年のCFrontの初リリースから、開発が終了する1993年までに、3度のリリースがあったようだ。
+</p>
+
+<p>
+Cpreを元にしたCFrontは、完全なパーサーと、シンボルテーブルと、クラスや関数などのツリー構築を備えている。C++の不思議な制限の多くは、CFrontの実装上の制限に由来している。その理由は、CFrontはC++からCへの変換を行うからだ。つまり、CFrontとはC++プログラマーにとっての神聖なるアーティファクトなのだ。そこで、30周年を記念して、<a href="http://www.viva64.com/en/pvs-studio/">PVS-Studio</a>を使って最初のバージョンをチェックしたくなった。
+</p>
+
+<p>
+筆者はCFrontのコードを入手するために、Bjarne Stroustrupに連絡を取った。筆者はコードの入手だけでも長い話になるだろうと考えていたが、とても簡単だった。
+</p>
+
+<p>
+ソースコードはオープンで、以下から誰でもダウンロードできる。
+</p>
+
+<p>
+<a href="http://www.softwarepreservation.org/projects/c_plus_plus/">C++ Historical Sources Archive — Software Preservation Group</a>
+</p>
+
+<p>
+Bjarneによれば、CFrontを検証するのは難しいだろうとのことだ。曰く、
+</p>
+
+<blockquote>
+<p>
+これはとても古いソフトウェアで、1MB 1Mhzのマシンで動作するよう設計されていて、オリジナルのPC(640KB)でも使われていた。これは一人の人間（私）の仕事の一部として開発されていたのだ。
+</p>
+</blockquote>
+
+<p>
+そして、このプロジェクトを検証するのは不可能だと判明した。この当時、クラス名と関数名を分けるのに、ダブルコロン(::)ではなく単一のドット(.)を使っていたのだ。例えば、
+</p>
+
+<pre><code>inline Pptr type.addrof() { return new ptr(PTR,this,0); }
+</code></pre>
+
+<p>
+弊社のPVS-Studioアナライザーはこのコードを解析できない。そこで、筆者は同僚に、コードを見て、このような箇所を手で修正するように依頼した。一応動いたが、まだ問題はあった。アナライザーにコードをチェックさせてみると、混乱して解析を停止する箇所が多々ある。
+</p>
+
+<p>
+とにかく、我々はこのプロジェクトを検証した。
+</p>
+
+<p>
+結論から言うと、我々は重大な問題を発見できなかった。PVS-Studioが問題を発見できなかった理由は、
+</p>
+
+<ul>
+<li>プロジェクトサイズが小さい。143ファイル、10万行のコードにすぎない</li>
+<li>コードの品質が高い</li>
+<li>PVS-Studioはコードの一部を認識できなかった</li>
+</ul>
+
+<p>
+発見されたバグ
+</p>
+
+<p>
+とはいえ、かのStroustrup本人のバグが発見されることを期待している読者をがっかりさせないためにも、コードをみてみよう。
+</p>
+
+<p>
+コード1
+</p>
+
+<pre><code>typedef class classdef = Pclass;
+
+#define PERM(p) p-&gt;permanent=1
+
+Pexpr expr.typ(Ptable tbl)
+{
+    ...
+    pclass cl ;
+    ...
+    cl = (Pclas) nn-&gt;tp;
+    PERM(cl);
+    if(cl == 0) error('i', "%k %s'sT missing", CLASS,s);
+    ...
+}
+</code></pre>
+
+<p>
+PVS-Studio warning: V595 The 'cl' pointer was utilized before it was verified against nullptr. Check lines: 927, 928. expr.c 927
+</p>
+
+<p>
+clポインターはNULLに等しい可能性がある。if (cl == 0)によるチェックがその可能性を示唆している。問題は、このポインターはチェックの前に参照されている。問題はPERMマクロの中で発生している。
+</p>
+
+<p>
+マクロを展開すると、
+</p>
+
+<pre><code>cl = (Pclass) nn-tp;
+cl-&gt;permanent=1;
+if (cl == 0) error('i', "%k %s'sT missing", CLASS,s);
+</code></pre>
+
+<p>
+コード例2
+</p>
+
+<p>
+同じ問題。ポインターが参照された後にチェックされている。
+</p>
+
+<pre><code>Panme name.normalize(Pbaseb, Pblock bl, bit cast)
+{
+    ...
+    Pname n;
+    Pname nn;
+    TOK stc = b-&gt;b_sto;
+    bit tpdf = b-&gt;b_typedef;
+    bit inli = b-&gt;b_inline;
+    bit virt = b-&gt;b_virtual;
+    Pfct f;
+    Pname nx;
+    if (b == 0) error('i',"#d-&gt;N.normalize(0)",this);
+    ...
+}
+</code></pre>
+
+<p>
+PVS-Studio warning: V595 The 'b' pointer was utilized before it was verified against nullptr. Check lines: 608, 615. norm.c 608
+</p>
+
+<p>
+コード例3
+</p>
+
+<pre><code>int error(int i, loc* lc, char* s ...)
+{
+    ...
+    if (in_error++)
+        if (t!='t' || 4&lt;in_error) {
+            fprintf(stderr, "\nUPS!, error while handling error\n");
+            ext(13);
+        }
+    else if (t == 't')
+        t = 'i';
+    ...
+}
+</code></pre>
+
+<p>
+PVS-Studio warning: V563 It is possible that this 'else' branch must apply to the previous 'if' statement. error.c 164
+</p>
+
+<p>
+筆者はこれに問題があるのかどうか判別できなかったが、コードのインデントが正しくはない。elseは直近のifに対応する。そのため、このコードは見た目通りに実行されない。
+</p>
+
+<p>
+インデントを直すと、以下のようになる。
+</p>
+
+<pre><code>if (in_error++)
+    if (t!='t' || 4&lt;in_error) {
+        fprintf(stderr, "\nUPS!, error while handling error\n");
+        exit(13);
+    } else if (t == 't')
+    t = 'i';
+</code></pre>
+
+<p>
+コード例4
+</p>
+
+<pre><code>extern
+genericerror(int n, char* s)
+{
+    fprintf(stderr,"%s\n",
+        s?s:"error in generic library function",n);
+    abort(111);
+    return 0;
+}
+</code></pre>
+
+<p>
+PVS-Studio warning: V576 Incorrect format. A different number of actual arguments is expected while calling 'fprintf' function. Expected: 3. Present: 4. generic.c 8
+</p>
+
+<p>
+フォーマット指定が"%s"なので、文字列は表示されるが、変数nは使われない。
+</p>
+
+<p>
+残念ながら（あるいは幸運にも）、筆者はこれ以上の問題を見つけられなかった。アナライザーは他にも警告を出していて、興味深いものもあるが、それほど深刻な問題ではない。
+</p>
+
+<p>
+例えば、アナライザーは一部のグローバル変数名が気に入らない様子だ。
+</p>
+
+<pre><code>extern int Nspy, Nn, Nbt, Nt, Ne, Ns, Nstr, Nc, Nl;
+</code></pre>
+
+<p>
+PVS-Studio warning: V707 Giving short names to global variables is considered to be bad practice. It is suggested to rename 'Nn' variable. cfront.h 50
+</p>
+
+<p>
+他の例としては、ポインターの値をfprintf()関数で表示する際に、Cfrontは%iを使っている。現代版では、%pがある。とはいえ、筆者の識る限り、30年前に%pはなかったので、コードは正しい。
+</p>
+
+<p>
+筆者はまた、この当時のthisポインターは別の方法で使われていたことに注目した。以下のような例だ。
+</p>
+
+<pre><code>expr.expr(TOK ba, Pexpr a, Pexpr b)
+{
+    register Pexpr p;
+
+    if (this) goto ret:
+    ...
+    this=p;
+    ...
+}
+
+inline toknode.~toknode()
+{
+    next = free_toks;
+    free_toks = this ;
+    this = 0;
+}
+</code></pre>
+
+<p>
+見てわかるように、thisの値を変えるのは禁止されていなかった。今はthisポインターを変更するのは禁止されている。そのため、thisをnullと比較するのは現代では理屈に合わない。
+</p>
+
+<p>
+筆者はまた、特に興味深いコード片を発見した。
+</p>
+
+<pre><code>/* this is the place for paranoia */
+if (this == 0) error('i',"-&gt;Cdef.dcl(%d)",tbl);
+if (base != CLASS) error('i', "Cdef.dcl(%d)",base);
+if (cname == 0) error('i',"unNdC");
+if (cname-&gt;tp != this) error('i',badCdef");
+if (tbl == 0) error('i',"Cdef.dcl(%d,0)",cname);
+if (tbl-&gt;base != TABLE) error('i',""Cdef.dcl(%n,tbl=%d)",
+                              cname,tbl-&gt;base); 
+</code></pre>
+
+<p>
+Bjarne Stroustrupの返答
+</p>
+
+<p>
+さて、Bjarneは30年前のエラーに対しどう返答するのか。以下が彼の返した返事だ。
+</p>
+
+<ul>
+<li>CFrontはCpreからブートストラップされたが、完全な書きかえがあった。CFrontにはCpreのコードは一行もない</li>
+<li>use-before-test-of-0はもちろんダメだが、興味深いことに、私が当時使っていたマシンとOS（DECと研究用UNIX）には、page zero write protectがあったので、このバグによる問題が実際発生したならば見逃されずにいただろう</li>
+
+<li>
+if-then-elseバグは変だ。ソースを読んだところ、単なるインデント間違いではなく、実際の間違いであった。しかし、それほど問題ではない。違いは、異常終了するまえのエラーメッセージの些細な間違いでしかない。見つけられなかったのも無理はない。
+</li>
+
+<li>
+そうだ。もっと読みやすい名前を使うべきだった。このコードを他の人間が長期間保守することは想定していなかった（それと私はタイプが下手だった）
+</li>
+
+<li>
+そうだ。%pは当時なかった。
+</li>
+
+<li>
+そうだ。thisの仕様は変更された。
+</li>
+
+<li>
+そのパラノイアテストはコンパイラーのメインループに仕掛けてある。もしソフトウェアかハードウェアに不具合があったならば、そのテストのうちのどれかは失敗するだろう。少なくとも一度、そのコードはCFrontをビルドするツールのコード生成のバグを発見した。思うに、すべての大規模なプログラムは、「不可能」なエラーを発見するための「パラノイアテスト」を含むべきである。
+</li>
+</ul>
+
+<p>
+結論
+</p>
+
+<p>
+CFrontの価値は計り知れない。プログラミングの開発に多大な影響を与えたし、未だに開発され続けているC++言語を生み出した。C++を作って開発したBjarneの作業には感謝してもし尽くせない。この素晴らしいコンパイラーを検証出来なのはとてもよかった。
+</p>
+
+<p>
+Andrey KarpovはProgram Verification Systemsの共同創始者かつCTOである。この会社の主な活動は静的コード解析ツール、PVS-Studioの開発である。AndreyはVisual C++エキスパートとして4回のMicrosoft MVP賞を獲得し、<a href="http://cpphints.com/">C++ Hints</a>ウェブサイトを運営している。
+</p>
+
+</blockquote>
+
+<p>
+パラノイアテストが興味深い。
+</p>
+
+<p>
+例えば、Chromiumにも含まれている。
+</p>
+
+<blockquote class="twitter-tweet" lang="en"><p lang="ja" dir="ltr">「宇宙線が降ってきてメモリのビットが狂う」「ハードウェアのバグでメモリのビットが狂う」というのは非常にまれな現象だけど、Chromeくらいのユーザ数規模になるとけっこう日常的に起きます。なのでChromeで走ってるGCには、それらのビット異常を検知する機構をわざわざ入れてます。</p>&mdash; Kentaro Hara (@xharaken) <a href="https://twitter.com/xharaken/status/341668178239303680">June 3, 2013</a></blockquote>
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+<p>
+また、URLを忘れたが、どこかのオンラインゲームが、ゲームクライアントのメインループに絶対に失敗しないチェック（簡単な数値計算と結果の比較）を淹れてみたところ、少なからぬ割合のユーザーがチェックに失敗したという。
+</p>
+
+<p>
+また、Microsoft Windowsのエラー報告で、xor eax,eaxのような絶対に失敗するはずのないコード箇所でクラッシュした報告を受け取った（ユーザーのCPUにそのようなエラッタはない）ので、調査してみたところ、そのユーザーのPCはショップで組み立て済みで販売されているもので、過剰にオーバークロックされていたとの話もある。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
