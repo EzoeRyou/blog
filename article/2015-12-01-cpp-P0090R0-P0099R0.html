@@ -1,0 +1,407 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書のレビュー: P0090R0-P0099R0 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="C++標準化委員会の文書のレビュー: P0090R0-P0099R0">C++標準化委員会の文書のレビュー: P0090R0-P0099R0</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0090r0.htm">P0090R0: Removing result_type, etc.</a>
+</h2>
+
+<p>
+result_type, argument_type, first_argument_type, second_argument_typeというネストされた型名の廃止。
+</p>
+
+<p>
+これらのネストされた型名はdecltype以前の機能であり、もはやその役割は別の機能(result_ofなどのtraits)で担うことができる。また、labmda式のクロージャーオブジェクトなどresult_typeを持たない型が多数あり、もはやresult_typeなどを使うコードは、ジェネリックではない。
+</p>
+
+<p>
+ただし、&lt;random&gt;にあるresult_typeなどは意味があるため、残す。
+</p>
+
+<p>
+not1, not2の廃止。これらはVariadic Templates以前の機能であり、いまはより優れたnot_fnで代替できる。
+</p>
+
+<p>
+これらの廃止した項目を、規格の中で互換機能を記述する箇所である、Annex C: Compatibilityに移動。
+</p>
+
+<p>
+互換性のために、これらの除去した機能を実装するコンパイラーはC++17規格準拠であるという例外的な文面を追加する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0091r0.html">P0091R0: Template parameter deduction for constructors (Rev. 2)</a>
+</h2>
+
+<p>
+関数テンプレートにある実引数推定(argument deduction)をクラステンプレートのコンストラクターにも提供する提案。
+</p>
+
+<p>
+関数テンプレートには、テンプレート実引数を関数の実引数から推定してくれる機能がある。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+void f( T t ) ;
+
+int main()
+{
+    f( 0 ) ; // f&lt;int&gt;
+    f( 0.0 ) ; // f&lt;double&gt;
+}
+</code></pre>
+
+<p>
+しかし、クラステンプレートにはそのような機能はないため、テンプレート実引数を手書きしなければならない。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+struct X
+{
+    X( T t ) ;
+} ;
+
+int main()
+{
+    X x(0) ; // エラー
+    X&lt;int&gt; x(0) ; // OK
+}
+</code></pre>
+
+<p>
+この問題に対する伝統的な解決方法は、関数テンプレートに実引数推定させてクラステンプレートを返す方法がある。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+X&lt;T&gt; make_x( T &amp;&amp; t )
+{
+    return X&lt;T&gt;( std::forward&lt;T&gt;(t) ) ;
+}
+
+int main()
+{
+    auto x = make_x( 0 ) ; // X&lt;int&gt;
+}
+</code></pre>
+
+<p>
+この解決方法の問題は、まずmake_x関数テンプレートを書かなければならないということだ。ライブラリごとにそのようなmake関数のインターフェースは異なるので、ライブラリごとにmake関数を使う際にドキュメントを参照しなければならない。コピーもムーブもできない型に対してはmake関数を提供できない。
+</p>
+
+<p>
+この提案による機能は2つある。まずは、クラステンプレートのコンストラクターが型を推定する機能
+</p>
+
+<pre><code>pair p(1, 1.0 ) ; // pair&lt;int, double&gt;
+tuple t( 1, 1.0, "hello" ) ; // tuple&lt;int, double, const char * &gt;
+</code></pre>
+
+<p>
+もうひとつは、コンストラクターがクラステンプレートのテンプレート実引数に依存していない場合でも、実引数推定を行えるようにする機能。
+</p>
+
+<p>
+例えば、vectorのイテレーターを取るコンストラクターは、上記の方法では実引数推定できない。
+</p>
+
+<pre><code>template &lt; typename T, typename Allocator = std::allocator&lt;T&gt; &gt;
+class vector
+{
+    template &lt; typename InputIterator &gt;
+    vector( InputIterator first, InputIterator last ) ;
+} ;
+</code></pre>
+
+<p>
+このため、コンストラクターからクラステンプレートのテンプレート仮引数に依存を発生させ、実引数推定をさせるためのマッピング機能が提案されている。
+</p>
+
+<p>
+提案されているマッピングの文法案
+</p>
+
+<pre><code>template&lt;typename T, typename Alloc = std::allocator&lt;T&gt;&gt; struct vector {
+  /* ... */
+};
+template&lt;typename InputIterator&gt;
+vector(InputIterator first, InputIterator last)
+-&gt; vector&lt;typename iterator_traits&lt;InputIterator&gt;::value_type&gt;
+</code></pre>
+
+<p>
+極めて読みづらい文法だ。これはライブラリ作者が書くものであって、単なるライブラリのユーザーは存在を気にする必要はないのが救いか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0092r0.html">P0092R0: Polishing chrono</a>
+</h2>
+
+<p>
+&lt;chrono&gt;を改良する提案
+</p>
+
+<p>
+time_pointにインクリメント演算子とデクリメント演算子のオーバーロードを追加
+</p>
+
+<p>
+durationとtime_pointに新しい丸めモードを追加、floor(負の無限大方向に丸める)、ceil(正の無限大方向に丸める)、round(近い方に丸める)
+</p>
+
+<p>
+符号付きdurationにabsを提供
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0093r0.html">P0093R0: Simply a Strong Variant</a>
+</h2>
+
+<p>
+ダブルバッファリングを含む対策をすることでnever empty保証のある強いvariantの提案。
+</p>
+
+<p>
+never empty保証をするためには、ダブルバッファリングが必要になる。これはvariantのサイズを2倍にしてしまう。
+</p>
+
+<p>
+論文は、プログラマーはコストを犠牲にしてもプログラムの正確性を重視すると主張している。また、無例外保証のあるムーブを提供している型だけ渡されたならば、メタプログラミングによりダブルバッファリングを回避する実装が可能であること、Transactional Memoryの発展によって、将来はあらゆる型でダブルバッファリングをしなくてもすむようになる（かなり疑わしいが）ので、将来の拡張性があることなどを挙げている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0094r0.html">P0094R0: Simply a Basic Variant</a>
+</h2>
+
+<p>
+P0093の省略版のような文書。N0093とほぼ同じ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0095r0.html">P0095R0: The Case for a Language Based Variant</a>
+</h2>
+
+<p>
+コア言語でvariantに対応する提案。
+</p>
+
+<p>
+純粋にライブラリベースのvariant実装は使いづらい。一般ユーザーにすらSFINAEによるコンパイル時条件分岐を強いる。
+</p>
+
+<p>
+そこで、コア言語による対応が必要だとしている。
+</p>
+
+<p>
+提案では、以下のようにvariantを宣言できる。
+</p>
+
+<pre><code>enum union param
+{
+    int age ;
+    std::string name ;
+    std::string address ;
+} ;
+</code></pre>
+
+<p>
+コア言語で対応するので、switch文もvariantに対応できる。
+</p>
+
+<pre><code>struct Person
+{
+    int age ;
+    std::string name ;
+    std::string address ;
+
+    void set( param p )
+    {
+        switch( p )
+        {
+            case age a :
+                age_ = a ;
+                break ;
+            case name n :
+                name = n ;
+                break ;
+            case address a :
+                address = a ;
+                break ;
+        }
+    }
+} ;
+
+int main()
+{
+    Person p ;
+    p.set( param::name("Ada") ) ;
+}
+</code></pre>
+
+<p>
+やはりコア言語で対応すると使いやすい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0096r0.html">P0096R0: Feature-testing recommendations for C++</a>
+</h2>
+
+<p>
+プリプロセッサーマクロによる機能テストのためのライブラリ。C++17機能に対応する機能テストが追加されている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0097r0.html">P0097R0: Use Cases for Thread-Local Storage</a>
+</h2>
+
+<p>
+TLSの利用例を示した文書。
+</p>
+
+<p>
+スレッドローカルストレージには長年の歴史があるが、近代的な並列実行において、利用価値はあるのかどうか疑問視されることがある。この文書は、TLSは現代でも利用価値があると解説している。
+</p>
+
+<p>
+問題は、SIMDやGPGPUではTLSはサポートしづらい。しかし、TLSがサポートされないのでは有益なコードが書きにくい。
+</p>
+
+<p>
+提案では、SIMDやGPGPUという実行媒体の特性を解説した上で、TLSを現実的にサポートするための案をいくつか出している。たとえば、TLSに複数の種類を作る案。SIMDやGPGPUで使うTLSは全TLSの一部なので、その一部だけを絞り込めれば実用的なパフォーマンスになる。あるいは、SIMDやGPGPUのTLSは、非トリビアルなコンストラクターが実行されない制約をつけるなど。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0098r0.pdf"></a>
+</h2>
+
+<p>
+RCUの解説。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0099r0.pdf">[PDF] P0099R0: A low-level API for stackful context switching</a>
+</h2>
+
+<p>
+N4397の改訂版。
+</p>
+
+<p>
+タイトル通り、stackful context switchのための低級APIの提案。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+ドワンゴはプログラミング講師を募集しているそうだ。
+</p>
+<a href="https://progres05.jposting.net/pgdwango/u/job.phtml?job_code=1084">【教育事業】プログラミング講座 講師候補（正社員）｜募集職種一覧｜採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+応募にあたっての課題が、<a href="https://github.com/dwango/exam-for-instructor">ドワンゴ プログラミング講師候補採用試験問題</a>に書いてある。
+</p>
+
+<p>
+正解が「オブジェクト指向プログラミング」となる問題文を作成せよという課題が興味深い。「最大200文字以内」という条件はいいとして、「正答の直接的な記載を禁ずる」ことと、「プログラミング言語名の記載を禁ずる」という条件がある。
+</p>
+
+<p>
+筆者の頭にとっさに浮かんだ、まったく試験にふさわしくない問題分は、「Alan Kayが研究していたプログラミングのパラダイム」とか、「UMLで記述されるプログラミングのパラダイム」である。Alan Kayといえばわかりやすいが、しかしこれは歴史問題のようだ。UMLは一般にプログラミング言語とは認識されていないので、当然条件を満たすはずだ。
+</p>
+
+<p>
+それはそうと、C++のオブジェクト指向は、Simulaの影響を受けている。オブジェクト指向という言葉を使った有名人はAlan Kayで、Alan Kay自身もプログラミング言語を開発しているのだが、C++を始めとする真面目な実務向きのプログラミング言語におけるオブジェクト指向のサポートは、Simulaの影響が大きい。
+</p>
+
+<p>
+Alan Kay自身のオブジェクト指向を具体化したプログラミング言語の実装、Smalltalkは、実務向けのプログラミングにはあまり影響を与えなかった。Objective-Cや、あまり知らないがひょっとしたらSwiftがその影響を受けているかもしれない。Smalltalkは、単なるプログラミング言語ではなく、smalltalkというシェルでもあり、エディタでもある、プログラミング環境であり、プログラミング言語単体で切り離せなかったため、実務からは遠くなってしまったのだと思う。
+</p>
+
+<p>
+ところで、最近のC++は、というよりも最近の言語は、あまりオブジェクト指向対応を謳っていない気がする。これは、いまさらに構造化プログラミング対応言語を謳わないのと同じで、オブジェクト指向が十分に一般化したためではないかと思う。
+</p>
+
+<p>
+また、オブジェクト指向のプログラミング言語での取り入れ方もだいぶ変わった。オブジェクト指向の黎明期は、やたらと派生と継承ベースの設計が流行ったが、複雑な派生関係をユーザー側に露出させてしまうと、ライブラリが使いづらくなる。
+</p>
+
+<p>
+最近は汎用的なインターフェース（制約）によるライブラリ設計が多いようだ。コンセプトが議論されているのもそのためだ。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
