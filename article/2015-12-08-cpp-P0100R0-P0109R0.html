@@ -1,0 +1,680 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書のレビュー: P0100R0-P0109R0 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/12/c-p0100r0-p0109r0.html">C++標準化委員会の文書のレビュー: P0100R0-P0109R0</a></h1>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0100r0.html">P0100R0: Comparison in C++</a>
+</p>
+
+<p>
+C++に様々な比較用のカスタマイズ可能な共通ライブラリを追加する提案。
+</p>
+
+<p>
+一口に比較といっても、patial order, weak order, total order、そしてequivalenceがある。アルゴリズムやデータ構造によって、要求する比較の強さや、提供できる比較の強さは異なる。従来のC++では、このような異なる強さの比較が存在するにもかかわらず、すべての比較のcustomization pointは、単一の演算子のオーバーロードで提供されてきた。
+</p>
+
+<p>
+この提案では、以下のような関数をstd名前空間に追加し、必要によってライブラリがオーバーロードして上書きすることによって、customization pointを提供するものである。
+</p>
+
+<pre><code>template&lt;typename T&gt; bool partial_less(const T&amp;,const T&amp;);
+template&lt;typename T&gt; bool weak_less(const T&amp;,const T&amp;);
+template&lt;typename T&gt; bool total_less(const T&amp;,const T&amp;);
+</code></pre>
+
+<p>
+また、同値比較としては以下の関数が追加される。
+</p>
+
+<pre><code>template&lt;typename T&gt; bool partial_unordered(const T&amp;,const T&amp;);
+template&lt;typename T&gt; bool weak_equivalence(const T&amp;,const T&amp;);
+template&lt;typename T&gt; bool total_equal(const T&amp;,const T&amp;);
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0101r0.html">P0101R0: An Outline of a C++ Numbers Technical Specification</a>
+</h2>
+
+<p>
+SG6による数値まわりの提案をまとめた文書。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0102r0.html">C++ Parametric Number Type Aliases</a>
+</h2>
+
+<p>
+メタプログラミングにより数値計算をして、コンパイル時に値を保持するのに必要な数値型のビット数を求めることができる。しかし問題は、その求めたビット数から整数型を選択するライブラリが提供されていない。そこで、この提案では、そのようなライブラリを提案する。
+</p>
+
+<pre><code>exact_2uint&lt;32&gt; a; // きっちり32bitの符号なし組み込み整数型
+least_2int&lt;19&gt; a; // 少なくとも19bitを持つ符号付き整数型
+fast_2int&lt;7&gt; a; // 少なくとも7bitを持つ高速な符号付き整数型
+</code></pre>
+
+<p>
+この提案で興味深いのは、符号付き整数型は、負数を2の補数で表現すると厳密に規定されていることだ。
+</p>
+
+<p>
+浮動小数点数型は、以下の通り、
+</p>
+
+<pre><code>exact_2ieeefloat&lt;64&gt; a; // きっちり64bitの浮動小数点数
+fast_2ieeefloat&lt;32&gt; a; // 高速な少なくとも32bitの浮動小数点数
+least_2ieeefloat&lt;80&gt; a; // 少なくとも80bitの浮動小数点数
+</code></pre>
+
+<p>
+浮動小数点数はIEE 754で規定されている浮動小数点数表現を使うと厳密に規定されている。
+</p>
+
+<p>
+そして、符号付き整数型、符号なし整数型、浮動小数点数型の最大のビット数を得るためのプリプロセッサーマクロ、MAX_BITS_2INT, MAX_BITS_2UINT, MAX_BITS_2IEEEFLOATも追加される。プリプロセッサーマクロである理由は、コンパイル時に分岐できるようにするためだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0103r0.html">P0103R0: Overflow-Detecting and Double-Wide Arithmetic Operations</a>
+</h2>
+
+<p>
+オーバーフローを検出できる整数演算ライブラリと、演算結果を2倍のサイズの整数型で返してくれるライブラリと、演算結果を同サイズの整数型2つに分けて返してくれるライブラリの提案。
+</p>
+
+<p>
+結論から言うと、クソコード生成ライブラリ。
+</p>
+
+<p>
+例えば、2つの符号付き整数を加算する場合は以下のようになる。
+</p>
+
+<pre><code>int a , b 
+std::cin &gt;&gt; a &gt;&gt; b ;
+
+int sum{} ;
+
+bool b = std::overflow_add( &amp;sum, a, b ) ;
+
+if ( b )
+    std::cout &lt;&lt; "overflow detected." &lt;&lt; std::endl ;
+else
+    std::cout &lt;&lt; "result: " &lt;&lt; sum &lt;&lt; std::endl ;
+</code></pre>
+
+<p>
+overflow_xxxは、第一引数に結果を格納する整数型へのポインターを取り、第二引数以降に演算する整数の値を取る。演算結果がオーバーフローした場合、trueが返され、ポインターには書き込まれない。演算結果がオーバーフローしなかった場合、falseが返され、演算結果がポインターを関節参照して書き込まれる。
+</p>
+
+<p>
+提案は他にも、倍精度演算を提供している。結果は、演算に使った型の倍のサイズの整数型でうけとるか、2つの整数型で受け取ることができる。型は、&lt;cstdint&gt;から持ってくるか、P0102で提案されている型を使うなどする。この提案では整数型は規定しない。
+</p>
+
+<pre><code>std::int32_t a , b ;
+
+std::cin &gt;&gt; a &gt;&gt; b ;
+std::int64_t sum = std::wide_add( a, b ) ;
+</code></pre>
+
+<p>
+2つの整数型で受け取る場合、上位ビット列を戻り値で返し、下位ビット列を第一引数のポインターを介した間接参照で書き込んで返す。下位ビット列は必ず符号なし整数型になる。
+</p>
+
+<pre><code>std::int32_t a, b ;
+std::cin &gt;&gt; a &gt;&gt; b ;
+
+std::uint32_t lower ;
+std::int32_t upper = std::split_add( &amp;lower, a, b ) ;
+</code></pre>
+
+<p>
+ちなみに、論文著者はLawrence Crowlで、GCCが提供しているオーバーフロー検知機能付きの演算ライブラリを引数の順序などを少し手直しした他はそのまま持ち込んできた様子だ。きわめて原始的でわかりにくい設計をしていて、これを使ったコードはLinusも激怒するほどのクソになる。
+</p>
+
+<p>
+<a href="http://cpplover.blogspot.jp/2015/11/linus-torvals.html">本の虫: Linus Torvals、クソコードにブチギレ</a>
+</p>
+
+
+<p>
+オーバーフロー検知機能付きの演算はほしいが、ライブラリで提供するのは無理がある。思うに、コア言語でのサポートが必要だろう。例えば以下のような
+</p>
+
+<pre><code>try {
+    int sum = overflow_cast&lt;int&gt;( a + b ) ;
+} catch( std::overflow_exception e )
+{
+    // オーバーフローが発生した
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0104r0.html">P0104R0: Multi-Word Integer Operations and Types</a>
+</h2>
+
+<p>
+任意のワード長での整数演算ができるmulti_int/multi_uintの提案。
+</p>
+
+<pre><code>template&lt;int words&gt; multi_int;
+template&lt;int words&gt; multi_uint;
+</code></pre>
+
+<p>
+実装が提供する最大の組み込み整数型ですら演算精度が足りない場合、複数の整数型のオブジェクトを組み合わせて、多倍長精度演算を行う必要がある。そのような演算を手で書くのは難しい。標準で提供されているべきである。
+</p>
+
+<p>
+multi_int/multi_uintは、組み込み型が提供している演算子を同じ意味でオーバーロードしている。また、通常の整数と同じように、暗黙にboolに変換できるようboolへの変換関数もある。
+</p>
+
+<p>
+提案では、このような演算を整数型の配列に対して行う低級な関数も提供している。これによりユーザーは自前の多倍長演算も実装できる。提案では関数のシグネチャに(が足りずに文法が間違っていることと、divがないように見える。
+</p>
+
+<p>
+無限精度整数ライブラリも標準にほしいが、こちらもほしい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0105r0.html#Overflow">P0105R0: Rounding and Overflow in C++</a>
+</h2>
+
+<p>
+数値演算に対する丸め方法とオーバーフロー時の挙動を指定できる機能。
+</p>
+
+<p>
+浮動小数点数の丸め方法はすでに、numeric_limitsのround_styleで取得したり、fenv.hで設定できる。しかし、既存の方法ではある重要な場合における挙動がかけている。
+</p>
+
+<p>
+もし、値が表現可能な2つの値から等しく離れていた場合、どちらの方向に丸められるのかということだ。
+</p>
+
+<p>
+論文では、これに対して、以下の方向を考察している。
+</p>
+
+<table>
+<tr><td>負の無限大方向</td>
+    <td>正の無限大方向</td></tr>
+<tr><td>ゼロ方向</td>
+    <td>ゼロから離れる方向</td></tr>
+<tr><td>偶数方向</td>
+    <td>奇数方向</td></tr>
+<tr><td>実行時間最速</td>
+    <td>生成コード最小</td></tr>
+<tr><td colspan=2>どうでもいい</td></tr>
+</table>
+
+<p>
+この考察を元に、提案では以下のenumがある。
+</p>
+
+<pre><code>enum class rounding {
+  all_to_neg_inf, all_to_pos_inf,
+  all_to_zero, all_away_zero,
+  all_to_even, all_to_odd,
+  all_fastest, all_smallest,
+  all_unspecified,
+  tie_to_neg_inf, tie_to_pos_inf,
+  tie_to_zero, tie_away_zero,
+  tie_to_even, tie_to_odd,
+  tie_fastest, tie_smallest,
+  tie_unspecified
+};
+</code></pre>
+
+<p>
+このうち、all_away_zero, all_to_even, all_to_odd, tie_to_neg_inf, tie_to_pos_inf, and tie_to_zeroは、conditionally supportedとなっている。規格準拠の実装はサポートする義務がない。
+</p>
+
+<p>
+このモードは、T round(mode,U)という関数に渡すことで使用する。
+</p>
+
+<p>
+この提案はオーバーフローが起きたときの挙動を指定できるT overflow( mode, T upper, U value )も提案している。
+</p>
+
+<p>
+モードは以下のようになっている。
+</p>
+
+<pre><code>enum class overflow {
+  impossible, undefined, abort, exception,
+  special,
+  saturate, modulo_shifted
+};
+</code></pre>
+
+<p>
+impossible: 完全に正しいプログラムでありオーバーフローは数学的に決して起こらない。コンパイラーへのヒントを与えるのにも使える
+</p>
+
+<p>
+undefined: オーバーフローは極めてまれにしか起こらない。オーバーフローが起こった時の挙動は未定義
+</p>
+
+<p>
+abort: オーバーフローが起こったらabortする。
+</p>
+
+<p>
+quick_exit: オーバーフローが起こったらquick_exitを呼び出す
+</p>
+
+<p>
+exception: オーバーフローが起こったら例外を投げる
+</p>
+
+<p>
+special: オーバーフローが起こったことをしめす特殊な値を返す(IEEE 754の規定する浮動小数点数などに存在する)
+</p>
+
+<p>
+saturate: 有効な値の範囲でもっとも近い値を返す
+</p>
+
+<p>
+modulo_shifted: 0からzまでの範囲の場合、結果はx mod (z+1)となる。2の補数表現による挙動
+</p>
+
+<p>
+こちらの設計のほうがまだ比較的読みやすい。
+</p>
+
+<p>
+また、提案では丸め方法とオーバーフロー挙動を同時に指定できる関数も提案している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0106r0.html">P0106R0: C++ Binary Fixed-Point Arithmetic</a>
+</h2>
+
+<p>
+2進数固定小数点数ライブラリの提案。
+</p>
+
+<p>
+提案を読んだがどうにも使い方が難しい設計と命名だ。筆者に数学的素養がないためかもしれないが、もう少し誰でも簡単に使える設計になっていた方がいいのではないか。
+</p>
+
+<p>
+論文は2進数固定小数点を標準でサポートしている既存の言語としてAda, COBOL, CORAL 66, JOVIAL, PL/1を挙げている。CORALとJOVIALは初めて聞いたプログラミング言語だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0107r0.pdf">[PDF] P0197R0: Better support for constexpr in std::array</a>
+</h2>
+
+<p>
+constexprが暗黙にcosntを意味しなくなったので、std::arrayがconstexpr対応ではなくなってしまったのを修正する提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0108r0.html">P0108R0: Skeleton Proposal for Thread-Local Storage (TLS)</a>
+</h2>
+
+<p>
+SIMDやGPGPUなどの軽量実行媒体では、TLSはうまく動かない。これは既存のライブラリが動作しない問題を引き起こす。
+</p>
+
+<p>
+最も問題になるのは、math.hだ。多くのmath関数は、エラー通知にerrnoを使う。math_errhandling &amp; MATH_ERRNOが非ゼロである場合、errnoに具体的なエラー内容が書き込まれる。errnoは、互換性のために必要だが、その特性からTLSが使われている。
+</p>
+
+<p>
+SIMDやGPGPUによる並列化が行われるコードは、特に数学関数を使いたいはずだ。しかし、数学関数はerrnoに書き込むために競合を起こして使えない。
+</p>
+
+<p>
+この問題はどうにかして解決しなければならない。軽量実行媒体でもTLSを使えるようにする案もあるが、ここでは、数学関数側で対処する案が考察されている。
+</p>
+
+<p>
+1. 制約を加える
+</p>
+
+<p>
+軽量実行媒体の文脈では、数学関数はmath_errhandlingやerrnoにアクセスしない。
+</p>
+
+<p>
+2. errnoを関数の引数を経由して受け取る
+</p>
+
+<p>
+errnoにアクセスするすべての数学関数に、例えば以下のようにオーバーロードを追加しなければならない。
+</p>
+
+<pre><code>double acos(double x, int *errnm);
+</code></pre>
+
+<p>
+3. errnoを戻り値で返す。
+</p>
+
+<p>
+tupleなどを使わなければならない。
+</p>
+
+<pre><code>std::tuple&lt; double, errno_t &gt; acos( double x ) ;
+</code></pre>
+
+<p>
+そもそも、errnoでエラー処理をしているプログラマーは少ないと思うので、1.が最も妥当な案だと思う。本当にエラー処理をしたければ実装依存の方法を使うのではないか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0109r0.pdf">[PDF] P0109R0: Function Aliases + Extended Inheritance = Opaque Typedefs</a>
+</h2>
+
+<p>
+3つもの大きめの変更が提案されているので、提案を分割してほしい気がする。
+</p>
+
+<p>
+この文書では、Opaque Aliasを提案している。
+</p>
+
+<p>
+1. Opaque Alias
+</p>
+
+<p>
+かつて、強いtypedefとも呼ばれていた機能。以下のようなエイリアス宣言に似た文法を持つ。
+</p>
+
+<pre><code>using identifier = access-specifier type-id opaque-definition
+</code></pre>
+
+<p>
+access-specifierは、お馴染みのpublic/protected/privateだ。それぞれ、以下のような意味を持つ。
+</p>
+
+<ul>
+<li>private: 暗黙の型変換を認めない</li>
+<li>public: is-a関係。暗黙の型変換を認める</li>
+<li>protected: is-implemented-as関係。opaque型の定義の中でのみ暗黙の型変換を認める</li>
+</ul>
+
+<p>
+以下が利用例だ。
+</p>
+
+<pre><code>// intのopaque alias
+using type = public int ;
+
+type x = 0 ; // OK 暗黙の型変換
+
+// OK、ただしyの型はint
+auto y = x + x ;
+</code></pre>
+
+<p>
+publicのopaque aliasは、あらゆる箇所で内部型との暗黙の型変換を許可する。そのため、int型で初期化できる。"x+x"の結果の型がintになるのは驚くかもしれないが、仕組みを知れば当然だ。まず、operator +(type, type)は宣言されていないので、typeがintに暗黙に型変換されたうえで、組み込みのint opeartor +(int,int)が呼ばれる。そのため、結果はint型になる。
+</p>
+
+<p>
+privateを使えば、一切の暗黙の型変換が禁止される
+</p>
+
+<pre><code>using type = private int ;
+
+type x1 = 0 ; // エラー、暗黙の型変換は禁止
+
+type x2 = reinterpret_cast&lt;int&gt;(0) ; // OK
+type x3{ 0 } ; // OK
+
+auto y = x2 + x2 ; // エラー
+</code></pre>
+
+<p>
+operator =やoperator +のような基本的な操作で、完全に暗黙の型変換を許すか、全面的に許さないかだけでは使いづらい。また、式を評価した結果の型についても、柔軟に決めたい。そこで、opaque aliasには、opaque-definitionを記述することができる。
+</p>
+
+<pre><code>using type = public int
+{
+    type opeartor + ( type x, type y )
+    {
+        return type { int{x} + int{y} } ;
+    }
+} ;
+
+type x{ 0 } ;
+
+// yの型はtype
+auto y = x + x ;
+
+// zの型はint
+// 暗黙の型変換でint operator - ( int, int )が呼ばれる
+auto z = x - x 
+</code></pre>
+
+<p>
+opaque定義では、このようにトランポリン関数を定義できる。こうすることによって、任意の演算子の挙動を変えられる。operator -は定義していないので、暗黙の型変換により組み込みのint operator -(int,int)が呼ばれる。
+</p>
+
+<p>
+目的によっては、operator -を使う事自体が想定できない場合がある。そのために、deleted定義が使える。また、引数の型を変更するだけのトランポリン関数の場合、default化することもできる。
+</p>
+
+<pre><code>using type = public int
+{
+    type operator +( type, type ) = default ;
+    type operator -( type, type ) = delete ;
+} ;
+
+type x{ 0 } ;
+
+// yの型はtype
+auto y = x + x ; 
+
+// エラー、deleted定義
+auto z = x - x ; 
+
+// OK
+// 暗黙の型変換でint operator * (int, int)が呼ばれる
+auto w = x * x ;
+</code></pre>
+
+<p>
+あらゆる演算子に対してdeleted定義を書くのは面倒だ。そこで、アクセス指定子にprotectedを指定すると、opaque定義以外の暗黙の型変換をしないようになる。
+</p>
+
+<pre><code>
+using type = protected int
+{
+    type opeartor +( type, type ) = default ;
+} ;
+
+type x1 = 0 ; // エラー、暗黙の型変換は使えない
+type x2{ 0 } ; // OK
+
+
+auto y = x - x ; // エラー
+</code></pre>
+
+<p>
+ちなみに、opaque aliasのopaque aliasも作れる。
+</p>
+
+<pre><code>using A = private int ;
+using B = public A ;
+
+A a{} ;
+B b{} ;
+
+// OK
+// BはAからのpublicなopaque alisなので、
+// BからAに暗黙に型変換できる
+a = b ;
+
+// エラー
+// Bにoperator =( A )は定義されていない
+// Aは暗黙の型変換を許さない
+b = a ;
+</code></pre>
+
+<p>
+opaque aliasをクラス型に対して適用する場合、メンバー関数に対しては、自動的にトランポリン関数が作られる。
+</p>
+
+<pre><code>using type = private std::vector&lt;int&gt; ;
+
+type t ;
+
+t.push_back( 0 ) ;
+
+// 元のクラス型をtype型にしたトランポリン関数を呼び出す。
+// トランポリン関数は元のメンバー関数を呼び出し結果を返す
+type y( t ) ;
+</code></pre>
+
+<p>
+opaque aliasはテンプレート宣言できる。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+using vec = private std::vector&lt;T&gt; ;
+
+template  &lt;typename T &gt;
+using INT = protected int
+{
+    INT operator +( INT, INT ) = default ;
+    INT operator +( INT, T ) = default ;
+    INT operator +( T, INT ) = default ;
+}
+</code></pre>
+
+<p>
+エイリアス型と元の型は、is_sameやis_base_ofなどの型の関連性を調べるtraitsでは、異なる型で派生関係にもないと判断される。typeidも別の型になる。is_integralなどの単一の型を調べるtraitsでは、エイリアス型は元の型と同じになる。
+</p>
+
+<p>
+sizeofの結果は元の型と同じで、メモリレイアウトなどは全て同じ。opaque aliasを使うことによる実行時コストは発生せず、reinterpret_castを使って元の型にキャストしても動作する。
+</p>
+
+<p>
+また、P0109は、関数エイリアスを提案している。
+</p>
+
+<p>
+関数に別名を付けたい需要は昔からある。例えば、&lt;algorithm&gt;はオブジェクトの比較に、operator *lt;を使う版と、比較関数を受け取る版の関数が存在する。それぞれ、やっていることは同じなのにコードが異なる。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+constexpr const T &amp; min ( const T &amp; a, const T &amp; b )
+{
+    return a &lt; b ? a : b ;
+}
+
+template &lt; typename T, typename Compare &gt;
+constexpr const T &amp; min( const T &amp; a, const T &amp; b, Compare comp ) ;
+{
+    return comp( a, b ) ? a : b ;
+}
+</code></pre>
+
+<p>
+何らかの方法で、compに関数エイリアスとしてoperator &lt;を割り当てることができれば、同じように自然に書ける。
+</p>
+
+<pre><code>template &lt; typename T, typename Compare &gt;
+constexpr const T &amp; min( const T &amp; a, const T &amp; b, Compare comp ) ;
+{
+    using operator &lt;() = comp ;
+    return a &lt; b ? a : b ;
+}
+</code></pre>
+
+<p>
+また、P0109は、派生に対する拡張も提案している。配列とCV修飾されている型を除く、基本型から派生できるようにする拡張だ。
+</p>
+
+<pre><code>// OK
+struct X : int ;
+</code></pre>
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
