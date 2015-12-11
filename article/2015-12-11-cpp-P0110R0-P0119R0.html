@@ -1,0 +1,444 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書のレビュー: P0110R0-P0119R0 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/12/c-p0110r0-p0119r0.html">C++標準化委員会の文書のレビュー: P0110R0-P0119R0</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0110r0.html">
+P0110: Implementing the strong guarantee for variant&lt;&gt; assignment
+</a>
+</h2>
+
+<p>
+強いvariantの実装の考察。
+</p>
+
+<p>
+型Aのオブジェクトを保持するvariantに型Bのオブジェクトを代入しようとした時、型Aのオブジェクトを破棄してから型Bを構築するわけだが、もし、型Bのオブジェクトの構築時に例外が投げられた場合、型Bは構築できていないし、型Aは破棄したあとで、variantはどの型も保持していない無効な状態、あるいは空の状態になる。
+</p>
+
+<p>
+variantはこのような無効な状態を作り出さない強い保証を持つべきだとの意見が多い。では、そのような強いvariantの実装はどのようになるのか。
+</p>
+
+<p>
+型Bが無例外保証のあるコンストラクターを持つ場合、型Aのオブジェクトを破棄して、型Bのオブジェクトを構築すればよい。構築は絶対に失敗しない。
+</p>
+
+<p>
+型Bが無例外保証のあるムーブ構築可能な型であるばあい、つまりstd::nothrow_move_constructible&lt;B&gt;::valueがtrueである場合、型Bのオブジェクトをスタックに構築して、型Aのオブジェクトを破棄して、型Bのオブジェクトをvariantのデータメンバーにムーブ構築して、スタック上の型Bのオブジェクトを破棄する。
+</p>
+
+<p>
+型Bに無例外保証がないが、型Aにはある場合、型Aのオブジェクトをスタック上にムーブ構築して退避させ、型Bのオブジェクトを構築すればよい。
+</p>
+
+<p>
+型AにもBにも無例外保証がない場合、バッファー上に型Bのオブジェクトを構築して、型Aのオブジェクトを破棄して、バッファー上の型Bをvariantの新しいオブジェクトとする。一般に、variantに2つ以上の無例外保証のない型がある場合、この実装になる。
+</p>
+
+<p>
+問題は、そのバッファーはどこに取るべきかということだ。variantのデータメンバーに取ると、variantのサイズが2倍になってしまう。動的確保は好ましくない。すると、一般的にダブルバッファリングと呼ばれている、variantのサイズを2倍にする方法しかない。
+</p>
+
+<p>
+emplaceについては、その存在意義から、ダブルバッファリングはせずに、基本的な例外保証のみに止めたほうがよいとしている。
+</p>
+
+<p>
+論文著者による強いvariantの実装例が公開されている。
+</p>
+
+<p>
+<a href="https://bitbucket.org/anthonyw/variant">https://bitbucket.org/anthonyw/variant</a>
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0112r0.html">P0112R0: Networking Library (Revision 6)</a>
+</h2>
+
+<p>
+Boost.Asioベースのネットワークライブラリの提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0113r0.html">P0113R0: Executors and Asynchronous Operations, Revision 2</a>
+</h2>
+
+<p>
+実行媒体をポリシーベースで選択できるexecutorと非同期実行ライブラリの提案
+</p>
+
+<p>
+以下のように使う。
+</p>
+
+<pre><code>// 非同期実行
+post( p[] {
+    // 処理
+} ) ;
+
+// スレッドプール内で非同期実行
+
+thread_pool pool ;
+
+post( pool, []{
+    // 処理
+} ) ;
+</code></pre>
+
+<p>
+asyncのようにfutureを受け取って結果を待つこともできる。
+</p>
+
+<pre><code>std::future&lt;int&gt; f =
+    post( use_future( []{
+        return 32 ;
+        } ) ;
+
+int result = f.get() ;
+</code></pre>
+
+<p>
+似たような提案が乱立していて、executorという用語も別々の意味で使っているので、混同しやすい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0114r0.pdf">P0114R0: Resumable Expressions (revision 1)</a>
+</h2>
+
+<p>
+resumable式の提案。
+</p>
+
+<pre><code>resumable void f( int n )
+{
+    int i = 1 ;
+    while( true )
+    {
+        std::cout &lt;&lt; i &lt;&lt; std::endl ;
+        ++i ;
+        if ( i &gt; n )
+            break ;
+
+        break resumeale ;
+    }
+}
+
+int main()
+{
+    resumable auto r = f( 5 ) ;
+
+    while ( !r.ready() )
+    {
+        r.resume() ;
+    }
+}
+</code></pre>
+
+<p>
+コルーチンとresumable関数が分かれていた時の文章も混じっていてわかりにくい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0116r0.html">P0116R0: Boolean conversion for Standard Library types</a>
+</h2>
+
+<p>
+std::bitset, std::chrono::duration, std::complexにexplicit operator boolを追加する提案。
+</p>
+
+<p>
+bitsetは(count != 0)を返す、つまりすべてのビットが立っていない時にfalseを返す。
+</p>
+
+<p>
+durationは( *this == zero() )を返す。つまり、ゼロのときにfalseを返す（durationのゼロ表現は結構面倒）
+</p>
+
+<p>
+complexは、(real() != T() || imag() != T())を返す。つまり、real()とimag()がともにfalseの場合にfalseを返す（ド・モルガンの法則）
+</p>
+
+<p>
+この文書で提案しているのはこの3つだけだが、他のライブラリにもexplicit operator boolを提供する考察もしている。例えば、weak_ptrは妥当なポインターを参照しているかどうか、threadは呼び出し元と同じidかどうか。futureはvalid()など。
+</p>
+
+<p>
+weak_ptrは保持しているポインターの値と混同しそうだし、threadの挙動はちょっとわかりにくい気がする。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0117r0.html">P0117R0: Generic to_string/to_wstring functions</a>
+</h2>
+
+<p>
+以下のようなto_string/to_wstringを追加する提案。
+</p>
+
+<pre><code>template&lt;class Ch, class Tr = char_traits&lt;Ch&gt;, class Alloc = allocator&lt;Ch&gt;, class... Args&gt;
+basic_string&lt;Ch,Tr,Alloc&gt; to_basic_string(Args&amp;&amp;... args)
+{
+    basic_ostringstream&lt;Ch,Tr,Alloc&gt; stream;
+    stream.exceptions(ios_base::failbit | ios_base::badbit);
+    // 文書はbinary foldの文法を間違えているので修正
+    ( stream &lt;&lt; ... &lt;&lt; forward&lt;Args&gt;(args) );
+    return stream.str();
+}
+
+template&lt;class... Args&gt;
+string to_string(Args&amp;&amp;... args)
+{
+    return to_basic_string&lt;char&gt;(forward&lt;Args&gt;(args)...);
+}
+
+template&lt;class... Args&gt;
+wstring to_wstring(Args&amp;&amp;... args)
+{
+    return to_basic_string&lt;wchar_t&gt;(forward&lt;Args&gt;(args)...);
+}
+</code></pre>
+
+<p>
+リファレンス実装が文書に乗る程度の大きさ。C++17で入る予定のfold式を使っている。しかも文法を間違えている。
+</p>
+
+<p>
+使い方
+</p>
+
+<pre><code>
+auto s123 = to_string( 123 ) ;
+auto s123456 = to+string( 123, 456 ) ; 
+</code></pre>
+
+<p>
+マニピュレーターも使える。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0118r0.pdf">[PDF] P0118R0: Concepts-TS editors report</a>
+</h2>
+
+<p>
+Concept TSの編集者の報告書。変更点が記されている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0119r0.pdf">[最高に余白を無駄遣いしているPDF] P0119R0: Overload sets as function arguments</a>
+</h2>
+
+<p>
+極めて読みづらい冒涜的に失礼なレイアウトだが、内容は面白い。
+</p>
+
+<p>
+値を引数にとって処理をして返す関数fのオーバーロード群があるとする。
+</p>
+
+<pre><code>int f( int ) ;
+double f( double ) ;
+// ...その他多数
+</code></pre>
+
+<p>
+さて、std::transformで、値に関数fを適用したいとする。以下のように書くと動かない。
+</p>
+
+<pre><code>
+template &lt; typename Iter &gt;
+void g( Iter first, Iter last )
+{
+    // エラー
+    // fはオーバーロード関数群
+    std::transform( first, last, f ) ;
+}
+</code></pre>
+
+<p>
+fというのは単一の関数名ではなく、オーバーロードされた関数群だからだ。
+</p>
+
+<p>
+これを解決するには、オーバーロード解決後の関数ポインターを得るように、明示的にキャストしてやる必要がある。
+</p>
+
+<pre><code>
+using value_type = typename std::iterator_traits<Iter>::value_type ;
+std::transform( first, last,
+    static_cast&lt; typename value_type (*)( value_type ) &gt;(&amp;f) ) ;
+</code></pre>
+
+<p>
+これには、オーバーロードされている関数群fのシグネチャを正確に把握する必要がある。例えば、fのシグネチャは以下のようになっているかもしれない。
+</p>
+
+<pre><code>int f( int, int dummy = 0 ) ;
+double f( double ) ;
+</code></pre>
+
+<p>
+こうなると、もはや明示的なキャストを使って汎用的なコードを書くことはできない。
+</p>
+
+<p>
+lambda式を使えば、汎用的なコードを書くことができる。
+</p>
+
+<pre><code>std::transform( first, last,
+    []( auto &amp;&amp; e ) { return f( std::forward&lt;decltype(e)&gt;(e) ) ; }
+) ;
+</code></pre>
+
+<p>
+しかし、やはり最初の例のように書きたい。
+</p>
+
+<pre><code>std::transform( first, last, f ) ;
+</code></pre>
+
+<p>
+そこで、このような記述を可能にする提案。
+</p>
+
+<p>
+具体的には、テンプレートの実引数推定で、実引数fがオーバーロード関数群であるid-expressionであった場合は、以下のようなlambda式の転送関数を暗黙に生成するようになる。
+</p>
+
+<pre><code>[]( auto &amp;&amp; ... args )
+{
+    return f( std::forward&lt; decltype(args)&gt;(args)... ) ;
+}
+</code></pre>
+
+<p>
+名前がオーバーロード関数群ではない場合、このlambda式は生成されないので、既存のコードとの互換性の問題もない。
+</p>
+
+<pre><code>
+template < typename T > void f( T ) ;
+
+// オーバーロード関数群
+void g( int ) ;
+void g( double ) ;
+
+// オーバーロード関数群ではない
+void h( int ) ;
+
+int main()
+{
+    f( g ) ; // lambda式が生成される
+    f( h ) ; // void (*)( int )型の関数ポインターが渡される
+}
+</code></pre>
+
+<p>
+また、演算子を直接渡すこともできる。
+</p>
+
+<pre><code>std::sort( begin(v), end(v), operator &lt; ) ;
+</code></pre>
+
+<p>
+テンプレートの実引数推定に手を入れているので、思わぬ恩恵もある。例えば、オーバーロード関数名の変数への代入には、実は実引数推定が働くので、オーバーロード関数やオーバーロード演算子からラムダ転送式を生成して、クロージャーオブジェクトを得ることができる。
+</p>
+
+<pre><code>int main()
+{
+    auto lc = operator &lt; ;
+
+    lc( 1, 2 ) ; // 1 &lt; 2
+}
+</code></pre>
+
+<p>
+これは、以下のようなコードと同等だ。
+</p>
+
+<pre><code>int main()
+{
+    auto lc = []( auto &amp;&amp; l, auto &amp;&amp; r )
+        {
+            return std::forward&lt;decltype(l)&gt;(l) &lt; std::forward&lt;decltype(r)&gt;(r) ;
+        } ;
+
+    lc( 1, 2 ) ;
+}
+</code></pre>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
