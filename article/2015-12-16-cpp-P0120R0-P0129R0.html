@@ -1,0 +1,468 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書: P0120R0-P0129R0 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/12/c-p0120r0-p0129r0.html">C++標準化委員会の文書: P0120R0-P0129R0</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0120r0.html">P0120R0: constexpr unions and common initial sequences</a>
+</h2>
+<p>
+variant&lt;A, B&gt;に対して、variantの実装は、以下のような型を作り出す。
+</p>
+
+<pre><code>struct storage{
+char discriminator;
+union {
+A a;
+B b;
+} u;
+};
+</code></pre>
+
+<p>
+discriminatorは、どの型が現在有効になっているかをしめす変数だ。
+</p>
+
+<p>
+しかし、以下のように実装したほうが、メモリ効率が良い。
+</p>
+
+<pre><code>struct wrapped_A{
+char discriminator;
+A data;
+};
+struct wrapped_B{
+char discriminator;
+B data;
+};
+union storage{
+wrapped_A a;
+wrapped_B b;
+} u;
+</code></pre>
+
+<p>
+AやBのアライン要求がゆるい場合、メモリ効率が良くなる。
+</p>
+
+<p>
+しかし、この実装はconstexprにできない。その理由は、現行規格の文面が不必要な制限を課しているからである。その制限を緩和する提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0121r0.pdf">[PDF] P0121R0: Working Draft, C++ extensions for Concepts</a>
+</h2>
+
+<p>
+コンセプトTSのドラフト
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0122r0.pdf">[PDF] P0122R0: array_view: bounds-safe views for sequences of objects</a>
+</h2>
+
+<p>
+連続したストレージを多次元配列のように見せかけるラッパーライブラリ、array_viewの提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0124r0.html">P0124R0: Linux-Kernel Memory Model</a>
+</h2>
+
+<p>
+Linuxカーネルのメモリモデルの解説
+</p>
+
+<p>
+背景事情としては、Linus Torvaldsから、CとC++が標準化したAtomic操作ライブラリは、設計がクソで、Linuxカーネルでは使うつもりはないと言われたので、Linuxカーネルでも使える設計にするために、まずLinuxカーネルのメモリモデルを詳細にまとめた文書を作成した。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0123r0.pdf">[PDF] P0123R0: Unifying the interfaces of string_view and array_view</a>
+</h2>
+
+<p>
+string_viewは、std::stringや、null終端されたchar *や、char *と文字数といった異なる連続したストレージ上に構築された文字列表現をラップして、共通の操作を提供してくれるライブラリだ。
+</p>
+
+<p>
+array_viewは、連続したストレージ上の配列をラップして、多次元配列として使うことができるライブラリだ。
+</p>
+
+<p>
+string_viewとarray_viewは似通っているため、インターフェースを統一したい。いっそ、string_viewはarray_viewのエイリアステンプレートでよい。つまり、以下のようになる。
+</p>
+
+<pre><code>template&lt;class CharT, size_t Extent = dynamic_range&gt;
+using basic_basic_string_view = array_view&lt;CharT, Extent&gt;;
+</code></pre>
+
+
+<p>
+これにより、連続したストレージは同じ方法で扱える。C++プログラマーが覚える必要のあるライブラリが減る。
+</p>
+
+<p>
+これまで提案されていたstring_viewは、basic_stringとの互換性のため、findなどの同じメンバー関数を提供していた。この提案では、メンバー関数として提供されることはない。フリー関数を使うべきだ。
+</p>
+
+<pre><code>
+std::string s("hello") ;
+std::string_view sv("hello") ;
+
+auto pos1 = s.find("ll") ;
+auto pos2 = sv.find("ll") ; // エラー
+</code></pre>
+
+<p>
+提案されているstring_viewは、null終端されている保証を持たない。null終端された文字列が欲しい場合は、フリー関数ensure_z()に渡すと、null終端された文字列が得られる。これは、文字列リテラルに適用する場合ゼロオーバーヘッド、その他の場合はstrlen相当のコストがかかる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0124r0.html">P0124R0: Linux-Kernel Memory Model</a>
+</h2>
+
+<p>
+Linuxのメモリーモデルを解説した文書
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0125r0.html">P0125R0: std::bitset inclusion test methods</a>
+</h2>
+
+<p>
+std::bitsetは、数学的な集合を表現するのに使うことができる。
+</p>
+
+<p>
+bitsetのn個目のbitが1かどうかで、n個目のオブジェクトが存在するかどうかを表現できる。
+</p>
+
+<p>
+この提案は、bitsetにinclusionを判定する機能を付け加えるものである。
+</p>
+
+<ul>
+<li>集合Aに含まれるすべてのオブジェクトが集合Bに含まれる場合、AはBのサブセットである</li>
+<li>AがBのサブセットであるか、AとBが同一である場合、BはAのスーパーセットである</li>
+<li>AがBのサブセットで、AとBが同一ではない場合、AはBの真の（あるいは厳格な）サブセットである</li>
+<li>AがBのサブセットで、AとBが同一ではない場合、BはAの真の（あるいは厳格な）スーパーセットである</li>
+</ul>
+
+<p>
+この提案は、厳格なサブセットとスーパーセットを判定する以下のようなメンバー関数をbitsetに追加する。
+</p>
+
+<pre><code>bitset::is_subset_of(const bitset&amp;) ;
+bitset::is_superset_of(const bitset&amp;) ;
+</code></pre>
+
+
+<p>
+追加する理由は、明示的に名前が付いていることによる読みやすさのためと最適化のためである。
+</p>
+
+<p>
+bitsetのサイズがマルチワードの場合、aがbのサブセットであるかどうかを判定するのに、以下のような実装では、効率が悪い。
+</p>
+
+<pre><code>std::bitset&lt;256&gt; a, b;
+auto a_includes_b(a &amp; b == b);
+</code></pre>
+
+<p>
+なぜならば、これはaとbの全ビットを比較してしまうためである。メンバー関数は、結果がfalseであると判明次第処理を戻すことができるし、規格ではそのような最適化をするように規定されている。
+</p>
+
+<pre><code>auto a_includes_b( a.is_subset_of(b) );
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0126r0.pdf">
+[PDF] P0126R0: std::synchronic&lt;T&gt;
+</a>
+</h2>
+
+<p>
+よいスピンロックライブラリ、synchronic&lt;T&gt;の提案
+</p>
+
+<p>
+よいスピンロックを書くのは難しい。unmitigated spinning (TTAS), hardware thread yielding, randomized timed exponential back-off, and invocations of platform API’s like SYS_futexを組み合わせなければならない。std::mutexはそのような実装になっていることが多いが、ユーザーが実装するのは難しい。condition variableはその使われ方と歴史的経緯から、直接プラットフォームAPIを呼ぶ実装になっていることが多い。
+</p>
+
+<p>
+synchronicは以下のような宣言になっている。
+</p>
+
+<pre><code>template &lt;class T&gt;
+struct synchronic {
+...
+void notify(std::atomic&lt;T&gt;&amp; atom, T val) noexcept;
+void expect(std::atomic&lt;T&gt; const&amp; atom, T val) const;
+};
+</code></pre>
+
+<p>
+expectでatomの値がvalになるまでブロックする。notifyでatomの値をvalに変える。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0127r0.html">P0127R0: Declaring non-type template arguments with auto</a>
+</h2>
+
+<p>
+型をテンプレート実引数で取る非型テンプレート実引数の宣言のための文法の提案。
+</p>
+
+<p>
+テンプレートは非型をテンプレート実引数に取れる。
+</p>
+
+<pre><code>template &lt; int N &gt;
+struct S { int value = N ; } ;
+
+S&lt;123&gt; s;
+</code></pre>
+
+<p>
+非型テンプレート仮引数の型をテンプレート化したいことはよくある。
+</p>
+
+<pre><code>template &lt; typename T, T v &gt;
+struct S { T value = v ; } ;
+
+S&lt; int, 123 &gt; s ;
+</code></pre>
+
+<p>
+この時、わざわざ型を指定するのが面倒だ。コンパイラーは式を評価した結果の型がわかるのだから、実引数から型推定してほしい。そこで、autoキーワードを使った文法で、この型推定を行わせる機能を提案している。
+</p>
+
+<pre><code>template &lt; auto v &gt;
+struct S { decltype(v) value = v ; } ;
+
+S&lt;123&gt; s ;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0128r0.html">P0128R0: constexpr_if</a>
+</h2>
+
+<p>
+static_ifに変わるコンパイル時条件分岐、constexpr_ifの提案。
+</p>
+
+<pre><code>
+constexpr_if( condition )
+{
+// conditionがtrueの時に評価されるブロック
+}
+
+constexpr_if( condition )
+{
+// conditionがtrueの時に評価されるブロック
+}
+constexpr_else
+{
+// conditionがfalseの時に評価されるブロック
+}
+</code></pre>
+
+<p>
+static_ifは反対多数により否決されたが、やはりほしいとのことで復活した。static_ifに対して上げられた反対意見を解決するべく、制限が多い。
+</p>
+
+<ul>
+<li>ブロックスコープの中でのみ使える</li>
+<li>新しいスコープを導入する</li>
+<li>条件式には、どちらのブランチもwell-formedになる値が存在する</li>
+</ul>
+
+<p>
+利用例には様々なものが考えられるが、簡単なコンパイル時条件分岐のために、関数テンプレートのオーバーロードを書くのがダルい場合に使える。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+void f( T &amp;&amp; t )
+{
+// tを処理
+}
+
+template &lt; typename T, typename ... Rest &gt;
+void f( T &amp;&amp; t, Rest ... rest )
+{
+// tを処理
+
+// 残りを処理
+f( std::forward&lt;Rest&gt;(rest)... ) ;
+}
+</code></pre>
+
+<p>
+constexpr_ifを使えば、以下のように書ける。
+</p>
+
+<pre><code>template &lt; typename T, typename ... Rest &gt;
+void f( T &amp;&amp; t, Rest ... rest )
+{
+// tを処理
+
+// パラメーターパックRestにまだ引数があるのならば残りを処理
+constexpr_if( sizeof...(Rest) != 0 )
+{
+f( std::forward&lt;Rest&gt;( rest ) ... ) ;
+}
+}
+</code></pre>
+
+<p>
+この提案の実験的な実装例は以下にある。
+</p>
+
+<p>
+<a href="https://github.com/faisalv/clang/tree/static_if">faisalv/clang at static_if</a>
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0129r0.html">P0129R0: We cannot (realistically) get rid of throwing moves</a>
+</h2>
+
+<p>
+variantに渡す型のムーブに無例外保証がないと、variantはempty/invalidな状態になりうるので、ムーブは例外を投げない制約を設けようという意見に対し、ムーブに無例外制約を化すのは現実的に無理だとする反論。
+</p>
+
+<p>
+そもそも、「例外を投げるムーブ」とはなにか。
+</p>
+
+<p>
+コンストラクターの場合、単にムーブコンストラクターのみではなく、以下の式に当てはまるものすべてになる。
+</p>
+
+<pre><code>X(move(rhs))
+</code></pre>
+
+<p>
+もし、オーバーロード解決がコピーコンストラクターを選択したら、当然コピーコンストラクターが対象になる。
+</p>
+
+<p>
+同様に、代入演算子の場合、以下の式に当てはまるものすべてになる。
+</p>
+
+<pre><code>lhs = move(rhs)
+</code></pre>
+
+<p>
+オーバーロード解決がコピー代入演算子を選択したら、コピー代入演算子が対象になる。
+</p>
+
+<p>
+では、そのようなコードはどのくらい一般的なのか。
+</p>
+
+<pre><code>struct X
+{
+    X(const X&amp;);
+};
+</code></pre>
+
+<p>
+このようなクラスは、デフォルトのムーブコンストラクターの生成が抑制されるので、ムーブは実際にはコピーになる。
+</p>
+
+<p>
+では例外を投げるムーブは禁止できるのか？
+</p>
+
+<ul>
+<li>
+コア言語で？　超互換性がないC++のforkをつくりたいのであれば、できるんじゃね？
+</li>
+
+<li>
+標準ライブラリで？　かなりの互換性がないC++のforkを作りたいのであれば、できるんじゃね？
+</li>
+
+<li>
+std::variantで？　まあできるだろうけど、現実にかかれている結構なコードの型がvariantで使えなくなるぞ。
+</li>
+</ul>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
