@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: Grubの認証でバックスペースを28回押すとレスキューコンソールに入れる脆弱性が発見された
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/12/grub228.html">Grub2の認証でバックスペースを28回押すとレスキューコンソールに入れる脆弱性が発見された</a></h1>
+
+<p>
+<a href="http://hmarco.org/bugs/CVE-2015-8370-Grub2-authentication-bypass.html">Back to 28: Grub2 Authentication Bypass 0-Day</a>
+</p>
+
+<p>
+Grub2のバージョン1.98(2009年12月)から、2.02(2015年12月)までにおいて、脆弱性が発見された。
+</p>
+
+<p>
+脆弱性はGrub2の認証機能を使っていた場合に、ユーザー名を入力すべきところで、バックスペースを28回入力すると、レスキューコンソールに入れてしまうものだ。これにより、コンピューターに物理アクセスを得ている人間が、Grub2の強力なレスキューコンソール機能を使うことができる。
+</p>
+
+<p>
+脆弱性の原因も詳しく書かれていて興味深い。grub2のコードでは、'\b'が入力されるたびに、unsigned型の変数をデクリメントする。この時、アンダーフローをチェックしていない。その変数は配列の添字に渡されて、ゼロが書き込まれる。
+</p>
+
+<p>
+結果として、関数のreturn addressを0x0にすることができ、関数の終了時に戻って実行されるアドレス0x0になる。
+</p>
+
+<p>
+通常のユーザースペースのプログラムやカーネルの場合、便利な保護機能が何重にもあるので、ここで終わりになるはずだが、grub2はブートローダーなので、そのような便利な保護機能はない。特殊な実行環境の結果、self-modifying codeを含むループに突入し、最終的に、grub_rescue_run()の先頭アドレスに飛ぶことで、レスキューコンソールに至る。
+</p>
+
+<p>
+とても面白い。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
