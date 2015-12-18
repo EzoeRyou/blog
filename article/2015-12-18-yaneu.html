@@ -1,0 +1,251 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: やねうらおが本当に必要だったもの
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/12/blog-post.html">やねうらおが本当に必要だったもの</a></h1>
+
+<p>
+<a href="http://yaneuraou.yaneu.com/2015/12/18/range-based-for%E3%81%AF%E3%82%B3%E3%83%B3%E3%83%94%E3%83%A5%E3%83%BC%E3%82%BF%E3%83%BC%E5%B0%86%E6%A3%8B%E3%81%A7%E4%BD%BF%E3%81%88%E3%82%8B%E3%81%AE%E3%81%8B%EF%BC%9F/">range-based forはコンピューター将棋で使えるのか？ | やねうら王 公式サイト</a>
+</p>
+
+<p>
+やねうらおが、range-based forが使えないとこぼしている。しかしその利用例をみるに、そもそもrange-based forを使うべきではない。
+</p>
+
+<p>
+range-based forは、イテレーターというコンセプト（まだコンセプト機能はC++にないが）に従っている。イテレーターはポインター操作をモデルとしている。
+</p>
+
+<ul>
+<li>
+イテレーターは要素群の中のある要素を指していて、operator *で要素を参照できる。
+</li>
+<li>
+イテレーターの指す要素は、operator ++で次の要素に移動できる。
+</li>
+
+<li>
+イテレーターはhalf-openとなっていて、要素群の最後の要素のひとつ次の、何も指していない状態のイテレーターが存在する。これを番兵のように使い要素の端に到達したことを判定する
+</li>
+</ul>
+
+<p>
+一方、やねうらおのコードは、本来イテレーターではないものを無理やりイテレーターのようにしている。Squareというのは、おそらくunscoped enumだ。(C++11ではscoped enumという強い型をもつenumが追加された。従来の弱いenumはunscoped enumと呼ばれる)。つまり整数型と番兵なのだろう。
+</p>
+
+<p>
+したがって、やねうらおに必要なのはrange-based forではない。
+</p>
+
+<p>
+ところで、記事中でやねうらおはCプリプロセッサーマクロを多用している。これは極めて醜悪だ。C++にはlambda式が存在するので、同等のコードはもっと綺麗に書ける。
+</p>
+
+<p>
+おそらく、やねうらおが本当にほしかったのは、こういうものではないのか。
+</p>
+
+<pre><code>template &lt; typename T, typename Func &gt;
+void yaneu_for( T i, T sentinel, Func func )
+{
+    for ( ; i != sentinel ; ++i )
+    {
+        func( i ) ;
+    }
+}
+
+
+int main()
+{
+    yaneu_for( ZERO, NB,
+        []( auto i )
+        {
+            // 処理
+        } ) ;
+
+
+    int hoge ;
+
+    yaneu_for( ZERO, NB,
+        [&amp;]( auto i )
+        {
+            // lambda式の外の変数も使える
+            hoge = i ;
+        } ) ;
+}
+</code></pre>
+
+<p>
+初期値iと番兵sentinelを指定すると、sentinelに到達するまでインクリメントしつつ関数オブジェクトfuncを呼ぶ。関数オブジェクトはlambda式を使うとその場に書ける。
+</p>
+
+<p>
+ところで、range-based for文は、以下のように使う。
+</p>
+
+<pre><code>for ( for-range-declaration : range )
+    statement
+</code></pre>
+
+<p>
+これは、以下のように展開される（多少の細部を省略している）
+</p>
+
+<pre><code>{ // 新しいブロックスコープ
+
+    auto &amp;&amp; __range = range ;
+
+    for (   auto __begin = begin-expr,
+                 __end = end-expr ;
+            __begin != end ;
+            ++__begin ) {
+        for-range-declaration = *__begin() ;
+        statement
+     }
+}
+</code></pre>
+
+<p>
+begin-exprとend-exprは、decltype(__range)の型次第で変わるが、いずれもbegin()/end()に相当する処理である。
+</p>
+
+<p>
+具体的な例をしめす。以下のようなコードは、
+</p>
+
+<pre><code>std::vector&lt;int&gt; v{ 1, 2, 3 } ;
+for ( auto i : v )
+{
+    std::cout &lt;&lt; i &lt;&lt; std::endl ;
+}
+</code></pre>
+
+<p>
+以下のように展開される。
+</p>
+
+<pre><code>std::vector&lt;int&gt; v{ 1, 2, 3 } ;
+{
+    auto &amp;&amp; __range = v ;
+
+    for ( auto __begin = v.begin(), __end = v.end() ;
+            __begin != __end ;
+            ++__begin )
+    {
+        auto i = *__begin ;
+        std::cout &lt;&lt; i &lt;&lt; std::endl ;
+    }
+
+}
+</code></pre>
+
+<p>
+v.end()は一度しか呼ばれない。
+</p>
+
+<p>
+以下のような場合、
+</p>
+
+<pre><code>int a[100] ;
+for ( int &amp; i : a )
+{
+    i = 0 ;   
+}
+</code></pre>
+
+<p>
+以下のように展開される。
+</p>
+
+<pre><code>int a[100] ;
+{
+    auto &amp;&amp; __range = a ;
+    for (   __begin = a, __end = a + 100 ;
+            __begin != end ;
+            ++__begin ; )
+    {
+        int &amp; i = *__begin ;
+        i = 0 ;
+    }
+}
+</code></pre>
+
+<p>
+それから、もはや現代でinlineを使う理由が思いつかない。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
