@@ -1,0 +1,179 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: とても賢いコンパイラーの逆襲 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/12/blog-post_21.html">とても賢いコンパイラーの逆襲</a></h1>
+
+<p>
+<a href="http://hacksoflife.blogspot.jp/2015/12/the-dangers-of-super-smart-compilers.html">The Hacks of Life: The Dangers of Super Smart Compilers</a>
+</p>
+
+<p>
+Clangの最適化が未定義の挙動を検出してコード片を消し去ってしまったことに引っかかった開発者の嘆き。
+</p>
+
+<blockquote>
+<p>
+今日初めて、RenderFarmのDSF render(global scenaryを作成するのに使っている内部ツール)をClangで最適化コンパイルして実行した。
+</p>
+
+<p>
+結果はsegfaultだった。これは驚きだ（そして自身消失だ）。というのも、最適化していないデバッグビルドは問題なく動くし、GCCでコンパイルされた最適化ビルドも正しく動く。-O0ではバグがない（つまり#if DEVコードのバグではない）ので、「最適化は何をやっているんだ」の時間だ。
+</p>
+
+<p>
+大量のprintfと試行錯誤の結果、最適化は以下のようなコード片を丸ごとすっ飛ばしていることが判明した。
+</p>
+
+<pre><code>for(vector&lt;mesh_mash_vertex_t&gt;::iterator pts = 
+   ioBorder.vertices.begin(); pts != 
+   ioBorder.vertices.end(); ++pts)
+if(pts-&gt;buddy == NULL)
+{
+   /* とても重要な処理 */
+}
+</code></pre>
+
+<p>
+とても重要な処理はすっ飛ばされていて、実際、とても重要だった。
+</p>
+
+<p>
+さて、なぜだ。buddyはポインターではない。スマートハンドルである。そこで、operator ==は単にポインターを比較しているのではない。コードをさらに深く探って見てみよう。ハンドルはポインターのラッパーであった。operator *は*m_ptrを返す。operator ==はnullとの比較が動くように特別に定義されている。
+</p>
+
+<pre><code>  template &lt; class DSC, bool Const &gt;
+  inline
+  bool operator==(const CC_iterator&lt;DSC, Const&gt; &amp;rhs,
+                  Nullptr_t CGAL_assertion_code(n))
+  {
+    CGAL_assertion( n == NULL);
+    return &amp;*rhs == NULL;
+  }
+</code></pre>
+
+<p>
+もちろん、Clangは筆者よりとても賢いので、このコードについて物申すことがある。
+</p>
+
+<p>
+合法なC++のコードでは、リファレンスはnullポインターを束縛することはできない。比較は常にfalseと評価されると推定できる。
+</p>
+
+<p>
+やれやれ、これが問題だ。このoperator ==は、他の多くのコードと同じく、&amp;*を使ってラッパーから生のポインターを得ている。&amp;と*はお互いに打ち消しあうので、生ポインターが得られる。
+</p>
+
+<p>
+ただし、Clangはとても賢いので、「ふむ、もし&amp;*rhs == NULLの場合、*rhsはどうなる？ NULLリファレンスではないか（rhsがNULLでそれをデリファレンスした場合だ）。そして、NULLリファレンスは違法なので、これは起こりようがない。このコードは*rhsが評価された瞬間に未定義の挙動となる。このコードは未定義の挙動であるからして（*rhsがnullオブジェクトである状況が存在すればだが、そんな状況は存在しない）、コンパイラーは何でもできるぞ！　もし、*rhsがnullオブジェクトではないのならば、&amp;*rhsはNULLと同一になることはない。したがって結果はfalseだ。さて、一方がfalseでもう一方が未定義ならば、関数全体を以下のように書きかえられる」
+</p>
+
+<pre><code>  template &lt; class DSC, bool Const &gt;
+  inline
+  bool operator==(const CC_iterator&lt;DSC, Const&gt; &amp;rhs,
+                  Nullptr_t CGAL_assertion_code(n))
+  {
+    return false; /* ほら、直してやったぜ */
+  }
+</code></pre>
+
+<p>
+そして、Clangはまさにこれをしている。 つまり、if(pts-&gt;buddy == NULL)がif(false)になったので、重要な処理は絶対に実行されない。短期的な修正は以下だ。
+</p>
+
+<pre><code>for(vector&lt;mesh_mash_vertex_t&gt;::iterator pts = 
+   ioBorder.vertices.begin(); pts != 
+   ioBorder.vertices.end(); ++pts)
+if(pts-&gt;buddy == CDT::Vertex_handle())
+{
+   /* do really important stuff */
+}
+</code></pre>
+
+<p>
+これで、operator ==は2つのハンドルを比較するものが使われる。
+</p>
+
+<pre><code>  template &lt; class DSC, bool Const1, bool Const2 &gt;
+  inline
+  bool operator!=(const CC_iterator&lt;DSC, Const1&gt; &amp;rhs,
+                  const CC_iterator&lt;DSC, Const2&gt; &amp;lhs)
+  {
+    return &amp;*rhs != &amp;*lhs;
+  }
+</code></pre>
+
+<p>
+これも違法な未定義の挙動なのだが（&amp;*をnullポインターに使うのは違法）、Clangは気が付かないようで、最適化はこのコードを消せない。このコードはポインター比較になった。我々の勝ちだ。
+</p>
+
+<p>
+新しいバージョンのCGALはこの問題を修正していて、operator -&gt;()が生ポインターを返すのでそちらをつかうようになっている。
+<p>
+</p>
+Clangの援護をすると、プログラムの実行時間はseffaultを起こすまでは確かに早かった。
+</p>
+
+<p>
+すべてのライブラリを最新版にアップデートしないことを笑うかもしれないが、3つか4つぐらいのコンパイラーやビルドシステムを使っている環境でライブラリをアップデートして、動かなかった場合の依存関係を全部解決するのは難しいので、とりあえず問題を解決した我々を糾弾しないでくれ。
+</p>
+
+</blockquote>
+
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
