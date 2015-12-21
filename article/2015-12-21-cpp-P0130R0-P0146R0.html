@@ -1,0 +1,426 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書のレビュー: P0130R0-P046R0 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2015/12/c-p0130r0-p046r0.html">C++標準化委員会の文書のレビュー: P0130R0-P046R0 </a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0130r0.pdf">P0130R0: Comparing virtual functions</a>
+</h2>
+
+<p>
+記述が貧弱だが、2つのクラスのオブジェクトの指すvirtual関数が同一のものかどうかを比較する機能が欲しいそうだ。
+</p>
+
+<pre><code>
+struct A
+{
+    virtual void vf() { }
+} ;
+
+struct B : A
+{
+    void vf() { }
+} ;
+
+struct C : A
+{
+    
+} ;
+
+void f( A * a1, A * a2 )
+{
+    // a1.vfとa2.vfが同じvirtual関数を指しているかどうか知りたい。
+}
+</code></pre>
+
+<p>
+論文はC#にメソッドを比較する方法があることを挙げて、C++にも同等機能がほしいとしている。
+</p>
+
+<p>
+論文著者は、どうやらEAのゲーム開発者のようだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0131r0.pdf">[PDF] P0131R0: Unified call syntax concerns</a>
+</h2>
+
+<p>
+Unified Call Syntaxに持ち上がっている懸念の考察と払拭。Bjarne Stroustrupが著者。
+</p>
+
+<p>
+まず、Unified Call Syntaxとは、x.f(y)という式があったときに、まずxのクラスの呼び出せるメンバーfを探し、妥当なものが見つからなかった場合は、f(x,y)として呼び出せる関数fを探す。同様に、f(x,y)という式があったときに、まず呼び出せる関数fを探し、妥当なものが見つからなかった場合は、x.f(y)として呼び出せるか試す。
+</p>
+
+<p>
+これによる利点としては、呼び出し側は、ライブラリがメンバー関数で実装しているのかフリー関数で実装しているのか気にする必要がなくなるので、より簡単に、より汎用的なコードが書ける。
+</p>
+
+<p>
+例えば以下のような問題がある。
+</p>
+
+<pre><code>struct API
+{
+    void member( int ) ;
+} ;
+
+void user_code( API &amp; api )
+{
+    // 呼び出し前に引数のチェックする拡張
+    auto checked_member = []( API &amp; api, int i )
+        {
+            assert( i &gt; 0 ) ;
+            api.member( i ) ;
+        } ;
+
+    api.checked_member( 123 ) ;
+}
+</code></pre>
+
+<p>
+このようにユーザーが既存のクラスを拡張したとする。これはUnified Call Syntaxで想定されている使い方の一つだ。しかし、APIが後にchecked_memberを付け加えたらどうか。
+</p>
+
+<pre><code>struct API
+{
+    void member( int ) ;
+    void checked_member( int ) ;
+} ;
+</code></pre>
+
+<p>
+ユーザーコードの意味が変わってしまう。
+</p>
+
+<p>
+Bjarne Stroustrupは、このような問題は珍しいし、我々は何十年もこのような問題に満足に[要出典]対処してきたし、実装は警告できるし、インターフェースを雑に拡張すべきではないし、名前空間を使えば問題は回避できるし、他の言語も似たような問題はあるが、それほど深刻な問題ではないとしている。
+</p>
+
+<p>
+もうひとつ、テンプレートのルックアップの問題がある。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+struct X
+{
+    void f( T &amp; t )
+    {
+        t.m() ;
+        m(t) ;
+    }
+} ;
+</code></pre>
+
+<p>
+テンプレートの名前解決には宣言時に解決するものと、実体化時に解決するものがある。ADLは実体化時に解決する場合でないと働かない。m(t)の場合には、tは依存名でmはまだ宣言されていないので、ADLが働く。t.m()の場合、そもそもADLの働く余地がない。t.m()が実体化時に呼び出せないとわかった時には、すでに宣言時に解決されているので遅すぎる。
+</p>
+
+<p>
+この問題は、t.m()に対して、宣言時にm(t)でも二重に名前解決をしてから、宣言時と実体化時のどちらで名前解決をするのか決定する
+</p>
+
+<p>
+IDEについてさらっと流されているのが興味深い。IDEにとって、Unified Call Syntaxをまともに静的解析による候補表示に適用すると候補が多すぎて便利にならない問題が考察されていない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0132r0.html">P0132R0: Non-throwing container operations</a>
+</h2>
+
+<p>
+無例外版のコンテナー操作を追加する提案。
+</p>
+
+<p>
+世の中には、数百キロバイトしかRAMを積んでいない組み込み環境がある。そのような極端な環境でも、ネットワークもXMLパースもUIフレームワークもスクリプトもすべてやらなければならない環境がある。そのような環境では、例外のコストは支払うことができない。
+</p>
+
+<p>
+このような組み込み環境では、メモリは貴重であり、固定サイズのメモリを保持し続けることは禁忌である。動的メモリ確保は失敗する可能性が日常的にあり、メモリ確保に失敗した時の対処方法は、直ちに終了することではない。
+</p>
+
+<p>
+そのような組み込み環境でもC++の恩恵は受けたいと思っており、近年、標準C++に近づきたい要望がある。しかし、そのためには例外や、メモリ確保失敗時には原則直ちに終了するような設計の現在のコンテナーは使えない。
+</p>
+
+<p>
+如何にして既存のコンテナーに無例外版の操作を追加するかということについて、いろいろと案があるが、どれも一長一短だ。
+</p>
+
+<p>
+無例外版のオーバーロードを追加する案
+</p>
+
+<pre><code>bool push_back(nothrow_t, const T&amp;);    
+bool push_back(nothrow_t, T&amp;&amp;);   
+</code></pre>
+
+<p>
+別の名前を使う方法
+</p>
+
+<pre><code>bool push_back_nothrow(const T&amp;);    
+bool push_back_nothrow(T&amp;&amp;);   
+</code></pre>
+
+<p>
+アロケーターに例外の代わりにnullptrを返せるようにし、nullptrを返した時のコンテナーの挙動を規定する方法
+</p>
+
+<p>
+アロケーターにメモリ確保失敗時に呼び出すコールバック関数を設定できる機能を追加する方法
+</p>
+
+<p>
+コンテナーの特殊化を追加する方法
+</p>
+
+<p>
+時間がかかりそうだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0133r0.html">P0133R0: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0133r0.html</a>
+</h2>
+
+<p>
+noexcept(auto)の保留にすると宣言した短い文書。
+</p>
+
+<p>
+極めて一部の例にしか適用できないため。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0134r0.html">P0134R0: Introducing a name for brace-or-equal-initializers for non-static data members</a>
+</h2>
+
+<p>
+非staticデータメンバーに初期化子を書けるようになったが、この機能に対して名前が与えられていない。
+</p>
+
+<pre><code>struct S
+{
+    int x = 0 ;
+} ;
+</code></pre>
+
+<p>
+現行の規格では、この機能は"brace-or-equal-initializer for a non-static data member"と言うことができる。
+</p>
+
+<p>
+名前がないのは不便なので、デフォルトメンバー初期化子(default member initializer)という名前を与える提案。規格の文面もこの用語を使ったものに書き変える。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0135r0.html">P0135R0: Guaranteed copy elision through simplified value categories</a>
+</h2>
+
+<p>
+value categoryを変更し、コピー省略を規格で強制する提案。
+</p>
+
+<p>
+新しいvalue categoryの定義では、glvalueはオブジェクトやビットフィールドや関数といった場所に対する計算で、prvalueはオブジェクトやビットフィールドや関数を初期化するための評価となる。
+</p>
+
+<p>
+そして、以下のような例で、コピー省略を必須の挙動にする。
+</p>
+
+<pre><code>
+struct X
+{
+    int data ;
+} ;
+
+X f() { return X{123} ; }
+
+X x = f() ; // コピー省略は必須
+</code></pre>
+
+<p>
+このようなコードは、たいていの実装でコピー省略ができる。しかし、依然としてコピーコンストラクターは呼び出し可能でなければならない。ユーザーもコンパイラーもコピー省略ができると了解しているコードでコピーコンストラクターの存在が必要になるのは変だ。Xがコピーもムーブもできない型の場合、型システムの都合上、動的確保せざるを得なくなる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0136r0.html">P0136R0: Rewording inheriting constructors (core issue 1941 et al)</a>
+</h2>
+
+<p>
+継承コンストラクターの文面をわかりやすい定義に変更する提案。定義の変更により、継承コンストラクターの挙動に些細な違いが生じるが、概ね改良である。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0137r0.html">Core Issue 1776: Replacement of class objects containing reference members</a>
+</h2>
+
+<p>
+ややこしい型システム上の文面の変更、std::launderの追加。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0138r0.pdf">P0138R0: Construction Rules for enum class Values</a>
+</h2>
+
+<p>
+scoped enumを使ったstrong typedefの提案。
+</p>
+
+<p>
+enumeratorの存在せず内部型が指定されているscoped enumは、リスト初期化を使うと縮小変換が起こらない限り暗黙に型変換できる。というルールを追加する。
+</p>
+
+<pre><code>// 内部型の指定がある
+// enumeratorが存在しない
+// scoped enum
+enum struct Index : std::uint32_t { } ;
+
+void f( Index index ) ;
+
+f( { 1 } ) ; // OK
+</code></pre>
+
+<p>
+これにより、勝手に整数型に暗黙に型変換されず、またリスト初期化を使わない限り整数型で初期化できない、強い整数のエイリアスを作ることができる。
+</p>
+
+<p>
+整数以外の型には使えない。
+</p>
+
+<p>
+より一般的な強いtypedefとして、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0109r0.pdf">opaque alias</a>提案がある。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0146r0.html">P0146R0: Regular Void</a>
+</h2>
+
+<p>
+void型を完全形にする提案。
+</p>
+
+<p>
+結果として、void型の変数が作れるし、void型の引数が取れるし、void型のリファレンスも作れる。
+</p>
+
+<pre><code>void a ;
+void &amp; b = a ;
+void f( void, void ) ;
+f( a, a ) ;
+void c[5] ;
+</code></pre>
+
+<p>
+このような変更をする動機は、テンプレートコードでの汎用性を高めるためだ。現在、voidは不完全型であり、テンプレートコードはvoidのためだけに特殊化を書かなければならない。voidが完全形になれば、そのような問題はなくなる、
+</p>
+
+<p>
+互換性の問題は、それほど大きくないと考えられている。多くのユーザーはvoidが完全形になっても気が付かないだろう。ただし、いくつか問題はある。
+</p>
+
+<p>
+現在、void型ひとつだけを引数に取る関数は、引数を取らない関数という文法的意味が与えられている。このため、依存名ではないvoidが単一で引数に使われていた場合、引数を取らない関数という意味にする例外的なルールが必要になる。論文では、いずれはこの文法を廃止したほうがよいとしている。
+</p>
+
+<p>
+void型を完全形にしたことによるABI互換の崩れはない。なぜならば、void型は状態を持たないためである。
+</p>
+
+<p>
+sizeof(void)が違法であることを利用したSFINAEは、現時点で広く使われていないので、それほど問題にならない見込みだ。
+</p>
+
+<p>
+条件演算子の評価結果がvoidになる場合があるが、これについては互換性に対する詳細な考察が必要である。
+</p>
+
+<p>
+sizeof(void)が0を返すと最適化に使えるが、しかし、その場合voidの配列が作れない。sizeof(void)は1を返すように規定するのが最善だろうとしている。
+</p>
+
+<p>
+提案には文面案も付属している。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
