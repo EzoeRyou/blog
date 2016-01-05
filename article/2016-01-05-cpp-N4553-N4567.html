@@ -1,0 +1,299 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化員会の文書のレビュー: N4553-N4567 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/01/c-n4553-n4567.html">C++標準化員会の文書のレビュー: N4553-N4567</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4553.pdf">[PDF] N4553: Working Draft, C++ extensions for Concepts</a>
+</h2>
+
+<p>
+コンセプトTSのドラフト
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4554.pdf">[PDF] N4554: Editor's report for the Concepts TS</a>
+</h2>
+
+<p>
+コンセプトTSのドラフト編集者の報告書
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4555.pdf">[PDF] N4555: February 2016 WG21 Meeting</a>
+</h2>
+
+<p>
+2016年1月に開催される会議の告知
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4556.htm">N4556: WG21 telecon minutes</a>
+</h2>
+
+<p>
+2015年10月9日に行われた電話会議の議事録。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4557.html">N4557: WG21 2015-07-20 Telecon Minutes</a>
+</h2>
+
+<p>
+2015年7月0日に行われた電話会議の議事録
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4558.html">N4558:WG21 2015-11 Kona Minutes (Draft)</a>
+</h2>
+
+<p>
+2015年10月19日から24日にかけて行われたKona会議の議事録。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4559.pdf">[PDF] N4559: Kona WG21 Minutes</a>
+</h2>
+
+<p>
+2015年のKona会議の議事録のドラフト。
+</p>
+
+<p>
+会議の参加者とその所属一覧が興味深い。
+</p>
+
+<p>
+また、Appleが投票権を失ったとも書いてある。最近人を出していないからなのだろう。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4560.pdf">[PDF] N4560: Working Draft, C++ Extensions for Ranges</a>
+</h2>
+
+<p>
+軽量コンセプトを用いたRangeコンセプトライブラリの提案、Range TSのドラフト。Rrangeコンセプトを定義することにより、コンテナーを直接アルゴリズムに渡すことができる。
+</p>
+
+<pre><code>std::vector&lt;int&gt; v ;
+
+// 従来のイテレーター
+std::sort( begin(v), end(v) ) ;
+// Rangeコンセプト
+std::sort( v ) ;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4561.pdf">[PDF] N4561: Ranges Editor's Report</a>
+</h2>
+
+<p>
+Range TSの編集者の報告書。N4560はRange TSの最初のドラフトであり、その内容はP0021R0に由来する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4562.html">N4562: C++ Extensions for Library Fundamentals, Version 2, Working Draft</a>
+</h2>
+
+<p>
+標準ライブラリの提案。
+</p>
+
+<p>
+意味的なconst性をメンバー関数を経由しても伝えるpropagate_const、汎用的なBM検索、ある型のオブジェクトを格納しているか、格納していない状態を表すoptional, どんな型でも格納できるany, 異なる文字列表現をラップしてくれるstring_view, 新しいメモリ確保のインターフェースと、新しいヒープメモリ確保の実装、所有しないバカポインターobserver_ptr, コンテナーに対するフリー関数版のerase, araryの拡張, 汎用的なサンプリングアルゴリズムの実装、GCDとLCMの実装、簡単に使える乱数ライブラリrandint, ソースファイルの情報を取得できるsource_location。などなど
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4564.pdf">[PDF] N4564: C++ Extensions for Library Fundamentals, Version 2 PDTS</a>
+</h2>
+
+<p>
+N4562と内容は同じ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4565.pdf">[PDF] N4565: Record of Response: National Body Comments ISO/IEC PDTS 19571 Technical Specification: C++ Extensions for Concurrency</a>
+</h2>
+
+<p>
+Concurrency TSに対するNBコメントに対する返答。日本からは文面の誤りと、コンテナーをvectorに限定せずに汎用的にするコメントが出された。文面の誤りは採用された。コンテナーを汎用にする提案は拒絶された。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4566.html">n4566: Editor's Report -- Working Draft, Standard for Programming Language C++</a>
+</h2>
+
+<p>
+C++ドラフトの編集者の報告書。
+</p>
+
+<p>
+興味深いcore issuesの解決は以下の通り。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#1722">Core issue 1722</a>が解決された。
+</p>
+
+<p>
+lambda式のクロージャーオブジェクトの関数ポインターへの変換関数は無例外保証(noexcept(true))を持つようになった。
+</p>
+
+<pre><code>// 無例外保証
+void (*ptr)() = []{} ; 
+</code></pre>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#1949">Core issue 1949</a>が解決された。
+</p>
+
+<p>
+規格は、AがBより先に処理されるという意味の、"A sequenced before B"という用語の意味を定義していて、この意味を表現する時はこの用語を統一して使うべきなのにもかかわらず、"B sequenced after A"なる表現がいくつかの箇所で見られるので、sequenced beforeに修正する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#2004">core issue 2004</a>の解決。
+</h2>
+
+<p>
+規格の文面を解釈すると、mutableなvariant memberがある場合に、constexprで型システムを壊して実行時書きかえができてしまう場合を修正。
+</p>
+
+<pre><code>  union U { int a; mutable int b; };
+  constexpr U u1 = {1};
+  int k = (u1.b = 2); // OK, bはmutable
+  constexpr U u2 = u1; // おおっと？
+</code></pre>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#2024">core issue 2024</a>を解決。pack expansionがテンプレートに依存するように規定する文面がないことを修正。こんな例が見逃されていたとは以外。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#2026">core issue 2026</a>を解決。定数初期化にもゼロ初期化が行われるように解釈できる文面を修正。定数初期化ではゼロ初期化は行われず、明示的に初期化されない定数初期化は違法になるという従来の挙動を維持。これも考えると以外な見逃しだ。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#2031">core issue 2031</a>の解決。C++11ではリファレンス修飾子として&amp;&amp;を追加したが、これは従来の演算子の&amp;&amp;と互換性の問題を発生させるコード例が見つかったので、それを互換性の項目に付け加える修正。
+</p>
+
+<p>
+以下のようなコードが該当する。
+</p>
+
+<pre><code>  struct Struct { template &lt;typename T&gt; operator T(); };
+  bool example_1 = new int &amp;&amp; false;               // #1
+  bool example_2 = &amp;Struct::operator int &amp;&amp; false; // #2
+</code></pre>
+
+<p>
+C++03では、#1,2ともに、&amp;&amp;は演算子であり、合法である。C++11では、リファレンス修飾子となるため、違法である。
+</p>
+
+<p>
+まあ、まず書かないようなコードだ。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#2052">core issue 2052</a>の解決。特殊化の結果生成されたシグネチャが組み込み演算子と同じだった場合を違法にする。
+</p>
+
+<p>
+その他のドラフト入りしたコア言語の変更点。
+</p>
+
+<p>
+registerキーワードの廃止, operator++(bool)の廃止。例外指定を型システムに取り込む変更、__has_includeの追加、非staticデータメンバーの宣言箇所における初期化に対して、default member initializerという名前をつける文面の変更、継承コンストラクターの文面の書き直し。
+</p>
+
+<p>
+ライブラリの変更点としては、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0006r0.html">Adopt Type Traits Variable Templates from Library Fundamentals TS for C++17</a>を追加したのがとても大きい。また、<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0156r0.html">Variadic lock_guard (Rev. 2)</a>も入った。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4567.pdf">[PDF] N4567: Working Draft, Standard for Programming Language C++</a>
+</h2>
+
+<p>
+現時点で最新のC++ドラフト規格。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+新年初出社。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
