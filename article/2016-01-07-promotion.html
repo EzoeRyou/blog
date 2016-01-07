@@ -1,0 +1,192 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: yumetodoが本当に欲しかったもの
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/01/yumetodo.html">yumetodoが本当に欲しかったもの</a></h1>
+
+
+
+<blockquote>
+<p>
+template引数として与えられた2つの型TypeFromとTypeToがあるとき、TypeFromからTypeToへの変換がintegral promotionsであるか判別し、そうであるならstd::true_type、違うならstd::false_typeを継承するクラスを作るにはどうかけばいいのか？
+</p>
+<p>
+<a href="https://ask.fm/EzoeRyou/answers/134026904663">https://ask.fm/EzoeRyou/answers/134026904663</a>
+</p>
+</blockquote>
+
+<p>
+integral promotionsとは、C++規格の§4.5で規定されている。問題は、integral promotionsの内容を忠実に判定すると、charからshortへの変換はintegral promotionではないし、intからlongへの変換もintegral promotionではない。
+</p>
+
+<p>
+それでもいいのであれば、実装は以下のようになる。
+</p>
+
+<pre><code>// check if from can be converted and represented to to.
+template &lt; typename from, typename to &gt;
+constexpr bool can_represent()
+{
+    return std::is_same&lt; typename std::common_type&lt; from, to &gt;::type, to &gt;{} ; 
+}
+
+template &lt; typename from, typename to &gt;
+constexpr bool is_integral_promotion_impl()
+{
+// as per section 5.4 paragraph 6
+    if ( std::is_same&lt;from, bool&gt;{} )
+    {
+        return std::is_same&lt;to, int&gt;{} ;
+    }
+
+// as per section 5.4 paragraph 3
+    if (
+            std::is_same&lt;from, char16_t&gt;{} ||
+            std::is_same&lt;from, char32_t&gt;{} ||
+            std::is_same&lt;from, wchar_t&gt;{} )
+    {
+        if ( can_represent&lt;from, int&gt;() )
+            return std::is_same&lt;to, int&gt;{} ;
+        else if ( can_represent&lt; from, unsigned int&gt;() )
+            return std::is_same&lt; to, unsigned int &gt;{} ;
+        else if ( can_represent&lt; from, long int&gt;() )
+            return std::is_same&lt; to, long int&gt;{} ;
+        else if ( can_represent&lt; from, unsigned long int&gt;() )
+            return std::is_same&lt; to, unsigned long int &gt;{} ;
+        else if ( can_represent&lt; from, long long int &gt;() )
+            return std::is_same&lt; to, long long int&gt;{} ;
+        else if ( can_represent&lt; from, unsigned long long int&gt;() )
+            return std::is_same&lt; to, unsigned long long int&gt;{} ;
+    }
+
+// as per section 4.5 paragraph 3-4
+    if ( std::is_enum&lt;from&gt;{} &amp;&amp;
+        // requires lazy intantiation because underlying_type&lt;T&gt;::type is ill-formed for non enum T.
+        std::is_same&lt; to, typename std::conditional&lt; std::is_enum&lt;from&gt;{}, std::underlying_type&lt;from&gt;, std::decay&lt;void&gt; &gt;::type::type &gt;{} ) 
+    {
+        return true ;
+    }
+
+// as per section 4.5 paragraph 1
+    if ( !std::is_integral&lt;from&gt;{} ||
+        !std::is_integral&lt;to&gt;{} )
+    {
+        return false ;
+    }
+
+    if ( std::is_same&lt; to, int &gt;{} &amp;&amp;
+         can_represent&lt;from, int&gt;() )
+    {
+        return true ;
+    }
+
+    if ( std::is_same&lt; to, unsigned int &gt;{} &amp;&amp;
+         can_represent&lt;from, unsigned int&gt;() )
+    {
+        return true ;
+    }
+         
+
+    return false ;
+}
+
+
+template &lt; typename from, typename to &gt;
+struct is_integral_promotion
+    : std::integral_constant&lt;bool, is_integral_promotion_impl&lt;from, to&gt;() &gt;
+{ } ;
+</code></pre>
+
+<p>
+ただ、fromがtoに変換できてかつ精度を落とすことなく完全に表現できる程度であれば、
+</p>
+
+<pre><code>template &lt; typename from, typename to &gt;
+struct is_representable
+    : std::integral_constant&lt;bool, can_represent&lt;from, to&gt;() &gt;
+{ } ;
+</code></pre>
+
+<p>
+これぐらいでもいいのではないか。
+</p>
+
+<p>
+しかし、constexprがあるのでこの手の処理は書きやすくなったと思ったら、std::underlying_typeのような問題がある。これを簡単に賭けるようにするため、constexpr_ifの導入が必要だ。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
