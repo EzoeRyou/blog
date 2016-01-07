@@ -1,0 +1,361 @@
+<!doctype html>
+<html>
+<head>
+
+
+<title>
+本の虫: C++標準化委員会の文書のレビュー: P0001R1-P0017R1 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/01/c-p0001r1-p0018r1.html">C++標準化委員会の文書のレビュー: P0001R1-P0018R1</a></h1>
+
+<p>
+内容は以下で解説しているものの改訂版。
+</p>
+
+<p>
+<a href="http://cpplover.blogspot.jp/2015/10/c2015-09-pre-kona.html">本の虫: C++標準化委員会の文書2015-09 pre-Konaのレビュー: P0001R0-P0009R0</a>
+</p>
+
+<p>
+<a href="http://cpplover.blogspot.jp/2015/10/c-2015-09-pre-kona-p0011r0-p0020r0.html">本の虫: C++標準化委員会の文書 2015-09 pre-Kona: P0011R0-P0020R0</a>
+</p>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0001r1.html">P0001R1: Remove Deprecated Use of the register Keyword</a>
+</h2>
+
+<p>
+registerキーワードの廃止。変更点はCとの互換性の一覧に追加。ドラフト入りした。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0002r1.html">P0002R1: Remove Deprecated operator++(bool)</a>
+</h2>
+
+<p>
+operator ++(bool)の廃止。変更は文面上の些細な間違いの修正にとどまる。ドラフト入りした。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0004r1.html">P0004R1: Remove Deprecated iostreams aliases</a>
+</h2>
+
+<p>
+iostreamのdeprecatedされていたライブラリを廃止。変更は互換性の一覧に追加。ドラフト入りした。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0005r1.html">P0005R1: Adopt 'not_fn' from Library Fundamentals 2 for C++17</a>
+</h2>
+
+<p>
+汎用的なnot_fnの追加。変更点はネストされた型名result_typeの削除。理由は<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0090r0.htm">ISO/IEC JTC1/SC22/WG21 p0090r0</a>による。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0005r2.html">P0005R2: Adopt 'not_fn' from Library Fundamentals 2 for C++17</a>
+</h2>
+
+<p>
+not_fnのさらなる改訂版。result_typeの復活。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0007r1.html">P0007R1: Constant View: A proposal for a 'std::as_const' helper function template</a>
+</h2>
+
+<p>
+実引数をconstなlvalueリファレンスとして返すstd::add_const。変更点は文面案の追加。
+</p>
+
+<p>
+以下のような実装になる。
+</p>
+
+<pre><code>namespace std
+{
+    template&lt; typename T &gt;
+    inline typename std::add_const&lt; T &gt;::type &amp;
+    as_const( T &amp;t ) noexcept
+    {
+        return t;
+    }
+
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0012r1.html">P0012R1: Make exception-specifications be part of the type system, version 5</a>
+</h2>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0012r1.html">P0012R1: Make exception-specifications be part of the type system, version 5</a>
+</p>
+
+<p>
+関数の無例外指定を型システムに含める提案、関数ポインターに無例外指定を型として含めることができる。変更は些細。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0013r1.html">P0013R1: Logical Operator Type Traits (revision 1)</a>
+</h2>
+
+<p>
+boost MPLにあるand_, or_, not_の提案。ただし、生枝がことなる。
+</p>
+
+<p>
+前回の提案は、and_, or_, not_だったが、今回の提案では、議論の結果、名前が変わっている。それぞれ、conjunction, disjunction, negationとなっている。
+</p>
+
+<pre><code>template &lt; typename T, typename U &gt;
+void f()
+{
+    // std::is_same_v&lt;T, U&gt; &amp;&amp; std::is_integral_v&lt;T&gt; &amp;&amp; std::is_signed_v&lt;T&gt;
+    // と同じ
+    constexpr bool b = std::conjunction_v&lt; std::is_same&lt;T, U&gt;, std::is_integral&lt;T&gt;, std::is_signed&lt;T&gt; &gt; ;
+}
+</code></pre>
+
+<p>
+negationはともかく、conjunctionとdisjunctionは英語を母語とせず、数学の素養もなく、コンピューターサイエンスのアカデミックの経歴もない筆者にはわかりにくい気がするのだが、いいのだろうか。
+</p>
+
+<p>
+とはいえ、この関数は初心者が使うものでもないし、これでいいのかもしれない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0014r1.html">P0014R1: Proposal to add the multiline option to std::regex for its ECMAScript engine</a>
+</h2>
+
+<p>
+regexにECMAScriptにあるmutlilineオプションを追加する提案。multilineオプションを使うと、^と&amp;の挙動が変わり、文字列の戦闘と末尾ではなく、文字列の各業の戦闘と末尾にまっ地するようになる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0017r1.html">P0017R1: Extension to aggregate initialization</a>
+</h2>
+
+<p>
+基本クラスを持つクラス型をアグリゲート初期化できるようにする提案。
+</p>
+
+<p>
+基本クラスを持つクラスはアグリゲート初期化できない。
+</p>
+
+<pre><code>struct base { int x ; } ;
+struct derived : base
+{
+    int y ;
+} ;
+
+// エラー、derivedは基本クラスを持つ
+derived d{ 1, 2 } ;
+</code></pre>
+
+<p>
+これに対し、直接の基本クラスを宣言順で初期化できるようにしようという提案。
+</p>
+
+<pre><code>// {1}はbase::xの初期化,
+derived d{ {1}, 2 } ;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0018r1.html">P0018r1 : Lambda Capture of *this by Value</a>
+</h2>
+
+<p>
+lambda式で*thisをコピーキャプチャする機能の提案。
+</p>
+
+<p>
+lambda式では、thisでキャプチャするのはポインターである。メンバー名を使った場合、キャプチャしたthisポインターを経由したアクセスが行われる。
+</p>
+
+<pre><code>struct X
+{
+    int member ;
+
+    auto f()
+    {
+        // this-&gt;memberと同じ
+        return [=]() { return member ; }
+    }
+} ;
+</code></pre>
+
+<p>
+クラスのオブジェクトの寿命が尽きた後もクロージャーオブジェクトを使いたい場合に、問題になる。
+</p>
+
+<pre><code>int main()
+{
+    std::function< int () > f ;
+
+    {
+        X x ;
+        f = x.f() ;
+    }// xの寿命、ここまで
+
+    f() ; // エラー、xはすでに破棄されている。
+}
+</code></pre>
+
+<p>
+C++14では、明示的なキャプチャー機能が追加された。
+</p>
+
+<pre><code>struct X
+{
+    int member ;
+
+    auto f()
+    {
+        // memberはコピーされる
+        return [ =,  member = member ]() { return member ; }
+    }
+} ;
+</code></pre>
+
+<p>
+問題は、データメンバーが複数ある時、これをいちいち書くのは面倒だ。明示的なキャプチャーで、クラスのオブジェクト自体をキャプチャーすることはできる。
+</p>
+
+
+<pre><code>struct X
+{
+    int member ;
+
+    auto f()
+    {
+        // memberはコピーされる
+        return [ =, self = *this ]() { return self.member ; }
+    }
+} ;
+</code></pre>
+
+<p>
+しかし、この例では、thisポインターは依然としてキャプチャーされてしまう。もし、self.memberのかわりにmemberと書いてしまうと、this-&gt;memberとして扱われる。極めて危険で間違いの元だ。
+</p>
+
+<p>
+そこで、新しいラムダキャプチャーに、*thisを追加する。ラムダキャプチャーに*thisと書くと、クラスのオブジェクトをコピーする。
+</p>
+
+<pre><code>
+struct X
+{
+    int member ;
+
+    void f()
+    {
+        // this->memberと同じ
+        [this]{ member ; }
+
+        // *thisを値でコピーする。
+        // memberはクロージャーオブジェクトにコピーされたオブジェクトを参照する。
+        [*this]{ member ; }
+    }
+} ;
+</code></pre>
+
+<p>
+つまり、以下のようなクロージャーオブジェクトが生成されると考えればよい。
+</p>
+
+<pre><code>
+struct closure_object
+{
+    // *thisをコピーする
+    X unnamed_copy ;
+
+    void operator () ()
+    {
+        unnamed_copy.member ;
+    }
+} ;
+</code></pre>
+
+<p>
+これは欲しい機能だ。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+正月明けで昼夜逆転してしまった睡眠サイクルを強引に修正しようとした結果、DST(ドワンゴ標準時)から-4時間ほどずれてしまった。午前中に出社し、夕方過ぎに帰宅するようになってしまった。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
