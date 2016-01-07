@@ -1,0 +1,243 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/01/c-p0022r1-p0092r1.html">C++標準化委員会の文書のレビュー: P0022R1-P0092R1</a></h1>
+
+<p>
+今回も改訂版の文書のレビュー。改定前の文書は、以下の記事でレビューしている。
+</p>
+
+<p>
+<a href="http://cpplover.blogspot.jp/2015/10/c-p0021r0-p0029r0.html">本の虫: C++標準化委員会の文書のレビュー: P0021R0-P0029R0</a>
+</p>
+
+<p>
+<a href="http://cpplover.blogspot.jp/2015/10/c-p0030r0-p0039r0.html">本の虫: C++標準化委員会の文書のレビュー: P0030R0-P0039R0</a>
+</p>
+
+<p>
+<a href="http://cpplover.blogspot.jp/2015/11/c-p0050r0-p0059r0.html">本の虫: C++標準化委員会の文書: P0050R0-P0059R0</a>
+</p>
+
+<p>
+<a href="http://cpplover.blogspot.jp/2015/11/c-p0060r0-p0069r0.html">本の虫: C++標準化委員会の文書のレビュー: P0060R0-P0069R0</a>
+</p>
+
+<p>
+<a href="http://cpplover.blogspot.jp/2015/11/c-p0080r0-p0089r0.html">本の虫: C++標準化委員会の文書のレビュー: P0080R0-P0089R0</a>
+</p>
+
+<p>
+<a href="http://cpplover.blogspot.jp/2015/12/c-p0090r0-p0099r0.html">本の虫: C++標準化委員会の文書のレビュー: P0090R0-P0099R0</a>
+</p>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0022r1.html">P0022R1: Proxy Iterators for the Ranges Extensions</a>
+</h2>
+
+<p>
+vector<bool>::iteratorのようなプロクシーイテレーターとそれ以外のイテレーターがうまく汎用的に扱えない問題を解決するライブラリの変更の提案。
+</p>
+
+<p>
+これまで存在はするもののあまり活用されていなかったiter_swapを、例外的な挙動をするイテレーターのためのカスタマイゼーションポイントとして定義しなおすほか、iter_moveを追加する。イテレーターを操作する際は、このライブラリを使えば、プロクシーイテレーターを意識せずに扱うことができる。
+</p>
+
+<p>
+また、共通の束縛できるリファレンス型を得る。common_reference traitsを追加する。2つのイテレーターのvalue_typeをcommmon_referenceに渡すことでコードを汎用的にできる。common_referenceはcommon_typeに似ているが、トップレベルのCV修飾子とリファレンス修飾子を削らない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0025r1.html">P0025R1: clamp: An algorithm to 'clamp' a value between a pair of boundary values -</a>
+</h2>
+
+<p>
+clamp( value, min, max )で、valueがminより小さければminが、maxより大きければmaxが、それ以外の場合はvalueが返る関数clampの提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0030r1.pdf">[PDF] P0030R1: Proposal to Introduce a 3-Argument Overload to std::hypot</a>
+</h2>
+
+<p>
+3引数版std::hypotの提案。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0032r1.pdf">[PDF] P0032R1: Homogeneous interface for variant, any and optional (Revision 1)</a>
+</p>
+
+<p>
+variant, any, optionalというtype erasure機能を提供する用途の異なるライブラリが提案されている。type erasureという機能では共通しているこれらのライブラリは、インターフェースがバラバラだ。インターフェースをある程度統一する提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0051r1.pdf">[PDF] P0051R1: C++ generic overload function (Revision 1)</a>
+</h2>
+
+<p>
+非情に面白いoverloadライブラリの提案。関数オブジェクトを突っ込んで、突っ込んだ関数オブジェクトの中でオーバーロード解決が最適なものを呼び出してくれる。
+</p>
+
+<pre><code>std::f = std::overload(
+    []( int x ) { }, // #1
+    []( double d ) { }, // #2
+    []( auto x ) { } ) ; // #3
+
+f( 0 ) ; // #1
+f( 0.0 ) ; // #2
+f( "hello" ) ; // #3
+</code></pre>
+
+<p>
+実装例は前回の記事で解説したが極めて単純で興味深い。
+</p>
+
+<p>
+前回からの変更点としては、最適関数を選ぶoverload, 呼び出し可能な最初の関数を選ぶfirst_overload, 格納した関数オブジェクトにアクセスする機能の3種類に提案を分割し、それぞれ独立して提案することにしたらしい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0057r1.pdf">[PDF] P0057R1: Wording for Coroutines</a>
+</h2>
+
+<p>
+コルーチンの文面案。変更点は、とうとうキーワードが決定されたこと。co_await, co_yield, co_returnになった。なんだか泥臭い名前だ。しかし、await, yieldなど使えるわけがない。
+</p>
+
+<pre><code>future&lt;void&gt; g()
+{
+   std::cout &lt;&lt; "processing f" &lt;&lt; std::endl ;
+   co_await f() ;
+   std::cout &lt;&lt; "resumed" &lt;&lt; std::endl ;
+}
+</code></pre>
+
+<p>
+うーむ。バイク小屋バイク小屋。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0061r1.html">P0061R1: Feature-testing preprocessor predicates for C++17</a>
+</h2>
+
+<p>
+プリプロセッサーでのみ使える__has_includeの追加。ヘッダーファイルが存在するかどうかを調べられる。
+</p>
+
+<pre><code>#if __has_include(&lt;any&gt;)
+#include &lt;any&gt;
+using lib = std ; 
+#elif __has_include(&lt;boost/any.hpp&gt;)
+#include &lt;boost/any.hpp&gt;
+using lib = boost ;
+#endif
+
+lib::any a ;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0083r1.pdf">[PDF] P0083R1: Splicing Maps and Sets (Revision 3)</a>
+</h2>
+
+<p>
+listにあるsplice機能をmapにも提供する提案。前回からの変更点は、node_ptrがnode_handleになったこと。operator *, operator -&gt;が廃止され、かわりにmappedとvalueというアクセッサー関数が追加されたこと。空の状態を調べられるempty関数が追加された。機能テストマクロが追加されたなど。
+</p>
+
+<p>
+mapが管理する内部の動的に確保されたメモリ上に構築されたノードの所有権をmapから切り離すことができる機能。
+</p>
+
+<p>
+extractでmapからノードの所有権を切り離す。切り離されたノードはnode_handleクラスを経由して扱う。node_handleはアロケーターのコピーも持っているので、破棄された時にはノードも破棄される。キーを変更することもできる。mergeでnode_handleの所有するノードをmapにマージできる。
+</p>
+
+<p>
+キーを変更して差し戻すことにより、余計なメモリの破棄、確保を省略することができる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0092r1.html">P0092R1: Polishing chrono</a>
+</h2>
+
+<p>
+chronoライブラリに対する機能追加。丸めモードの設定、符号付きduration型にabsを追加する。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
