@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: Linus Torvalds、Microsoftが「ジャンプしてみろよ」と言えばIntelとAMDはジャンプする
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/01/linus-torvaldsmicrosoftintelamd.html">Linus Torvalds、Microsoftが「ジャンプしてみろよ」と言えばIntelとAMDはジャンプする</a></h1>
+
+<p>
+<a href="https://lkml.org/lkml/2015/6/25/666">LKML: Linus Torvalds: Re: [PATCH 0/3] TLB flush multiple pages per IPI v5</a>
+</p>
+
+<p>
+IntelのCPUのTLBの挙動に、頻出するパターンにおける最適化らしきものが施されていることが観測できることに対して議論した後で、
+</p>
+
+<blockquote>
+
+<p>
+前にも言ったように、Transmetaで働いていた時期、俺はNT以前のWindowsがどういう世界だったかということを垣間見た。GDI protection traversalはGDIがカーネル側に入るたびにTLBを全部フラッシュするらしく、また当時の一部のグラフィックベンチマーク（これはまだハードウェア支援されたVGAグラフィックが一般的ではなかった時代のことだ）は、5千から1万命令以内にTLBを全部ふっとばす実装になっていた。そのため、IntelとAMDはTLB fillを高速にするために多大な労力を割くだけの理由があった。なぜならば、GDIベンチマークは当時重要だったからだ。当時のグラフィックベンチマークというのは、基本的な2Dウインドウ処理やフォント描画のベンチマークのことだ。
+</p>
+
+<p>
+RISCベンダーは全く気にしなかった。奴らと来たら完全にクソなハードウェアで、ソフトウェアパートナー（大方はデータベース）に、ソフトウェアを変更して、large-pageを使うようにしたり、TLBミスを回避すべく努力させた。奴らのコンパイラーはロードを早期に行い、ストアを遅延させた。というのも、メモリサブシステムは完全にオモチャだったからだ。TLBミスはパイプライン全体をぶっ壊すなどしていた。本当にクソなハードウェアで、まだ期待している奴もいる。残念なことだ。
+</p>
+
+<p>
+Windowsの業界では、そんなことは望みようがなかった。Microsoftが、「おう、ジャンプしてみろよ」と言ったならば、IntelとAMDはどちらも「どれだけ高く飛べばいいのでしょうか？」と言ったものだ。結果として、x86はどのRISCよりも柔軟だった。なぜならば、IntelとAMDはどんなクソなソフトウェアでも実行しなければならなかったからだ。ソフトウェア開発者に最適化をさせる代わりに。
+</p>
+</blockquote>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
