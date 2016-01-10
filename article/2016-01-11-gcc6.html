@@ -1,0 +1,138 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: GCC 6にインデントミスの警告機能が追加
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/01/gcc-6.html">GCC 6にインデントミスの警告機能が追加</a></h1>
+
+<p>
+GCC 6にインデントミス警告の機能が追加された。ドキュメントのコミットログは以下の通り。
+</p>
+
+<p>
+<a href="https://gcc.gnu.org/git/?p=gcc.git;a=blobdiff;f=gcc/doc/invoke.texi;h=117b5d99dfc7ad2c60225c21c4f8d65f726695fc;hp=b5721c9f2
+42dc01efe895f49b55e3977809d46b8;hb=e5f01cbafce70120afe8f73df099dcc2796adcd7;hpb=5c5c1f00cfc6fb2f2e6e3721629ee0391a9a95b4">gcc.gnu.or
+g Git - gcc.git/blobdiff - gcc/doc/invoke.texi</a>
+</p>
+
+<p>
+このインデントミスの警告機能は、-Wmisleading-indentationオプションで有効にできる。
+</p>
+
+<pre><code>if ( condition )
+    foo() ;
+    bar() ; // 警告
+</code></pre>
+
+<p>
+具体的に説明すると、この機能は、if, else, while, forの中の文がブロック文ではなく、かつ、文に続いて同じインデントのif, else, while, forではない文が続く場合に警告する。
+</p>
+
+<p>
+例えば、以下のようなコードは、for文のオペランドとしての文に続いて同じインデントレベルの文が続くが、for文なので警告は出ない。
+</p>
+
+<pre><code>
+const std::size_t I = 10, J = 10, K=10 ;
+int a[I][J][K]
+
+for ( std::size_t i = 0 ; i != I ; ++i )
+for ( std::size_t j = 0 ; j != J ; ++j )
+for ( std::size_t k = 0 ; k != K ; ++k ) // 警告なし
+{
+    a[i][j][k] = 0 ;   
+}
+</code></pre>
+
+<p>
+この警告は、プリプロセッサーにより生成された結果のコードには適用されない。
+</p>
+
+<pre><code>if ( condition )
+    foo() ;
+#if CONDITION
+    bar() ; // 警告なし
+#endif
+</code></pre>
+
+<p>
+理由は、プリプロセッサーによって生成された結果のコードは機械的に生成されたもので、人間が読むものではないから、人間向けのインデントは意味をなさないからだ。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+今日は祝日で休みだ。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
