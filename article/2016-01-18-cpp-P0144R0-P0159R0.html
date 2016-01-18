@@ -1,0 +1,594 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書のレビュー: P0144R0-P0159R0 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/01/c-p0144r0-p0159r0.html">C++標準化委員会の文書のレビュー: P0144R0-P0159R0</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0144r0.pdf">P0144R1: Structured Bindings</a>
+</h2>
+
+<p>
+多値を返す関数の戻り値を簡単に変数に束縛できるようにするための文法の提案。
+</p>
+
+<p>
+現在、C++ではtupleがあるために、多値を返す関数を簡単に宣言することができ、また簡単に多値を返すことができる。
+</p>
+
+<pre><code>std::tuple&lt; T1, T2, T3 &gt; f( )
+{
+    T1 a{} ; T2 b {} ; T3 c { }
+    return { a, b, c } ;
+}
+</code></pre>
+
+<p>
+見ればわかる通り、極めて簡単だ。
+</p>
+
+<p>
+呼び出し側で多値を受け取るのも、比較的簡単である。
+</p>
+
+<pre><code>T1 a ; T2 b ; T3 c ;
+std::tie( a, b, c ) = f() ;
+</code></pre>
+
+<p>
+確かに、比較的簡単ではあるが、このコードはいろいろと問題がある。
+</p>
+
+<p>
+変数をあらかじめ宣言しなければならない。もし、型がPOD型ならば、未初期化の状態となり、お作法上あまりよろしくない。
+</p>
+
+<p>
+型がクラス型の場合、デフォルト構築が行われる。その直後にコピー/ムーブして上書きするのに、デフォルト構築するのは無駄だ。
+</p>
+
+<p>
+そこで、複数の変数の宣言と、その変数群を多値のそれぞれの値で初期化する新しい文法を追加する提案。
+</p>
+
+<p>
+現在、以下の文法が提案されている。
+</p>
+
+<pre><code>auto { a, b, c } = f() ;
+</code></pre>
+
+<p>
+この宣言文は、変数、a, b, cを宣言する。変数の型はそれぞれ独立して初期化子から推定される。
+</p>
+
+<p>
+この提案では、以下の2つの新しい文法を提案している。
+</p>
+
+<pre><code>auto { list-of-comma-separated-variable-names } { expression };
+auto { list-of-comma-separated-variable-names } = expression;
+</code></pre>
+
+<p>
+expressionは、tupleとpairの場合、それぞれの要素で型推定され、初期化される。式は変数と同じ個数の要素をもたなければならない。
+</p>
+
+<pre><code>std::pair&lt; T1, T2 &gt; p{ ... } ;
+auto { a, b } = p ;
+
+std::tuple&lt; T1, T2, T3 &gt; t{ ... } ;
+auto { x, y, z } = t ;
+</code></pre>
+
+<p>
+式には、クラス型を指定することもできる。このときクラス型のすべての非staticデータメンバーはアクセス可能で、ひとつの基本型（そのクラス型も含む）で宣言されていなければならない。
+</p>
+
+<pre><code>struct X { int a ; double b ; } ;
+
+X x{ 0, 0.0 } ;
+
+// aはint、bはdouble
+auto { a, b } = x ;
+</code></pre>
+
+<p>
+クラスが無名unionメンバーを含む場合、最初のメンバーが選ばれる。
+</p>
+
+<pre><code>
+struct X
+{
+    union { int i ; double d ;} ;
+    int data ;
+} ;
+
+X x{ {0}, 0 } ;
+
+// xはint型で値は0
+auto { x, y } = x ;
+</code></pre>
+
+<p>
+autoにCV修飾子やlvalueリファレンス修飾子を使うこともできる。
+</p>
+
+<pre><code>auto const { x, y, z } = f() ;
+auto const &amp; { x, y, z } = f() ;
+</code></pre>
+
+<p>
+rvalueリファレンス修飾子のサポートについては、議論中。
+</p>
+
+<p>
+この文法は、initializer_listからの初期化はサポートしない。
+</p>
+
+<p>
+braced-init-listからの初期化もサポートしない。
+</p>
+
+<pre><code>// サポートしない
+auto { x, y, z } = { 1, 2, 3 } ;
+</code></pre>
+
+<p>
+理由は、この文法を追加するのは簡単であるが、この文法の有益な利用例がいまのところないため。
+</p>
+
+<p>
+再帰的な構造化解除はサポートしない。
+</p>
+
+<pre><code>std::tuple&lt; T1, std::tuple&lt; T2, T3&gt;, T4 &gt; f() ;
+
+// サポートしない
+auto { a, {b, c}, d } = f() ; 
+</code></pre>
+
+<p>
+将来の拡張案としては興味深い。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0145r0.pdf">[PDF] P0145R0: Expression Order of Evaluation</a>
+</h2>
+
+<p>
+式のオペランドの評価順序を固定する提案。
+</p>
+
+<p>
+たとえば、f( a, b, c )という式があるとき、オペランドf, a, b, cがどの順番で評価されるのかは、規格上は未規定(unspecified)とされていた。そのため、シークエンスポイントを隔てることなく、2つのオペランド中の式が同じオブジェクトを変更するとき、挙動は未定義となる。例えば、f( i++, i )のような式で、iが整数型の変数の場合、挙動は未定義となる。v[i] = i++も同じだ。
+</p>
+
+<p>
+f( i++, i )やv[i] = i++のような昔からよく知られた問題ばかりではない。例えば、以下のようなコードの挙動も未規定だ。
+</p>
+
+<pre><code>
+#include &lt;map&gt;
+
+int main()
+{
+    std::map&lt; int, int &gt; m ;
+    m[0] = m.size() ; // #1
+}
+</code></pre>
+
+<p>
+#1が評価された後のmapの中身はどうなっているだろうか。{{0,0}}だろうか、{{0,1}}だろうか。規格上は未規定だ。
+</p>
+
+<p>
+式の評価順序が未規定という問題は、単にプログラマーの娯楽とか、採用試験とか、学術的な興味にとどまる問題ではない。現在の規格の制約は、現実の日常的なプログラミングに問題を引き起こしている。例えば以下のコードだ。
+</p>
+
+<pre><code>void f()
+{
+    std::string s = “but I have heard it works even if you don’t believe in it”
+    s.replace(0, 4, “”).replace(s.find(“even”), 4, “only”).replace(s.find(“ don’t”), 6, “”);
+    assert(s == “I have heard it works only if you believe in it”);
+}
+</code></pre>
+
+<p>
+s.replace(...).replace(...).replace(...)と、いわゆる"method chaining"的なメンバー関数呼び出しの仕方をしている。これらがすべて、ひとつの式の中のサブ式であるので、その評価順序は未規定である。評価順序が未定義な以上、assertは引っかかる可能性がある。findの後に、そのfindを含まない別のreplaceが評価されるとassertに引っかかる。
+</p>
+
+<p>
+このコードの問題点は、極最近になってツールで検証した結果明らかになった。
+</p>
+
+<p>
+このコードは、Bjarne StroustrupのThe Programming Langauge 4thに載っているコードであり、この本は世界屈指のC++専門家達によって査読されていた。そのような環境ですらこの問題が発覚しなかったということは、現在の規程に問題がある。
+</p>
+
+<p>
+このようなメソッドチェイニングが問題なのだとする批判は当たらない。なぜならば、std::cout &lt;&lt; e1 &lt;&lt; e2 &lt;&lt; e3のような式も影響を受けるし、std::future&lt;T&gt;はメソッドチェイニングを前提としたthen()メンバー関数を追加する予定である。問題はメソッドチェイニングではない。
+</p>
+
+<p>
+しかし、評価順序の未規定ルールは、何十年も存在する。なぜ今変えるのか。当時の制約ある環境では、この規程は理由があるものであった。時代と環境が変わった今、当時は適切だった規程が適切ではなくなっている。そのために変える必要がある。
+</p>
+
+<p>
+この文書が提案する評価順序は以下の通り。
+</p>
+
+<ul>
+<li>
+後置式は左から右に評価される。これには関数呼び出し式とメンバー選択式も含まれる。
+</li>
+
+<li>
+代入式は右から左に評価される。これには複合代入も含まれる
+</li>
+
+<li>
+シフト演算子のオペランドは左から右に評価される。
+</li>
+</ul>
+
+<p>
+結果として、以下の式はすべて、a, b, c, dの順に評価される。
+</p>
+
+<pre><code>a.b
+a-&gt;b
+a( b, c, d )
+b @= a
+{ a, b, c, d }
+a[b]
+a &lt;&lt; b
+a &gt;&gt; b
+</code></pre>
+
+<p>
+オーバーロードされた演算子を使った式の評価順序は、組み込み演算子の評価順序と同じになる。関数呼び出しと同じ順序ではない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0147r0.html">P0147R0: The Use and Implementation of Contracts</a>
+</h2>
+
+<p>
+現在提案されているcontracts案と似たような文法を使ってどのようなコードが書けるかという例示のための文書。contractsは、関数が満たすべきpreconditions, invariants and postconditionsを記述できる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0148r0.pdf">[PDF] P0148R0: memory_resource_ptr: A Limited Smart Pointer for memory_resource Correctness</a>
+</h2>
+
+<p>
+memory_resourceをラップするスマートポインター、memory_resource_ptrの提案。
+</p>
+
+<p>
+memory_resourceとは、ライブラリに追加される各種ヒープメモリーを実装したクラスのポリモーフィックな基本クラスだが、生のポインターを使うのはいろいろと不便なので、memory_resourceに特化したスマートポインターを追加する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0151r0.pdf">[PDF] P0151R0: Proposal of Multi-Declarators</a>
+</h2>
+
+<p>
+多値を個々の変数で受け取る宣言文法として、以下のようなものがP0144で提案されている。
+</p>
+
+<pre><code>std::tuple&lt; T1, T2, T3 &gt; f() ;
+auto { a, b, c } = f() ;
+</code></pre>
+
+<p>
+この文書は、以下のような別の文法を提案している。
+</p>
+
+<pre><code>tuple&lt;T1, T2, T3&gt;&lt;T1 x, T2 y, T3 z&gt; = f(); // 多値のクラスと変数型の明示的な指定
+tuple&lt;T1, T2, T3&gt;&lt;x, y, z&gt; = f(); // 多値のクラスの明示的な指定
+&lt;T1 x, T2 y, T3 z&gt; = f(); // 変数型の明示的な指定
+&lt;x,y,z&gt; = f(); // 明示的な指定なし
+</code></pre>
+
+<p>
+また、使わない変数の省略を認めている。
+</p>
+
+<pre><code>// 2番めの変数は無視される
+&lt;a, c&gt; = f() ; 
+</code></pre>
+
+<p>
+個人的には、autoキーワードを使う文法のほうがわかりやすいし、この文法が提案している柔軟な機能にどの程度の需要があるのか疑問だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0152r0.html">
+P0152R0: constexpr atomic&lt;T&gt;::is_always_lock_free
+</a>
+</h2>
+
+<p>
+コンパイル時にatomic&lt;T&gt;が常にロックフリーかどうかを確認できるconstexprメンバー関数is_always_lock_freeを追加する提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0153r0.html">
+P0153R0: std::atomic_object_fence(mo, T&amp;&amp;...)
+</a>
+</h2>
+
+<p>
+atomic_thread_fence(memory_order)に似ているが、指定したオブジェクトのみsequenced before関係を発生させるatomic_object_fence( memory_order, T &amp;&amp; ... )の提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0154r0.html">P0154R0: constexpr std::hardware_{constructive,destructive}_interference_size</a>
+</h2>
+
+<p>
+std::hardware_constructive_interference_sizeとstd::hardware_destructive_interference_sizeの提案。
+</p>
+
+<p>
+この2つのconstexpr関数は、一般にキャッシュラインサイズと呼ばれている値を取得するためのもの。
+</p>
+
+<p>
+2つのオブジェクトがあり、ランタイムアクセスパターンがそれぞれ異なる（例えばあるオブジェクトは頻繁に変更するのに、もう一方のオブジェクトはほとんど変更しない）とする。CPUのキャッシュはキャッシュラインサイズと呼ばれる単位で行われており、この2つのアクセスパターンの異なるオブジェクトが同じキャッシュライン上に載っている場合、一方のアクセスパターンに引きづられて、本来必要のないキャッシュからメモリへの書き込みが行われてしまう。これをfalse-sharingと呼ぶ。
+</p>
+
+<p>
+false-sharingを避けるには、異なるキャッシュライン上にオブジェクトが配置されるために、オブジェクトの配置されるメモリアドレスに十分なオフセットを儲けなければならない。hardware_destructive_interference_sizeは、false-sharingを避けるために必要な最小限のオフセットサイズを教えてくれる。
+</p>
+
+<p>
+逆に、2つのオブジェクトのランタイムアクセスパターンが似通っていて、同じキャッシュライン上に載っている場合を、true-sharingと呼ぶ。true-sharingが行われるためには、2つのオブジェクトの合計サイズがキャッシュラインサイズに収まらなければならない。
+</p>
+
+<p>
+hardware_constructive_interference_sizeはtrue-sharingされるための上限のサイズを教えてくれる。
+</p>
+
+<p>
+この2つの値の定義は、実質の同じ意味なので、同じ値になるのではないかと思うのだが、2つに分けたのは、単にコードの意図をわかりやすくするためだろうか。それともこの値の異なる環境が実際に存在するのだろうか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0155r0.pdf">[PDF] P0155R0: Task Block R5</a>
+</h2>
+
+<p>
+fork-join並列コードを書くためのライブラリ、task_blockの提案。
+</p>
+
+<p>
+例えば、ツリー構造を並列実行でたどるときに
+</p>
+
+<pre><code>template&lt;typename Func&gt;
+int traverse(node *n, Func&amp;&amp; compute)
+{
+    int left = 0, right = 0;
+    define_task_block([&amp;](task_block&amp; tb) {
+        if (n-&gt;left)
+            tb.run([&amp;] { left = traverse(n-&gt;left, compute); });
+        if (n-&gt;right)
+            tb.run([&amp;] { right = traverse(n-&gt;right, compute); });
+    });
+    return compute(n) + left + right;
+}
+</code></pre>
+
+<p>
+このように、define_task_blockに関数オブジェクトを渡すと、task_blockが実引数に渡される。あとはそのメンバー関数のrunを実行するたびに並列に実行が分岐する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0156r0.html">P0156R0: Variadic lock_guard (Rev. 2)</a>
+</h2>
+
+<p>
+lock_guardをVariadic Templatesにする提案。
+</p>
+
+<pre><code>std::mutex m1, m2 ;
+
+void f()
+{
+    // m1, m2に対してlock()が呼び出される
+    std::lock_guard&lt;std::mutex, std::mutex&gt; lock( m1, m2 ) ;
+    // 処理
+
+    // lockのデストラクターでm1, m2にunlock()が呼び出される。
+}
+</code></pre>
+
+<p>
+なお、make関数はない。lock_guardはコピーもムーブもできないからだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0157r0.html">P0157R0: Handling Disappointment in C++</a>
+</h2>
+
+<p>
+ある関数が呼び出し元の期待する処理を完了できなかった場合、呼び出し元は失望(disappointment)する。関数はその失望をどのようにして呼び出し元に伝えるのか。
+</p>
+
+<p>
+この文書は、慣習的に使われている通知方法を列挙して考察している。
+</p>
+
+<p>
+戻り値
+</p>
+
+<p>
+戻り値は、最も一般的なC言語的手法であり、大抵はintかenumが使われる。失敗時には成功時特別可能な特別な値が使われる。この通知方法には問題がある。
+</p>
+
+<p>
+エラー処理と通常の処理とが混ざってしまう。エラー処理が面倒なため、プログラマーはエラーを無視したがる。エラー処理に戻り値を使うと、通常の結果の値を戻り値ではなく実引数を経由した上書きで渡す必要が出てくる。呼び出し元がエラー通知に反応するには、事前に通知される値について知っていなければならない。
+</p>
+
+<p>
+特別な戻り値
+</p>
+
+<p>
+C言語で慣習的に用いられている方法で、戻り値を通常の結果通知に使うと同時に、特別な値を使って、エラー通知にも使う方法だ。特別な値には、nullポインターやゼロや-1などが用いられる。
+</p>
+
+<p>
+この方法で通知できるのは、たいていはエラーの有無だけであり、エラーの具体的な内容については、別の方法で通知しなければならない。別の方法には、errnoのようなグローバルなオブジェクトが使われる。これは並列化を阻害する。
+</p>
+
+<p>
+実引数を経由したエラー通知
+</p>
+
+<p>
+これもC言語で慣習的に行われている方法で、実引数にエラー通知を受け取るためのオブジェクトへのポインターを取る方法だ。
+</p>
+
+<p>
+これは、ループ文の条件式の中で使えないとか。エラー通知を完全に無視まではできないものの、結局無視されやすいという問題はある。
+</p>
+
+<p>
+多値
+</p>
+
+<p>
+関数の結果と、エラー通知の両方を多値で返す。これは古典的なC言語では行われていない方法だが、Goのような最近の言語では組み込みの多値を返す機能があるために使われている。
+</p>
+
+<p>
+long jump
+</p>
+
+<p>
+エラー通知にlong jumpを使う例が存在する。long jumpは関数内で起こった状態を解消するための手段を持たず、関数内で状態を持たないか、エラー発生時に状態を無視していい、極めて制限された環境でしか使えない。
+</p>
+
+<p>
+例外
+</p>
+
+<p>
+例外は上記のエラー処理の問題をいくつも解決している。通常のコードとエラー処理コードを分離できる。戻り値の型にデフォルトコンストラクターが要らない。補足されなかった例外はコールスタックを上がっていく。例外は未知のエラー通知にも使える。スタックフレームを遡る例外通知は、ローカルのオブジェクトを破棄していくため、エラー専用の破棄処理がいらない。
+</p>
+
+<p>
+例外には欠点もある。まず例外は重い処理であるということ。頻繁に発生する「失望」を例外で伝えるには重すぎる。例外の存在は関数呼び出しにオーバーヘッドを発生させるので、極めて資源制約の強い環境では使えない。
+</p>
+
+<p>
+エラーに対処してもう一度試行する処理を書けない。
+</p>
+
+<p>
+論文では、様々なエラー処理を比較した結果、今後の規格は、現在提案中のexpectedやstatus_valueのような多値を返すエラー処理を推奨している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0158r0.html">P0158R0: Coroutines belong in a TS</a>
+</h2>
+
+<p>
+コルーチンには様々な問題が山積みで、C++17に直接追加するのは時期尚早であるので、TSとして出すべきだと主張する文書。
+</p>
+
+<p>
+現在コルーチンに持ち上がっている様々な問題が列挙されている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0159r0.html">Technical Specification for C++ Extensions for Concurrency, DTS</a>
+</h2>
+
+<p>
+複数のfutureがready状態になるまで待つwhen_all、複数のfutureのうちどれかひとつがready状態になるまで待つwhen_any、futureのmethod chaining的に使えるメンバー関数then、wait_for, wait_untillatchとbarrier、atomic_shared_ptrといった並列同期に関するライブラリのTS。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+今日は雪だったが、いつもどおりドワンゴ標準時で出社した結果、特に影響はなかった。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
