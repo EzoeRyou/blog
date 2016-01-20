@@ -1,0 +1,296 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書のレビュー: P0160R0-P0172R0 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/01/c-p0160r0-p0172r0.html">C++標準化委員会の文書のレビュー: P0160R0-P0172R0</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0160r0.html">P0160R0: Wording for removing defaults for unary folds</a>
+</h2>
+
+<p>
+fold式からデフォルト値を削除する文面案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0162r0.pdf">P0162R0: A response to "P0055R0: On Interactions Between Coroutines and Networking Library"</a>
+</h2>
+
+<p>
+「現在提案中のBoost.Asioベースのネットワークライブラリの状態保持のための動的ストレージは、コルーチンのスタック上に確保すれば高速になるので、規格でそのように規程すべきだ」という提案に対し、「そのような設計は実装の自由度を制限してしまい好ましくない。同等の高速化はBoost.Asioのカスタムアロケーターでも可能で、最近のAsioはデフォルトのアロケーターを使った場合でも最適化を自動的にするようになっているので、規格でもそのように規定しよう」という反論。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0163r0.html">P0163R0: shared_ptr::weak_type</a>
+</h2>
+
+<p>
+shared_ptr&lt;T&gt;に対応するweak_ptr&lt;T&gt;のネストされた型名、weak_typeを追加する提案
+</p>
+
+<p>
+shared_ptrからweak_ptrを作るには、weak_ptrの型を具体的に記述する必要があった。これではジェネリックなコードを書きにくいので、N4537ではshared_ptrに対応するweak_ptrを返すunlockというメンバー関数を追加する提案をしたが、これは却下された。
+</p>
+
+<p>
+しかし、やはりweak_ptrの型を直接書くのは嫌なので、今度はshared_ptrに対応するweak_ptr型のweak_typeというネストされた型名を追加する。
+</p>
+
+<p>
+つまり、以下のようなコードを解決する。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+void f( T &amp; t )
+{
+    auto sptr = t.get_shared_ptr() ; // 何らかのshared_ptrが返される
+    std::weak_ptr&lt;???&gt; wptr = sptr ; // 型がわからない。
+}
+</code></pre>
+
+<p>
+この問題を解決するために、従来、以下のようなコードが書かれてきた。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+std::weak_ptr&lt;T&gt; unlock( std::shared_ptr&lt;T&gt; const &amp; sptr )
+{
+    return std::weak_ptr&lt;T&gt;( stpr ) ;
+}
+
+template &lt; typename T &gt;
+void f( T &amp; t )
+{
+    auto sptr = t.get_shared_ptr() ; // 何らかのshared_ptrが返される
+    auto wptr = unlock(sptr) ;
+}
+
+</code></pre>
+
+<p>
+この提案を使えば、以下のように書ける。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+void f( T &amp; t )
+{
+    auto sptr = t.get_shared_ptr() ; // 何らかのshared_ptrが返される
+    auto wptr = typename decltype(sptr)::weak_type(sptr) ;
+}
+</code></pre>
+
+<p>
+unlockの方がわかりやすい気がするのだが。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0164r0.html">P0164R0: Core Motions</a>
+</h2>
+
+<p>
+Core issuesに対する解決の中で規格入りする準備ができたもの一覧
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0165r0.html">P0165C++ Standard Library Issues to be moved in Kona</a>
+</h2>
+
+<p>
+Library issuesに対する解決の中で規格入りする準備ができたもの一覧
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0166r0.pdf">P0166R0: Three interesting questions about contracts</a>
+</h2>
+
+<p>
+関数にprecondition, postcondition, invariantを記述できるcontract機能を使って、どのようにvectorのようなクラスで範囲外チェックを記述できるのかというHerb Sutterの提示した問いに答える文書。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0167r0.html">P0167R0: Core "ready" Issues</a>
+</h2>
+
+<p>
+2015 Kona会議以降に規格入りする準備が整ったcore issueの解決の一覧。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0169r0.html">P0169R0: regex with Unicode character types</a>
+</h2>
+
+<p>
+regexをUnicode(char16_t, char32_t)に対応させるために必要な設計の考察。
+</p>
+
+<p>
+char32_tはUnicodeコードポイントをほぼそのまま表現できる。basic_regex&lt;char32_t&gt;を実現するには、&lt;locale&gt;をchar32_tに対応させる必要がある。具体的には、ctype&lt;char32_t&gt;, collate&lt;char32_t&gt;, collate_byname&lt;char32_t&gt;を実装する必要がある。
+</p>
+
+<p>
+char16_tの方は、char32_tのように実装さえすれば動くわけではない。UTF-16にはサロゲートペアが存在するので、char16_tの一つのオブジェクトは1文字を表現しない場合がある。しかし.(dot atom)とか\S(predefined character class)はサロゲートペアの片割れにマッチしてしまう。サロゲートペアがあるため、char16_tは&lt;locale&gt;をサポートできない。
+</p>
+
+<p>
+UTF-16ではなく、UCS-2(サロゲートペアのない16bit固定長Unicode符号。BMPだけをサポートしたもの)をサポートするという案は採用できない。なぜならば、UCS-2はすでにISO/IEC 10646においてdeprecated扱いされているため、今から発行する規格がUCS-2だけをサポートするというのはありえない。
+</p>
+
+<p>
+ではどうするのか。basic_regex&lt;char16_t&gt;は提供せず、char16_tとchar32_tを相互変換するイテレーターを提供するという案がある。
+</p>
+
+<p>
+他には、char16_tは、現行のbasic_regex&lt;char&gt;と同じく、可変長エンコードをそのまま突っ込んだものとみなし、特に何も対応せずそのまま提供するという案もある。この案を採用する場合、Unicodeに関してはchar32_tに変換した上でbasic_regex&lt;char32_t&gt;を使うべきだ。
+</p>
+
+<p>
+筆者の意見では、UTF-8, UTF-16, UTF-32を簡単に変換できる関数と、相互に通過的に変換するイテレーターを提供した上で、正規表現を使いたければbasic_regex&lt;char32_t&gt;に一本化する方法がいいと思う。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0170r0.pdf">P0170R0: Wording for Constexpr Lambda</a>
+</h2>
+
+
+<p>
+constexpr lambda式の文面案。
+</p>
+
+<pre><code>auto f = []( int x ) { return x ; } ;
+constexpr int i = f(0) ; // OK
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0171r0.html">P0171: Response To: Resumable Expressions P0114R0</a>
+</h2>
+
+<p>
+Resumable Expressionに対して寄せられた懸念事項に答える文書。
+</p>
+
+<p>
+言語規格がスケジューリングまで定めるべきではないという意見に対しては、提案しているのはシンタックスシュガーだけで、スケジューリングの詳細はライブラリが実装すると回答。
+</p>
+
+<p>
+resumable関数を呼び出す際にawaitを書き忘れると、実に不具合箇所を特定しにくい不具合の元になるという意見に対しては、現在提案中の戻り地を無視すると警告する[[nodiscard]]のような属性を提案すればよいと回答。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0172r0.html">P0172R0: Abominable Function Types</a>
+</h2>
+
+<p>
+C++の型システムには、コンパイラー開発者とメタプログラマーしか知らない闇がある。Abominable functionと名付けられた型のことだ。
+</p>
+
+<p>
+abominable functionとは、CV修飾やリファレンス修飾された関数型のことだ。
+</p>
+
+<pre><code>using regular = void () ;
+using abominable = void () const volatile &amp;&amp; ;
+</code></pre>
+
+<p>
+非メンバー関数はCV修飾やリファレンス修飾することはできない。しかし、関数型はCV修飾、リファレンス修飾ができてしまう。
+</p>
+
+<p>
+このようなabominable function型は、ほとんど利用価値がないが、traitsを実装する際に個別に対応しなければならないため、問題になる。
+</p>
+
+<p>
+このAbominable functionをどうにかしようと問題提起する文書。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+1月23日にはドワンゴ主催のプログラミングコンテストが行われる。
+</p>
+
+<p>
+<a href="http://dwango.co.jp/saiyo/procon2016/">第2回 ドワンゴからの挑戦状 | 株式会社ドワンゴ</a>
+</p>
+
+<p>
+前回と同じく、競技プログラミングの環境にはあのAtCoder(株)の社長であり最強最速アルゴリズマー養成講座の著者でもある高橋直大氏の<a href="http://atcoder.jp/">AtCoder (アットコーダー)</a>を利用している。
+</p>
+
+<p>
+このコンテストの予選を突破し、2月13日の本選の上位入賞者の2017年新卒には、採用試験の一部免除などの特典があるそうだ。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
