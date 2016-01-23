@@ -1,0 +1,228 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: ドワンゴからの挑戦状の予選に参加した 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/01/2.html">第2回 ドワンゴからの挑戦状の予選に参加した</a></h1>
+
+<p>
+第二回、ドワンゴからの挑戦状の予選に参加した。公式Webサイトは以下の通り。
+</p>
+
+<p>
+<a href="http://dwango.co.jp/saiyo/procon2016/index.html">第2回 ドワンゴからの挑戦状 | 株式会社ドワンゴ</a>
+</p>
+
+<p>
+もう予選は終わってしまったが、問題は今からでも挑戦することができる。問題に挑戦するには以下のWebサイト上から行う。
+</p>
+
+<p>
+<a href="http://dwango2016-prelims.contest.atcoder.jp/">Welcome to 第2回 ドワンゴからの挑戦状 予選 - 第2回 ドワンゴからの挑戦状 予選 | AtCoder</a>
+</p>
+
+<p>
+これは高橋直大さんの会社、AtCoder社の運営する競技プログラミングのWebサイトで、今回の競技プログラミングのジャッジシステムと問題作成のためにAtCoder社に協力してもらっている。
+</p>
+
+
+<p>
+問題は、A, B, C, D, Eの5問あり、それぞれに点数が設定されている。CDE問題には、部分点も設定されてる。
+</p>
+
+<p>
+回答をするには、問題とプログラミング言語を選び、ソースコードを貼り付けて提出すると、atcoderのサーバー側でコンパイルとテストケースに対する実行が行われて、結果がみられる。問題を解くためには、まずソースコードのコンパイルやパースに失敗しないこと、正しい回答を出力すること、実行時間、メモリ使用量が制限以内であることが求められる。
+</p>
+
+<p>
+この予選の上位入賞者は、2月13日にドワンゴ本社で行われる本選に参加できる。本選での上位入賞者には賞金が出るほか、2017年度新卒である場合、ドワンゴへの新卒採用における一部の面接をパスできる。
+</p>
+
+<p>
+去年行われた際、筆者は予選終了後に問題を解いたが、今回はリアルタイムで予選に参加した。筆者は競技プログラミングは得意ではないが、難易度が去年と同じ程度である場合、仮にもドワンゴでエンジニアという役職で雇用されている以上、B問題ぐらいまでは解けなければ沽券に関わる。
+</p>
+
+<p>
+<a href="http://dwango2016-prelims.contest.atcoder.jp/tasks/dwango2016qual_a">A: ニコニコ数</a>
+</p>
+
+<p>
+問題分だけ抜粋すると、以下の通り。
+</p>
+
+<blockquote>
+<p>
+ニコニコ数とは、10進法で表記したときに 2 と 5 が交互にあらわれ、かつ一番上の位が 2 で一番下の位が 5 であるものです。 例えば、 25,2525,252525252525252525 などはニコニコ数であり、 467,5252,5 などはニコニコ数ではありません。
+</p>
+
+<p>
+ニワンゴくんは、 N 以下の正の整数のうち、約数にニコニコ数を持つものがいくつあるかを調べようと思いました。ニワンゴくんに代わって、この問題を解くプログラムを作ってください。
+</p>
+</blockquote>
+
+<p>
+筆者はこの問題を以下のように読み間違えてしまった。
+</p>
+
+<p>
+ニワンゴくんは、 N 以下の正の整数それぞれについて、すべての約数のうちニコニコ数である数字の合計値がいくつあるかを調べようと思いました。
+</p>
+
+<p>
+つまり、筆者の誤った解釈では、2525はニコニコ数となる約数として25と2525を持つので、出力すべき数字の合計値に2を足すべきだとなる。そのため、2525を超える値について、出力が間違ってしまった。そして、解釈間違いに気がつくまでに、実に不毛な考察が行われた。結果が32bit符号付き整数に収まらないのではないか。いや、Nは10の9乗以下であるので問題はない。どこかにコンパイルエラーにならないタイプミスがあるのか。などなど。
+</p>
+
+
+
+<p>
+さて、正しい解釈でこの問題を考えると、ニコニコ数2525は約数として25を含むし、252525も約数として25を含む。したがって、約数として25が含まれるかどうかのみを考えればよい。約数の25が含まれる値は25の倍数であるし、単純にNを25で割ればよい。
+</p>
+
+<pre><code>#include &lt;iostream&gt;
+ 
+int main()
+{
+    unsigned N{} ;
+    std::cin &gt;&gt; N ;
+    std::cout &lt;&lt; N /25 &lt;&lt; std::endl ;
+}
+</code></pre>
+
+<p>
+<a href="http://dwango2016-prelims.contest.atcoder.jp/tasks/dwango2016qual_b">B: 積み鉛筆</a>
+</p>
+
+<p>
+問題分はリンク先を参照してもらうとして、A問題に時間をほとんど使い尽くしてしまったので、B問題を解く時間が30分ぐらいしか残されてない。
+</p>
+
+<p>
+さて、これは一体どうすればいいのだろうか。整合性を保つために手直しをすると、前の鉛筆まで手直しが発生するのではないか。するとバックトラック的な何かをする必要があるのだろうか。
+</p>
+
+<p>
+ぼんやりと<a href="https://discovery2016-qual.contest.atcoder.jp/img/other/dwango2016qual/hdfksjghkjsdfhgkjsdhfgkjs/problem4.PNG">鉛筆を詰んでいる図の例</a>をながめていると、ふとひらめいた。
+</p>
+
+<p>
+2本の上段の鉛筆KiとKi+1に対して、下段の整合性を保つ必要のある鉛筆は、LiとLi+1とLi+2の3本だけだ。Li+2の長さをKi+1とKi+2の都合で変えても、Liを整合性を保つために変更する必要はない。そして、整合性を保つ方法というのも、KiとKi+1の長さを、Li+1とLi+2に入れて、それで整合性が取れなければ、LiとLi+1に入れるだけでいいのではないか。2つの連続した鉛筆Kに対しては、その下の3本の鉛筆Lしか考慮しなくてよい。
+</p>
+
+<p>
+さっそくそのようなコードを書き、投稿。なぜかWA(Wrong Answer)とTLE(Time Limit Exceeded)の嵐。何がまずいのか。入力をすべてメモリ上に読み込んでいるからまずいのか。そんなことをせずに逐次に処理をしていくべきなのか。いや、入力は10の5乗程度でしかなく、TLEを起こすはずがない。WAはなぜだ。少なくとも問題の入力例に対しては正しい答えを出せているのだが。
+</p>
+
+<p>
+そしてここで時間切れとなった。時間切れ後に気がついたのだが、どうやらB問題の回答をA問題に対して提出していたようだ。B問題に対してそのまま提出すると、普通に通った。なんということだ。
+</p>
+
+<p>
+実質B問題まではできたと言えるので、最低限の沽券を守ることはできた。
+</p>
+
+<p>
+<a href="http://dwango2016-prelims.contest.atcoder.jp/tasks/dwango2016qual_c">C: メンテナンス明け</a>
+</p>
+
+<p>
+残念ながら、私はC問題以降を解説するだけのアルゴリズム力を持たない。しかし、C問題についてはいろいろと面白い裏話を聞いている。
+</p>
+
+<p>
+この問題は、ドワンゴ社内でtayamaというハンドルネームを用いているドワンゴ社員によって作成された。
+</p>
+
+<p>
+問題を作成してAtCoderに提出したところ、AtCoderの高橋直大社長から、「何のひねりもない問題」と言われたそうだ。tayamaさんはこれを、「アルハラ（＝アルゴリズム・ハラスメント）である」とコメントしている。
+</p>
+
+<p>
+また、この問題は、本来D問題にする予定で作ったのだが、直大社長に、「簡単じゃない？」と言われたためC問題になったのだという。
+</p>
+
+<p>
+また、この問題には入力の大小に応じて、SmallとLargeというテストケースが用意されており、それぞれに点数が設定されている。テストケースが弱く、Smallには通らないのにLargeに通るコードが書けてしまうそうだ。
+</p>
+
+<p>
+また、テストケースに、"small/91_tayama_killer_00"という名前のテストがあるが、これは問題作成者であるtayamaさんの当初書いた回答コードに通らない例が発見されたために追加されたテストケースだそうだ。
+</p>
+
+<p>
+さて、本選は2月13日にドワンゴ本社で行われる。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
