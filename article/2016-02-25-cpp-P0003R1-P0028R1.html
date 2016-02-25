@@ -1,0 +1,272 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書のレビュー: P0003R1-P028R1 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/02/c-p0003r1-p028r1.html">C++標準化委員会の文書のレビュー: P0003R1-P028R1</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0003r1.html">P0003R1: Removing Deprecated Exception Specifications from C++17</a>
+</h2>
+
+<p>
+道的な例外指定を取り除く提案。
+</p>
+
+<p>
+動的例外指定とは以下のような機能をいう。
+</p>
+
+<pre><code>void f() throw( int, double, int * ) ;
+</code></pre>
+
+<p>
+C++98の規格が制定される頃には、すでに動的例外指定の利用例はほとんどなかった。C++11で、例外指定から動的例外指定に改名された上で、deprecated扱いにされた。
+</p>
+
+<p>
+十分な移行期間を与えたので、C++17で取り除く。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0005r3.html">P0005R3: Adopt 'not_fn' from Library Fundamentals 2 for C++17</a>
+</h2>
+
+<p>
+Library Fundamentals TSで提案されているVariadic Templatesを使ったnot_fnを先行して標準規格に追加する提案。
+</p>
+
+<p>
+deprecated扱いされたnot1, not2と違い、引数をいくらでも取れる。
+</p>
+
+<pre><code>template &lt; typename ... Types &gt;
+bool f( Types ... args ) ;
+
+int main()
+{
+    auto g = std::not_fn(&amp;f) ;
+
+    // 任意個の引数に対応
+    g(1) ;
+    g(1,2) ;
+    g(1,2,3) ;
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0009r1.html">P0009r1 : Polymorphic Multidimensional Array Reference</a>
+</h2>
+
+<p>
+配列のレイアウト(FORTRANの列優先レイアウトとCの行優先レイアウト)や、構造体の配列と配列の構造体(構造体の各データメンバーがそれぞれ配列になったレイアウト)などの差異を吸収するポリモーフィックな多次元配列ラッパーである、array_refライブラリの提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0010r0.pdf">[PDF] P0010R0: Adding a subsection for concurrent random number generation in C++17</a>
+</h2>
+
+<p>
+C++の乱数ライブラリは並列アクセスできないのでその注意を文面に追加する提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0018r2.html">
+P0018R2: Lambda Capture of *this by Value as [=,*this]
+</a>
+</h2>
+
+<p>
+lambda式に*thisを値でキャプチャする文法の追加。
+</p>
+
+<p>
+lambda式は*thisを値でキャプチャーできない。
+</p>
+
+<pre><code>struct S
+{
+    int x ;
+    auto f()
+    {
+        return [=]{ return x ; } ;
+    }
+} ;
+
+int main()
+{
+    std::function&lt;int()&gt; f ;
+
+    {
+        S s ;
+        f = s.f() ;
+    }
+
+    // 実行時エラー、オブジェクトsはすでに破棄されている。
+    f() ; 
+
+}
+</code></pre>
+
+<p>
+なぜならば、コピーしている値はthisポインターであって、*thisではないからだ。上記のコードで、[=]と[&amp;]は同じ意味になる。
+</p>
+
+<p>
+そのため、新しいsimple-captureとして、*thisを追加する提案。上記のコードは、以下のように書き換えればエラーにならない。
+</p>
+
+<pre><code>auto f()
+{
+    return [*this]{ return x ; }
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0019r1.html">P0019R1 : Atomic View</a>
+</h2>
+
+<p>
+非アトミックオブジェクトに対してアトミック操作を提供するatomic_viewライブラリの提案。既存のコードの変数の定義を変えるのが現実的ではないコードに足して現実的なライブラリ。
+</p>
+
+<pre><code>
+int data ; // 変更不可能
+
+void f()
+{
+    std::experimental::atomic_view<int> adata( data ) ;
+    ++data ; // アトミック操作
+}
+
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0020r1.html">P0020r1 : Floating Point Atomic</a>
+</h2>
+
+<p>
+浮動小数点数型に対して使えるatomic_viewライブラリ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0024r1.html">P0024R1: The Parallelism TS Should be Standardized</a>
+</h2>
+
+<p>
+&lt;algorithm&gt;に並列実行版を追加するParallelism TSの実装経験を検討した結果、標準規格に取り入れるべきであるとする提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0028r1.pdf">[PDF] P0028R1: Using non-standard attributes</a>
+</h2>
+
+<p>
+attirbuteの名前空間の省略記法の提案。
+</p>
+
+<p>
+独自のattributeトークンを使った独自拡張は、トークンの重複を防ぐためにattribute名前空間を使うことが多い。
+</p>
+
+<pre><code>void f() {
+    [[rpr:: kernel, rpr:: target(cpu,gpu)]]
+    do task();
+}
+</code></pre>
+
+<p>
+しかし、attribute名前空間をいちいち指定するのは面倒なので、using宣言に相当するような機能がほしい。そこで、この提案は、そのような機能を付け加える。
+</p>
+
+<pre><code>void g() {
+    [[ using rpr: kernel, target(cpu,gpu)]]
+    do task();
+}
+</code></pre>
+
+<p>
+キーワードはとりあえずusingにしているが、変わるかもしれない。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+来月はドワンゴのセミナールームでだいぶ血の気のあらそうな勉強会が開催されます。
+</p>
+
+<p>
+<a href="http://kbkz.connpass.com/event/26677/">歌舞伎座.tech#9「異種プログラミング言語格闘勉強会」 - connpass</a>
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
