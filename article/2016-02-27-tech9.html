@@ -1,0 +1,281 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 歌舞伎座.tech #9で発表される各言語の簡易的なまとめ 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/02/tech-9.html">歌舞伎座.tech #9で発表される各言語の簡易的なまとめ</a></h1>
+
+<p>
+3月20日に以下のような勉強会を企画した。
+</p>
+
+<p>
+<a href="http://kbkz.connpass.com/event/26677/">歌舞伎座.tech#9「異種プログラミング言語格闘勉強会」 - connpass</a>
+</p>
+
+<p>
+今回は様々な言語を持ち寄って発表する勉強会にしたかったので、有名な言語の発表枠をいくつか用意して、それ以外の言語での発表は明示的に要求させるようにした。ネタ枠として正規表現とかEsoteric的な何かの言語の発表枠も用意しておいた。
+</p>
+
+<p>
+ところが、予想に反して、有名な言語の発表枠が埋まらず、発表されてから数年しか立っていないような先進的な言語やネタ言語が多かった。中には聞いたことのないような言語もあるので、Googleで検索して5分ぐらいでわかるような内容の説明を以下に並べておく。
+</p>
+
+
+
+<p>
+C++(シープラスプラス)
+</p>
+
+<p>
+1983年頃から、ベル研究所内でBjarne Stroustrupにより設計、開発された言語。これ以前のC with Classesの経験を元に一から作られた。我々の知る今のC++は1998年に正式に規格が制定された。そこから規格更新を繰り返して、今は2014年の規格が最新になっている。
+</p>
+
+<p>
+C++は低級層のプログラミングや、パフォーマンスが重要な分野に用いられている。
+</p>
+
+<p>
+JavaScript(ジャバスクリプト)
+</p>
+
+<p>
+1995年に、Netscapeというブラウザーに搭載された言語。Brendan Eichにより、たったの10日間で開発されたと言われている。当初はWebサイトにクライアントサイド側でちょっとした動的なギミックを付け加える程度の用途だったのだが、今ではWebにおける共通言語の地位を確立している。
+</p>
+
+<p>
+正規表現(せいきひょうげん)
+</p>
+
+<p>
+歴史はコンピューター以前にさかのぼることができる。もともとは数学を記述するための言語として、1956年にStephen Cole Kleeneによって考案された。正規表現がコンピューター上で用いられるようになったのは、Ken Thompsonによって、QEDというテキストエディターの検索機能として実装されたからだ。当時のKen Thompsonの正規表現実装は、高速化のためJITが使われていたという。JITの早期の使用例としても興味深い。なお環境は、IBM 7094でOSはCompatible Time-Sharing Systemである。検索機能として正規表現によるパターンマッチは、他のツールにも取り入れられた。
+</p>
+
+<p>
+C++を含む多くのプログラミング言語が正規表現ライブラリを標準で提供している。また、言語によっては、Perlのようにコア言語で深くサポートされているものもある。特に、Perlの正規表現などは、正規表現やマッチした結果を参照できるので、チューリング完全な計算力を持っている。
+</p>
+
+<p>
+Esoteric(エソテリック)
+</p>
+
+<p>
+これは具体的なプログラミング言語の名前ではなく、難読プログラミングの総称である。例えば有名どころの難読言語としては、Brainfuckがある。Brainfuckはチューリング完全な計算力を持っているので、計算力として根本的に他の汎用的なプログラミング言語に劣ることはない。
+</p>
+
+<p>
+今回の発表でどのような言語を使うのかは、まだ知らない。
+</p>
+
+<p>
+Elixir(エリキサー)
+</p>
+
+<p>
+この言語は2012年に公開されたばかりで、相当に新しい。作者はJosé Valimだ。この言語の現時点でのおそらく唯一の実装はErlang VM上で動くバイトコードを生成する。Erlangの既存の資産を活用しつつ、Erlangより使いやすい言語が欲しかったのが開発動機だそうだ。
+</p>
+
+<p>
+Go（ゴー）
+</p>
+
+<p>
+2009年に発表された言語。Googleにより開発されていて、設計者はRobert Griesemer, Rob Pike, Ken Thompsonの3人だ。まだ言語としては発表されてから7年しか立っていないが、巨大な民間企業の後ろ盾を得た開発により、すでに現場で使えるほどの品質になっている。Googleによる実装はすでにGoでセルフホストされている。libcにも依存しないかなり独立性の高い言語となっている。
+</p>
+
+<p>
+Nim(ニム)
+</p>
+
+<p>
+2008年に公開された。設計者はAndreas Rumpfだ。現在の実装は、コンパイル結果としてCかC++かObjective-Cのコードを吐くようになっている。実装はNimでセルフホストされている。
+</p>
+
+<p>
+Crystal(クリスタル)
+</p>
+
+<p>
+2014年に公開された。設計者はAry BorenszweigとJuan Wajnermanだそうだ。文法はRubyに影響を受けている。強い静的型付けはあるが、変数の型は明示的に指定しなくて良いようになっている。
+</p>
+
+<p>
+シェルスクリプト
+</p>
+
+<p>
+ここでいうシェルとは、UNIXとUNIX風の環境におけるシェルのことで、そのシェルが提供する言語だ。筆者のデフォルトのシェルはbashだ。こだわりの強い情報強者たる読者はもちろんもっと強力なシェルを使っていることだろう。
+</p>
+
+<p>
+ただし、この発表者のいうシェルスクリプトとは、POSIX規格の範囲内のシェルスクリプトだ。/bin/shがbashへのシンボリックリンクになっている環境も多い中で、POSIXの規程によるシェルスクリプトとプログラムだけを使ってコードを書くのは大変だ。
+</p>
+
+<p>
+F#(エフシャープ)
+</p>
+
+<p>
+2005年公開。主要な設計者というかプロジェクトの管理者はDon Symeだ。ML、とくにOCamlの影響を強く受けているという。実行環境としては.netフレームワーク上で動く。
+</p>
+
+<p>
+歴史もそれなりに長く、Visual F#としてWindows環境でとても有名なIDEであるVisual Stdioに同梱されているそうだが、私はMLの分野をよく知らないためどの程度使われているのかわからない。
+</p>
+
+<p>
+Pony(ポニー)
+</p>
+
+<p>
+2013年に公開されたらしい。背景事情の情報が不足しているが、作者はおそらくSylvan Clebschではないか。
+</p>
+
+<p>
+capabilities-secureな言語であると謳っているが、これは別に権限を細かく分割して必要最小限度の権限しか持たないCapability-based securityをサポートした言語という意味ではなく、単に型安全、メモリ安全、例外安全、データ競合フリー、デッドロックフリーのような意味を持つらしい。紛らわしい変な言葉を発明しないでもらいたいものだ。
+</p>
+
+<p>
+Frege(フレイガ)
+</p>
+
+<p>
+2011年公開。作者はIngo Wechsung。公式に、JVM用のHaskellを謳っていて、文法もほとんどHaskell互換性だ。。外部依存のないHaskellコードはそのままコンパイルできるか、僅かな修正だけで動くことを目指している。また、JVMにかかわらないFregeコードは他のHaskell実装でも実行できるのだという。
+</p>
+
+<p>
+それでもHaskellという名前を使わないので、完全互換は目指していないのだろう。Fregeという名前は、Gottlob Fregeに由来する。
+</p>
+
+<p>
+Rust(ラスト)
+</p>
+
+<p>
+2010年に公開された。もともとの原案の設計者としてはGraydon Hoareで、開発はMozillaの支援を受けている。最初の実装はOCamlだったが、すぐにRustでセルフホストされるようになった。コード生成などのバックエンドはLLVMを使っている。
+</p>
+
+<p>
+目標は、並列化処理を安全に書ける言語だそうだ。文法的にはCやC++にかなり似ている。
+</p>
+
+
+<p>
+Nemerle(ネマール)
+</p>
+
+<p>
+2003年公開。ヴロツワフ大学の学生と教授が開発したらしい。言語の名前はUrsula K. Le Guin著のゲド戦記、A Wizard of Earthsea(影との戦い)に出てくるキャラクターに由来するそうだ。英語表記ならばこの読みでいいのだろうが、ポーランド人が読むとネメレあたりの発音になるのだという。
+</p>
+
+<p>
+それはともかく、言語的には.Net上で動く。関数型かつオブジェクト指向な言語だそうだ。MLの影響が強い。
+</p>
+
+
+<p>
+Postscript(ポストスクリプト)
+</p>
+
+<p>
+1982年公開。設計者はJohn Warnock, Chuck Geschke, Doug Brotz, Ed Taft, Bill Paxtonで、Adobe Systemsによって開発された。
+</p>
+
+<p>
+この言語は人間が手で書くことを想定しておらず、ツールによって生成された上で、プリンターに送信される。プリンターはPostscriptを解釈してページを生成し、印刷する。Postscriptは印刷物のための中間言語としての規格だ。歴史を紐解けば、デスクトップ描画にPostscriptを使ったシステムもあったようだ。
+</p>
+
+<p>
+Postscriptはチューリング完全な計算力を持つ。そのため、プログラミングは可能である。
+</p>
+
+<p>
+Common Lisp
+</p>
+
+<p>
+1984年公開。設計者はScott Fahlman, Richard P. Gabriel, Dave Moon, Guy Steele, Dan Weinrebだ。ANSI規格にもなっている。
+</p>
+
+<p>
+軽くまとめるつもりだったが、意外と時間がかかった。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+この記事はドワンゴ勤務外に暇だったので書いた。
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
