@@ -1,0 +1,259 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書: P0033R1-P0059R1 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/02/c-p0033r1-p0059r1.html">C++標準化委員会の文書: P0033R1-P0059R1</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0033r1.html">P0033R1: Re-enabling shared_from_this</a>
+</h2>
+
+<p>
+enable_shared_from_thisの規程を書き直す提案。
+</p>
+
+<p>
+enable_shared_from_thisとは、クラスの基本クラスとして使うと、shared_from_thisというメンバー関数が追加され、そのクラスのオブジェクトを現在所有しているshared_ptrが返る。
+</p>
+
+<pre><code>class X : public std::enable_shared_from_this&lt;X&gt; { } ;
+
+int main()
+{
+    auto sp1 = std::make_shared&lt;X&gt;() ;
+
+    // sp1とsp2は所有権を共有する
+    auto sp2 = sp1-&gt;shared_from_this() ;
+}
+</code></pre>
+
+<p>
+問題は、複数のshared_ptrに所有された場合どうなるのだろうか。
+</p>
+
+<pre><code>X * ptr = new X{} ;
+std::shared_ptr&lt;X&gt; sp1( ptr ) ;
+std::sahred_ptr&lt;X&gt; sp2( ptr, [](void *){} ) ;
+
+// sp1とsp2のどちらと所有権を同じくするshared_ptrが変えるのか？
+ptr-&gt;shared_from_this() ; 
+</code></pre>
+
+<p>
+規格はこの場合の挙動について述べていない。既存の実装はすべて、sp2はsp1を上書きする。しかしこの挙動は、単にこの可能性を考えなかっただけにすぎない。Boostのshared_ptrは書きかえない。これはユーザーのフィードバックによるものである。
+</p>
+
+<p>
+これを考察すると、最初のshared_ptrが所有権を持つのが自然で、デリーターが何もしないshared_ptrを作りたいことはあるかもしれず、この例が動いてほしい場合はあるが、動かないでいて欲しい場合はない。そこで、最初のshared_ptrから上書きされない決定がなされた。
+</p>
+
+<p>
+また、weak_ptrを返すweak_from_thisも追加された。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0035r1.html">P0035R1: Dynamic memory allocation for over-aligned data</a>
+</h2>
+
+<p>
+operator newにオーバーアラインを守るオーバーロードを追加する提案。
+</p>
+
+<p>
+問題は、この提案だとだいぶ文法が汚いことになるのではないか。
+</p>
+
+<pre><code>auto * ptr = new(static_cast&lt;std::align_val_t&gt;(32)) int[128] ;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0037r1.html">P0037R1: Fixed-Point Real Numbers</a>
+</h2>
+
+<p>
+固定少数点数ライブラリ、fixed_point&lt;ReprType, Exponent&gt;の提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0040r1.html">P0040R1: Extending memory management tools</a>
+</h2>
+
+<p>
+メモリ管理のためのライブラリとして、デストラクターを呼ぶdestroy, uninitialized_move, uninitialized_value_construct, uninitialized_default_constructを追加。これらはコア言語機能だけでも行えるが、記述が面倒なのでライブラリとしてあると便利だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0046r1.html">P0046R1: Change is_transparent to metafunction (Revision 1)</a>
+</h2>
+
+<p>
+連想コンテナーでheterogeneous lookupを許可するかどうかを判断するにはcomparatorにis_transparentというネストされた型名が必要だが、これをpermits_heterogeneous_lookup&lt;T&gt;というわかりやすいメタ関数に置き換える提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0052r1.pdf">[PDF] P0052R1: Generic Scope Guard and RAII Wrapper for the Standard Library</a>
+</h2>
+
+<p>
+汎用RAIIラッパーライブラリの提案。
+</p>
+
+<pre><code>#include &lt;scope&gt;
+
+int main()
+{
+    {
+        auto file = std::make_unique_resource( fopen("hoge", "w"), &amp;fclose ) ;
+    }
+
+    {
+        auto memory = std::make_unique_resource( malloc( 100 ), &amp;free ) ;
+    }
+
+    {
+        auto s1 = std::make_scope_exit( []{ std::cout &lt;&lt; "leave scope" ; } ) ;
+        auto s2 = std::make_scope_success( []{ std::cout &lt;&lt; "leave scope normaly" ; } ) ;
+        auto s3 = std::make_scope_fail( []{ std::cout &lt;&lt; "leave scope by exception"} ) ;
+    }
+
+}
+</code></pre>
+
+<p>
+unique_resourceは、ある型のオブジェクトを保持し、破棄されるタイミングでそのオブジェクトを引数に渡してデリーターを呼んでくれる。
+</p>
+
+<p>
+scoped_exitは、脱出関数を引数に取り、破棄されるタイミングで脱出関数を呼んでくれる。make_scope_xxxには3種類ある。exitはスコープから抜けたら必ず脱出関数を呼ぶ。successは例外によらずにスコープを抜けた場合にのみ脱出関数が呼ばれる。failは、例外でスコープを抜けた場合のみに脱出関数が呼ばれる。
+</p>
+
+<p>
+もうひとつ、make_unique_resource_checked(R r, S invalid, D d)という関数があり、これはrがinvalidに等しい場合、返されるunique_resourceは、すでにreleaseが呼び出されたあとである。
+</p>
+
+<p>
+今回の変更点は、unique_resourceのリソースとデリーターは、無例外コピー可能な型でなければならないとするもの。これにより設計が単純になり、無例外コピー可能ではないstd::functionも使う必要がなくなる。また、リファレンスを渡す場合は、std::ref/crefをユーザーが使わなければならない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0055r1.html">P0055R1: On Interactions Between Coroutines and Networking Library</a>
+</h2>
+
+<p>
+提案されているネットワークライブラリの非同期呼び出しとしてfutureが使われているが、コルーチンを使うようにしたらオーバーヘッドが下がった上にコードも簡潔になったという文書。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0057r2.pdf">[PDF] P0057R2: Wording for Coroutines</a>
+</h2>
+
+<p>
+コルーチンの文面案。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0058r1.pdf">[PDF] P0058R1: An Interface for Abstracting Execution</a>
+</p>
+
+<p>
+スレッドプール、協調型ファイバー、SIMD、GPGPUまで含めた実行媒体を表現できるexecutorライブラリの提案。スレッドからSIMDやGPGPUまでを包括したいいライブラリが設計できるとは思えない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0059r1.pdf">[PDF] P0059R1: A proposal to add a ring span to the standard library</a>
+</h2>
+
+<p>
+ring_spanライブラリの提案。
+</p>
+
+<p>
+この提案は名前が悪い。ring_viewとでも改名すべきではないだろうか。
+</p>
+
+<p>
+いわゆるリングバッファーライブラリなのだが、前回の提案が固定長リングバッファーと動的リングバッファーの2つがあったのに対し、この提案では、ring_spanに統一されてしまっている。ring_spanは連続したストレージ上にリングバッファーを構築するが、ストレージの所有はしない。ストレージはユーザーが用意する。
+</p>
+
+<p>
+つまりデフォルト構築もできないコンテナーなのだが、すごく使いづらい気がする。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+来月ドワンゴで開催する予定の勉強会にレーザープリンターを持ち込みたいという猛者がいるので困惑しているが、PostScriptのデモのための実行環境としては極めて普通であり当然予期すべき事態ではある。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
