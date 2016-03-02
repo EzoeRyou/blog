@@ -1,0 +1,142 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: 普通のコンピューターからAMラジオを鳴らそう
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/03/am.html">普通のコンピューターからAMラジオを鳴らそう</a></h1>
+
+<p>
+読者の持っている至って普通のコンピューターは、実はAMラジオを鳴らす発信装置が備わっている。
+</p>
+
+<p>
+ラジオを鳴らすコードは以下にある。
+</p>
+
+<p>
+<a href="https://github.com/fulldecent/system-bus-radio">https://github.com/fulldecent/system-bus-radio</a>
+</p>
+
+<p>
+ただしこれはMac OS Xでしか動かないので、C++11に移植したコードが以下になる。また、このコードはスレッドを回して消費電力を上げることにより、オリジナルより出力も上げてある。
+</p>
+
+<p>
+<a href="https://github.com/EzoeRyou/system-bus-radio">https://github.com/EzoeRyou/system-bus-radio</a>
+</p>
+
+<p>
+動かし方(GCCの場合)
+</p>
+
+<pre><code>git clone git@github.com:EzoeRyou/system-bus-radio.git
+cd system-bus-radio
+make gmain
+make grun
+</code></pre>
+
+<p>
+Clangの場合、以下のようにする。
+</p>
+
+<pre><code>make cmain
+make crun
+</code></pre>
+
+<p>
+そして、AMラジオを近づけて、周波数をいろいろと変更してみよう。なんと、メリーさんの羊が聞こえるではないか。原作者の環境では1580kHz、筆者の環境では1440kHzが最も聞き取りやすかったが、コンピューターによって最適な周波数は変わる。
+</p>
+
+<p>
+一体どうしてAMラジオがなるのか。CPUが命令を実行するとき、コンピューターからは電磁波が発生する。電磁波はラジオで観測できる。つまり、別のタイミングで命令を実行してやれば、ラジオに乗るノイズも別になる。適切な周波数で命令を実行すれば、ラジオに乗るノイズも音階を持ったものにできるのだ。
+</p>
+
+<p>
+もともとはTEMPESTガイドラインという、アメリカ合衆国のNSAと国防省の勧告によるもので、サイドチャネル攻撃の危険性を周知しているものである。
+</p>
+
+<p>
+オリジナルはMac OS X専用の高精度タイマーを使っていて、かつ、SSE命令を使っていた。C++11に移植するために、高精度タイマーには&lt;chrono&gt;, &lt;thread&gt;を使った。SSE命令の代わりに、&lt;atomic&gt;を使った。また、以下のPull Requestと同等のコードを書いて、スレッドで実行することにより、出力を上げた。
+</p>
+
+<p>
+<a href="https://github.com/fulldecent/system-bus-radio/pull/5">boost sound without radio by andryblack · Pull Request #5 · fulldecent/system-bus-radio</a>
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+今日はこればかりやっていて、あまり仕事をしていない。これからする。
+<p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
