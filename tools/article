@@ -1,0 +1,31 @@
+#!/bin/bash
+
+if [ -z "$1" ]
+then
+    echo "no argument."
+    exit 1
+fi
+
+filename="article/draft-"$1".html"
+cp template/template.html "$filename"
+if [ $? == 0 ]
+then
+    echo "created "$filename
+else
+    echo "failed"
+    echo "$filename"
+    exit 1
+fi 
+
+if [ ! -z "$2" ]
+then
+    title=$2
+    echo $title
+    title=${title//&/'&'amp;}
+    title=${title//</'&'lt;}
+    title=${title//>/'&'gt;}
+    echo $title
+    sed -i "s/placeholder-title/""$title""/g" "$filename"
+fi
+
+vim -gf "$filename"
