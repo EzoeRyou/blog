@@ -20,11 +20,9 @@ fi
 if [ ! -z "$2" ]
 then
     title=$2
-    echo $title
     title=${title//&/'&'amp;}
     title=${title//</'&'lt;}
     title=${title//>/'&'gt;}
-    echo $title
     sed -i "s/placeholder-title/""$title""/g" "$filename"
 fi
 
