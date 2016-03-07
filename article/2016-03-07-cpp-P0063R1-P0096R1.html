@@ -1,0 +1,412 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+本の虫: C++標準化委員会の文書のレビュー: P0063R1-P0096R1 
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/03/c-p0063r1-p0096r1.html">C++標準化委員会の文書のレビュー: P0063R1-P0096R1</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0063r1.html">P0063R1: C++17 should refer to C11 instead of C99</a>
+</h2>
+
+<p>
+C++規格が参照するC言語規格をC99からC11にする変更。
+</p>
+
+<p>
+C11の変更がC++とかち合う部分や、C++とCの文面を厳密に解釈した際の奇妙な結果が考察されていて面白い。t
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0067r1.html">P0067R1: Elementary string conversions, revision 1</a>
+</h2>
+
+<p>
+整数と浮動小数点数を文字列と相互変換するライブラリの提案。
+</p>
+
+<p>
+このライブラリはロケールのように実行時にフォーマットを切り替える機能がなく、かつ、動的メモリ確保も行わない。
+</p>
+
+<p>
+用途は、国際化対応が必須ではないパフォーマンスが重要なテキストベースフォーマットのパース。例えば、JSONやXMLなど。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0072r1.pdf">[PDF] P0072R1: Light-Weight Execution Agents</a>
+</h2>
+
+<p>
+スレッドより制約がある実行単位（SIMDやGPGPUなど）を、実行媒体(execution agent)として扱うための定義を文面に追加する提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0073r1.pdf">[PDF] P0073R1: On unifying the coroutines and resumable functions proposals</a>
+</h2>
+
+<p>
+コルーチンとレジューム可能関数の統一に向けて。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0075r1.pdf">[PDF] P0075R1: Template Library for Parallel For Loops</a>
+</h2>
+
+<p>
+インデックスベースの並列forループアルゴリズムを追加する提案。
+</p>
+
+<pre><code>std::for_loop( std::seq, 0, n, [&amp;]( auto i ){ A[i] = B[i] ;} ) ;
+</code></pre>
+
+<p>
+これは、以下と同じ意味だ。
+</p>
+
+<pre><code>for ( unsigned i = 0 ; i != n ; ++i )
+    A[i] = B[i] ;
+</code></pre>
+
+<p>
+seqをparにすれば、並列実行版になる。
+</p>
+
+<p>
+アルゴリズムには、通常のレンジ版と、カウント版がある。レンジ版は、開始インデックスと終了インデックスを取り、イテレーター風にHalf Open Rangeとして終了インデックスに到達するまでインデックスをすすめる。カウント版は、開始インデックスとイテレート回数を取る。インデックスは指定された回数だけ進められる。カウント版のアルゴリズムは、末尾が"_n"という名前になっている。
+</p>
+
+<pre><code>std::for_loop_n( i, n, f ) ;
+</code></pre>
+
+<p>
+は、
+</p>
+
+<pre><code>for ( unsigned count = 0 ; count != n ; ++count )
+    f( ++i ) ;
+</code></pre>
+
+<p>
+のような意味になる。
+</p>
+
+<p>
+またこの提案はstride版のアルゴリズムも提供する。これは末尾が"_strided"となっている。stride版はインデックスの刻み幅を指定できる。
+</p>
+
+<pre><code>std::for_loop_strided( i, n, m, f ) ;
+</code></pre>
+
+<p>
+は、
+</p>
+
+<pre><code>for ( auto I = i ; I != n ; I += m )
+    f( I ) ;
+</code></pre>
+
+<p>
+のような意味になる。
+</p>
+
+<p>
+Reductionのサポート。Reductionとは、ロックを使わずに一つの変数を並列に変更でき、最終的な値はシリアルに実行した場合と同じものを得る方法である。その仕組みは、並列実行には変数のviewを見せておき、複数のviewから最終的な値を計算する方法を提供することによって実現している。
+</p>
+
+<pre><code>float f(int n, float x[]]) {
+    float s = 0;
+    for_loop(par, 0, n, reduction(s,0.0f,std::plus&lt;float&gt;()),
+        [&amp;](int i, float&amp; s_) {
+            s_ += x[i] ;
+        });
+    return s;
+}
+</code></pre>
+
+<p>
+この例では、変数sの最終的な値は、途中の変更をすべて加算することで得られるので、そのようなreductionを与えている。for_loopの最後の実引数は、Variable Templatesになっていて、reductionをいくつでも受け取ることができる。パラーメーターパックの最後が呼び出し可能な関数オブジェクトとなる。reductionを使った数だけ、関数オブジェクトの呼び出しに実引数が追加される。
+</p>
+
+<p>
+inductionのサポート。inductionはループのイテレート回数に応じて線形に増える値である。そのような値をユーザーが手で計算すると間違いの元なので、ライブラリが用意されている。
+<p>
+
+<pre><code>
+float* zipper(int n, float* x, float *y, float *z) {
+    for_loop(par, 0, n,
+        induction(x),
+        induction(y),
+        induction(z,2),
+        [&amp;](int i, float* x_, float* y_, float* z_) {
+            *z_++ = *x_++;
+            *z_++ = *y_++;
+        });
+    return z;
+}
+</code></pre>
+
+<p>
+inductionもreductionと同じく、いくつでも使える。使った数だけ実引数に渡される。上記のコードは、以下のコードと同じ意味である。
+</p>
+
+<pre><code>
+float* zipper(int n, float* x, float *y, float *z) {
+    for_loop(par, 0, n,
+        [&amp;](int i) {
+            *(z+i*2)++ = *(x+i)++;
+            *(z+i*2)++ = *(y+i)++;
+        });
+    return z;
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0076r1.pdf">[PDF] P0076R1: Vector and Wavefront Policies</a>
+</h2>
+
+<p>
+Parallerism TS(並列アルゴリズム)にベクトル実行ポリシー(SIMDやGPGPU)を追加したいが、単にpar_vecをシングルスレッドに誓言スルテイ土では、制限がゆるすぎてベクトル化できないので、制限を強めた2つの実行ポリシーを追加する提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0077r1.html">P0077R1: is_callable, the missing INVOKE related trait</a>
+</h2>
+
+<p>
+is_callable<R(Args...)> traitsの提案。関数型をテンプレート実引数に与えると、戻り値の型を引数で関数呼び出しできるかどうかを返してくれる。
+</p>
+
+<pre><code>void f( int, int ) ;
+
+std::is_callable_v&lt; f( int, int ) &gt; ; // true
+std::is_callable_v&lt; f( int ) &gt; ; // false
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0082r1.pdf">[PDF] P0082R1: For Loop Exit Strategies (Revision 2)</a>
+</h2>
+
+<p>
+イテレート文を通常通り抜けた場合（条件がfalseになった場合）と、早期に抜けた場合(break)に実行される文を記述できるようにする提案。
+</p>
+
+<p>
+ループを実行したあとで、ループが全部回ったのか、途中でbreakしたのかによって、処理を分けたいことがある。その場合、以下のように書かなければならない。
+</p>
+
+<pre><code>auto it = get_begin(. . .); // Unfortunate that ‘it’ has to be out here.
+auto end = get_end(. . .); // Unfortunate that ‘end’ has to be out here.
+for (; it != end; ++it)
+{
+    if (some_condition(*it)) break;
+    do_something(*it);
+}
+if (it == end) // Extra test here.
+    do_stuff();
+else
+    do_something_else(*it);
+</code></pre>
+
+<p>
+もし、ループの条件を二回評価できない状況では、以下のようにbreakで抜けたかどうかを保持する変数を書かなければならない。
+</p>
+
+<pre><code>bool early = false;
+while (some_condition())
+{
+    . . .
+    if (test1()) { early = true; break; }
+    . . .
+    if (test2()) { early = true; break; }
+    . . .
+    if (test3()) { early = true; break; }
+    . . .
+}
+if (early)
+{ . . . }
+else
+{ . . . }
+</code></pre>
+
+<p>
+range-based forの場合はもっと悲惨だ。ループが途中で中断された時のイテレーターが欲しい場合、以下のように書かなければならない。
+</p>
+
+<pre><code>something_t last; // Extra construction here.
+bool early = false;
+for (auto&amp;&amp; element : container)
+{
+    if (some_condition(element))
+    {
+        last = element; // Extra copy here
+        early = true;
+        break;
+    }
+    do_something(element);
+}
+if (early)
+    do_something_else(last);
+else
+    do_stuff();
+</code></pre>
+
+<p>
+そのため、この文書は、イテレート文から条件がfalseになって抜けたが、breakで抜けたかによって実行される文を記述する文法を提案している。
+</p>
+
+<pre><code>
+for ( unsigned i = 0 ; i != 10 ; ++i )
+{
+    if ( !do_something( i ) )
+        break ;
+}
+catch default
+{
+    do_normal_exit_thing() ;
+}
+catch break
+{// for文で宣言した変数を使うことができる
+    do_break_exit_thing(i) ;
+}
+</code></pre>
+
+<p>
+前回からの変更は文法だ。if forというわかりにくい文法から、catch default, catch breakというわかりやすい文法になった。
+</p>
+
+<p>
+これはたまに欲しくなる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0088r1.html">P0088R1: Variant: a type-safe union (v6).</a>
+</h2>
+
+<p>
+型安全なunion風ライブラリ、variantの提案。
+</p>
+
+<p>
+variantは無効な状態、空の状態を許容するかどうかで議論がもめている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0089r1.pdf">[PDF] P0089R1: On Quantifying Memory-Allocation Strategies (Revision 2)</a>
+</h2>
+
+<p>
+グローバルアロケーターのかわりにローカルアロケーターを使うことでどのような状況がパフォーマンスの向上につながるのかを検証した文書。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0091r1.html">P0091R1: Template argument deduction for class templates (Rev. 4)</a>
+</h2>
+
+<p>
+コンストラクターによるテンプレートの実引数推定の提案。
+</p>
+
+<pre><code>tuple&lt;int, double&gt; t{ 1, 2.3} ;
+</code></pre>
+
+<p>
+が
+</p>
+
+<pre><code>tuple t{ 1, 2.3 } ;
+</code></pre>
+
+<p>
+と書けるようになる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0096r1.html">P0096R1: Feature-testing recommendations for C++</a>
+</h2>
+
+<p>
+C++の機能テストマクロをC++17に対応させる文書。
+</p>
+
+<p>
+C++17に入る変更点の一覧にもなっている。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+今日は社内で筆者のask.fmコーパスを用いて機械学習し、文章が質問かどうかを判定するプログラムの作成を試みた社員がいた。結果は、あまり精度がよくなかった。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
