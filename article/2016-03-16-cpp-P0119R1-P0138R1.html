@@ -1,0 +1,291 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0119R1-P0138R1
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/03/c-p0119r1-p0138r1.html">
+C++標準化委員会の文書: P0119R1-P0138R1
+</a></h1>
+
+<p>
+今回から、個人的な感想も意図的に書いてみることにした。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0119r1.pdf">[PDF] P0119R1: Overload sets as function arguments</a>
+</h2>
+
+<p>
+オーバーロードされた関数の名前からlambda式を暗黙に生成する機能の提案。
+</p>
+
+<p>
+オーバーロードされた関数名は、関数の集合を表すので、テンプレート実引数に渡すことはできない。
+</p>
+
+<pre><code>void f( int ) ;
+void f( double ) ;
+
+template &lt; typename Func &gt;
+void g( Func func ) ;
+
+int main()
+{
+    // エラー
+    // どのfか曖昧
+    g( f ) ;
+}
+</code></pre>
+
+<p>
+これは、lambda式を経由すれば渡すことができる。
+</p>
+
+<pre><code>g( []( auto &amp;&amp; x ) -&gt; decltype(auto) { return f( x ) ; } ) ;
+</code></pre>
+
+<p>
+しかし、こんな自明なlambda式をわざわざ書くのは面倒だ。そこで、関数のオーバーロードのセットを指すid-expressionが実引数として指定されたら、このようなlambda式を生成するテンプレートの実引数推定を追加する提案。
+</p>
+
+<p>
+テンプレートの実引数推定にルールを追加するので、autoで受けることもできる。
+</p>
+
+<pre><code>auto less = (&lt;) ;
+less( a, b ) ;
+</code></pre>
+
+<p>
+確かに便利だが、どの程度の需要があるだろうか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0122r1.pdf">[PDF] span: bounds-safe views of objects for sequences</a>
+</h2>
+
+<p>
+連続したストレージとそのサイズを管理して配列のようにアクセスできるライブラリspanの提案。
+</p>
+
+<p>
+もともとは、多次元配列としても使えるarray_viewの提案だったが、多次元配列サポートをなくし、また名前も変えてspanとした。Guidelines Support Libraryのspanを
+</p>
+
+<p>
+spanは、連続したストレージとその長さを管理できる。つまり、ポインターとその長さを管理するためのクラスだ。
+</p>
+
+<p>
+最近のC++の標準ライブラリには、このような"vocabulary type"の提案が多い。vocabulary typeはコードを読みやすくする。
+</p>
+
+<p>
+spanはコンパイル時の配列の長さ指定と、実行時の配列の長さ指定の両方をサポートする。
+</p>
+
+<pre><code>int a[10] ;
+// コンパイル時に長さを指定した固定長span
+span&lt;int, 10&gt; s1{ a } ; 
+// 実行時に長さを指定した動的長さspan
+span&lt;int&gt; s2{ a, 10 } ;
+</code></pre>
+
+<p>
+spanを経由した配列へのアクセスには範囲チェックが行われる、範囲外アクセスは未定義の動作を引き起こす。固定長と動的長さspanは相互に代入可能だが、長さのチェックはもちろん行われる。
+</p>
+
+<p>
+実際の使い方は、arrayとほぼ同じだ。
+</p>
+
+<p>
+興味深いのは、P0257の提案されているbyteを使って、standard layout型Tのspan&lt;T&gt;をspan&lt;byte&gt;に変換することで、内部表現を読み書きすることをサポートしている点だ。キャストを手で書かずに済む。
+</p>
+
+<p>
+このライブラリは便利なのでほしい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0123r1.pdf">[PDF] P0123R1: string_span: bounds-safe views for sequences of characters</a>
+</h2>
+
+<p>
+string_viewがstring_spanに改名された。文字列を共通の方法で操作できるラッパーライブラリ。
+</p>
+
+<p>
+string_viewの方がわかりやすい気がするが自転車小屋について議論しても仕方がないのだろうか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0124r1.html">P0124R1: Linux-Kernel Memory Model</a>
+</h2>
+
+<p>
+Linuxカーネルのメモリモデルについて不文律であるところも含めて完全に解説する文書。
+</p>
+
+<p>
+背景として、Linusにatomic操作ライブラリは使い物にならんと言われたので、まずLinuxカーネルにおけるメモリモデルを理解するところから始めるそうだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0126r1.pdf">[PDF] P0126R1: 
+std::synchronic&lt;T&gt;
+</a>
+</h2>
+
+<p>
+リソースを浪費せずに、あるオブジェクトの値が期待する値になるまで待つライブラリ、std::synchronic&lt;T&gt;の提案
+</p>
+
+<p>
+使い方は極めて原始的なcondition variableに近い。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0128r1.html">P0128R1: constexpr if</a>
+</h2>
+
+<p>
+コンパイル時条件分岐constexpr ifの提案。
+</p>
+
+<p>
+前回からの変更点は、一つの新しいキーワードconstexpr_ifから、既存のキーワードを連続したconstexpr ifになったこと。
+</p>
+
+<pre><code>template &lt; typename T, typename ... Rest &gt;
+void f(T &amp;&amp; t, Rest &amp;&amp; ... rest )
+{
+    constexpr if ( sizeof...(rest) )
+    {
+        // tを処理
+        // 引数ゼロ個のfのオーバーロードは必要ない。
+        f( std::forward&lt;Rest&gt;(rest)... ) ;
+    }
+}
+</code></pre>
+
+<p>
+constexpr elseもある。
+</p>
+
+<pre><code>constexpr if ( ... )
+{
+
+}
+constexpr else
+{
+
+}
+</code></pre>
+
+<p>
+どういう形であれ、コンパイル時条件分岐はほしい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0138r1.pdf">[PDF] P0138R1: Construction Rules for enum class Values</a>
+</h2>
+
+<p>
+enumを強いtypedefの代わりに使える機能の提案。
+</p>
+
+<p>
+内部型が指定されていて、enumeratorの存在しないenumは、縮小変換のないリスト初期化を使えば、キャストを使わずに初期化できるようにする提案。
+</p>
+
+<pre><code>enum class E : int { } ;
+
+E e{123} ;
+
+void f( E e ) ;
+
+void g()
+{
+    f( { 123 } ) ;
+}
+</code></pre>
+
+<p>
+キャストが必要なくなるのは初期化だけなので、これでは使い方が煩わしいことに変わりはない。本物の強いtypedefの方がいい。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
