@@ -1,0 +1,283 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0142R0-P0167R1
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/03/c-p0142r0-p0167r1.html">
+C++標準化委員会の文書: P0142R0-P0167R1
+</a></h1>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0142r0.pdf">[PDF] P0142R0: A Module System for C++ (Revision 4)</a>
+</h2>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0143r0.pdf">[PDF] P0143R0: Wording for Modules</a>
+</h2>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0143r1.pdf">[PDF] P0143R1: Wording for Modules</a>
+</h2>
+
+<p>
+モジュールの提案と文面案。
+</p>
+
+<p>
+残念なことに、モジュールはC++17では見送られることが確定した。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0144r1.pdf">[PDF] P0144R1 Structured Bindings</a>
+</h2>
+
+<p>
+多値から変数宣言と初期化を同時にする文法の提案。
+</p>
+
+<p>
+現状では、多値を返す関数の宣言と、多値を返すことは簡単に書ける。
+</p>
+
+<pre><code>std::tuple&lt; int, double, std::string &gt; f()
+{
+    return { 1, 2.3, "4" } ;
+}
+</code></pre>
+
+<p>
+このような関数から、それぞれの型の変数をそれぞれ初期化するのは面倒だ。std::tieを使っても、変数をあらかじめ宣言する必要がある。
+</p>
+
+<pre><code>int x ;
+double y ;
+std::string z ;
+
+std::tie( x, y, z ) = f() ;
+</code></pre>
+
+<p>
+そこで、以下のような文法で、それぞれの型と値で変数を宣言初期化する機能を提案している。
+</p>
+
+<pre><code>
+auto { x, y, z } = f() ;
+</code></pre>
+
+<p>
+初期化子としては、std::get&lt;N&gt;をサポートする型(tupleとpair)の他、非staticデータメンバーがすべてpublicなクラス型もサポートされる。また、配列もサポートされていて、それぞれの要素で初期化される。
+</p>
+
+<pre><code>struct XYZ
+{
+    int x ;
+    double y ;
+    std::string z ;
+} ;
+
+XYZ f() { return { 1, 2.3, "4" } ; }
+
+auto { x, y, z } = f() ;
+
+int abc[3] = { 1, 2, 3 } ;
+auto { a, b, c } = abc ;
+</code></pre>
+
+<p>
+これは便利なので入ってほしい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0145r1.pdf">[PDf] P0145R1: Refining Expression Evaluation Order for Idiomatic C++ (Revision 2)</a>
+</h2>
+
+<p>
+式の評価順序を固定する提案。
+</p>
+
+<p>
+f( a, b, c )という式があったときに、f, a, b, cの式がどの順番で評価されるかは未規定である。例えば、以下のコードの出力結果は未規定である。
+</p>
+
+<pre><code>void f( int a, int b, int c )
+{
+    std::cout &lt;&lt; a &lt;&lt; b &lt;&lt; c ;
+}
+
+int main()
+{
+    int i = 0 ;
+    f( ++i, ++i, ++i ) ;
+}
+</code></pre>
+
+<p>
+提案では、ほとんどの式の評価順序を定めているが、唯一、関数の実引数の評価順序は定めていない。そのため、上のコードの出力だけはこの提案でもいまだに未規定である。ただし、f(a)は実引数aより呼び出し可能な式fが先に評価されることが保証されている。
+</p>
+
+<p>
+関数の実引数の評価順序が未規定に戻ってしまったのは残念だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0146r1.html">P0146R1: Regular Void (Revision 1)</a>
+</h2>
+
+<p>
+void型を完全形にする提案。すなわち、void型のオブジェクトが作れる。
+</p>
+
+<pre><code>void v1 ;
+void v2 = v1 ;
+bool b = v1 == v2 ;
+void vs[10] ;
+auto vp = std::make_unique<void>() ;
+</code></pre>
+
+<p>
+テンプレートパラメーターにvoid型を渡した時に例外的に特殊化して対応しなければならない問題が、void型を完全型にするだけで解決する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0149r0.pdf">[PDF] P0149R0: Generalised member pointers</a>
+</h2>
+
+<p>
+メンバーポインターの型変換の制限を緩和する提案。
+</p>
+
+<p>
+本当に需要がある変換なのだろうか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0161r0.pdf">[PDF] P0161R0: Bitset Iterators, Masks, and Container Operations</a>
+</h2>
+
+<p>
+bitsetに2種類のイテレーターを追加する提案。iteratorとindex_iteratorが追加される。
+</p>
+
+<p>
+iteratorのoperator *は、イテレーターの指す場所のビットのみがたったbitsetを返す。
+</p>
+
+<pre><code>std::bitset&lt;3&gt; b{0b110} ;
+auto i = b.begin() ;
+
+auto b0 = *i ; // bitset&lt;3&gt;{0b000}
+auto b1 = *++i ; // bitset&lt;3&gt;{0b010}
+auto b2 = *++i ; // bitset&lt;3&gt;{0b100}
+</code></pre>
+
+<p>
+index_iteratorは、イテレーターの指す場所をsize_tで返す。
+</p>
+
+<pre><code>std::bitset&lt;3&gt; b{0} ;
+
+auto i = b.ibegin() ;
+auto i0 = *i ; // 0
+auto i1 = *++i ; // 1
+auto i2 = *++i ; // 2
+</code></pre>
+
+<p>
+既存のコンテナーのイテレーターとは全く違うのでわかりにくい。iteratorは改名すべきだろう。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0165r1.html">P0165R1: C++ Standard Library Issues to be moved in Jacksonville</a>
+</h2>
+
+<p>
+Jacksonville会議で採用が決まった標準ライブラリの問題点の解決案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0167r1.html">P0165R1: Core Language Working Group "ready" Issues for the February, 2016 (Jacksonville) meeting</a>
+</h2>
+
+<p>
+Jacksonville会議で採用が決まったコア言語の問題点の解決案。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+もうすぐC++17のドラフトが本格的に固まってくるのだが、C++17の新機能として紹介できるわかりやすい大きなコア言語の変更があまりない。どれも小粒な変更ばかりだ。ライブラリはいくつか新しい物が入っているのだが。
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
