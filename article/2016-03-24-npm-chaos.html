@@ -1,0 +1,245 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+npmからkikとその他諸々が消されたまとめ
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/03/npmkik.html">
+npmからkikとその他諸々が消されたまとめ
+</a></h1>
+
+<p>
+npmとは、node.jsにおけるパッケージシステムのことだ。npmを使えば、他人の書いたnode.jsベースのプログラムとライブラリの入手と利用がとても簡単になる。
+</p>
+
+<p>
+そのnpm界隈が混乱している。発端は以下のURLだ。
+</p>
+
+<p>
+<a href="https://medium.com/@azerbike/i-ve-just-liberated-my-modules-9045c06be67c#.yawyks38i">I’ve Just Liberated My Modules — Medium</a>
+</p>
+
+<p>
+Azer Koçuluは<a href="https://github.com/starters/kik">kik</a>という名前のnpmパッケージを公開していた。このkikというソフトウェアの中身についてはここでは関係がない。
+</p>
+
+<p>
+さて、それとは別に、<a href="http://www.kik.com/">kik.com</a>というスマフォ用のチャットアプリを出しているKik Interactive社がいて、kikという名前のパッケージをnpmで出したいので、名前を明け渡すように要求した。
+</p>
+
+<p>
+Azerはこの要求を拒否した。すると、Kik Interactive社はnpmの管理者に片っ端からメールを投げまくり、そのうちの一人が反応して、Azerの意思に反して、何の法的根拠もなくパッケージを消した。
+</p>
+
+<p>
+Azerはこの行動に対し、npmはもはや信頼できないとし、npmに出していたすべてのパッケージを削除した。
+</p>
+
+<p>
+そして阿鼻叫喚の世界に突入する。Azerは様々なCLIツールやライブラリをnpmで公開していた。中でも影響力のあったAzerのパッケージは、left-padだ。
+</p>
+
+<p>
+<a href="https://github.com/azer/left-pad">azer/left-pad: String left pad</a>
+</p>
+
+<p>
+left-padとは、文字列の左側(先頭)を指定した文字数になるように、指定した文字か指定されない場合は空白文字でパディング(埋める)だけの処理を行う簡単なJavaScriptで書かれたleftpadという名前のライブラリだ。空行を抜けば、10行ぐらいしかない簡単なコードだ。
+</p>
+
+<p>
+このコードは有名なnpmパッケージで使われていたらしく、間接的に様々なnpmパッケージが依存していたため、世界中で大混乱を引き起こすことになった。
+</p>
+
+<p>
+傑作なのは、当のKik Interactive社すらleft-padに依存していたということだ。Kik Interactive社は今回の件について、メールをすべて公開している。
+</p>
+
+<p>
+<a href="https://medium.com/@mproberts/a-discussion-about-the-breaking-of-the-internet-3d4d2a83aa4d#.izcchiqfz">A discussion about the breaking of the Internet — Medium</a>
+</p>
+
+<p>
+Kik社はパッケージ取り下げの理由を、ユーザーの混乱を招くためとしているが、すでに公開されたパッケージの中身が変わる方が混乱を招くし、名前だけ見て中身を確認せずにパッケージを使うバカは混乱して当然だ。
+</p>
+
+<p>
+npm運営は、これについて議論しているフォーラムを建設的ではないとして閉じるなど、その後の対応も疑問がある。
+</p>
+
+<p>
+今回の件について、興味深い指摘がある。
+</p>
+
+<p>
+<a href="http://www.haneycodes.net/npm-left-pad-have-we-forgotten-how-to-program/">NPM &amp; left-pad: Have We Forgotten How To Program? | Haney Codes .NET</a>
+</p>
+
+<p>
+そもそも、leftpadの中身は10行程度のコードである。空行を抜けば、以下の通り。
+</p>
+
+<pre><code>module.exports = leftpad;
+function leftpad (str, len, ch) {
+  str = String(str);
+  var i = -1;
+  if (!ch &amp;&amp; ch !== 0) ch = ' ';
+  len = len - str.length;
+  while (++i &lt; len) {
+    str = ch + str;
+  }
+  return str;
+}
+</code></pre>
+
+<p>
+実に多くのパッケージが、このleftpadに依存している。しかし、この程度の関数は数分で書けるのだから、なんでわざわざ依存するんだ？
+</p>
+
+<p>
+もっと憂うべきパッケージがある。isArrayだ。このパッケージは一日88万回もダウンロードされていて、2016年2月だけの一ヶ月間に1800万回もダウンロードされていて、72個ものNPMパッケージが依存している。
+</p>
+
+<p>
+<a href="https://www.npmjs.com/package/isarray">isarray</a>
+</p>
+
+<p>
+isArrayの中身はこうだ。
+</p>
+
+<pre><code>var toString = {}.toString;
+
+module.exports = Array.isArray || function (arr) {
+  return toString.call(arr) == '[object Array]';
+};
+</code></pre>
+
+<p>
+結局、このコードは本質的にたった一行のコードである。
+</p>
+
+<p>
+その他、<a href="https://www.npmjs.com/package/is-positive-integer">is-positive-integer</a>という整数が正の整数かどうか判定するパッケージがあるが、これも本質的には4行のコードである。ところが、このパッケージは昨日まで3個もの依存を持っていた（今は0個になっている）
+</p>
+
+<p>
+なぜこんなにも多数のパッケージに依存をするのだ？
+</p>
+
+<p>
+leftpad, isArray, isPositiveInteger程度、ググる時間を含めても5分程度で書けるはずである。書けない奴はそもそもコードが書けないと言っていい。NPM界隈の人間はコードが書けないのか？
+</p>
+
+<p>
+今回の騒動で、以下のような面白いネタパッケージシステムが開発されている。
+</p>
+
+<p>
+<a href="https://gist.github.com/rauchg/5b032c2c2166e4e36713">require-from-twitter</a>
+</p>
+
+<p>
+曰く、「Twitterには編集ボタンがないので、最適なJavaScriptモジュールをホストである」
+</p>
+
+<p>
+このパッケージシステムを使うには、まずソースコードを自分でツイートして
+</p>
+
+<p>
+<a href="https://twitter.com/rauchg/status/712799807073419264">https://twitter.com/rauchg/status/712799807073419264</a>
+</p>
+
+<p>
+しかる後に使う。
+</p>
+
+<pre><code>
+const leftPad = await requireFromTwitter('712799807073419264');
+console.log(leftPad(1, 5));      // '00001'
+console.log(leftPad(1234, 5));   // '01234'
+console.log(leftPad(12345, 5));  // '12345'
+</code></pre>
+
+<p>
+Twitter社さえ信用すればよい。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+ドワンゴの採用面接を受けると日本Node.jsユーザーグループの「元」代表の@mesoとお話ができるそうだ。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
