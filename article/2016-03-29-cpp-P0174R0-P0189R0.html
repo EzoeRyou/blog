@@ -1,0 +1,483 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0174R0-P0189R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/03/c-p0174r0-p0189r0.html">
+C++標準化委員会の文書: P0174R0-P0189R0
+</a></h1>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0174r0.html#3.3">P0174R0: Deprecating Vestigial Library Parts in C++17</a>
+</p>
+
+<p>
+標準ライブラリの一部をdeprecated扱いとする提案。
+</p>
+
+<p>
+以下のライブラリのdeprecated扱いが提案されている。
+</p>
+
+<p>
+std::iteratorは基本クラスとして使い、イテレーターの要件を満たすためのネストされた型名をわざわざ手動で定義する手間を省いてくれる。
+</p>
+
+<p>
+しかし、本当に手間を省けるかというと疑問だし、クラステンプレートから非修飾名として使うと、依存名ではない問題が発生するので、わかりにくい。たとえば、以下のコードがエラーになる理由は、とてもわかりにくい。
+</p>
+
+<pre><code>#include &lt;iterator&gt;
+
+template &lt;typename T&gt;
+struct MyIterator : std::iterator&lt;std::random_access_iterator_tag, T&gt; {
+   value_type data;  // エラー、value_typeが見つからない 
+};
+</code></pre>
+
+<p>
+maptとmultimapのvalue_compare。
+</p>
+
+<p>
+mapとmultimapの実装には使えないし、ユーザーに使われている様子もない。
+</p>
+
+<p>
+入力にイテレーターの片方しか取らない版のアルゴリズム(std::mismatchなど)は危険なのでdeprecated扱いにする。
+</p>
+
+<p>
+std::allocatorの冗長なメンバー
+</p>
+
+<p>
+allocator_traits経由で使うようになったので、冗長なメンバーはdeprecated扱いにする。
+</p>
+
+<p>
+文書では、その他の候補としても、いくつかのライブラリを上げている。
+</p>
+
+<p>
+vector&lt;bool&gt;は混乱のもとで廃止したいが、ストレージ効率のよい動的に確保されるストレージ上に構築されたビット列コンテナーの代替案が現在はない。
+</p>
+
+<p>
+is_literal
+</p>
+
+<p>
+is_literalには実用性がない。というのも、ジェネリックなコードで本当に知りたいのは、ある構築が定数初期化であるかどうかであって、型の構築方法の一つがリテラル型になるかどうかなどは実用性がない。
+</p>
+
+<p>
+get_temporary_buffer/return_temporary_buffer
+</p>
+
+<p>
+もともと不完全なままSTLに残っていたのがそのまま規格にも残ってしまった誰もまともに使っていないライブラリ。
+</p>
+
+<p>
+raw storage iterator
+</p>
+
+<p>
+今となってはあまり利用価値がない。
+</p>
+
+<p>
+無駄な機能は積極的にそぎ落としてほしい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0175r0.html">P0175R0: Synopses for the C library</a>
+</h2>
+
+<p>
+C++の規格にC言語のライブラリの宣言を追加する提案。今まではヘッダーファイルだけ参照していた。
+</p>
+
+<p>
+ユーザーとしては特に変わることはない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0177r0.html">P0177R0: Cleaning up allocator_traits</a>
+</h2>
+
+<p>
+allocator_traitsのpropagateがイマイチ理解できない理由がわかった。
+</p>
+
+<p>
+propagateはアロケーターが状態を持っているかどうかを判別するのに使うのだが、コピー代入とムーブ代入とswapに対して状態があるかどうかを判定するようになっているので、2^3通りの組み合わせがある。当然、ライブラリ側も2^3通りの組み合わせに対処しなければならない。
+</p>
+
+<p>
+しかし、現実的に考えれば、アロケーターは状態を持っているかいないかの2通りの場合しかないはずで、原稿の規格はおかしい。これを簡略化するために、既存のpropagate系の判定を全部deprecated扱いにして、単一のpropagateを追加する提案。
+</p>
+
+<p>
+これは当然行われるべき変更だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0178r0.html">P0178R0: Allocators and swap</a>
+</h2>
+
+<p>
+コンテナーなどのアロケーターを使う型で、アロケーターが状態を持っていて、アロケーターのオブジェクトが等しくない場合、swapが未定義の場合について、それぞれ一時オブジェクトにムーブした上でムーブする方法を使うことで、未定義を回避するフリー関数swapの追加。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0180r0.html">P0180R0: Reserve a New Library Namespace Future Standardization</a>
+</h2>
+
+<p>
+コア言語に新しい機能が入り、ライブラリの設計方法に新しい手法が考案されていき、また現実の需要と事情が変化する中で、近い将来にC++の標準ライブラリには破壊的変更を伴う大幅な変更が必要になるだろう。そのために、新しい名前空間std2とisoを予約する提案。
+</p>
+
+<p>
+死蔵されなければよいが。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0181r0.html">Ordered By Default</a>
+</h2>
+
+<p>
+setやmapは、要素の大小比較にoperator &lt;を使っている。これは大抵の場合うまく行くが、世の中には数学的な大小比較を提供していない型も存在する。例えば、。std::complexだ。ただし、complexはsetやmapのための大小比較は提供できる。しかし、そのためには大小比較を定義した上で、比較子をコンテナーに渡してやらなければならない。
+</p>
+
+<pre><code>struct complex_order
+{
+    template &lt; typename T &gt;
+    bool operator () ( std::complex&lt;T&gt; const &amp; l, std::complex&lt;T&gt; const &amp; r )
+    {
+        std::tie(l.real, l.img) &lt; std::tie( r.real, r.img ) ;
+    }
+} ;
+
+int main()
+{
+    std::set&lt; std::complex&lt;float&gt;, complex_order &gt; s ; 
+}
+</code></pre>
+
+<p>
+いちいちコンテナに比較子を渡すのが面倒だ。lessを特殊化してやれば明示的に渡す必要はなくなる。
+</p>
+
+<pre><code>namespace std
+{
+    template &lt; typename T &gt;
+    struct less&lt; std::complex&lt;T&gt; &gt;
+    {
+        bool operator () ( std::complex&lt;T&gt; const &amp; l, std::complex&lt;T&gt; const &amp; r )
+        {
+            std::tie(l.real, l.img) &lt; std::tie( r.real, r.img ) ;
+        }
+
+    }
+} ;
+
+std::set&lt; std::complex&lt;float&gt; &gt; s ;
+</code></pre>
+
+<p>
+しかし、これではlessはoperator &lt;を呼び出すものという既存のcontractがこわれてしまう。
+</p>
+
+<p>
+そのため、ユーザーにカスタマイゼーションポイントとして、別のテンプレートを提供する。
+</p>
+
+<pre><code>template &lt;typename T&gt;
+struct default_order {
+   using type = std::less&lt;T&gt;;
+};
+
+template &lt;typename T&gt;
+using default_order_t = typename default_order&lt;T&gt;::type;
+
+template &lt; typename Key, typename Compare = default_order_t&lt;Key&gt;,
+            typename Allocator = allocator&lt;Key&gt; &gt;
+struct set ;
+</code></pre>
+
+<p>
+あとは、default_orderを特殊化するだけだ。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+struct default_order&lt; std::complex&lt;T&gt; &gt;
+{
+    using type = complex_order ;
+} ;
+</code></pre>
+
+<p>
+この提案は、既存のコードのABI互換性を壊さない。
+</p>
+
+<p>
+どんな問題でももう一段階のラッパーをかますことで解決できる。ただし、ラッパーが多すぎるという問題を除いては。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0184r0.html">P0184R0: Generalizing the Range-Based For Loop</a>
+</h2>
+
+<p>
+range-based for loopでイテレーターの先端と終端の型を別にできるように制限を緩和する提案。
+</p>
+
+<p>
+Range TSは番兵という概念を導入している。番兵となるイテレーターは別の型でもよい。
+</p>
+
+<pre><code>struct range
+{
+    iter begin() const ;
+    sentinel end() const ;
+}
+
+void f( range const &amp; r )
+{
+
+    auto i = r.begin() ;
+    auto e = r.end() ;
+
+    for ( ; i != e ; ++i )
+    {
+        do_somethign( *i ) ;
+    }
+}
+</code></pre>
+
+<p>
+このようなrange型は、現在のrange-based forには渡せない。なぜならば、コード変換のルールが、イテレーターの先頭と終端の型が同じでなければならない制約になっているからだ。この制約をなくし、上のようなrangeをrange-based forに渡せるようにする変更。
+</p>
+
+<p>
+適切な変更だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0185r0.html">P0185R0: Adding [nothrow-]swappable traits (Revision 2)</a>
+</h2>
+
+<p>
+std::is_swappable&lt;T&gt;, std::is_swappable_with&lt;T, U&gt;, std::is_nothrow_swappable&lt;T&gt;, and std::is_nothrow_swappable_with&lt;T, U&gt;と、その変数テンプレート版(名前が_tで終わるもの)をtype_traitsに追加する提案。
+</p>
+
+<p>
+また、utilityにあるswapを、
+</p>
+
+<pre><code>void swap(optional&lt;T&gt;&amp; rhs)
+    noexcept(
+        is_nothrow_move_constructible_v&lt;T&gt;
+        &amp;&amp; noexcept( swap(declval&lt;T&amp;&gt;(), declval&lt;T&amp;&gt;()))
+    );
+</code></pre>
+
+<p>
+にする。
+</p>
+
+<p>
+いい変更だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0186r0.html">P0186R0: Iterator Facade -</a>
+</h2>
+
+<p>
+イテレーターを簡単に書けるライブラリの追加。
+</p>
+
+<p>
+標準ライブラリに準拠するイテレーターを正しく書くのはボイラープレートコードが多すぎて面倒だ。そこで、このライブラリはC++17とConcept TSとRange TSがあれば簡単にイテレーターが書けるライブラリを提案している。
+</p>
+
+<p>
+Concept TSもRange TSもしばらく入らないことを考えると、このライブラリも当分日の目を見ないだろう。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0187r0.pdf">[PDF] P0187R0: Proposal of Bit­field Default Member
+Initializers</a>
+</h2>
+
+<p>
+ビットフィールド付きのデータメンバーにデフォルトメンバー初期化しを書けるようにする提案。
+</p>
+
+<pre><code>struct X
+{
+    int data : 6 = 42 ;
+} ;
+</code></pre>
+
+<p>
+文法上の曖昧性を解消してパースを簡単にするために、初期化子には=しか使えない。そして、=の後には初期化子が続かなければならない。例えば{}は書けない。
+</p>
+
+<p>
+まあ、いいのではないか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0188r0.pdf">[PDF] P0188R0: Wording for [[fallthrough]] attribute.</a>
+</h2>
+
+<p>
+switch文のcaseラベルを通り抜けるのが意図的であると明示的に記述する[[fallthrough]]属性の文面案。
+</p>
+
+<p>
+例えば以下のようなコードを書くと、
+</p>
+
+<pre><code>switch( n )
+{
+case 2 :
+case 3 : // OK、特に何もない
+    f() ;
+    break ;
+
+case 4 :
+    g() ; // 警告、通り抜けてませんか？
+case 5 :
+    h() ;
+}
+</code></pre>
+
+<p>
+最近のおせっかいなコンパイラーはcase 4でbreakを書き忘れていないかという警告をしてくる。もし、プログラマーの意図が、nが4の場合は関数gとhを両方呼び出し、nが5の場合は関数hのみ呼び出すというものであれば、上記のコードは正しい。そこで、プログラマーの意図をコード上で伝えるために、[[fallthrough]]を書くことができる。
+</p>
+
+<pre><code>case 4 : 
+    g() ;
+    [[fallthrough]]
+case 5 :
+    h() ;
+</code></pre>
+
+<p>
+いちいち書くのが煩わしい以外はいいか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0189r0.pdf">[PDF] P0189R0: Wording for [[nodiscard]] attribute.</a>
+</h2>
+
+<p>
+関数の戻り値を使わないと警告される[[nodiscard]]属性の文面案。
+</p>
+
+<pre><code>// 失敗する可能性があるとても重要な処理
+// 失敗した場合はfalseを返す
+[[nodiscard]] bool very_important_operation() ;
+
+int main()
+{
+    // 警告
+    very_important_operation() ;
+}
+</code></pre>
+
+<p>
+また、型に指定した場合、その型を戻り値として使うと、関数に[[nodiscard]]を指定した扱いになる。
+</p>
+
+<pre><code>
+[[nodiscard]] struct error_status { } ;
+error_status f() ; // [[nodiscard]]がつく
+</code></pre>
+
+<p>
+これはC++17に入るコア言語機能の中でも最も一般に役に立つ機能だと思われる。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+ドワンゴではとある一社員が個人的にお菓子神社という霊験あらたかな神社を開いており、参拝者も多い。筆者もポテトチップスという現世利益のために浄賽を投じようと思ったが、ポテトチップスは一袋335kcalもあり、ジョギング換算で5kmに相当し、脂肪換算で46gにあたるため、強い意志力を持ってやめておいた。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
