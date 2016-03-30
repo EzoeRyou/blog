@@ -1,0 +1,337 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0190R0-P0199R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/03/c-p0190r0-p0199r0.html">
+C++標準化委員会の文書: P0190R0-P0199R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0190r0.pdf">[PDF] P0190R0: Proposal for New
+memory order consume Definition</a>
+</h2>
+
+<p>
+memory_order_consumeの定義を変更する提案。RCUだけではなくGCなどにも利用できるようにする。Linuxカーネルでも使えるようにする。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0192r0.pdf">[PDF] P0192R0: Adding Fundamental Type for Short Float</a>
+</h2>
+
+<p>
+32bit以下のサイズのshort float型の追加の提案。
+</p>
+
+<p>
+16bit浮動小数点数は機械学習や画像処理の分野で広く使われるようになっている。IEEE 754-2008では2進数16bitのフォーマットが定義されている。今のARMはネイティブにサポートしている。IntelのCPUでもサポートする計画がある。GPUでは、OpenGLが16bit浮動小数点数を規定している。OpenEXRではfloatの半分のサイズの浮動小数点数を組込型同様に扱えるライブラリがある。nVidiaのCUDAでは16bit浮動小数点数行列があるが、C++規格に存在しないために独自規格になっている。GCCはIEEEやARMのサポートのために__fp16型がある。LLVMにもhalf型がある。
+</p>
+
+<p>
+16bit浮動小数点数型は現実の需要があるので、C++標準は早急に取り入れるべきであるとする。
+</p>
+
+<p>
+型はshort floatで、浮動小数点数リテラルのサフィックスはsもしくはSだ。
+</p>
+
+<pre><code>
+short float s1 = 1.0s ;
+short float s2 = 1.0S ;
+</code></pre>
+
+<p>
+これは早く入るべきだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0193r0.html">P0193R0: Where is Vectorization in C++‽</a>
+</h2>
+
+<p>
+C++に手動のベクトル処理を淹れる方法についての考察。ライブラリベースで入れることを検討している。具体的な話はあまりない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0194r0.pdf">[PDF] P0194R0: Static reflection (revision 4)</a>
+</h2>
+
+<p>
+静的リフレクション機能の提案。
+</p>
+
+<p>
+この提案では、宣言に何らかの演算子を適用すると、メタオブジェクトという型が生成され、その型を用意された特別なtraitsに渡すことで、名前や型などの詳しい情報を得ることができる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0195r0.html">P0195R0: Modernizing using-declarations</a>
+</h2>
+
+<p>
+using宣言をpack展開に対応させる提案。
+</p>
+
+<p>
+例えば、今提案中のoverloadは、
+</p>
+
+<pre><code>template&lt; typename Head, typename ... Rest &gt;
+struct overloader : Head, overload&lt; Rest... &gt;
+{
+    using Head::operator() ;
+    // コンストラクターなど
+} ;
+
+template &lt; typename T &gt;
+struct overloader&lt; T &gt; : T
+{
+    using T::operator () ;
+} ;
+
+template &lt; typename ... Types &gt;
+constexpr auto make_overloader( Types &amp;&amp; ... args )
+{
+    return overloader&lt; Types ... &gt;( std::forward&lt;Types&gt;...) ;
+}
+</code></pre>
+
+<p>
+のように再帰的に書かなければならない。これは非効率的だ。
+</p>
+
+<p>
+再帰的に書かなければならない理由は、using宣言がパック展開に対応していないからだ。対応していれば以下のように書ける。
+</p>
+
+<pre><code>template &lt; typename ... Types &gt;
+struct overloader : Types ...
+{
+    using Types::operator() ... ;
+} ;
+</code></pre>
+
+<p>
+確かに便利だが、利用方法は限られる気がする。あって困ることはないだろう。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0196r0.pdf">[PDF] P0196R0: A generic none_t literal type for Nullable types</a>
+</h2>
+
+<p>
+型none_tとその値noneの提案。
+</p>
+
+<p>
+optionalやanyといったライブラリでは、何も値が入っていないnullな状態になり得る(nullable)。各ライブラリごとにnullを表す別々の型を定義して使うのは冗長であるし、使い勝手も悪い。そこで、nullを意味する共通の型を定義しようという提案。これでジェネリックなコードはnullableな型に対してnullが入っているか確認する場合や、nullを入れる場合、単一の型を扱うだけで良くなる。
+</p>
+
+<p>
+これも最近流行りのボキャブラリー型だ。入るべきだろう。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0197r0.pdf">[PDF] P0197R0: Default Tuple-like Access</a>
+</h2>
+
+<p>
+tupleのようなユーザー定義クラスに対して、tupleのようなアクセス(tuple_size, tuple_element, get)を書くのは面倒だ。そういうアクセスはコンパイラーが自動で生成すればいい。この文書は、tupleのようなアクセスをデフォルトで自動で生成する提案だ。
+</p>
+
+<p>
+例えば以下のようなクラス、
+</p>
+
+<pre><code>struct X
+{
+    char m1 ;
+    short m2 ;
+    int m3 ;
+} ;
+X x{ 1, 2, 3 } ;
+</code></pre>
+
+<p>
+に対して、以下のようなtuple風アクセスが何もせずとも自動的に生成される。
+</p>
+
+<pre><code>
+tuple_size&lt;X&gt;::value ; // 3
+tuple_element&lt; 1, X&gt;::type ; // short
+get&lt;2&gt;( x ) ; // int型の値3
+get&lt;char&gt;(x) ; // char型の値1
+</code></pre>
+
+<p>
+public非staticデータメンバーに対するtuple風アクセスが自動生成される。
+</p>
+
+<p>
+protected, privated, virtualな基本クラスがない場合、基本クラスも再帰的に探される。
+</p>
+
+<pre><code>template  &lt; typename Head, typename ... Rest &gt;
+struct X : X&lt; Rest ... &gt;
+{
+    Head m ;
+    X( Head &amp;&amp; head, Rest &amp;&amp; ... rest )
+        : X&lt; Rest ... &gt;( std::forward&lt; Rest &gt;( rest ) ... ),
+            m( std::forward&lt;Head&gt;(head) )
+    { }
+} ;
+
+template &lt; typename T &gt;
+struct X&lt;T&gt;
+{
+    T m ;
+    X( T &amp;&amp; t )
+        : m( std::forward&lt;T&gt;(t) )
+    { }
+} ;
+
+X&lt; char, short, int &gt; x{ 1, 2, 3 } ;
+
+tuple_size&lt;X&gt;::value ; // 3
+tuple_element&lt; 1, X&gt;::type ; // short
+get&lt;2&gt;( x ) ; // int型の値3
+get&lt;char&gt;( x ) ; // char型の値1
+</code></pre>
+
+<p>
+いわば簡易的な静的リフレクションで、シリアライゼーションなどの用途に使えるだろう。ちなみに、提案はConcept TSに依存しているが、見た限り、コンパイル時チェックに使っているだけで、Concept TSの依存を取り除くのは可能のようだ。
+</p>
+
+<p>
+いまのConcept TSには依存しないでほしい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0198r0.pdf">[PDF] P0198R0: Default Swap</a>
+</h2>
+
+<p>
+クラスに対してデフォルトのswapを自動生成する提案。コンパイラーはデフォルトのスワップを生成する。デフォルトのswapはメンバーごとのswapを行う。
+</p>
+
+<pre><code>struct X
+{
+    int m1 ;
+    std::string m2 ;
+    std::array&lt;int, 10&gt; m3 ;
+} ;
+
+void f( X &amp; a, X &amp; b)
+{
+    // メンバーごとの効率的なswapが行われる
+    swap( a, b ) ;
+}
+</code></pre>
+
+<p>
+std::swapはムーブ可能な型に対しては効率良く動くが、std::arrayのような、ムーブをサポートできない型には効率が悪い。std::arrayのようなクラスは、メンバーごとのswapを行うと効率が良い。そのようなコードは単調で機械的に生成できるので、デフォルトで生成する。swapはfriendなフリー関数として扱われる。
+</p>
+
+<p>
+この変更の背景には、swapはコピーやムーブと同じぐらい根本的な操作であるという思想がある。
+</p>
+
+<p>
+これは入ってほしい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0199r0.pdf">[PDF] P0199R0: Default Hash</a>
+</h2>
+
+<p>
+P0029R0では大抵の型を突っ込めるhash_combineが提案されている。これを使えば、クラス保持する状態のうち、比較に関係のある情報を全部突っ込めばハッシュ計算が素人でも簡単に書けるようになる。問題は、そのようなボイラープレートコードを書くのはダルいということだ。
+</p>
+
+<p>
+そこで、そのようなボイラープレートコードをデフォルトで生成されるようにする提案。
+</p>
+
+<p>
+P0029とともに入ってほしい提案だ。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+今日は夕方から歯医者だったのでさっさと帰宅した。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
