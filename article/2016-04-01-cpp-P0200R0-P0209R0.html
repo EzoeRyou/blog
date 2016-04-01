@@ -1,0 +1,348 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0200R0-P0209R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/04/c-p0200r0-p0209r0.html">
+C++標準化委員会の文書: P0200R0-P0209R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0200r0.html">P0200R0: A Proposal to Add Y Combinator to the Standard Library</a>
+</h2>
+
+<p>
+lambda式で再帰できるようにするY Combinbatorライブラリの提案。
+</p>
+
+<pre><code>int main()
+{
+    auto gcd = std:y_combinator( []( auto gcd, int a, int b ) -&gt; int
+        {
+            return b == 0 ? a : gcd( b, a % b ) ;
+        } ) ;
+
+    std::cout &lt;&lt; gcd( 20, 30 ) &lt;&lt; std::endl ;
+}
+</code></pre>
+
+<p>
+実装例
+</p>
+
+<pre><code>template &lt; typename Fun &gt;
+class y_combinator_result
+{
+    Fun f ;
+public :
+    template &lt; typename T &gt;
+    explicit y_combinator_result( T &amp;&amp; fun )
+        : f( std::forward&lt;T&gt;(fun) )
+    { }
+
+    template &lt; typename ... Args &gt;
+    decltype(auto)
+    operator () ( Args &amp;&amp; ... args )
+    {
+        return f( std::ref(*this), std::forward&lt;Args&gt;(args)... ) ;
+    }
+} ;
+
+template &lt; typename Fun &gt;
+y_combinator_result&lt;std::decay_t&lt;Fun&gt;&gt; y_combinator( Fun &amp;&amp; fun )
+{
+    return y_combinator_result&lt;std::decay_t&lt;Fun&gt;&gt;(std::forward&lt;Fun&gt;(fun)) ;
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0201r0.pdf">[PDF] O0201R0: A cloning pointer-class for C++</a>
+</h2>
+
+<p>
+コピー時にポインターの参照先をディープコピーするclone_ptrの提案。
+</p>
+
+<pre><code>int main()
+{
+    auto p1 = std::make_clone_ptr&lt;int&gt;(42) ;
+    auto p2 = p1 ;
+}
+</code></pre>
+
+<p>
+これは、以下のようなコードと同じ意味になる。
+</p>
+
+<pre><code>int * p1 = new int( 42 ) ;
+int * p2 = new int( *p1 ) ;
+delete p2 ;
+delete p1 ;
+</code></pre>
+
+<p>
+また、clone_ptrは初期化時に渡されたmost derived typeによるポリモーフィックな型のディープコピーや破棄が正しく行える。
+</p>
+
+<pre><code>
+struct Base
+{
+    virtual void f() = 0 ;
+    ~Base() { } // virtualデストラクターではない
+} ;
+struct Derived
+{
+    void f() override { }
+    Derived() { }
+} ;
+
+// 実行時型
+clone_ptr&lt;Base&gt; p1( new Derived() ) ;
+auto p2 = p1 ;
+
+// ディープコピーが行われる
+assert( p1.get() != p2.get() ) ;
+// Baseではなく実行時の型であるDerivedとしてコピーが行われる
+assert( dynamic_cast&lt; Derived * &gt;(p2.get() != nullptr )
+
+// p1, p2の破棄では、Derivedのデストラクターが呼ばれる
+</code></pre>
+
+<p>
+shared_ptrと同じだ。
+</p>
+
+<p>
+コピー時にディープコピーを行うクラスのデータメンバーとして生のポインターの代わりに安全に使えるので入るべきだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0202r0.html">
+A Proposal to Add Constexpr Modifiers to Functions in &lt;algorithm&gt; and &lt;cstring&gt; Headers
+</a>
+</h2>
+
+<p>
+&lt;algorithm&gt;と&lt;cstring&gt;をconstexpr対応にする提案。イテレーターのconstexpr化は別の提案で行う。
+</p>
+
+<p>
+&lt;algorithm&gt;をconstexpr化する提案。多くのアルゴリズムは&lt;cstring&gt;に依存しているので、&lt;cstring&gt;もconstexpr化する。
+</p>
+
+<p>
+std::memcpyやstd::memmoveは、void *型の引数を取るので、本来constexpr化できないのだが、constexpr化しないとライブラリ実装はcompiler intrinsicsを使うだけなので、constexpr化する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0203r0.html">P0203R0: Considerations for the design of expressive portable SIMD vectors</a>
+</h2>
+
+<p>
+SIMD型の提供に関する考察。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0205r0.html">P0205R0: Allow Seeding Random Number Engines with std::random_device</a>
+</h2>
+
+<p>
+乱数エンジンをrandom_deviceで初期化できるようにする提案。
+</p>
+
+<p>
+現状では、random_deviceからビット列を手動で取り出して乱数エンジンに食わせてやらなければならないが、乱数エンジンの内部状態が何ビットなのか得る方法がないため、適切な初期化が移植性の高い方法で書けない。
+</p>
+
+<p>
+これは当然入るべきだし、そもそも最初から入っているべき機能だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0206r0.html">P0206R0: Discussion about std::thread and RAII</a>
+</h2>
+
+<p>
+threadのデストラクターが実装された時に、threadがjoinableであると、terminateが呼ばれる。これは様々な問題を引き起こす。しかし一方で、この挙動のほうが好ましい場合もある。
+</p>
+
+<p>
+この文書は、threadのデストラクターは自動的にjoinを呼ぶ変更か、自動的にjoinを呼ぶ別のthread型を追加する文面案を提示している。
+</p>
+
+<p>
+既存のコードの挙動を変えないために別の型にすべきだろう。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0207r0.html">P0207R0: Ruminations on lambda captures</a>
+</h2>
+
+<p>
+lambada式で値によるデフォルトキャプチャー[=]が使われた場合、クラスのメンバーはthisポインター経由ではなく、値によるキャプチャーになるように挙動を変更するとどうなるかを考察。
+</p>
+
+<p>
+この文書は、既存の挙動は変えないことを推奨している。
+</p>
+
+<p>
+筆者は変えるべきだと思う。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0208r0.pdf">[PDF] P0208R0: Copy-Swap Helper</a>
+</h2> 
+
+<p>
+強い例外安全を実現するために、まずオブジェクトをコピーして改変し、改変が例外を投げなければswapする。改変が例外を投げた場合元のオブジェクトは変更されないという処理を行うヘルパー関数の追加。
+</p>
+
+<p>
+文面案のcopy_swap_helperの宣言が間違っている気がする。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0209r0.pdf">[PDF] P0209R0: make_from_tuple: apply for construction</a>
+</h2>
+
+<p>
+tupleの各要素をコンストラクターに渡してオブジェクトを構築してくれるmake_from_tupleの提案。
+</p>
+
+<p>
+以下のように使う。
+</p>
+
+<pre><code>struct X
+{
+    X( int, double, std::string ) ;
+} ;
+
+auto t = std::make_tuple( 1, 2.0, std::string("3") ) ;
+
+auto x = std::make_from_tuple&lt;X&gt;( t ) ;
+// 以下と同じ
+// auto x = X( get&lt;0&gt;(t), get&lt;1&gt;(t), get&lt;2&gt;(t) ) ;
+<code></pre>
+
+<p>
+すでにtupleの各要素を関数の引数に渡してくれるapplyがあるが、
+</p>
+
+<pre><code>void f( int, double, std::string ) ;
+
+std::apply( t, f ) ;
+</code></pre>
+
+<p>
+make_from_tupleはそのオブジェクト構築版と言える。
+</p>
+
+<p>
+同様にして、placement newしてくれるuninitialized_construct_from_tupleがある。
+</p>
+
+<pre><code>alignas(X) char buf[sizeof(X)] ;
+X * ptr = std::uninitialized_construct_from_tuple&lt;X&gt;( buf, t ) ;
+</code></pre>
+
+<p>
+実装は以下のようになる。
+</p>
+
+<pre><code>template &lt; typename T, typename Tuple, std::size_t ... I &gt;
+T make_from_tuple_impl( Tuple &amp;&amp; tuple, std::index_sequence&lt;I ... &gt;  )
+{
+    return T( std::get&lt;I&gt;( std::forward&lt;Tuple&gt;(tuple) )... ) ;
+} ;
+
+template &lt; typename T, typename Tuple &gt;
+T make_from_tuple( Tuple &amp;&amp; tuple )
+{
+    return make_from_tuple_impl&lt;T&gt;(
+        std::forward&lt;Tuple&gt;(tuple),
+        std::make_index_sequence&lt;
+            std::tuple_size_v&lt; std::decay_t&lt;Tuple&gt; &gt;
+            &gt;()
+        ) ;
+}
+</code></pre>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+Ubuntu On Windowsでドワンゴ社内の支給PCの勢力図が塗り替えられそうな気がするが、いい加減に支給PCのWindowsぐらい最新にするべきだと思うしGNU/LinuxをOSの候補に加えるべきだ。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
