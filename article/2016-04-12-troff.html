@@ -1,0 +1,167 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+Brian Kernighanがプログラミング言語Goの組版に使ったのはなんとtroff
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/04/brian-kernighangotroff.html">
+Brian Kernighanがプログラミング言語Goの組版に使ったのはなんとtroff
+</a></h1>
+
+<p>
+<a href="https://rkrishnan.org/posts/2016-03-07-how-is-gopl-typeset.html">Ramakrishnan Muthukrishnan - Brian Kernighan on the typesetting of "The Go Programming Language" book</a>
+</p>
+
+<p>
+L&amp;RのKでありAWKのKでもあるBrian KernighanとAlan Donovanの執筆したThe Go Programming Language（邦訳は丸善からプログラミング言語Goとして6月15日に出版される予定）の組版には、Troff(具体的にはgroff)が使われたそうだ。同本の組版に感心した人間が、Brian Kernighanに組版について以下のようなメールを送った。
+</p>
+
+<blockquote>
+<p>
+親愛なるKernighan教授へ
+</p>
+
+<p>
+プログラミング言語Goの本のとても組版が美しい。個人的な感想では、LaTexでクマれたものより美しいように思われる。
+</p>
+
+<p>
+同本の執筆手順と本の組版について詳しい説明を願いたい。著作権の項目に使ったツールについては書かれているが。
+</p>
+
+<p>
+謝意
+</p>
+
+<p>
+Ramakrishnanより
+</p>
+</blockquote>
+
+<p>
+その結果、Kernighanから以下のような返事が返ってきたという。
+</p>
+
+<blockquote>
+<p>
+Ramakrishnanへ
+</p>
+
+<p>
+組版について褒めていただきありがたい。組版の大半は単にtroff(実際にはgroff)と-msマクロパッケージで行われた。Latexも少し試したが、私もAlanもその出力をさらに編集する気になれなかったし、Latexを使って組版するのは不可能だと思っている。Troffは私のよく知る昔ながらのツールで、汚く例外的な挙動も多いが、文字を組みたい場所に置いてくれることは確かだ。
+</p>
+
+<p>
+入力はXMLで、見出し、パラグラフ、索引、プログラムコード辺、簡単な表などを25個ぐらいのタグで表現している。Goのプログラムでこれを変換した。素早く画面上で見るためと、もし機会があればe-book版のためにHTMLにするのと、印刷のためにtroffにする。XMLを使うのは執筆時にすこし面倒だったが、エラーチェックが便利だった。
+</p>
+
+<p>
+細かい修正のために多数のgoプログラムとスクリプトを書いた。例えばすべてのページが同じ高さになるようにtroffの出力を書き換えるとか。生成されたpostscriptにも印刷所の印をいれるために手を入れている。
+</p>
+
+<p>
+フォントはAlanの選択だ。適切なフォントを見つけて適切なサイズと見た目にするのにかなり労力を使った。いくつかのアジア圏の文字はうまく扱うのが難しかった。troffは全角Unicode文字を適切に扱えないので、テキストを書きかえてごまかした部分がいくつかある。
+</p>
+
+<p>
+図はぜんぶAlanの仕事だった。Googleのドローイングプログラムを使った。pic[画像？、ソフトウェアの名称？]を少し試してみたが、便利ではなかったし、HTMLで扱うためには面倒だった。上付き文字以上の組版が必要な数式は使わなかったし、表は簡素なものだった。eqnとtblぐらいあれば足りるが、HTMLでは扱っていない。
+</p>
+
+<p>
+もう少しドキュメントを整備してツールも公開すべきなのだろうが、ほとんどの読者は君のように過程に興味はない。もうひとつの問題として、始めた当初は綺麗で筋の通った設計だったのに、結果として過程は炎上したし、やたら複雑なmakefileを書く必要に迫られた。
+</p>
+
+<p>
+メールをありがとう
+</p>
+
+<p>
+Brian
+</p>
+
+</blockquote>
+
+<p>
+ちなみに、GNUのtroff互換実装であるgroffは、ここ10年ほどメンテナーがいなくて保守されていない。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+アスキードワンゴ編集部はlatexを使っているそうだ。ちなみに、日本の殆どの出版社はInDesignで組版をしている。それも、編集者はInDesignを直接触らない。InDesignを触るのは印刷所の人間だ。ある編集者などは、「自分はコンピューターを触らない」と誇らしげに言うそうだ。そういう人は、紙に直接赤鉛筆などで組版の指示をして印刷所に投げる。
+</p>
+
+<p>
+私からすると、GUIの組版ツールを使うのは同じ作業を何度も繰り返さなければならず極めて効率が悪いと思うのだが、印刷業界は不思議なものだ。
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
