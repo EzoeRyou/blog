@@ -1,0 +1,163 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+Ubuntu 16.04にアップグレードした
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/04/ubuntu-1604.html">
+Ubuntu 16.04にアップグレードした
+</a></h1>
+
+<p>
+Ubuntu 16.04にアップグレードした。今回はかなり問題だらけだった。
+</p>
+
+<p>
+まず、アップグレードが正常に終わらなかった。古いパッケージを削除する途中で、hicolor-icon-themeのインストールスクリプトが正常に終了しなかったとのメッセージが表示された。同じ問題が報告されているようだ。
+</p>
+
+<p>
+<a href="https://bugs.launchpad.net/ubuntu/+source/hicolor-icon-theme/+bug/1571139">Bug #1571139 “package hicolor-icon-theme 0.15-0ubuntu1 failed to...” : Bugs : hicolor-icon-theme package : Ubuntu</a>
+</p>
+
+<p>
+他にも、Localesのインストールスクリプトが正常に終了しなかったというメッセージも表示された。
+</p>
+
+<p>
+そして、"E: mkinitramfs failure cpio 141 gzip 1"と表示されたまま画面が完全に固まってしまった。入力を一切受け付けず、端末に切り替えることもできなければ、SysRqもきかない。30分ほど待っても何も起こらないので、仕方なく電源を落とすことにした。
+</p>
+
+<p>
+さて、ブートしてみるとGrub2のシェルが表示される。さて、ブートローダーの問題なのだろうか。
+</p>
+
+<p>
+とりあえずUbuntu 16.04のISOを落としてブータブルUSBメモリを作成してブートしてみる。あっさりとブートできた。どうやらLive USBではなくて普通にUSBメモリのブートローダーだけを使ってラップトップにインストールしたUbuntuが起動したらしい。ログイン画面は16.04になっている。
+</p>
+
+<p>
+それではgrubのインストールだけやり直せばいいのだろうか。とりあえず様子を見てみようとGUIのアップデートプログラムを起動してみたところ、何やら大量のパッケージを確認もなくアップデートして再起動を促された。はて、まだ終わっていなかったのだろうか。
+</p>
+
+<p>
+再起動してみるとこれまた普通に使える。古いパッケージ、特に古いLinuxカーネルのパッケージが大量に残っているので、apt-get autoremoveで除去した。
+</p>
+
+<p>
+さて、今回はGCCが5.3、Clangが3.8になっている。ただし、libc++とlibc++abiに問題があるようだ。まず、libc++abi-devは、/usr/include/libcxxabi/下にインストールされるのだが、このディレクトリへのパスが通っていない。しかし、なぜか/usr/include/c++/v1/cxxabi.hだけは存在するので/usr/include/libcxxabi/__cxxabi_config.hを#includeしようとして見つからないエラーが出る。
+</p>
+
+<p>
+仕方がないので、Clangのオプションに-I/usr/include/libcxxabi/を渡してパスを追加した。
+</p>
+
+<p>
+もうひとつ、どうもlibc++ 3.7のstd::stringの実装に問題があるようだ。/usr/include/c++/v1/stringの1326-1331行は以下のようになっているが、
+</p>
+
+<pre><code>    _LIBCPP_INLINE_VISIBILITY explicit basic_string(const allocator_type&amp; __a)
+#if _LIBCPP_STD_VER &lt;= 14
+        _NOEXCEPT_(is_nothrow_copy_constructible&lt;allocator_type&gt;::value);
+#else
+        _NOEXCEPT;
+#endif
+</code></pre>
+
+<p>
+1936-1940行は以下のようになっており
+</p>
+
+<pre><code>
+template &lt;class _CharT, class _Traits, class _Allocator&gt;
+inline _LIBCPP_INLINE_VISIBILITY
+basic_string&lt;_CharT, _Traits, _Allocator&gt;::basic_string(const allocator_type&amp; __a)
+    : __r_(__a)
+{
+</code></pre>
+
+<p>
+basic_stringのコンストラクターの宣言にあったnoexceptが定義には存在せず、宣言の不一致でエラーになる。
+</p>
+
+<p>
+パッケージ管理されているファイルを弄りたくはないので、とりあえず別のディレクトリにコピーしてコードを修正し、そのディレクトリへのパスを追加することで修正した。次のUbuntuのアップグレードの時まで忘れずに覚えていなければならない。
+</p>
+
+<p>
+変更自体は、noexceptを付けるだけだ。
+</p>
+
+<pre><code>
+~/Documents/src/cpp/include$ diff -u /usr/include/c++/v1/string ./string 
+--- /usr/include/c++/v1/string	2015-09-06 19:01:16.000000000 +0900
++++ ./string	2016-04-23 18:59:51.848010811 +0900
+@@ -1936,6 +1936,11 @@
+ template &lt;class _CharT, class _Traits, class _Allocator&gt;
+ inline _LIBCPP_INLINE_VISIBILITY
+ basic_string&lt;_CharT, _Traits, _Allocator&gt;::basic_string(const allocator_type&amp; __a)
++#if _LIBCPP_STD_VER &lt;= 14
++        _NOEXCEPT_(is_nothrow_copy_constructible&lt;allocator_type&gt;::value)
++#else
++        _NOEXCEPT
++#endif
+     : __r_(__a)
+ {
+ #if _LIBCPP_DEBUG_LEVEL &gt;= 2
+</code></pre>
+
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
