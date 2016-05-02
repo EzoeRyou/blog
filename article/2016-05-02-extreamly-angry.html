@@ -1,0 +1,154 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+コンピューター科学のアカデミック業界の残念な現状
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/05/blog-post.html">
+コンピューター科学のアカデミック業界の残念な現状
+</a></h1>
+
+<p>
+<a href="https://twitter.com/mhoye/status/725010388547330048">mhoye on Twitter: "Extremely angry with the state of academic CS research right now. (1/n)"</a>
+</p>
+
+<p>
+MozillaでFirefoxのエンジニアリングコミュニティマネージャーであるMike Hoyeが、コンピューター科学におけるアカデミック研究の残念な現状に激怒している。
+</p>
+
+<blockquote>
+<p>
+コンピューター科学のアカデミック研究の現状に激怒している。
+</p>
+
+<p>
+MozillaがBugzillaを始めとした多数の情報を公開した結果として、多くの研究論文が書かれている。
+</p>
+
+<p>
+我々はそのような研究には注目している。論文はじっくり読んでいるし、研究結果にしたがって今後の方向性も決めている。
+</p>
+
+<p>
+しかし、我々は常に変化する世界に生きている。そのため、我々はデータをもとに結果を再検証して、仮定が正しいことを確認する。
+</p>
+
+<p>
+ここで我々が行いたいことは、我々はある意思決定をある論文Xの結果をもとに行いたいのだが、その結果は最新のデータでも妥当であろうか？　と言えることだ。
+</p>
+
+<p>
+まともな世界では、そのような検証は以下の3ステップで行えるはずだ。
+</p>
+
+<ul>
+<li>
+論文著者のバージョン管理システムのレポジトリをクローン
+</li>
+<li>
+論文著者のプログラムを最新のデータに対して適用
+</li>
+<li>
+新しく生成されたグラフを見る
+</li>
+</ul>
+
+<p>
+データはまだ仮説を支持するものであるか？　素晴らしい。この方向で進めよう。結果が変わった？　何故なのか考えてみよう。いずれにせよ。全員が満足する結果となる。
+</p>
+
+<p>
+しかし、これは実現しない。なぜならば、コンピューター科学の研究者はコードもデータも公開しないからだ。奴らはLatexで整形したWordドキュメントをペイウォールに阻まれたPDFとして公開する。
+</p>
+
+<p>
+奴らときたら、科学の原則である、「妥当性」とか「再現性」とか、中でも最も基本的な原則、「現実に即しているか」などは、クソ喰らえの姿勢だ。
+</p>
+
+<p>
+人間が知識や学習結果を共有しないことの時代遅れがいかに時代遅れであるかを見てみようか。
+</p>
+
+<p>
+ギリシア火薬の製法は失われた。ダマスカス鋼の製法は失われた。アンティキティラ島の機械は紀元前200年に失われ、同等の精度を持つ時計を再び作るには1500年代まで待たねばならなかった。
+</p>
+
+<p>
+いいか。よく聞け。お前の未公開のコードと、お前の未検証のデータと、お前のペイウォールに阻まれた博士論文は、この輝かしい因習の一部であるのだぞ。
+</p>
+
+<p>
+お前の目的とやらが、学士を得て卒業することなら、まあいいだろうよ。大抵の人間が望むことだ。だが、院にまで来てやることか？
+</p>
+
+<p>
+お前の業績により世界をよりよい方向にインクリメントするためには、世界はお前の業績を読めなければならないのだぞ。
+</p>
+
+<p>
+俺は結果の報告書など読みたくない。そんなのは、ワインを注文しているのに、赤っぽい色の液体について報じた新聞記事の切り抜きをFAXしてよこされるのと同じだ。
+</p>
+
+<p>
+検証可能なデータと動くコードなしには、お前のコンピューター科学の博士論文の命題とやらは命題ではない。それは単に命題が存在するかもしれないという未検証の主張に過ぎない。
+</p>
+
+<p>
+まとめると、俺は大変に失望している。もっと言うべきことはあるが、俺はこれから長年の研究とツールを再現するためのコードを書かねばならないのだ。
+</p>
+</blockquote>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
