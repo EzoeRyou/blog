@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+MITがSICPを教えなくなった理由
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/05/mitsicp.html">
+MITがSICPを教えなくなった理由
+</a></h1>
+
+<p>
+<a href="http://www.posteriorscience.net/?p=206">Programming by poking: why MIT stopped teaching SICP | posterior science</a>
+</p>
+
+<blockquote>
+
+<p>
+<a href="https://vimeo.com/151465912#t=59m36s">このNYC Lisp meetupの動画</a>で、Gerry Sussmanに対する質問として、SussmanとAbelsonの古典、<a href="https://mitpress.mit.edu/sicp/">The Structure and Interpretation of Computer Programs(SICP)</a>に基づく、伝説的な6.001講義をなぜMITはやめたのかと聞かれている。
+</p>
+
+<p>
+Sussmanの回答としては、SussmanとHal Abelsonは1980年代から延々と教え続けるに嫌気が差し、1997年に、学部長の事務所に行って、「俺らはやめる。後どうするからは勝手に考えろ」と宣言した。より重要なこととしては、SICPのカリキュラムは、今日のエンジニアリングに求められるエンジニアを育てることができないからである。1980年代と1990年代には、エンジニアは複雑なシステムを組むのに、単純で十分に理解されている部品を組み合わせた。SICPの目的は、そのようなシステムを理解するための抽象的な言語を提供することだ。
+</p>
+
+<p>
+今日では、状況が変わっている。今のエンジニアは、自分が完全に理解していない複雑なハードウェアのためのコードを日常的に書いている（そして、大抵の場合、企業秘密により完全に理解するのは不可能である）。ソフトウェアでも状況は同じだ。プログラミング環境は、多大な機能を提供する巨大なライブラリ群の集合として存在している。Sussmanの今日の生徒は、その時間の大半を、ライブラリのマニュアルを読み、どのように組み合わせれば目的が達成できるのかを把握することに費やしている。Sussman曰く、今日のプログラミングは、「より科学に近い。ライブラリを持ち寄って、つっつき回すのだ。プログラムを書くには、突っつき回して、どのように動作するかを観察する。そして、「目的を達成するために改造できるか」と考えるのだ」。SICPの「合成による解析」という物の見方である、小さな、単純な部品を組み合わせて大きなシステムを作るということは、もはや今日の状況にそぐわなくなった。今や、我々のプログラミングはつっつき回すことで行われている。
+</p>
+
+<p>
+なぜPythonを選んだかということについて、Sussmanは、"late binding"に決定したと冗談を飛ばした。Pythonには大量のライブラリがあり、教育者の様々な実習に使いやすい（たとえば、ロボットを制御するソフトウェアを書くなど）
+</p>
+
+<p>
+Sussmanは、SICPカリキュラムは現在のカリキュラムより洗練されていると考えているものの、正しいカリキュラムのあり方についてはまだ答えが出ていないという。
+</p>
+</blockquote>
+
+<p>
+たしかに、今のプログラマーは、ハードウェアの仕様書を元にを直接操作するコードは書かないし、OSを実装していないし、コンパイラーも実装していないし、古典的なアルゴリズムやデータ構造さえ自分の手で書く必要がなくなっている。ライブラリが発達してその必要がなくなったためでもあり、また個々の機能があまりにも高度になりすぎて、到底一個の人間の手に負える作業量ではなくなったということもある。
+</p>
+
+<p>
+不自由なハードウェア、ソフトウェアが蔓延してその詳細がわからなくなり、また自由なソフトウェアであっても、その内容が複雑になりすぎ、一つ一つ完全に理解するには時間が足りなすぎる。
+</p>
+
+<p>
+何にせよ、平均的なプログラマーが実現できる機能は昔よりはるかに複雑になっていることは確かだ。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
