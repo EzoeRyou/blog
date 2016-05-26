@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+近況
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/05/blog-post_26.html">
+近況
+</a></h1>
+
+<p>
+しばらくブログを書いていなかったが、いろいろと忙しかった。
+</p>
+
+<p>
+今、とある仕事をしているのだが、その仕事内容がまことに精神的に辛い。その仕事内容はまだ公開できないのだが、とりあえず言えることとしては、1文字は1バイトではないということと、C++の標準ライブラリの正規表現ライブラリはUnicodeに対応していないということと、C++のlocaleは多言語対応の足かせになっているということだ。
+</p>
+
+<p>
+さて、もうひとつ憂うべき事態としては、メインで使っているラップトップが故障した。去年の冬頃からどうにも挙動がおかしいと思っていたが、いよいよ使い物にならないほど挙動がおかしくなってきたので、memtest86+にかけてみたところ、なんと4900件ほどのエラーを出したところで動作を停止した。完全にメモリが壊れている。
+</p>
+
+<p>
+さて、メモリが壊れているだけなら新しくメモリを買ってくればいいのだろうが、このラップトップはその他のスペックが2016年の基準から見て劣っている。ディスプレイの解像度は低いし、WiFiも5GHz帯が使えない。そろそろ新しいPCを買わねばなるまい。
+</p>
+
+<p>
+とりあえず今は、別件で手に入った中古のゲーミングラップトップを使っている。これは、GNU/Linuxでゲーム環境を構築するために試しに買ってみたもので、nVidiaの不自由なGPUであるGTX 670Mが積んである。とりあえずUbuntu 16.04をインストールしてみたところ、自由なドライバーであるNouveauで動作した。そのままゲームも遊ぶことができたが、FPSが絶望的に出ない。仕方がなく、nvidia-driverを入れてみると、まともなFPSが出た。しかし、なぜかXrandRが動かないため、ディスプレイの回転ができない。
+</p>
+
+<p>
+ところでゲームだが、最近は、ゲームといえばfactorioしかしていない。factorioは極めて高い中毒性のある自動化ゲームで、プログラマーならば必ずハマるだろう。先週は職場の同僚５人でマルチプレイをして、１０時間かかってロケットを打ち上げた。
+</p>
+
+<p>
+ところで、factorioには列車があるのだが、つながった同一の線路上に複数の列車を走らせる場合、信号を使わなければならない。この信号の使い方は、ゲーム内になんの説明もない。factorioの公式wikiには、OpenTTDと同じだからそちらを参照しろとしか書いてない。
+</p>
+
+<p>
+これについて列車好きの同僚に教えを請うたところ、排他処理の起源は鉄道だったという事実を知らされた。なるほど、信号で区切られた区間に存在できる列車は一つだけという排他処理なのだ。これを理解したので、ようやく列車ネットワークが組めるようになった。なんのことはない。単なる排他処理である。ただし、一つの区間のアンロックと同時に、別の区間をロックするという特性がある。
+</p>
+
+<p>
+現実の鉄道の排他制御では、区間の独占通行権を示すタブレットと呼ばれる物理的なトークンをやり取りしていたようだ。また、駅間が電信でつながっていて、タブレットを入れると、数値が駅間でインクリメント、デクリメントされ、釣り合いが取れた時だけタブレットが排出される装置まで存在したそうだ。それはセマフォではないか。
+</p>
+
+<p>
+自宅でのfactorioのLANパーティもいつか開きたい。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
