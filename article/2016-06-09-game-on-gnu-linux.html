@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+GNU/Linuxでゲーム
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/06/gnulinux.html">
+GNU/Linuxでゲーム
+</a></h1>
+
+<p>
+数年前のゲーミングラップトップを手に入れたので、Ubuntuを入れてゲーム用のGNU/Linux環境を構築しようとした。
+</p>
+
+<p>
+GNU/Linuxにおけるゲーミング環境は年々良くなってきている。ValveのSteamOSのおかげでGNU/Linuxに対応する理由があるからだ。今回の目的は、持ち運べるfactorioゲーム環境を作ることだ。
+</p>
+
+<p>
+もらったゲーミングラップトップは、G-tunes Nextgear i770というものだ。Core i5 3230MにGeForce GTX670MX、メモリが12GB、ストレージが1TBのSSHDだ。メモリが12GBなのは、4GBメモリを4枚さして16GB積むと何故か起動しないので1枚抜いたとのことだ。メモリが悪いのかマザボが悪いのかはわからない。
+</p>
+
+<p>
+もらった時点でWindows 10が入っていたが、容赦なくUbuntu 16.04をインストールする。Windows殺すべし。慈悲はない。
+</p>
+
+<p>
+さて、インストールが終わったら。apt-get install steamしてsteamをインストールする。そしてfactorioをインストール。
+</p>
+
+<p>
+いざ起動してみると、何事もなく動いた。しかしFPSが30程度しかでない。
+</p>
+
+<p>
+GPUドライバーが自由なソフトウェア実装であるNouveauになっていた。涙をのんで不自由なnvidia-driverをインストールする。
+</p>
+
+<p>
+nvidiaの不自由なドライバーをインストールするとまともなFPSが出るようになった。しかし、画面にティアリングが発生する。どうやっても直らない。また、xrandrを使ったディスプレイの回転ができない。また、外部ディスプレイをつなぐと、nvidia-settingsからは、一枚の巨大なディスプレイを使っているかのように扱われる。解像度が高すぎるため、一度外部ディスプレイをつなぐと、ゲームのFPSが落ちる。
+</p>
+
+<p>
+調べたところ、これはnVidiaのドライバー上の問題で、今のところどうしようもないということ。nVidia Fuck You!
+</p>
+
+<p>
+nVidia Optimusは、IntelのGPUとハードウェア的にもかなり密に結合していて、nVidiaのGPUがIntelのフレームバッファに直接書き込むような形になっているそうだ。
+</p>
+
+<p>
+また、factorioのゲームサーバーを立てるために、適当な安い中古のラップトップを買ってきた。Ubuntu Serverをいれて、とりあえずfactorioサーバーを建てられるようにはした。中古だが、ある程度こだわって選んでしまったので、果たしてサーバーにしていいものかどうか迷う。ただし、メモリが2GBしかないため、デスクトップ用途に使うとしてもUnityはいれられないだろうから、XbuntuとかLubuntuなどを入れることになると思う。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
