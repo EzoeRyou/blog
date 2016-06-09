@@ -23,6 +23,7 @@ then
     title=${title//&/'&'amp;}
     title=${title//</'&'lt;}
     title=${title//>/'&'gt;}
+    title=${title//\//\\/}
     sed -i "s/placeholder-title/""$title""/g" "$filename"
 fi
 
