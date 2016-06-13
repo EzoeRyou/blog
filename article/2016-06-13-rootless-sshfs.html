@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+rootが無効化された環境でsshfsで権限の必要なファイルを変更する方法
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.jp/2016/06/rootsshfs.html">
+rootが無効化された環境でsshfsで権限の必要なファイルを変更する方法
+</a></h1>
+
+
+<p>
+sshfsは便利だ。リモートのファイルシステムをローカルのファイルシステムにマウントして扱うことができる。これにより、ローカル側のGUIのファイルシステムビューワーやエディターを使った温かみののある手作業による管理ができる。
+</p>
+
+<p>
+ところで、Ubuntu Serverではrootが無効化されている。そのため、sshfs root@host:remote_path local_path はできない。代わりに、root権限が必要な操作はsudoを使って行う。しかし、sshfsではsudoができない。一体どうすればいいのだろうか。
+</p>
+
+<p>
+試していないが、調べたところ、sftp_serverを指定する方法で行けるようだ。
+</p>
+
+<p>
+まず、sudoのcredentialをキャッシュさせるために、ssh軽油でsudo -vを実行しておく。
+</p>
+
+<p>
+そして、以下のようにsshfsでsftp-serverを指定する。
+</p>
+
+<pre><code>sshfs user@host:remote_path local_path -o sftp_server="/usr/bin/sudo /path-to/sftp-server"
+</code></pre>
+
+<p>
+おそらく行けるはずである。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
