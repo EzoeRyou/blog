@@ -1,0 +1,399 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0210R0-P0219R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/06/c-p0210r0-p0219r0.html">
+C++標準化委員会の文書: P0210R0-P0219R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0210r0.html">P0210R0: A light-weight, compact dynamic array</a>
+</h2>
+
+<p>
+軽量な動的配列ライブラリの提案。
+</p>
+
+<p>
+vectorはamortized constant timeを実現するために、実際に必要なサイズよりも大きなサイズのメモリを確保している。これはメモリ消費量を必要以上に上げる。
+</p>
+
+<p>
+そのため、そのような挙動を行わない軽量な動的配列ライブラリの追加をする提案。
+</p>
+
+<p>
+このライブラリは、insert, push_back, emplace{,_back}, eraseといったメンバー関数は提供しない。これらのメンバー関数は、汎用的なコンテナーの要件には定められておらず、特定のコンテナーがそのような操作を効率的に実装できる場合にのみ提供されるものだからだ。
+</p>
+
+<p>
+reserveやcapacityもない。
+</p>
+
+<p>
+resize(n)は要素数をnにする再確保を常に行う（ただしn == size()の場合を除く）
+</p>
+
+<p>
+このライブラリの名前をどうするかは自転車小屋の議論が続いている。
+</p>
+
+<p>
+このライブラリはスタックからメモリを確保するdynarrayとは別の目的なので、別のライブラリとなる。
+</p>
+
+<p>
+用途は、new T[n]の置き換えだ。
+</p>
+
+<p>
+new T[n]にくらべて何が優れているのか。
+</p>
+
+<ul>
+<li>サイズも一緒に管理される</li>
+<li>クラスによってメモリが所有されるので、オブジェクトの破棄時にメモリも解放される</li>
+<li>要素に対して個々に破棄することができる</li>
+</ul>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0211r0.html">P0211R0: Allocator-aware library wrappers for dynamic allocation</a>
+</h2>
+
+<p>
+アロケーターを使ってnew/make_unique/make_shared相当のことができるライブラリ。
+</p>
+
+<p>
+new/make_unique/make_sharedは、operator newから生のストレージを確保して、オブジェクトを構築する。アロケーターでやるには、placement newでオブジェクトの構築を自前でやらなければならない。
+</p>
+
+<pre><code>auto p = new T( args ... ) ;
+delete p ;
+</code></pre>
+
+<p>
+相当のことを、メモリ確保をアロケーターに変えて行いたい。このライブラリを使えば、以下のように書くことができる。
+</p>
+
+<pre><code>auto p = std::allocate_new&lt;T&gt;( alloc, args ... ) ;
+std::allocate_delete( alloc, p ) ;
+</code></pre>
+
+<p>
+同様に、make_unique<T>やmake_shared<T>も、以下のように書ける。
+</p>
+
+<pre><code>auto p = std::allocate_unique&lt;T&gt;( args ... ) ;
+auto p = std::allocate_shared&lt;T&gt;( args ... ) ;
+</code></pre>
+
+<p>
+便利なライブラリだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0212r0.pdf">P0212R0: Wording for [[maybe_unused]] attribute.</a>
+</h2>
+
+
+<p>
+名前が使われないことをヒントとして示す[[maybe_unused]]の文面案。以前は[[unused]]だったが、改名された。
+</p>
+
+<p>
+たとえば、以下の例でassertはプリプロセッサーマクロで、リリースビルドで消えてしまうので、コンパイラーからはresultが使用されていないように見え、変数が使われていないという警告を出すかもしれない。これをmaybe_unusedで解消できる。
+</p>
+
+<pre><code>int f(int x, int y)
+{
+    [[maybe_unused]] int result = error_check( x, y ) ;
+
+    assert( result ) ;
+
+    return do_something( x, y ) ;
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0213r0.pdf">P0213R0: Reexamining the Performance of Memory-Allocation Strategies</a>
+</h2>
+
+<p>
+Fundamentals TSで追加される新しいメモリアロケーターのベンチマークテスト。
+</p>
+
+<p>
+monotonicとは、メモリ解放をしないアロケーター。アロケーターオブジェクトの破棄時に、一括してメモリを解放する。メモリの中にリスト構造か何かをつくって開いている領域を探してといったメモリ管理が不要になるシンプルなデザイン
+</p>
+
+<p>
+multipoolとは、確保する小さなサイズごとにテーブルを作りそこから確保する戦略のアロケーター
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0214r0.pdf">P0214R0: Data-Parallel Vector Types &amp; Operations</a>
+</h2>1
+
+<p>
+ベクトル型を利用したSIMDプログラミングの説明
+</p>
+
+<p>
+これ事態は提案ではなく、このような機能をC++に入れるにあたって委2員に基礎的な知識を説明するための文書とみえるが、それでも結構詳しく定義されている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0215r0.html">P0215R0: A Civil-Time Library</a>
+</h2>
+
+<p>
+時間を、absolute time/civil time/time zoneに分類した上で、civil timeをサポートするライブラリの提案。
+</p>
+
+<p>
+absolute timeとは、起点時間からのカウント数で、例えばtime_tなどが相当する。C++ではすでにchronoライブラリがある。
+</p>
+
+<p>
+civil timeとは、グレゴリオ暦による年月日時分秒のことだ。これをサポートするライブラリを提案している。
+</p>
+
+<p>
+タイムゾーンやサマータイムは含まれない。うるう秒も予測不可能なので含まれない。オブジェクトは時間は常に妥当な日付を指す。妥当でない日付を指定すると、正規化が行われる。例えば、1月32日を指定すると、2月1日になる。これにより、呼び出し側は範囲チェックを行わずに単純に日付同士の演算ができる。秒以下の時間は管理しない。
+</p>
+
+<p>
+月同士の演算をする場合には、日を1日に合わせなければならない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0216r0.html">P0126R0:A Time-Zone Library </a>
+</h2>
+
+<p>
+タイムゾーンライブラリの提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0217r0.html">P0217R0: Wording for structured bindings</a>
+</h2>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0217r1.html">P0217R1: Wording for structured bindings</a>
+</h2>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0217r2.html">P0217R2: Wording for structured bindings</a>
+</h2>
+
+<p>
+構造化束縛(structured bindings)の文面案。
+</p>
+
+<p>
+多値を受け取る文法の提案。
+</p>
+
+<p>
+publicな直接の非staticデータメンバーを持つクラス、配列、std::tuple, std::pairから、それぞれの要素の型と値で変数を初期化できる文法となっている。
+</p>
+
+<pre><code>int a[3] = { 1, 2, 3 } ;
+// int, int, int
+auto [ a1, a2, a3 ] = a ;
+
+struct B { int x, double y, std::string z} ;
+B b = { 1, 2.0, "3"} ;
+// int, double, std::string
+auto [ b1, b2, b3 ] = b ;
+
+std::tuple&lt; int, int, int &gt; c{ 1, 2, 3 } ;
+// int, int, int
+auto [ c1, c2, c3 ] = c ;
+</code></pre>
+
+<p>
+これにより、多値を返す関数を使うのが楽になる。
+</p>
+
+<pre><code>std::tuple&lt; int, double, std::string &gt; f()
+{
+    return { 1, 2.0, "3" } ;
+}
+
+int g()
+{
+    auto [ x, y, z] = f() ;
+}
+</code></pre>
+
+<p>
+文法は以下の通り。
+</p>
+
+<p>
+auto [ identifier-list ] brace-or-equal-initializer
+</p>
+
+<p>
+identifier-listのそれぞれの変数名は、リファレンス型になる。初期化子の要素数と同じだけの識別子がなければならない。
+</p>
+
+<pre><code>int a[3] = { 1, 2, 3 } ;
+// ill-formed.
+auto [ a1, a2 ] = a ;
+</code></pre>
+
+<p>
+変数は必ずリファレンス型になる。これについては注意が必要だ。構造化束縛にリファレンス修飾子がない場合、初期化子がコピーされて、変数名はそのコピーへのリファレンスになる。リファレンス就職しがある場合、コピーされず、初期化子へのリファレンスになる。
+</p>
+
+<p>
+例えば、以下のコードは
+</p>
+
+<pre><code>int a[3] = { 1, 2, 3 } ;
+auto [a1, a2, a3 ] = a ;
+</code></pre>
+
+<p>
+以下のコードと同じ意味になる。
+</p>
+
+<pre><code>int a[3] = { 1, 2, 3 } ;
+auto _a[3] = { a[0], a[1], a[2] } ;
+
+auto &amp; a1 = _a[0] ;
+auto &amp; a2 = _a[1] ;
+auto &amp; a3 = _a[2] ;
+</code></pre>
+
+<p>
+初期化子のコピーが作られ、変数はそのコピーへのリファレンスとなる。
+</p>
+
+<p>
+以下のように書いた場合は、
+</p>
+
+
+<pre><code>int a[3] = { 1, 2, 3 } ;
+auto &amp; [a1, a2, a3 ] = a ;
+</code></pre>
+
+<p>
+以下のようになる。
+</p>
+
+<pre><code>int a[3] = { 1, 2, 3 } ;
+
+auto &amp; a1 = a[0] ;
+auto &amp; a2 = a[1] ;
+auto &amp; a3 = a[2] ;
+</code></pre>
+
+<p>
+初期化子はコピーされず、変数は初期化子のオブジェクトへのリファレンスとなる。
+</p>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0218r1.html">P0218R1: C++17 Filesystem</a>
+</h2>
+
+<p>
+filesystemライブラリ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0219r0.html">P0219R0: Relative Paths</a>
+</h2>
+
+<p>
+Filesystemライブラリに相対パスを計算する機能を追加する提案。
+</p>
+
+<p>
+基本的には、。あるパスに対して、別のパスからの相対パスを計算する方法で、例えば/a/b/cに対して/a/bからの相対パスを計算するとcになる。
+</p>
+
+<p>
+これだけならば、現行のFilesystemにも存在するのだが、Symlinkを追ってほしい、追わないでほしい。冗長な.や..を除去してほしい。ほしくないと言った衝突するユーザーの要望があり、かつどのように振る舞うか意見が別れるコーナーケースも多数あるため、Boostでは10年にわたって紛糾している問題。これに対する解決案。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
