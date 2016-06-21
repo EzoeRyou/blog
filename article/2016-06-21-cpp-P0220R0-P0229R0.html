@@ -1,0 +1,353 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0220R0-P0229R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/06/c-p0220r0-p0229r0.html">
+C++標準化委員会の文書: P0220R0-P0229R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0220r1.html">P0220R1: Adopt Library Fundamentals V1 TS Components for C++17 (R1)</a>
+</h2>
+
+<p>
+Library Fundamentals V1の規格への取り込み
+</p>
+
+<p>
+Library Fundamentasについては、先日の勉強会資料でまとめている。
+</p>
+
+<p>
+<a href="https://github.com/EzoeRyou/cpp17lib-slide">EzoeRyou/cpp17lib-slide: 勉強会のスライド資料</a>
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0221r1.html">P0221R1: Proposed wording for default comparisons, revision 3</a>
+</h2>
+
+<p>
+デフォルトの比較演算子を生成する提案。
+</p>
+
+<p>
+デフォルトの比較演算子の挙動については、すでに解説してきた。現在問題になっているのは、スライシングだ。例えば以下の例をみてみよう。
+</p>
+
+<pre><code>
+struct B { int state ; } ;
+struct D : B { int state ; }
+
+void f()
+{
+    B b ;
+    D d ;
+    b &lt; d ; // well-formed
+}
+</code></pre>
+
+<p>
+b&lt;dはwell-formedになる。なぜならば、オブジェクトdは、基本クラスBのサブオブジェクトへのリファレンスに、暗黙に変換されるからだ。つまり、上のコードは以下の意味を持つ。
+</p>
+
+<pre><code>
+b &lt; static_cast&lt; const B &amp; &gt;( d ) ;
+</code></pre>
+
+<p>
+この提案では、このスライシングを禁止する破壊的変更を伴う提案をしている。
+</p>
+
+<p>
+提案はこうだ。コピーコンストラクター、operator =、比較関数、不等号関数に、クラスBから派生しているクラスDにたいして、const B &amp;への暗黙の変換を禁止する。
+</p>
+
+<p>
+その結果、上記のような合法なC++14コードはill-formedになる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0222r0.html">P0222R0: Allowing Anonymous Structs as Return Values</a>
+</h2>
+
+<p>
+無名クラス型を関数の戻り値の型として返せる提案。
+</p>
+
+<pre><code>struct { int x, int y }
+f()
+{ return { 1, 2 } ; }
+
+void g()
+{
+    auto [x, y] = f() ;
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0223r0.html">P0223R0: Class Namespace</a>
+</h2>
+
+<p>
+クラスのメンバーをクラスの定義外で定義するときに、名前空間のようにクラススコープの中に入れることで、冗長な記述を省略できる文法の提案。
+</p>
+
+<p>
+以下のようなクラスがあるとする
+</p>
+
+<pre><code>template &lt; typename CharType, typename Traits, typename Allocator &gt;
+class MyString
+{
+    MyString( ) ;
+} ;
+</code></pre>
+
+<p>
+クラスのメンバーをクラスの定義内で定義すると、クラス定義が極めて長くなってしまい。クラスの概要がつかみにくくなる。そのため、メンバーはクラスの定義外で定義したい。問題は、現状では極めて冗長な記述をしなければならない。
+</p>
+
+<pre><code>template &lt; typename CharType, typename Traits, typename Allocator &gt;
+MyString&lt; CharType, Traits, Allocator &gt;::MyString( )
+{
+// ...
+}
+</code></pre>
+
+<p>
+まずテンプレートを書いた上で、クラス名をテンプレートまで指定したスコープ解決演算子を書かなければならない。しかも、これをメンバー全てに対して記述する必要がある。
+</p>
+
+<p>
+このような記述をするのは面倒だし、間違いのもとであるし、リファクタリングの妨げにもなる。そこで、以下のようにクラススコープを名前空間スコープのように使える文法を提案している。
+</p>
+
+<pre><code>
+template &lt; typename CharType, typename Traits, typename Allocator &gt;
+namespace class MyString
+{
+    // 何も書かなくていい
+    MyString()
+    {
+    // ...
+    }
+}
+</code></pre>
+
+<p>
+virtualやstaticはクラス名前空間では書けない。これは、現状でもクラス定義外では書けないからだ。
+</p>
+
+<pre><code>struct S
+{
+    virtual void f() ;
+} ;
+
+// virtualは書けない
+void S::f() { }
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0224r0.html">P0224: Implicit Return Type</a>
+</h2>
+
+<p>
+関数の戻り値の型を、先行する宣言から保管する提案。
+</p>
+
+<pre><code>int f() ;
+
+// well-formed
+// 戻り値の型はint
+auto f() ;
+</code></pre>
+
+<p>
+C++14では、宣言が異なるためオーバーロード関数であるとみなされるが、引数が同じなのでill-formedになる。関数の戻り値の型でだけの違いではオーバーロード可能ではないので、不必要な制限である。
+</p>
+
+<p>
+この制限緩和は、無名クラスを関数の戻り値の型として使えるようにするためである。
+</p>
+
+<pre><code>
+struct { int x, int y ; } f() ;
+
+// OK
+auto f()
+{
+    return { 1, 2 } ;
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0225r0.html">P0225R0: Why I want Concepts, and why I want them sooner rather than later</a>
+</h2>
+
+<p>
+Ville Voutilainenによる、なぜConceptをC++17に入れるべきかという文書。
+</p>
+
+<p>
+筆者の意見では、現状のConceptはC++17に入れるべきではない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0226r1.pdf">[PDF] P0226R1: Mathematical Special Functions for C++17, v5</a>
+</h2>
+
+<p>
+数学関数をC++に追加する提案。
+</p>
+
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0227r0.pdf">[PDF] P0227R0: Weakening the iterator categories of some standard algorithms</a>
+
+<p>
+std::sort, std::inplace_merge, std::stable_sortのイテレーター要求をRandom Access IteratorからForward Iteratorに変更する提案。
+</p>
+
+<p>
+アルゴリズムの研究の発展により、Forward Iteratorでもこれらのアルゴリズムをそれなりの効率で実装できるため。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0228r0.pdf">[PDF] P0228R0: 	A Proposal to Add Safe Integer Types to the Standard Library Technical Report</a>
+</h2>
+
+<p>
+数学的に正しく振る舞うかチェックできるライブラリ、std::safe&lt;T&gt;の提案
+</p>
+
+<p>
+C++の組み込みの整数型は、数学の法則に正しく従わない。コンピューターの内部の挙動に従うように設計されている。これにより、以下のような数学的に正しいコードは、実際には正しく動作しない。
+</p>
+
+<pre><code>int f( int x )
+{
+    return x*x ;
+}
+</code></pre>
+
+<p>
+なぜならば、x*xの結果は、int型で表現できる範囲を超えてしまうかもしれないからだ。
+</p>
+
+<p>
+std::safe&lt;T&gt;は、整数型Tを置き換えて使うことができる。もし、結果が数学的に正しくない場合、例外が投げられる。
+</p>
+
+<pre><code>int f( std::safe&lt;int&gt; x )
+{
+    return x*x ;
+}
+</code></pre>
+
+<p>
+ライブラリ実装により、実行時のオーバーヘッドを極力発生させないことができる。例えば以下のコード
+</p>
+
+<pre><code>int f( std::safe&lt;std::int8_t&gt; x )
+{
+    reutrn x*x ;
+}
+</code></pre>
+
+<p>
+Integral promotionにより、x*xの結果の型はint型であり、それをint型として返す。int型はint8_t型同士の乗算結果を必ず数学的に正しく表現できるので、この場合に実行時チェックは必要ない。ライブラリの実装によって、そのような実行時チェックは省ける。
+</p>
+
+<p>
+また、アーキテクチャによっては、演算結果が数学的に正しいかどうかをチェックできる機能を提供していることがあり、ライブラリがそのような機能を活用すれば、実行時のパフォーマンス向上に繋がる。
+</p>
+
+<p>
+このライブラリは、整数型のDrop-in replacementとして使えることを目的としているため、追加のオプションなどはない。既存の似たようなライブラリには、オーバーフローやアンダーフローを検出するかどうかや、整数の範囲などを細かく指定できるものがある。このライブラリでは、単純性のため、そのような設計はしない。
+</p>
+
+<p>
+なかなかいいライブラリだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0229r0.pdf">[PDF] P0229R0: SG5 Transactional Memory Meeting minutes 2015/11/02-2016/02/08</a>
+</h2>
+
+<p>
+トランザクショナルメモリの会議の議事録。短い。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
