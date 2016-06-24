@@ -1,0 +1,207 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0230R0-P0239R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.com/2016/06/c-p0230r0-p0239r0.html">
+C++標準化委員会の文書: P0230R0-P0239R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0230r0.pdf">[PDF] P0230R0: SG14 Games Dev/Low Latency/Financial Meeting Minutes 2015/10/14-2015/02/10</a>
+</h2>
+
+<p>
+ゲーム開発、低レイテンシー、Financialな業界からC++に提案をする会議の議事録。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0231r0.pdf">[PDF] P0231R0: Extending the Transactional Memory Technical Specification to Support Commit Actions</a>
+</h2>
+
+<p>
+トランザクショナルメモリーにコミット操作を追加する提案。コミット処理の結果が反映されるのはは、処理が終わったあとまで遅延される。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0232r0.pdf">[PDF] P0232R0: A Concurrency ToolKit for Structured Deferral/Optimistic Speculation</a>
+</h2>
+
+<p>
+RCUとハザードポインターの特性を面白い喩え話を用いて説明している。
+</p>
+
+<p>
+シュレディンガーは動物園を持っている。動物園には様々な動物がいる。シュレディンガーは動物たちを管理するメモリ内データベースを持っている。動物の出産や購入はデータベースへの追加、死亡や売却はデータベースへの削除として操作される。動物にはネズミや昆虫も含まれるので、このデータベースは頻繁に更新される。このデータベースに対して、動物の状態を調べるためにクエリーすることができる。ただし、猫に対するクエリーが常に多い状態になっている。これは、おそらく動物園内のネズミが点滴の情報を調べるためにクエリーしているのだろうとシュレディンガーは推測している。
+</p>
+
+<p>
+この頻繁に更新され、一部の情報に高頻度のクエリーが飛ぶ利用特性を持つデータベースの実装として、グローバルロック、バケットごとのロック、RCU、ハザードポインターによる実装を比較して、それぞれの特性を示している。
+</p>
+
+<p>
+また、文書ではリファレンスカウントもRCUやハザードポインターと似たような特性を持つだろうとしている。
+</p>
+
+<p>
+将来的には、C++にRCUやハザードポインターのライブラリを追加したいそうだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0233r0.pdf">[PDF] P0233R0: Hazard Pointers: Safe Reclamation for Optimistic Concurrency</a>
+</h2>
+
+<p>
+ハザードポインターの解説文書。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0234r0.pdf">[PDF] P0234R0: Towards Massive Parallelism(aka Heterogeneous Devices/Accelerators/GPGPU) support in C++</a>
+</h2>
+
+<p>
+GPGPUのような大規模な並列処理を行う異なるアーキテクチャが混在したコンピューター環境をC++でサポートするにあたって、現状の提案の一覧や、既存の実装を解説している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0235r0.pdf">[PDF] P0235R0: A Packaging System for C++</a>
+</h2>
+
+<p>
+ブリザードエンタテイメント社によるC++のためのパッケージシステムの提案。
+</p>
+
+<p>
+パッケージシステムというのは、Pythonにおけるpipや、Rubyにおけるgemや、node.jsにおけるnpmのような仕組みのことだ。ソフトウェアのライブラリを手軽に配布、入手、インストール、使用できるためのシステムのことだ。
+</p>
+
+<p>
+提案はディレクトリ構造にまで言及するなど、かなり具体的なものになっている。
+</p>
+
+<p>
+筆者の意見では、パッケージシステムはOSが提供するものであって、言語がそれぞれ提供するのは間違っている気がする。しかし、成功しているプログラミング言語はだいたいパッケージシステムを持っているのも事実だ。
+</p>
+
+<p>
+文書の提案する仕組みに基づいたパッケージシステムをClangに実装したものが、ブリザードのGitHubで公開されている
+</p>
+
+<p>
+<a href="https://github.com/Blizzard/clang">https://github.com/Blizzard/clang</a>
+</p>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0236r0.pdf">[PDF] P0236R0: Khronos's OpenCL SYCL to support Heterogeneous Devices for C++</a>
+</h2>
+
+<p>
+OpenCL SYCLとしてC++によるOpenCLのラッパー規格の紹介。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0237r0.pdf">[PDF] P0237R0: On the standardization of fundamental bit manipulation utilities</a>
+</h2>
+
+
+
+<p>
+unsigned charの配列をビット列のコンテナーとして扱えるラッパークラスの提案。ビットに対するリファレンス、ポインター、イテレーターを提供している。
+</p>
+
+<p>
+これにより、例えば立っているビットの数を数えたいときは、イテレーターをstd::countに渡せばよい。std::countは、std::bit_iteratorに対して、アーキテクチャがサポートしていれば、popcntを呼び出すなどの最適化も行える。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0238r0.html">P0238R0: Return type deduction and SFINAE</a>
+</h2>
+
+<p>
+戻り値の型の型推定に失敗した場合、ハードエラーではなくSFINAEにする提案。
+</p>1
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0239r0.pdf">[PDF] P0239R0: valueless_by_exception</a>
+</h2>
+
+<p>
+variantのcorrupted_by_exceptionをvalueless_by_exceptionに改名する提案。
+</p>
+
+
+<div class="dwango-ad">
+
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
