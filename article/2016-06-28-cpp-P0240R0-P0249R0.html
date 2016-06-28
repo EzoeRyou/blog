@@ -1,0 +1,276 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0240R0-P0249R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/06/c-p0240r0-p0249r0.html">
+C++標準化委員会の文書: P0240R0-P0249R0
+</a></h1>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0240r0.html">P0240R0: Why I want Concepts, but why they should come later rather than sooner</a>
+</h2>
+
+<p>
+P0225R0「何故私はコンセプトをすぐに欲しているのか」に対する反論、「何故私はコンセプトを欲しているが、時期尚早であるのか」と題された文書。
+</p>
+
+<p>
+現在のコンセプトの問題は、標準ライブラリがまだコンセプトに対応していないことと、constrained templateのチェックができないことだ。
+</p>
+
+<p>
+標準ライブラリはプログラマーの模範となるべきライブラリで、標準ライブラリですら対応できていない言語機能は、有用性が十分に検証されているとは言えない。また、コンセプトの標準ライブラリがないということは、ユーザーごとに基本的なコンセプトですら、非互換な車輪の再発明が行われるので好ましくない。
+</p>
+
+<p>
+現在のコンセプトは、contrained templateに対するチェック機能がない。つまり、テンプレートが、指定したコンセプトの要件のみを使っているコードかどうかを、実体化せずにチェックできない。C++0x時代のコンセプトを実装したConceptGCCの経験から言えば、エキスパートであっても、手で要件を全て網羅することはできず、コンパイラーに指摘されるまで気が付かない要件漏れが発生している。この機能なしではコンセプトは使い物にならない。また、現在提案中のコンセプトは、将来の拡張性の低い設計で、将来的にチェック機能を追加する際は、未チェックのコンセプトとチェックされるコンセプトという、2種類の言語機能を入れなければならず、言語機能が分断してしまう。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0241r0.html">P0241R0: Remove Future-Related Explicit Specializations for Void</a>
+</h2>
+
+<p>
+futureとpromiseのvoid型への特殊化を除去する提案。
+</p>
+
+<p>
+P0146R1で、void型は完全型になるので、特殊化は不要になる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0242r0.html">P0242R0: Standard Library Support for Void</a>
+</h2>
+
+<p>
+標準ライブラリ、特にiostreamをvoid型に対応させる提案。
+</p>
+
+<p>
+P0146R0でvoidが完全型になるので、void型に対応する必要がある。
+<p>
+
+<p>
+例えば、テンプレート引数でvoid型が渡された場合、テンプレートコードはコンパイル時分岐が必要なくなる。
+</p>
+
+<pre><code>template &lt; typename F &gt;
+void call_print( F f )
+{
+    std::cout &lt;&lt; f() &lt;&lt; std::endl ;
+}
+
+int main()
+{
+    call_print( []{} ) ;
+}
+</code></pre>
+
+<p>
+提案では、void型に対する入出力は、何もしないとしている。"void"を読み書きしたりするのは、既存のコードから考えても、余計なお世話であろうとしている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0244r1.html">P0244R1: Text_view: A C++ concepts and range based character encoding and code point enumeration library</a>
+</h2>
+
+<p>
+UTF-8/UTF-16をコードポイント単位で読めるイテレーターを提供するtext_viewライブラリの提案
+</p>
+
+<pre><code>using CT = utf8_encoding::character_type;
+auto tv = make_text_view&lt;utf8_encoding&gt;(u8"J\u00F8erg");
+auto it = tv.begin();
+assert(*it++ == CT{0x004A}); // 'J'
+assert(*it++ == CT{0x00F8}); // 'ø'
+assert(*it++ == CT{0x0065}); // 'e'
+</code></pre>
+
+<p>
+U+00F8は、UTF-8でエンコードすると、0xc30'b8になってしまうのだが、コードポイント単位でのイテレーター経由で見ることができる。
+</p>
+
+<p>
+<a href="https://github.com/tahonermann/text_view">tahonermann/text_view: A C++ concepts and range based character encoding and code point enumeration library</a>
+</p>
+
+<p>
+実装はGitHubで公開されているが、コンセプト機能を多用しているため、最新の開発版GCCでしか動かない。
+</p>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0245r1.html">P0245R1: Hexadecimal floating literals for C++</a>
+</h2>
+
+<p>
+16進数浮動小数点数リテラルの提案
+</p>
+
+<pre><code>int main()
+{
+
+    double d = 0xffp0 ;
+
+    // 255.0000, 0x1.fep7
+    printf("%f, %a\n", d, d ) ;
+}
+</code></pre>
+
+<p>
+文法は、プレフィクス0x/0Xに続いて、16進数桁を記述して、.で区切って小数点以下を記述し、その後に2進数指数部を記述する。
+</p>
+
+<p>
+16進数浮動小数点数リテラルには2進数exponentの指定が必須だ。2進数exponentはeではなくpで記述する
+</p>
+
+<p>
+\[0xApB = A \times 2^B\]
+</p>
+
+<p>
+たとえば、0xabcp3は、\(\texttt{0xabc} \times 2^3\)となる。
+</p>
+
+<p>
+すでにC言語には入っている。
+</p>
+
+<p>
+これを執筆途中に、トークン列のパースの問題に苦しんだ。
+</p>
+
+<p>
+<a href="https://cpplover.blogspot.jp/2016/06/cc0xf10xe1.html">本の虫: C/C++で0xf+1は合法なのに0xe+1はコンパイルエラーになるのはなんで？</a>
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0246r0.pdf">[PDF] P0246R0:Contract Assert Support Merged Proposal </a>
+</h2>
+
+<p>
+フォントにLinux Libertineを使っているためstやctやらがligatureで表示されてやや戸惑う。
+</p>
+
+<p>
+それはともかく、内容はcontract機能の議論の結果の改定案。contract機能とは、関数にpreconditionやpostconditionとして期待される状態をチェックするコードを記述できる機能で、コンパイル時や実行時にチェックできる。いわば高級なコア言語でサポートされたassertと言える。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0247r0.pdf">[PDF] P0247R0: Criteria for Contract Support</a>
+</h2>
+
+
+<p>
+これもLinux Libertineフォントによるligatureがうっとおしい。
+</p>
+
+<p>
+内容は、実行時contractチェックが満たすべき要件について。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0248r0.pdf">[PDF] P0248R0: Concepts in C++17</a>
+</h2>
+
+<p>
+C++17にConceptが入るべきだと主張する文書。
+</p>
+
+<p>
+筆者は現行のコンセプトに満足していない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0249r0.pdf">[PDF] P0249R0: Input Devices For 2D Graphics</a>
+</h2>
+
+<p>
+イベント処理と割り込み処理のためのライブラリの提案。
+</p>
+
+<p>
+BoostのSignalを参照している。また、QtやAllegro(ゲームフレームワーク)も引き合いに出しているほか、jQueryの手軽さに最も影響を受けた設計だとしている。
+</p>
+
+<p>
+確かに、ある程度のGUIライブラリでは常に再発明されている機能ではあるが、皆が納得する設計にするのは難しい気がする。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
