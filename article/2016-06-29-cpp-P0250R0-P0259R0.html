@@ -1,0 +1,429 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0250R0-P0259R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/06/c-p0250r0-p0259r0.html">
+C++標準化委員会の文書: P0250R0-P0259R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0250r1.html">P0250R1: Wording improvements for initialization and thread ids (CWG 2046)</a>
+</h2>
+
+<p>
+実行単位と実行順序についての文面や言葉の使い分けを微妙に変える提案。
+</p>
+
+<p>
+標準化委員会の中では、C++は将来的に、プログラムが明示的にスレッドを使っていなかったとしても、実装が自動的に初期化を並列実行することを許可したいコンセンサスがあるが、現行の文面も既存のコードもそのまま対応できるようにはなっていない。とりあえず文面を整理する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0251r0.pdf">[PDF] P0251R0: Unified Call Syntax Wording</a>
+</h2>
+
+<p>
+統一関数呼び出し記法の提案。
+</p>
+
+<p>
+f( x, y )という式を書いた時に、f( x, y )を満たすfが存在しない場合、x.f( y )を呼び出す機能のことだ。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+void f( T x, T y )
+{
+    compare( x, y ) ;
+}
+</code></pre>
+
+<p>
+この例では、もしcompare( x, y )を満たすcompareが存在しない場合、x.compare( y )の呼び出しが試みられる。
+</p>
+
+<p>
+当初の提案に上がっていた、x.f(y)をf(x,y)として扱う機能は省かれた。
+</p>
+
+<p>
+これにより、ジェネリックコードは渡された型について気にする必要がなくなる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0252r1.pdf">[PDF] P0252R1: Operator Dot Wording</a>
+</h2>
+
+<p>
+operator .をオーバーロード可能にする提案。operator .をオーバーロードした型に対するメンバーアクセスは、原則としてoperator .の戻り値に対して適用される。型に同じ名前のメンバー名がある場合を除く。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+class vector_ref
+{
+    std::vector&lt;T&gt; v ;
+public :
+    std::vector&lt;T&gt; &amp; operator .() { return v ;}
+    std::vector&lt;T&gt; const  &amp; operator .() const { return v ;}
+
+    std::size_t size() const { return 1 ; }
+} ;
+
+int main()
+{
+    vector_ref r ;
+
+    // operator .を経由した
+    // vector_ref.vに対する操作
+    r.push_back(0) ;
+
+    // vector_ref.sizeを呼ぶ
+    r.size() ;
+}
+</code></pre>
+
+<p>
+これにより、スマートリファレンスを実装することが可能になる。
+</p>
+
+<p>
+operator .はクラス型から、リファレンス型を返すことができる。operator .をオーバーロードした型を、リファレンスサロゲート型と呼ぶ。複数のoperator .が記述されている場合、メンバー名によるオーバーロード解決が行われる。
+</p>
+
+<pre><code>struct A
+{
+    int x ;
+} ;
+
+struct B
+{
+    int y ;
+}
+
+struct C 
+{
+    A a ;
+    B b ;
+    A &amp; operator .() { return a ; } 
+    B &amp; operator .() { return b ; }
+} ;
+
+int main()
+{
+    C c{ } ;
+
+    c.x = 0 ; // c.a.x
+    c.y = 0 ; // c.b.y
+}
+</code></pre>
+
+<p>
+名前が衝突した場合は曖昧なためill-formedになる。
+</p>
+
+<pre><code>struct A
+{
+    int x ;
+} ;
+
+struct B
+{
+    int x ;
+}
+
+struct C 
+{
+    A a ;
+    B b ;
+    A &amp; operator .() { return a ; } 
+    B &amp; operator .() { return b ; }
+} ;
+
+int main()
+{
+    C c{ } ;
+
+    c.x = 0 ; // エラー、曖昧
+}
+</code></pre>
+
+<p>
+リファレンスサロゲート型によって初期化した場合、オーバーロード解決により最適なoperator .が選ばれる
+</p>
+
+<pre><code>struct X
+{
+    int i ;
+    double d ;
+
+    int &amp; operator . () { return i ; }
+    double &amp; operator . () { return d ; }
+} ;
+</code></pre>
+
+<p>
+このようなリファレンスサロゲート型に対して、
+</p>
+
+<p>
+以下はwell-formedとなる。
+</p>
+
+<pre><code>X x{ 0, 0.0 } ;
+int i = x ; // well-formed
+double d = x ; // well-formed
+</code></pre>
+
+<p>
+リファレンスサロゲート型に対する代入には、そのようなオーバーロード解決が働かず、operator .も使っていないため、以下はill-formedとなるのか、それともコピー代入演算子の呼び出しもoperator .を使うからwell-formedなのか、よくわからない。
+</p>
+
+<pre><code>
+X x{ 0, 0.0 } ;
+x = 0 ; // 謎
+x = 0.0 ; // 謎
+</code></pre>
+
+<p>
+また、operator .と変換関数がある場合、変換関数が優先されるのではないかと思われる。
+</p>
+
+<pre><code>struct X
+{
+    int i ;
+    int &amp; operator . () { return i ; }
+    operator int &amp; () { return i ; }
+} ;
+
+X x{0} ;
+int i = x ; // call conversion function
+</code></pre>
+
+<p>
+と、このようないろいろな疑問を論文著者に聞いてみたところ、実際オーバーロード解決についてあやふやなため、いま開催中のOulu会議で文書自体が却下されたらしい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0253r1.pdf">[PDF] P0253R1: Fixing a design mistake in the searchers interface in Library Fundamentals</a>
+</h2>
+
+<p>
+BMサーチなどを実装するために設計されたsearcherの戻り値を、パターンにマッチした先頭へのイテレーターを返すのではなく、マッチしたパターンの先頭と末尾のイテレーターのpairを返すようにする提案。
+</p>
+
+<p>
+次のパターンを探したいことがよくあるから最適化のため。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0254r1.pdf">[PDF] P0254R1: 	Integrating std::string_view and std::string</a>
+</h2>
+
+<p>
+stringからstring_viewへの変換は、stringの変換関数が担うべきであるため、そのように設計を変更する提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0255r0.pdf">[PDF] P0255R0: C++ Static Reflection via template pack expansion</a>
+</h2>
+
+<p>
+テンプレートのパック展開を用いた静的リフレクション。使いたくないほど文法が汚い。1
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0256r0.pdf">[PDF] P0256R0: C++ Reflection Light</a>
+</h2>
+
+<p>
+現在提案されているC++の静的リフレクション機能を比較して考察している。
+</p>
+
+<p>
+T型のデータメンバーのポインターを取得する
+</p>
+
+<p>
+N4428提案
+</p>
+
+<pre><code>int size = std::class_traits&lt;T&gt;::class_members::size;
+// テンプレートメタプログラミングにより0からsize-1までのそれぞれのIについて取得する
+auto pointer = std::class_traits&lt;C&gt;::class_members::ge&lt;I&gt;::pointer;
+// その後、pointerの型をそれぞれ調べて、データメンバーのみを抽出する処理が必要
+</code></pre>
+
+<p>
+P0194R0提案
+</p>
+
+<pre><code>typedef reflexpr(T) meta_T;
+typedef std::meta::get_all_data_members_t&lt;meta_T&gt; meta_DMs;
+int size = std::meta::get_size_v&lt;meta_DMs&gt;; // get number of data members
+// apply template meta to recurrently pick each I, from 0 to size - 1
+// テンプレートメタプログラミングにより、0からsize-1までのそれぞれのIについて取得する
+typedef std::meta::get_element_t&lt;meta_DMs, I&gt; meta_F;
+gauto pointer = std::meta::get_pointer_v&lt;meta_F&gt;;
+</code></pre>
+
+<p>
+P0255R0提案
+</p>
+
+<pre><code>auto pointers = std::make_tuple( typedef&lt; T, is_member_object_pointer &gt;... );
+</code></pre>
+
+<p>
+お題：プライベート・ライアンは救えるか？
+</p>
+
+<pre><code>struct X {
+private:
+    int ryan;
+};
+</code></pre>
+
+<p>
+Urbana会議の結論として、privateメンバーにはうっかりアクセスできないようにしたい。既存のコードにアクセス性を与えるような変更ができないようにしたい。reflection_unsafeのように明示的な操作を必要とするようにすべきか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0257r1.pdf">[PDF] P0257R1: A byte type for increased type safety</a>
+</h2>
+
+<p>
+1バイトを表現するstd::byte型を標準ライブラリに追加する提案。
+</p>
+
+<p>
+現在、1バイトを表現するには、char, signed char, unsigned charが使われているが、char型には、バイト単位のアクセス、数値型、文字型という3つの目的が割り当てられており、混同しやすい。そのため、バイト単位のアクセス専門の型が必要だ。
+</p>
+
+<p>
+std::byteは以下のようにscoped enumで定義されている。
+</p>
+
+<pre><code>
+namespace std {
+    enum class byte : unsigned char { } ;
+}
+</code></pre>
+
+<p>
+わざわざコア言語に新しいキーワードとして組み込むまでもなく、既存の言語機能だけで実現できるとしている。
+</p>
+
+<p>
+また、コア言語に手を加えて、今までのvoid *からchar *に加えて、std::byte *にstatic_castした場合でもバイト単位でのアクセスが保証される。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0258r1.html">P0258R1: is_contiguous_layout</a>
+</h2>
+
+<p>
+is_contiguous_layout traitsの追加。型がstandard layout typeかつ、すべてのビットがオブジェクトの値の表現に使われる場合にtrueを返す。
+</p>
+
+<p>
+例えば、パディングビットが存在するような型に対してはfalseが返される。
+</p>
+
+<p>
+目的は、バイト列からハッシュ計算をする最適化ができる型かどうか判定するためだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0259r0.pdf">[PDF] P0259R0: fixed_string: a compile-time string</a>
+</h2>
+
+<p>
+constexpr実装できるbasic_fixed_stringの提案。
+</p>
+
+<p>
+basic_stringはconstexpr実装できないので、コンパイル時に文字列処理をするためにconstexpr実装できる設計の文字列クラスを追加する。
+</p>
+
+<pre><code>constexpr auto hello = std::make_fixed_string("hello") ;
+constexpr auto world = std::make_fixed_string("world") ;
+
+constexpr auto helloworld = hello + ", " + world ;
+
+static_assert( helloworld == "hello, world" ) ;
+</code></pre>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
