@@ -1,0 +1,400 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0260R0-P0269R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/07/c-p0260r0-p0269r0.html">
+C++標準化委員会の文書: P0260R0-P0269R0
+</a></h1>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0260r0.html">P0260R0: C++ Concurrent Queues</a>
+</p>
+
+<p>
+concurrent queueライブラリの提案。
+</p>
+
+<p>
+使い方は、普通にpushやpopがあり、空きがなかったり空だったりするqueueに待ちなしで操作を試みるtry_pushやtry_popがあり、ブロックせずに操作を試みるnonblocking_pushとnonblocking_popがある。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0261r0.html">P0261R0: C++ Distributed Counters</a>
+</h2>
+
+
+<p>
+プログラムでは、様々な情報をカウンターで扱う。マルチスレッド環境では、このカウンターはatomic操作しなければならない。問題は、リードの頻度が低く、ライトの頻度が高いカウンターでは、atomic操作を用いるのはコストが高くつく。
+</p>
+
+<p>
+このライブラリは、頻度の低いリードのコスト増と引き換えに、頻度の高いライトのコストが低いカウンターを提供する。
+</p>
+
+<p>
+使い方としては、基本的にはgeneral_counter<T>を使う。
+</p>
+
+<pre><code>general_counter&lt;int&gt; counter ;
+
+void f()
+{
+    // インクリメントとデクリメント
+    ++counter ;
+    --counter ;
+
+    // +=, -=
+    counter += 10 ;
+    counter -= 10 ;
+
+    int result = counter.load() ;
+}
+</code></pre>
+
+<p>
+カウンターへのライトは、戻り値がvoidで、カウンターの結果は返さない。カウンターの値を読むためには、メンバー関数loadを読む必要がある。
+</p>
+
+<p>
+カウンターへの操作が集中する場所では、general_counterの代わりに、counter_brokerを使うことができる。counter_brokerはgeneral_counterへの参照を保持し、カウンターへのライトを一旦受け取り、counter_brokerに反映する。
+</p>
+
+<pre><code>
+general_counter&lt;int&gt; counter ;
+thread_local counter_broker&lt;int&gt; broker( counter ) ;
+
+void high_contention_thread()
+{
+    while ( true )
+    {
+        ++broker ;
+    }
+}
+
+void f()
+{
+    int value = counter.load() ;
+}
+</code></pre>
+
+<p>
+うまくライトの集中する部分を切り分けてcounter_brokerを効果的に使わなければパフォーマンスが出ない設計のようだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0262r0.html">P0262R0: A Class for Status and Optional Value</a>
+</h2>
+
+<p>
+P0260で提案されているConcurrent queueでは、状態と値を返す。値は返せることもあるし、返せないこともある。現在の設計は、値を返すか例外を投げるメンバー関数と、状態を返し、値はリファレンスで受け取った引数に書き込むメンバー関数とがある。
+</p>
+
+<p>
+concurrent queueでは、値を返せないというのは通常起こりうることなので、例外のようなエラー処理を使うのは好ましくない。また、リファレンスで受け取ったオブジェクトに書き込むというのは、値はデフォルト構築可能であることを要求する。
+</p>
+
+<p>
+理想的なインターフェースは、状態と値を同時に返すものだ。値は存在しないこともあるので、optionalが使える。しかし、状態と値のtupleを使うのは面倒だ。
+</p>
+
+<p>
+すでに書いたように、concurrent queueでは、値を返せないというのは通常起こりうることなので、例外のようなエラー処理を使うのは好ましくない。したがって、状態と値を同時に返す、status_value&lt; Status, Value &gt;というライブラリを新たに提案する。
+</p>
+
+<p>
+この提案は筋が悪い。素直にtupleを使ったほうがいい。tupleの使い勝手が悪いのならば、tupleを改良すべきだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0263r1.html">P0263R1: Core "tentatively ready" Issues</a>
+</h2>
+
+<p>
+コア言語で既知の問題で解決案が規格入りする準備のできたもの。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0264r0.html">P0264R0: auto operator= considered dangerous</a>
+</h2>
+
+<p>
+auto operator =有害論。
+</p>
+
+<p>
+=defaultで定義される特別なメンバー関数でもautoによる戻り値の型推定をさせる作法を定着させようと言う動きに対し、auto operator =は有害であるとする文書。
+</p>
+
+<p>
+autoはリファレンスにならない。
+</p>
+
+<pre><code>struct A
+{
+    // 戻り値の型はA
+    auto operator = ( A &amp; ) { /*...*/ return *this ; }
+} ;
+</code></pre>
+
+<p>
+クラスAの代入演算子は、、lvalueリファレンスではなく、コピーを返す。
+</p>
+
+<p>
+autoの代わりに、auto &amp;やdecltype(auto)が使える。しかし、それでも問題は残る。
+</p>
+
+<p>struct A
+{
+    decltype(auto) operator = ( A &amp;&amp; a ) { reteurn swap(a) ; }
+
+    // 100行のコード
+
+    decltype(auto) swap( A &amp;&amp; a ) { /*...*/ return *this ; }
+
+} ;
+</p>
+
+<p>
+このクラスでは、もしswapの戻り値の型を変更すると、その他の多くの特別なメンバーの戻り値の型まで影響を受けてしまう。保守しにくいコードになる。
+</p>
+
+<p>
+文書の上げる最後の点の問題点はよくわからない。swapのような他のメンバーからも使われている基本的なメンバーの変更をしたら、結果がクラス全体に及ぶのは当然だと思うのだが。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0265r0.pdf">[PDF] P0265R0: SG5 is NOT proposing Transactional Memory for C++17</a>
+</h2>
+
+<p>
+SG5はトランザクショナルメモリーをC++17に提案しない決定をした。時期尚早である。
+</p>
+
+<p>
+現行のトランザクショナルメモリーはあまりにも柔軟すぎて、現実のアーキテクチャがサポートするネイティブのトランザクショナルメモリーに落とし込めず、ジャイアントロックによる実装になるだろうから、さもありなん。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0266r0.pdf">[PDF] P0266R0: Removing Restrictions on requires-Expressions</a>
+</h2>
+
+<p>
+コンセプトのrequiresをbool値を期待する文脈ならどこにでも書けるように制限を緩和する提案。
+</p>
+
+<p>
+筆者は現状のコンセプトは入るべきではないと考えている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0267r1.pdf">[PDF] P0267R1: A Proposal to Add 2D Graphics Rendering and Display to C++,</a>
+</h2>
+
+<p>
+2Dグラフィックライブラリの提案。
+</p>
+
+<p>
+205ページもある、とても長大なドキュメントだ。
+</p>
+
+<p>
+内容は普通のグラフィックライブラリだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0268r0.pdf">[PDF] P0268R0: up-to expression</a>
+</h2>
+
+<p>
+シマンテックによるup-to expressionの提案。以下のような式が、
+</p>
+
+<pre><code>[a..b)
+</code></pre>
+
+<p>
+half-openレンジ、a, a+1, a+2, ... , b-2, b-1を生成する。
+</p>
+
+<p>
+以下のように使う。
+</p>
+
+<pre><code>// {0,1,2,3,4}
+std::vector&lt;int&gt; v = [0..5) ;
+// "01234"
+for ( int i : [0..5) )
+    std::cout &lt;&lt; i ;
+</code></pre>
+
+<p>
+up-to式は、慣習的な数学記法に従った文法を持ち、レンジコンセプトを満たす型のオブジェクトを返す。これは遅延評価されるため、メモリ使用量はmake_pair(a, b)程度であり、サイズb-aの配列ではない。up-to式はレンジオブジェクトを期待するところで使うことができる。
+</p>
+
+<p>
+有名なLinuxディストリビューションのC++で書かれている11,423件のパッケージのソースコードをパースしてトークンをカウントした<a href="http://www.tomazos.com/actcd16/">ACTCD16</a>によれば、識別子iは20,224,291回使われている。識別子iは最も多く使われている識別子である。平均して、一つのソースファイルあたり8個の識別子iが使われている。 
+</p>
+
+<p>
+よく書かれるコード例としては、以下のようなものだ。
+</p>
+
+<pre><code>for ( int i = 0 ; i &lt; 10 ; ++i ) { /*...*/ }
+</code></pre>
+
+<p>
+searchcode.comで検索したところ、for文の90%はこのような形をとっている。
+</p>
+
+<p>
+このようなfor文のうち、半分はrange-based forに置き換えることができる。残りの半分はup-to式に置き換えることができる。
+</p>
+
+<pre><code>for ( int i : [0..10) ) { /* ... */ }
+</code></pre>
+
+<p>
+up-to式はイテレーターやポインターに使うこともできる。
+</p>
+
+<pre><code>for ( auto iter : [ v.begin()..v.end() ) )
+{
+    std::cout &lt;&lt; *iter ;
+}
+</code></pre>
+
+<p>
+up-to式はレンジとしてcomposableである。
+</p>
+
+<pre><code>
+using namespace ranges::view;
+for (int i : [0..5) | reverse)
+    print(i); // outputs 4 3 2 1 0
+for (int i : [0..10) | stride(3))
+    print(i); // outputs 0 3 6 9
+for (int i : [0..10) | stride(3) | reverse)
+    print(i); // outputs 9 6 3 0
+</code></pre>
+
+<p>
+up-to式は式である。その結果は変数に格納できる。
+</p>
+
+<pre><code>void f()
+{
+    auto one_to_five = [0..5) ;
+
+    for ( int i : one_to_five ) ;
+
+    auto f = []( auto x ) { return x ; } ;
+    auto a = f( one_to_five ) ;
+}
+</code></pre>
+
+<p>
+文書では、将来的には[)だけではなく、(), [], (]にも対応できるとしている。
+</p>
+
+<p>
+趣旨はわかるのだが、ライブラリでいいのではないのかという気もする。
+</p>
+
+<p>
+そして、この提案はコンセプトと、コンセプトによるレンジライブラリが存在することを前提にしているので、使えるとしてもまだまだ先の話だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0269r0.pdf">[PDF] P0269R0: Allocator-aware regular expressions</a>
+</h2>
+
+<p>
+これもシマンテックの提案。std::regexをアロケーターに対応させる提案。
+</p>
+
+<p>
+設計上の都合、今更他のライブラリのようにテンプレート実引数でアロケーターを取るわけには行かないので、uses_allocatorを使ってアロケーターを指定する。
+</p>
+
+<p>
+シマンテックでは、regexを共有メモリ上に構築するためにregexのあロケーター対応が必須だという。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
