@@ -1,0 +1,365 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0270R0-P0279R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/07/c-p0270r0-p0279r0.html">
+C++標準化委員会の文書: P0270R0-P0279R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0270r0.html">P0270R0: P0270R0: Removing C dependencies from signal handler wording</a>
+</h2>
+
+<p>
+シグナルハンドラーの文面を書き直す提案。
+</p>
+
+<p>
+現在のC++規格におけるシグナルハンドラーは、C規格との共通項のみ使えると定義している。
+</p>
+
+<p>
+しかし、現在のC++規格が参照しているC規格はC11である。ということは、thread_localが共通項になるが、thread_localは使えるべきではない。
+</p>
+
+<p>
+C言事の共通項というと、Cリンケージを指定するextern "C"も使えないということになるが、それではシグナルハンドラー自体が宣言できない。
+</p>
+
+<p>
+nullptrを使えない技術的な理由は何もない。
+</p>
+
+<p>
+など、様々な問題があるので、この機会に文面を新たに書きなおす提案。
+</p>
+
+<p>
+一般に、シグナルハンドラーのなかでは、ロックを発生させない操作のみ許されるべきだとしていて、POF(Plain-Old-Function)や、 signal-safe functionという用語を定義している。
+</p>
+
+<p>
+現実的には、シグナルハンドラーの挙動は何も変わらない。既存のコードは動くのもの動かないものも含めてそのままだ。
+</p>
+
+<p>
+この文面の変更により、例えばlambda式がシグナルハンドラーの中で使えるようになった。というのも、lambda式の実装にはメモリの動的確保が必要ないから、禁止する理由がないためだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0271r0.html">P0271R0: </a>
+</h2>
+
+<p>
+T型を特定の型リストで構築した時に、実際に呼ばれるコンストラクターの実引数の型を知るために、実際に呼ばれるコンストラクターの型を返すtype traits、std::direct_init&lt;T&gt;の提案。
+</p>
+
+<p>
+std::variantで例外を投げる変換関数を持った型が渡された場合でも例外安全にvariantを実装するために必要。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0272r1.html">P0272R1:Give 'std::string' a non-const '.data()' member function </a>
+</h2>
+
+<p>
+あまりにもひどいクソ提案なので解説する価値なし。CreateProcessの第二引数は書き換えを行うし第一引数にNULLを渡すべきではないしCreateProcessAを使うべきでもない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0273r0.pdf">[PDF] P0273R0: Proposed modules changes from
+implementation and deployment experience</a>
+</h2>
+
+<p>
+Clangでモジュールを実装して使用した経験から、モジュール規格の改良提案。
+</p>
+
+<p>
+モジュール宣言はソースファイルのどこにでも書いていいことになっていたが、その仕様だと、ツールはソースファイル全体をスキャンしてモジュール宣言があるかどうか確認しなければならない。モジュール宣言はソースファイルの最初の宣言に書く制約をつける。
+</p>
+
+<p>
+異なるモジュールで名前が衝突した場合、異なるエンティティが与えられるが、名前の衝突に対する対策としては名前空間がすでにある。モジュールでも名前衝突を回避する機能を別に提供すると、名前空間が使われなくなる。名前の衝突を回避する方法としては名前空間のみが提供すべきだ。モジュールの外にでるエンティティは名前が衝突した場合エラー。モジュールの外に出ないエンティティは別々になるようにする。
+</p>
+
+<p>
+モジュールの循環参照は禁止されているし、その理由は妥当なものだが、それだと全モジュールに同じ宣言を書かなければならず、結局一つのテキストファイルに書いて#includeする方法から逃れることができない。これではモジュールの意味がない。
+</p>
+
+<p>
+これを解決するために、モジュールパーティションという機能を提供する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0274r0.pdf">[PDF] P0274R0:Clump - A Vector-like Sequence Container with Embedded Storage </a>
+</h2>
+
+<p>
+組み込みのストレージをオブジェクトに持った連続したメモリー上に確保されるコンテナー、clumpの提案。
+</p>
+
+<p>
+clumpはvectorに似ているが、stringのsmall string optimizationに似た実装をしている。Boostのsmall_vectorと発想は同じだ。
+</p>
+
+<p>
+例えば、以下のようなレイアウトで実装される。
+</p>
+
+
+<pre><code>template &lt; typename T, std::size_t N, typename Allocator = std::allocator &gt;
+class clump
+{
+    char buf[ sizeof(t) * N ] ;
+    T * ptr ;
+} ;
+</code></pre>
+
+<p>
+要素数がN以下の場合はオブジェクト自体に埋め込みのストレージを使い、Nより多い要素数を扱うときには、アロケーターによるストレージの動的確保を行う。
+</p>
+
+<p>
+vectorとは互換性がないので、置き換えて使うこともできない。例えば、insertはpair&lt;iterator, bool&gt;を返す。boolは、組み込みのストレージに収まったかどうかを返す。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0275r0.html">P0275R0: A Proposal to add Classes and Functions Required for Dynamic Library Load</a>
+</h2>
+
+<p>
+Boost.DLLに似たshared library(DLLや.so)を扱うためのライブラリの提案。純粋にライブラリだけの提案となっている。
+</p>
+
+<p>
+std::shared_libraryは、ファイルパスを指定してshared libraryを読み込み、シンボル名が存在するか調べたり、型とシンボル名をしていしてshared library内の参照を得たりできる。
+</p>
+
+<pre><code>int main()
+{
+    std::shared_library mylib(std::filesystem::path{"mylib.so"}) ;
+
+    if ( mylib.has("myfunc") )
+    {
+        auto &amp;&amp; myfunc = mylib.get&lt; void(void) &gt;( "myfunc" ) ;
+        myfunc() ;
+    }
+
+}
+</code></pre>
+
+<p>
+shared libraryの遅延読み込みをしたりすることもできる。また、デフォルトではシステムディレクトリーは探さず、オプションを指定する必要がある設計になっている。この理由としてシステムディレクトリを探すのは遅く、ユーザーはたいてい読み込むファイルの場所をわかっているからとしているが、理解できない。
+</p>
+
+<p>
+提案ではDLL(Dynamic Load Library)という用語を使っていて、ライブラリにもdllという名称が出てくるが、インターフェース的にはdlopenのラッパーのように感じる。
+</p>
+
+<p>
+例えばロード時のオプションのscoped enumは以下の通り。
+</p>
+
+<pre><code>    // shared library file load modes
+    enum class dll_mode {
+        default_mode = 0,
+        dont_resolve_dll_references,    // DONT_RESOLVE_DLL_REFERENCES
+        load_ignore_code_authz_level,   // LOAD_IGNORE_CODE_AUTHZ_LEVEL
+        rtld_lazy,                      // RTLD_LAZY
+        rtld_now,                       // RTLD_NOW
+        rtld_global,                    // RTLD_GLOBAL
+        rtld_local,                     // RTLD_LOCAL
+        rtld_deepbind,                  // RTLD_DEEPBIND
+        append_decorations,             // See [dll.dll_mode]
+        search_system_directories       // See [dll.dll_mode]
+    };
+</code></pre>
+
+<p>
+DONT_RESOLVE_DLL_REFERENCESとLOAD_IGNORE_CODE_AUTHZ_LEVELについてはWin32 APIのLoadLibraryEx由来、RTLDについては、dlopen由来のオプションだ。
+</p>
+
+<p>
+append_decorationsというのは、ロードするファイルパスに、実装のデフォルトのプレフィクスやポストフィクスを付けてロードするオプションだ。例えば、"foobar"という共有ライブラリをロードしようとすると、Windowsならば"foobar.dll"を、GNU/Linuxならば"foobar.so"を読み込もうとする。ロードが失敗した場合、元の文字列でロードを試みる。
+</p>
+
+<p>
+search_system_directoriesは、システムディレクトリからもファイルを探すオプションだ。
+</p>
+
+<p>
+果たして入るだろうか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0276r0.html">P0276R0: A Proposal to add Attribute [[visible]]</a>
+</h2>
+
+<p>
+共有ライブラリでシンボル名としてexportしたいエンティティに指定できる[[visible]]の追加
+</p>
+
+<p>
+現状では、MSVCはエスクポートするシンボル名に__declspec(dllexport)を書かなければならない。GCCでは__attribute__((visibility("default"))を書かなければならない。また、シンボル名を使う際には、MSVCでは__declspec(dllimport)を書かなければならない。GCCでは書く必要がない。
+</p>
+
+<p>
+この結果、以下のような汚らしいプリプロセッサーマクロが書かれることになる。
+</p>
+
+<pre><code>#if EXPORTING
+    #   if MSVC
+    #       define API __declspec(dllexport)
+    #   else
+    #       define API __attribute__((visibility("default")))
+    #   endif
+    #else
+    #   if MSVC
+    #       define API __declspec(dllimport)
+    #   else
+    #       define API
+    #   endif
+    #endif
+</code></pre>
+
+<p>
+この提案は既存の拡張機能を追認するものだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0277r1.pdf">[PDF] P0277R1: const Inheritance</a>
+</h2>
+
+<p>
+const派生の追加提案。const派生すると、基本クラスを改変できなくなる。派生クラスは、基本クラスのコンストラクターは呼べるが、非staticデータメンバーは変更できず、const修飾された非staticメンバー関数しか呼べなくなる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0278r0.html">P0278R0: P0278r0 - volatile solutions</a>
+</h2>
+
+<p>
+volatileの定義を見直す提案。以下の変更をする。
+</p>
+
+<ol>
+<li>未初期化のvolatileオブジェクトからの読み込みは未定義</li>
+<li>実装はvolatileオブジェクトの値を推定してはいけない</li>
+<li>const volatileオブジェクトには初期化が必要ない</li>
+</ol>
+
+<p>
+volatileの利用例として、memory mapped I/Oに使うというものがある。このとき、特定のメモリアドレスに対する読み書きアクセスは、必ず副作用が発生してほしい。
+</p>
+
+<pre><code>int volatile * p = ... ;
+
+*p = 42 ;
+*p = 42 ;
+int x = *p ;
+</code></pre>
+
+<p>
+例えば、上のコードについて考える。同じアドレスに連続して2回同じ値を書き込んでいる。通常ならば、実装は最適化の際に、書き込みは一回で十分だと考えるかもしれない。書き込んだあとにすぐ読みだしている。実装は最適化の際に、xの値をコンパイル時に決定できる。したがって、実装は最適化の結果、以下のようなコードに変換するかもしれない。
+</p>
+
+<pre><code>*p = 42 ;
+int x = 42 ;
+</code></pre>
+
+<p>
+volatileでは、読み書きに伴う副作用を無視しないという意味を持つ。したがって、このような最適化を禁止する。
+</p>
+
+<p>
+ということを規定する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0279r0.html">P0279R0: Read-Copy Update (RCU) for C++</a>
+</h2>
+
+<p>
+RCUライブラリの追加提案。
+</p>
+
+<p>
+RCUは、ロックフリーなreader-writerを実現する。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
