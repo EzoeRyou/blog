@@ -1,0 +1,319 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0280R0-P0289R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/07/c-p0280r0-p0289r0.html">
+C++標準化委員会の文書: P0280R0-P0289R0
+</a></h1>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0280r0.html">P0280R0: Initialize unspecified aggregate members with direct list initialization</a>
+</h2>
+
+<p>
+以下のコードのコンパイルが通るようになる変更。
+</p>
+
+<pre><code>
+struct S
+{
+    explicit S(int a = 0) : _a{a} { }
+    int _a;
+};
+
+int main()
+{
+    S s ; // OK
+    S arr[2] = { S{} }; // エラー
+}
+</code></pre>
+
+<p>
+現行の文面ではコンパイルが通らないが、これはコンパイルが通ることが望ましい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0281r0.html">P0281R0: Remove comma elision in variadic function declarations</a>
+</h2>
+
+<p>
+昔ながらの可変引数関数でコンマを書かずにellipsisを書ける昔ながらの文法を除去する提案。
+</p>
+
+<p>
+以下は合法なC++のコードである。
+</p>
+
+<pre><code>
+int f( ... ) ; // 1
+int f( int i, ... ) ; // 2
+int f( int i ... ) ; // 3
+</code></pre>
+
+<p>
+1はポータブルな方法で可変引数を取り出すことができない。どんな引数でも受け付けるので、メタプログラミングではよく使われている。
+</p>
+
+<p>
+2は通常使う関数の宣言
+</p>
+
+<p>
+3は歴史的経緯により今だに認められている2と同等の意味を持つ関数の宣言。iと...の間にコンマを記述していない。
+</p>
+
+<p>
+この文書は、3の文法をC++から除去する提案を行っている。この文法はユーザーの混乱の元であり、Variadic Templatesとの文法の曖昧性が発見されていて、将来の言語拡張の妨げにもなるので、廃止するのが望ましいとしている。
+</p>
+
+<p>
+例えば、以下のコードは極めて紛らわしい。
+</p>
+
+<pre><code>template &lt;class... T&gt; void f(T...); // パラメーターパックを引数に取る関数
+template &lt;class T&gt; void f(T...);    // T型と可変引数を取る関数
+</code></pre>
+
+<p>
+現行のC規格ではコンマ省略が認められていないので、C言語との互換性の問題はない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0283r1.pdf">[PDF] P0283R1: Standard and non-standard attributes</a>
+</h2>
+
+<p>
+実装がサポートしていないattribute namespaceは無視するように注釈を付け加える提案。
+</p>
+
+<p>
+現行規格は、実装がサポートしていないattributeに対してどのように振る舞うべきか規定していない。実装がサポートしていないattributeに対してコンパイルエラーを出す場合、ユーザーはattributeをマクロで隠すようになる。これではattributeの存在意義が否定されてしまう。そのため、実装がサポートしていないattribute namespaceは無視すべきである。
+</p>
+
+<pre><code>[[ezoe::foobar]] int i ; // attributeは無視する
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0284r0.html">P0284R0: Unqualified enumerators in case labels</a>
+</h2>
+
+<p>
+switch文のconditionがenum型の場合、そのswtich文に属するcase文では、unqualified lookupでenumeratorが見つけられるようにする提案。
+</p>
+
+<p>
+以下のコードが、
+</p>
+
+<pre><code>enum struct E
+{
+    foo, bar 
+} ;
+
+void f( E e )
+{
+    switch( e )
+    {
+    case E::foo :
+        break ;
+    case E::bar :
+        break ;
+    }
+}
+</code></pre>
+
+<p>
+以下のように書けるようになる。
+</p>
+
+<pre><code>enum struct E
+{
+    foo, bar 
+} ;
+
+void f( E e )
+{
+    switch( e )
+    {
+    case foo :
+        break ;
+    case bar :
+        break ;
+    }
+}
+</code></pre>
+
+<p>
+これはぜひともほしい変更だ。switchのconditionがenum型であることがわかっているのだから、非修飾名でもenumeratorが見つけられるべきだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0285r0.html">P0285R0: Using customization points to unify executors</a>
+</h2>
+
+<p>
+ユーザー定義のexecutorを渡すcustomization pointを設ける提案。
+</p>
+
+<p>
+customization pointとは、std名前空間の下に関数テンプレートがありデフォルトの実装がされている。unqualified nameで呼べばADLによって優先されるように書いておけばそちらが優先される。という仕組み。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0286r0.html">P0286R0: A networking library extension to support co_await-based coroutines</a>
+</h2>
+
+<p>
+ネットワークライブラリをco_awaitに対応させる変更の提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0287r0.pdf">[PDF] P0287R0: Simple Contracts for C++</a>
+</h2>
+
+<p>
+contractサポートの提案。preconditionとpostconditionのみに限定している。attributeで関数宣言に記述できる。
+</p>
+
+<p>
+だいたい以下のような形になる。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+class array
+{
+// データメンバーなど
+public :
+    std::size_t size() ;
+
+    value_type &amp; operator []( std::size_t i )
+    [[ expects: i &lt; size() ]] ;
+
+    void resize( std::size_t n )
+    [[ ensures: size() == n ]] ;
+
+} ;
+</code></pre>
+
+<p>
+機能的には、assert( condition )を関数の前後に挟むのと大して変わらない。プリプロセッサーマクロではなくコア言語によるサポートがあることと、コア言語でサポートされるので、コンパイラーオプションなので有効無効を切り替えられる実装にできるぐらいか。
+</p>
+
+<p>
+文書はもうひとつ、[[ assert : condition]]を提案している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0288r0.pdf">[PDF] P0288R0:A polymorphic wrapper for all Callable objects </a>
+</h2>
+
+<p>
+unique_functionの提案。std::functionとほぼ同じだが、コピーコンストラクター、コピー代入演算子がない。そのため、コピーできないcallable型を格納できる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0289r0.pdf">[PDF] P0289R0: Forward declarations of nested classes</a>
+</h2>
+
+<p>
+ネストされたクラスの前方宣言を認める制限緩和をする提案。以下のように書けるようになる。
+</p>
+
+<pre><code>class X::A ;
+X::A ptr = nullptr ;
+</code></pre>
+
+<p>
+現状では、以下のように書かなければならない。
+</p>
+
+<pre><code>class X
+{
+    class A ;
+} ;
+</code></pre>
+
+<p>
+ネストされたクラスの宣言を囲む直前のクラスの定義の中で宣言しなければならない。不完全型のX::Aしか必要ない場面でも、完全型のXが必要になる。つまり、Xの定義が必要になる。
+</p>
+
+<p>
+この制限緩和をする提案。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
