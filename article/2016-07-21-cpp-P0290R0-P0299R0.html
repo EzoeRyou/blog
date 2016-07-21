@@ -1,0 +1,241 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0290R0-P0299R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/07/c-p0290r0-p0299r0.html">
+C++標準化委員会の文書: P0290R0-P0299R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0290r0.html">P0290R0: apply() for synchronized_value<T></a>
+</h2>
+
+<p>
+N4033で提案されているsynchronized_value&lt;T&gt;に対してapply()関数を提供する提案。第一引数に関数オブジェクトを取り、第二引数以降のsyncrhonized_valueを適用する。
+</p>
+
+<pre><code>synchronized_value&lt;T&gt; s1, s2, s3 ;
+
+int main()
+{
+    int i = 0 ;
+    apply( [&amp;]( auto &amp;&amp; s ) { s = ++i ; }, s1, s2, s3 ) ;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0292r1.html">P0292R1: P0292R1: constexpr if: A slightly different syntax</a>
+</h2>
+
+<p>
+この提案はC++17に採用された。以下の内容はまだ公開されていないが採択されたP0292R2の内容を元にしている。
+</p>
+
+<p>
+constexpr ifの提案。この提案は条件付きコンパイルではない。実行されない方のブランチのテンプレートの実体化を防ぐif文だ。
+</p>
+
+
+<p>
+constexpr ifの文法は、if文と条件の間にconstexprキーワードを記述する。
+</p>
+
+<pre><code>
+if constepxr ( condition )
+    statement
+else
+    statement
+</code></pre>
+
+<p>
+conditionは文脈上boolに変換される。もしconditionがfalseならば、1番目のstatementが、trueならば2番目のstatementが、discarded statement(廃棄文)となる。
+</p>
+
+<p>
+constexpr ifの実行時の挙動は、if文と同じだ。conditionの値に応じて、どちらかの文が実行される。ただし、コンパイル時の挙動が少し違う。
+</p>
+
+<p>
+constexpr ifを持つテンプレートエンティティが実体化されるとき、discarded statement内のテンプレートの実体化は行われない。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+void f( T t )
+{
+    if constexpr ( std::is_same_v&lt; std::decay_t&lt;T&gt;, std::string &gt; )
+    {
+        t.compare( "hello" )
+    }
+    
+}
+</code></pre>
+
+<p>
+関数fは、実引数にstd::stringが渡された場合、メンバー関数のcompareを呼び出す。もし実引数にstd::stringが渡されなかった場合は、conditionがfalseになるので、constexpr if文のsubstatementはdiscarded statementとなる。テンプレート内のdiscarded statementは、インスタンス化されないので、変数tにメンバーcompareがなかったとしても、コンパイルエラーにはならない。
+</p>
+
+<p>
+constexpr ifは、以前提案されていたstatic ifと違い、条件コンパイルではない。テンプレート内で使った時に、discarded statementがインスタンス化されないだけだ。それ以外はif文と同じだ。
+</p>
+
+<p>
+例えば、ill-formedなトークン列は、当然ill-formedになる。
+</p>
+
+<pre><code>// ill-formed
+if constexpr ( false )
+{
+!@#$%^&amp;*()
+}
+</code></pre>
+
+
+<p>
+インスタンス化せずともill-formedなテンプレートのコードは当然ill-formedとなる。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+void f()
+{
+    if constexpr ( false )
+    {// ill-formed
+        not_found ;
+    }
+}
+</code></pre>
+
+<p>
+このコードでは、非依存名であるnot_foundを使っているが、not_foundは宣言されていないのでill-formedとなる。
+</p>
+
+<p>
+constexpr ifを非テンプレートなコードで使うことはできるが、通常のif文と同じ意味しかない。
+</p>
+
+<pre><code>void f()
+{
+    // ifと違いはない
+    if constexpr ( false )
+    {
+    }
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0295r0.pdf">[PDF] P0295R0: Adopt Selected Library Fundamentals V2 Components for C++17</a>
+</h2>
+
+<p>
+gcdとlcmをLibrary Fundamentals V2から抜き出してC++17に入れる提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0296r2.html">P0296R2: Forward progress guarantees: Base definitions</a>
+</h2>
+
+<p>
+Forward Progress Guarantee（ブロックされていないスレッドはいずれは必ず実行が進む保証）を文面に入れる提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0298r1.pdf">[PDF] P0298R1: A byte type definition</a>
+</h2>
+
+<p>
+1バイトを表現するstd::byte型の提案。
+</p>
+
+<p>
+std::byte型は、underlaying typeがunsigned charなscoped enum型として追加される。
+</p>
+
+<p>
+ビット列を操作する演算子がオーバーロードされている。
+</p>
+
+<p>
+char型は符号の有無が未規定で生のバイト列を扱うには不適切な型である。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0299r1.html">P0299R1: Forward progress guarantees for Parallelism TS features</a>
+</h2>
+
+<p>
+タイトル通り、Parallelism TSにおけるforward progress guaranteeの文面の追加。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
