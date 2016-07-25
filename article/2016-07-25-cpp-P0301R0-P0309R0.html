@@ -1,0 +1,368 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0301R0-P0309R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/07/c-p0301r0-p0309r0.html">
+C++標準化委員会の文書: P0301R0-P0309R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0301r1.html">P0301R1: P0301R1: Wording for Unified Call Syntax (revision 1)</a>
+</h2>
+
+<p>
+統一関数呼び出し記法
+</p>
+
+<p>
+f(x,y)という式に対して、まずf(x,y)が妥当なフリー関数fを探し、見つからなければ、x.f(y)が妥当となるxのメンバー関数fを探す機能がまずひとつ。
+</p>
+
+<p>
+この提案は、さらにUnified call introducer(統一呼び出し導入子)という文法により、メンバー関数呼び出しからフリー関数を呼び出す機能も提案している。
+</p>
+
+<p>
+もともと、上の機能と同じ考え方で、x.f(y)という式に対してf(x,y)と同じ意味を持たせたかったが、様々な理由により没になった。そこで、既存の式とは異なる新しい文法を追加すればそのような機能が追加できるという発想で、unified call introducerの文法が追加された。その文法は.だ。
+</p>
+
+<p>
+以下がunified call introducerを使った式となる。
+</p>
+
+<pre><code>.f(x,y)
+.x.f(y)
+</code></pre>
+
+<p>
+行頭が.で始まっているが、これはtypoではない。これがunified call introducerだ。
+</p>
+
+<p>
+.f(x,y)は、f(x,y)が妥当なフリー関数fの集合と、x.f(y)が妥当なメンバー関数fの集合からなる関数fの集合に対して、オーバーロード解決でbest viable functionを決定する。もともとの統一関数呼び出し記法が、f(x.y)でまずフリー関数を優先し、存在しなければメンバー関数を探しに行くのと違い、フリー関数、メンバー関数のすべてが等しく比較される。
+</p>
+
+<p>
+.x.f(y)は、.f(x,y)と同じ意味である。
+</p>
+
+<p>
+unified call introducerは、チェインイングをサポートしている。例えば以下のように書くと、
+</p>
+
+<pre><code>.x.f(y).g.(z)
+</code></pre>
+
+<p>
+以下と同じ意味になる。
+</p>
+
+<pre><code>.g( .f(x,y), z )
+</code></pre>
+
+<p>
+何故か。まず最初の.x.f(y)は、先に述べたように.f(x,y)と同じ意味になる。これをexprとする。残りは、.expr.g.(z)なので、これの意味は.g( .expr, z )となる。exprは.f(x,y)だったので、最終的には.g( .f(x,y), z )と同じ意味になる。
+</p>
+
+<p>
+もはやアボミネーションと言ってもいいぐらい醜悪な何かになっている。こんなわかりにくい提案は入ってほしくない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0302r1.html">P0302R1: Removing Allocator Support in std::function (rev 1)</a>
+</h2>
+
+<p>
+std::functionからアロケーターを取り除く提案。
+</p>
+
+<p>std::functionのコンストラクターにはアロケーターを引数に取るものがあるが、その意味については曖昧である。アロケーターをtype erasureで格納してあとからコピーのために元の型を取り出すのも煩わしい。既存の実装を見ると、libstdc++はそもそもアロケーターを取るコンストラクターを提供しておらず、libc++は、アロケーターを取るコンストラクターこそあるものの、アロケーターは無視され、MSVCの実装はアロケーターを使うものの、代入でtargetが書き換わった場合に再利用されないので、アロケーターの伝播ができない。
+</p>
+
+<p>
+std::functionのアロケーターに対しては、様々な規格上の不備や矛盾が指摘されている。
+</p>
+
+<p>
+そのため、std::functionからアロケーターサポートを取り除く。これはdeprecated扱いではなく。直ちに取り除く。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0304r1.html">P0304R1: C++ Standard Library Issues Resolved Directly In Oulu</a>
+</h2>
+
+<p>
+Oulu会議で採用された標準ライブラリに対する問題の解決案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0305r1.html">P0305R1: Selection statements with initializer</a>
+</h2>
+
+<p>
+初期化子つき選択文
+</p>
+
+<p>
+以下のようなコードを書くことはないだろうか。
+</p>
+
+<pre><code>auto obj = get_object() ;
+
+if ( obj.is_valid() )
+{
+    obj.process() ;
+}
+</code></pre>
+
+<p>
+一般に、変数を初期化し、初期化された変数の状態によって条件分岐し、分岐先で変数に対して操作を行う処理は多い。しかし、上記のコードには問題がある。まず変数を選択文の外で書かなければならず、選択文のあとにも変数は有効のままだ。変数の利用が選択文だけならば、変数の初期化を選択文に付属させたい。
+</p>
+
+<p>
+この提案は、選択文の中で初期化子を使うことができる文法の追加だ。
+</p>
+
+<pre><code>if ( auto obj = get_object() ; obj.is_valid()
+{
+    obj.process() ;
+}
+</code></pre>
+
+<p>
+この改訂版では、switch文に対しても、同様の文法が提案されている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0306r0.html">P0306R0: Comma omission and comma deletion</a>
+</h2>
+
+<p>
+Cプリプロセッサーマクロ、__VA_ARGS__は、空の引数を受け取ることはできない。
+</p>
+
+<pre><code>#define F(...) f( __VA_ARGS___ )
+
+// ill-formed
+F( ) 
+</code></pre>
+
+<p>
+そこで、空の引数も受け付ける__VA_OPT__の提案。
+</p>
+
+<pre><code>#define F(...) f( __VA_OPT__ )
+
+// f()
+F()
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0307r2.pdf">[PDF] P0307R2: 	Making Optional Greater Equal Again</a>
+</h2>
+
+<p>
+Optionalを再び偉大か同等に！と題された、どこぞの政治スローガンによく似たタイトルの文書。
+</p>
+
+<p>
+現在提案されているoptionalは以下のように振る舞う。
+</p>
+
+<pre><code>optional&lt;X&gt; opt = ....;
+assert(( opt &gt;= opt) == true);
+assert((*opt &gt;= opt) == true);
+assert(( opt &gt;= *opt) == true);
+assert((*opt &gt;= *opt) == false);
+</code></pre>
+
+<p>
+理由は、optionalのoperator &gt;=は、X型の!operator &lt;を呼んでいるためだ。もしXの型が浮動小数点数だった場合、問題になる。
+</p>
+
+<p>
+そういうわけで、正しい挙動は一番下の比較だけだ。いや、正しいというよりは、変えられない挙動というべきかもしれない。すると、一貫性のためには、他の3つの比較も全てfalseになるべきか。それも嫌だ。
+</p>
+
+<p>
+この問題を修正するには、optionalのoperator &gt;=が、保持する型のoperator &gt;=を呼べばよい。なので、そのような修正を提案している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0308r0.html">P0308R0: Valueless Variants Considered Harmful</a>
+</h2>
+
+
+<p>
+variantの要素型がすべてnoexceptなムーブコンストラクターを持つのであれば、variantはvalueless状態にならないことを保証すべきだという提案。
+</p>
+
+<p>
+同様の保証を、std::listにも追加すべきとも提案している。
+</p>
+
+<p>
+そして、結局valuelessになるかどうかはnoexceptなムーブコンストラクターがあるかどうかで決まるので、valuelessになるかどうかを判断する、valueless_by_exceptionはいらないのではないかとも提案している。
+</p>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0309r0.pdf">[PDF] P0309R0: Partial class</a>
+</h2>
+
+<p>
+partial classの提案。
+</p>
+
+<p>
+クラスのprivateなメンバーを変更したとき、そのクラスを使うソースファイルは全て再コンパイルしなければならない。たとえ、privateなメンバーを使わず、またクラスのオブジェクトも生成していないとしてもだ。これを防ぐには、virtual関数を使ったポリモーフィック型を使うか、pimplイディオムを使う必要がある。どちらもメモリ使用量、動的メモリ確保、ポインターのデリファレンスといった追加のコストが必要になる。
+</p>
+
+<p>
+そこで、前方宣言を拡張して、partial classを追加する。partial classには、メモリレイアウトを変更しない宣言のみ書ける。
+</p>
+
+<pre><code>// stack_interface.hpp
+partial class stack
+{
+public :
+    void push(int x ) ;
+    int pop( ) ;
+
+    bool is_full() ;
+    bool is_empty() ;
+} ;
+</code></pre>
+
+<p>
+partial classは、後続するinternal classで定義できる。
+</p>
+
+<pre><code>class stack
+{
+pubic :
+    void push( int x ) { buffer[++top] = x ; }
+    int pop( ) { return buffer[--top] ; }
+    bool is_full() { return top == max_size ; }
+    bool is_empty() { top == -1 }
+
+private :
+    std::size_t max_size = 100 ;
+    int buffer[max_size] ;
+    int top = -1 ;
+}
+</code></pre>
+
+<p>
+partial classは前方宣言と同じように不完全型となる。
+</p>
+
+<p>
+partial classは、様々な別名をつけることができる。
+</p>
+
+<pre><code>partial class stack : export stack_interface1 { ... } ;
+partial class stack : export stack_interface2 { ... } ;
+partial class stack : export stack_interface3 { ... } ;
+</code></pre>
+
+<p>
+実装は別名を全部指定できる。
+</p>
+
+<pre><code>class stack : partial stack_interface1, partial stack_interface2, partial stack_interface 3 { }
+</code></pre>
+
+<p>
+やや筋が悪い提案のように思える。結局、partial classはポインターやリファレンス経由でしか使えないので、完全な定義がある翻訳単位からstaticストレージ、あるいは事前に一括して確保したストレージ上に構築したオブジェクトを、リファレンスかポインター経由でpartial classしか与えられていない翻訳単位に渡して使う形になる。
+</p>
+
+<p>
+この提案の価値には疑問だったが、提案者がBMWに所属しているのでようやくわかった。極めて閉鎖的で不自由な組み込みプログラミング向けの機能だ。
+</p>
+
+<p>
+組み込みプログラミングなので、メモリの動的確保はない。使うメモリは常に固定で確保している。また、ライブラリはヘッダーファイルとバイナリブロブで提供され、定義がソースコードで提供されることがない。これにより定義を書き換えても、再コンパイルが必要なくなる。ソースコードを見せる必要はない。
+</p>
+
+<p>
+極めて筋の悪い提案だ。はっきりいってクソだ。車業界はクソだ。
+</p>
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
