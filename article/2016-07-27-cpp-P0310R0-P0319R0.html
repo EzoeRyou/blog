@@ -1,0 +1,325 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0310R--P0319R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/07/c-p0310r-p0319r0.html">
+C++標準化委員会の文書: P0310R--P0319R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0310r0.pdf">[PDF] P0310R0: Splitting node and array allocation in allocators</a>
+</h2>
+
+<p>
+ノードメモリ確保を追加する提案。
+</p>
+
+<p>
+listやmapといったリンクリストのデータ構造は、挿入コストがO(1)なのにもかかわらず、最近は敬遠されている。代わりに、挿入コストがO(N)であるunordered_mapが使われている。その理由は、メモリ断片化だ。
+</p>
+
+<p>
+メモリ断片化を防ぐために、メモリを一括で確保して切り分けて返したり、解放されたメモリをリンクリストでpoolしておく、ノード専用のメモリ確保方法を、std::allocator_traitsに追加する提案。ノード専用のメモリ確保は、汎用的なpool allocatorよりも速いとしている。
+</p>
+
+<p>
+Boost.Containerには同じ発想の実装があるが、C++03時代のstd::allocatorを使っていて、設計が古い。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0311r0.html">P0311R0: A Unified Vision for Manipulating Tuple-like Objects</a>
+</h2>
+
+<p>
+最近、tuple風オブジェクトとunpackingに関しての提案が多いので、そのまとめ。
+</p>
+
+<p>
+tuple風オブジェクトとはtupleやpairやarrayのようなクラスや、あるいはアグリゲートのことだ。unpackingとは、構造化初期化のようなtuple風オブジェクトの要素を取り出す操作のことだ。
+</p>
+
+<p>
+これ自体は特に新機能の提案をしていないが、tuple風オブジェクトに対するslicing操作が提供されるべきだとしている。例えば、先頭からN個だけunpackingするとか、先頭からN個目から残りをunpackingするとかだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0312r0.pdf">[PDF] P0312R0: Make Pointers to Members Callable</a>
+</h2>
+
+<p>
+メンバーへのポインターを関数呼び出しできるようにする提案。
+</p>
+
+<p>
+メンバーへのポインターがメンバー関数を参照している場合、呼び出すのは面倒だ。
+</p>
+
+<pre><code>struct X
+{
+    void f() { }
+} ;
+
+
+int main()
+{
+    auto ptr = &amp;X::f ;
+    X x ;
+    (x.*ptr)() ;
+}
+</code></pre>
+
+<p>
+メンバーへのポインターは、クラスのオブジェクトを渡してやらなければならない。
+</p>
+
+<p>
+現在、INVOKE(C++17ではstd::invokeとしてINVOKE要件を満たす呼び出し方をするテンプレート追加されている)で呼び出し可能なものは4つ。関数、関数ポインター、関数オブジェクト、メンバーへのポインターだ。
+</p>
+
+<pre><code>int arg ;
+void func( int ) ;
+auto func_ptr = &amp;func ;
+
+struct func_class
+{
+    void operator () ( int ) { } 
+} ;
+
+func_class func_obj ;
+auto memptr = &amp;func_class::operator() ;
+ 
+func(arg) ; // 関数
+func_ptr(arg) ; // 関数ポインター
+func_obj(arg) ; // 関数オブジェクト
+(func_obj.*memptr)(arg) ; // メンバーへのポインター
+</code></pre>
+
+<p>
+メンバーへのポインターだけ文法が違う。
+</p>
+
+<p>
+従来、この文法の差異はライブラリで吸収していた。この提案では、普通に呼び出すことができるようにする。第一引数をクラスオブジェクトとみなす。
+</p>
+
+<pre><code>// (func_obj.*memptr)( arg )と同等
+memptr( func_obj, arg ) ;
+</code></pre>
+
+<p>
+これはほしい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0313r0.html">P0313R0: Comparison operators in fold-expressions</a>
+</h2>
+
+<p>
+fold式から比較演算子を消す提案。C++では、a &lt; b &lt; cのような式は慣習的な数学記法として期待される挙動をしない。そのため、fold式で比較演算子が使えても、メタプログラミングやDSL実装の役に立つだけだ。混乱を考えれば、消すほうが望ましい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0314r0.html">P0314R0: Querying the alignment of an object</a>
+</h2>
+
+<p>
+alignofを式にも適用できるようにする変更。従来、alignofは型にしか適用できなかった。
+</p>
+
+<pre><code>int x = 0 ;
+
+alignof(int) ; // OK
+alignof(x) ; // エラー
+</code></pre>
+
+<p>
+この提案では、式にも適用できる。
+</p>
+
+<pre><code>int x = 0 ;
+alignas (16) int y = 0 ;
+
+alignof(x) ; // alignof(int)
+alignof(y) ; // 16
+</code></pre>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0315r0.pdf">[PDF] P0315R0: Lambdas in unevaluated context</a>
+</h2>
+
+<p>
+Lambda式を未評価式の中でも使えるようにする提案。
+</p>
+
+<p>
+従来、lambdaのoperator()はconstexprではなかったし、未評価式の中では使えなかった。その理由は、テンプレートに渡してSFINAEの文脈で考慮させることを禁止するためである。
+</p>
+
+<p>
+もしlambdaがconstexprで未評価式の中で使えるとどうなるか。以下のようなコードが書けるようになる。
+</p>
+
+<pre><code>template &lt; typename T, bool = []{
+    T x ;
+    T y = x ;
+    auto iter = x.begin() ;
+    auto end = x.end() ;
+    iter != end ;
+    *iter ;
+
+    return true ;
+}
+&gt;
+void f()
+{
+
+}
+</code></pre>
+
+<p>
+これがSFINAEで考慮されるので、lambda式がconceptのように使えるようになってしまう。例えば、上のコードは、T型にデフォルトコンストラクターとコピーコンストラクターとデストラクターとbegin/endメンバー関数があるかどうか。begin/endの戻り値の型はコピーコンストラクターとデストラクター、operator !=とoperator *をサポートしているかどうかによって、SFINAEのルールによってテンプレートのsubstitutionを抑制できる。
+</p>
+
+<p>
+問題は、そのような挙動をサポートするには、シグネチャにlambda式全体を含めなければならない。しかし、未評価式での使用を禁止しただけでは、迂回方法がまだある。そこで、エンティティのシグネチャに影響する使い方を直接禁止する文面が入った。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#1607">CWG_DEFECTS: C++ Standard Core Language Defect Reports and Accepted Issues</a>
+</p>
+
+<p>
+これにより、lambda式を未評価式で使うことを禁止する理由がなくなった。それゆえ、この提案では制限の緩和を提案している。
+</p>
+
+<p>
+目的は、tupleなどの型シークエンスへの適用だ。
+</p>
+
+<pre><code>using sorted = decltype(sort(tuple, [](auto const&amp; a, auto const&amp; b) {
+return std::integral_constant&lt;bool, sizeof(a) &lt; sizeof(b)&gt;{};
+}));
+</code></pre>
+
+<p>
+懸念していた問題が直接解決されたので、無用の制限は緩和すべきだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0317r0.html">P0317R0: Directory Entry Caching</a>
+</h2>
+
+<p>
+filesystemにディレクトリキャッシングを追加する提案。
+</p>
+
+<p>
+ファイルシステムからディレクトリやファイルの一覧を取得する操作はコストが高いので、キャッシュしておきたい。しかし、下手なキャッシュは問題になる。
+</p>
+
+<p>
+キャッシュ機能は、TS時にはあったが削られた。削る際、将来的に考察するとされていた。この提案はその考察である。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0318r0.pdf">[PDF] P0318R0: decay_unwrap and unwrap_reference</a>
+</h2>
+
+<p>
+decay_unwrapとunwrap_referenceの提案。
+</p>
+
+<p>
+unwrap_reference_t&lt;T&gt;は、もしTがreference_wrapper&lt;X&gt;の場合、X &amp;になる。decay_unwrap_t&lt;T&gt;は、もしdecay_t&lt;T&gt;の結果がreference_wrapper&lt;X&gt;の場合、X &amp;になる。
+</p>
+
+<p>
+つまり、reference_wrapperをunwrapするためのtraitsだ。reference_wrapperは標準ライブラリにおいて特別な扱いを受けていて、unwrapして扱う挙動になっているライブラリがいくつかある。それならば、標準でunwrapするtraitsが提供されているべきである。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0319r0.pdf">[PDF] P0319R0: 
+Adding Emplace functions for promise&lt;T&gt;/future&lt;T&gt;
+</a>
+</h2>
+
+<p>
+future/promiseに対してemplaceを追加する提案。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
