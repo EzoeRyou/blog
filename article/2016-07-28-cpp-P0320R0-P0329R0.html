@@ -1,0 +1,254 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0320R0-P0329R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/07/c-p0320r0-p0329r0.html">
+C++標準化委員会の文書: P0320R0-P0329R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0320r0.pdf">[PDF] P0320R0: Thread Constructor Attributes</a>
+</h2>
+
+<p>
+pthread attributesに相当するstd::thread::attributesを追加する提案。これにより、移植性が高い方法でスレッドのスタックサイズや優先度などを設定できるようになる。
+</p>
+
+<p>
+例えば、スタックサイズを指定するには以下のように書く。
+</p>
+
+<pre><code>std::thread::attributes attrs;
+attrs.set_stack_size(4096*10);
+std::thread t(attrs, func);
+</code></pre>
+
+<p>
+現在の提案ではスタックサイズの指定しか規定していないが、プラットフォームごとの設定も、thread::attributesを拡張することにより、自然な形で追加が可能だ。また、native_handleもサポートされているので、プラットフォームごとのコードも書きやすい。
+</p>
+
+<p>
+WindowsのWin32 APIやインターフェースがだいぶ違うので、Windowsでこれを実装するのはすこし面倒だそうだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0322r0.html">P0322R0: P0322r0 : exception_list</a>
+</h2>
+
+<p>
+Parallelism TSにある並列実行中の例外をすべてexception_ptrで保持してくれるexception_listというライブラリは便利なのでParallelism TS専用にしておくのはもったいない。汎用的に使えるよう設計すべきだということでexception_listをユーザーが構築できるようにする提案。
+</p>
+
+<p>
+exception_listはimmutableな設計になっている。
+</p>
+
+<pre><code>std::exception_list l ;
+// push_back相当
+l = std::exception_list( l, std::current_exception() ) ;
+</code></pre>
+
+<p>
+exception_listにはムーブがない。コピーはある。そのため、push_back相当のことするには、既存のexception_listのオブジェクトと追加するexception_ptrをコンストラクターに渡して新しいexception_listのオブジェクトを作る必要がある。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0323r0.pdf">[PDF] P0323R0: A proposal to add a utility class to represent expected monad (Revision 2)</a>
+</h2>
+
+<p>
+標準ライブラリにexpected&lt;T,E&gt;を入れる提案。optionalはexpected&lt;T,bool&gt;とみなすこともできる。さらに、expected&lt;T,E&gt;はvariant&lt;T,E&gt;の特殊なものとみなすこともできる。
+</p>
+
+<p>
+expected&lt;T,E&gt;は、T型のオブジェクトかE型のオブジェクトのいずれか保持する。通常はT型のオブジェクトを保持し、エラー時にはE型のオブジェクトを保持している。
+</p>
+
+<p>
+他の言語では、eitherという形で存在している機能だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0324r0.html">P0324R0: One Concept Definition Syntax</a>
+</h2>
+
+<p>
+関数コンセプトを廃止して変数コンセプトに一本化する提案。
+</p>
+
+<pre><code>// 関数コンセプト
+template &lt;typename T&gt;
+concept bool FC() {
+    return constraint-expression;
+}
+
+// 変数コンセプト
+template &lt;typename T&gt;
+concept bool VC = constraint-expression;
+</code></pre>
+
+<p>
+問題は、現行のコンセプトTSはC++17に入らない見込みなので、あまり深く学ぶ意味がない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0325r1.html">P0325R1: Propose to adopt make_array into the IS</a>
+</h2>
+
+<p>
+make_arrayを規格に入れる提案。
+</p>
+
+<pre><code>// std::array&lt;int, 3&gt;
+auto a = std::make_array( 1, 2, 3 ) ;
+</code></pre>
+
+<p>
+便利だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0326r0.pdf">[PDF] P0326R0: Structured binding: customization point issues</a>
+</h2>
+
+<p>
+構造化束縛のcustomization pointはstd::tuple_sizeとstd::tuple_elementだったが、これは&lt;utility&gt;に依存する。utilityはfreestanding implementationではないので問題だ。そこで、構造化束縛のためのcunstomization pointを新たに作る。
+</p>
+
+<p>
+関数の名前は、product_type_sizeとproduct_type_getになる。メンバー関数か、フリー関数として定義しておけば、range-based forのbegin/endに似たADL経由で見つけてくれる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0327r0.pdf">[PDF] P0327R0: Product types access</a>
+</h2>
+
+<p>
+P0326と同じ提案だが、設計が少し違う。std::product_type::sizeとstd::product_type::getになっている。また型情報を得るためのtuple_element相当のstd::product_type::elementもある。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0329r0.pdf">[PDF] P0329R0: Designated Initialization</a>
+</h2>
+
+<p>
+C99にあるDesignated Initializationに似た機能。ただし省略ができない。
+</p>
+
+<pre><code>
+struct A { int a, b ; } ;
+
+// すべてがdesignatorであるか、使わないかの二択
+// C++: ill-formed
+// C99: well-formed
+A a = { 1, .b = 2 } ;
+
+// designatorの順番は宣言順でなければならない。
+
+// well-formed
+A a = { .a = 1, .b = 2 } ;
+
+// C++: ill-formed.
+// C99: well-formed.
+A a = { .b = 2, .a = 1 } ;
+
+// designatorの重複は認められない
+// C++: ill-formed.
+// C99: well-formed 
+A a = { .a = 1, .a = 1 } ;
+
+// 配列の初期化はできない
+
+// C++: ill-formed.
+// C99: well-formed
+A a = { [2] = 2 } 
+
+// ネストはできない。
+// C++: ill-formed.
+// C99: well-formed.
+A a= { .a.b.c.d = 0 } ; 
+
+// リスト初期化はサポートしている
+A a = { .a = { } } ;
+</code></pre>
+
+<p>
+目的はreadabilityを上げることのみ。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
