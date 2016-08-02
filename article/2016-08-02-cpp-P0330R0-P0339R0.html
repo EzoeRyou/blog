@@ -1,0 +1,317 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0330R0-P0339R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/08/c-p0330r0-p0339r0.html">
+C++標準化委員会の文書: P0330R0-P0339R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0330r0.pdf">[PDF] P0330R0: User-Defined Literals for size_t</a>
+</h2>
+
+<p>
+std::size_t型を返すuser defined literal suffixのzuを追加する提案。これにより、size_t型の変数をautoで宣言できるようになる。
+</p>
+
+<pre><code>using namespace std::support_literals;
+auto size = 123zu ;
+</code></pre>
+
+
+
+<p>
+サフィックスのない整数リテラルの型はint型になるため、これまでズボラなプログラマーは符号付き整数をstd::size_t型の変数に代入したり比較したりしていた。符号付き整数と符号なし整数を変換したり比較すると、思いがけぬ挙動につながるので、好ましくない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0331r0.html">P0331R0: P0331r0 : Motivation and Examples for Multidimensional Array</a>
+</h2>
+
+<p>
+多次元配列array_refの動機と利用例
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0332r0.html">P0332R0: P0332r0 : Relaxed Incomplete Multidimensional Array Type Declaration</a>
+</h2>
+
+<p>
+array_refは、配列型を渡すことによって、一部を動的なサイズにすることができる。
+</p>
+
+<pre><code>array_ref&lt; int [][5][] &gt; a ;
+</code></pre>
+
+<p>
+これを実現するために、配列の宣言の文法を変更する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0333r0.html">P0333R0: P0333r0 : Improving Parallel Algorithm Exception Handling</a>
+</h2>
+
+<p>
+Parallelism TSで並列ベクトル実行ポリシーでアルゴリズムを実行した時に、要素アクセス関数が例外を投げた場合、直ちにstd::terminateが呼ばれる。これは他の実行ポリシーのexception_listを投げる挙動と違い、一貫性がない。そこで、並列ベクトルポリシーの場合でもexception_listを投げるようにする。また、並列ベクトル実行ポリシーはbad_allocも投げることがある。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0334r0.html">P0334R0: P0334r0 : Immutable Persistent Containers</a>
+</h2>
+
+<p>
+変更できないコンテナー、immutable_listの提案。
+</p>
+
+<p>
+immutable_listは要素を変更出来ないコンテナーだ。「変更」したいときは、新しいimmutable_listのオブジェクトを作る。要素は参照カウンターで管理されている。
+</p>
+
+<p>
+確かに、標準ライブラリにほしいコンテナーだ。Haskellが参考にされている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0335r0.pdf">[PDF] P0335R0: Context Tokens for Parallel Algorithms</a>
+</h2>
+
+<p>
+並列アルゴリズムにコンテキストトークンを追加する。
+</p>
+
+<pre><code>parallel::for_each( vec, 0, N, []( auto i )
+    {
+        parallel::for_each( par, 0, N, func ) ;
+    } ) ;
+</code></pre>
+
+<p>
+このように、並列アルゴリズムがネストする場合で、外側の実行ポリシーがベクトルで、内側の実行ポリシーが並列の場合、挙動は未定義になる。この誤りを検出する方法がない。
+</p>
+
+<p>
+そこで、要素アクセス関数（この場合、lambda式やfunc）にコンテキストトークンを与え、同トークン経由で並列アルゴリズムを呼び出す方法を付け加える。
+</p>
+
+
+<pre><code>parallel::for_each( vec, 0, N, []( auto context, auto i )
+    {
+        context.for_each( par, 0, N, func ) ;
+    } ) ;
+</code></pre>
+
+<p>
+これにより、実行ポリシーの伝播が正しく行われるようになる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0336r1.pdf">[PDF] P0336R1:Better Names for Parallel Execution Policies in C++17 </a>
+</h2>
+
+<p>
+並列アルゴリズムの実行ポリシーの名前をリファクタリングする提案。シングルトンオブジェクトのseq, par, vecは変わらないが、std::execution名前空間の下におかれるようになる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0337r0.html">P0337R0: P0337r0 | Delete operator= for polymorphic_allocator</a>
+</h2>
+
+<p>
+polymorphic_allocatorからoperator =を削除する提案。
+</p>
+
+<p>
+polymorphic_allocatorはステイトフルなアロケーターである。propagate_on_container_copy_assignment と propagate_on_container_move_assignmentはfalseを返す。これは意図的なものである。理由は。ステイトフルなアロケーターは一度コンテナーに入れたら、そこから動かすべきではないからだ。その設計思想から考えれば、そもそもoperator =を提供すべきではない。operator =を使って失敗する例がいくつもある。そこで、operator =を削除する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0338r0.pdf">[PDF] P0338R0:	C++ generic factories </a>
+</h2>
+
+<p>
+汎用的なfactory関数の提案。
+</p>
+
+<p>
+C++には、いわゆるmake系のfactory関数が存在する。例えば、make_sharedとかmake_uniqueとかmake_pairなどだ。
+</p>
+
+<p>
+make関数が作られる理由は主に2つある。
+</p>
+
+<p>
+新しく型を作るfactory関数
+</p>
+
+<p>
+back_inserter、make_optional、make_ready_future, make_expectedなど、新たに型を作り、そのオブジェクトを返すものがある。
+</p>
+
+<p>
+emplace構築を行うもの
+</p>
+
+<p>
+make_uniqueやmake_sharedなど。
+</p>
+
+<p>
+また、make_pairやmake_tupleのような、新たに型を作り、かつemplace構築まで行うものがある。
+</p>
+
+<p>
+この提案は、そのような様々なmake_foobar関数を、make関数に統一しようと言う提案だ。例えば以下のようなードが、
+</p>
+
+<pre><code>int v=0;
+auto x1 = make_shared&lt;int&gt;(v);
+auto x2 = make_unique&lt;int&gt;(v);
+auto x3 = make_optional(v);
+auto x4v = make_ready_future();
+auto x4 = make_ready_future(v);
+auto x5v = make_ready_future().share();
+auto x5 = make_ready_future(v).share();
+auto x6v = make_expected();
+auto x6 = make_expected(v);
+auto x7 = make_pair(v, v);
+auto x8 = make_tuple(v, v, 1u);
+future&lt;int&amp;&gt; x4r = make_ready_future(std::ref(v));
+auto x1 = make_shared&lt;A&gt;(v, v);
+auto x2 = make_unique&lt;A&gt;(v, v);
+auto x3 = make_optional&lt;A&gt;(v,v);
+auto x4 = make_ready_future&lt;A&gt;(v,v);
+auto x5 = make&gt;(v, v);
+auto x6 = make_expected&lt;A&gt;(v, v);
+</code></pre>
+
+<p>
+以下のように書ける。
+</p>
+
+<pre><code>int v=0;
+auto x1 = make&lt;shared_ptr&gt;(v);
+auto x2 = make&lt;unique_ptr&gt;(v);
+auto x3 = make&lt;optional&gt;(v);
+auto x4v = make&lt;future&gt;();
+auto x4 = make&lt;future&gt;(v);
+auto x5v = make&lt;shared_future&gt;();
+auto x5 = make&lt;shared_future&gt;(v);
+auto x6v = make&lt;expected&gt;();
+auto x6 = make&lt;expected&gt;(v);
+auto x7 = make&lt;pair&gt;(v, v);
+auto x8 = make&lt;tuple&gt;(v, v, 1u);
+future&lt;int&amp;&gt; x4r = make&lt;future&gt;(std::ref(v));
+auto x1 = make&lt;shared_ptr&lt;A&gt;&gt;(v, v);
+auto x2 = make&lt;unique_ptr&lt;A&gt;&gt;(v, v);
+auto x3 = make&lt;optional&lt;A&gt;&gt;(v,v);
+auto x4 = make&lt;future&lt;A&gt;&gt;(v,v);
+auto x5 = make&lt;shared_future&lt;A&gt;&gt;(v, v);
+auto x6 = make&lt;expected&lt;A&gt;&gt;(v, v);
+</code></pre>
+
+<p>
+make関数にテンプレート名を渡すと、それぞれに対応したfactory関数として振る舞う。
+</p>
+
+<p>
+テンプレート名ではなく、型を渡すことも可能である。これによって具体的に指定することも可能になる。
+</p>
+
+<pre><code>auto x = std::make&lt; unique_ptr&lt;long&gt;&gt;(0) ;
+</code></pre>
+
+<p>
+P0091によって、コンストラクターからテンプレート実引数の推定ができるようになるので、make関数の一部の機能は普通に書けるようになるが、それでもmake関数の優位な点はいろいろあると主張している。
+</p>
+
+<p>
+customization pointとしては、std::factory_traits&lt;T&gt;が提供されている。これを特殊化することによってユーザー定義のクラスに対する挙動を追加できる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0339r0.pdf">
+[PDF] P0339R0: polymorphic_allocator&lt;void&gt; as a vocabulary type
+</a>
+</h2>
+
+
+<p>
+polymorphic_allocator&lt;void&gt;を、型を指定せずに使えるあロケーターにしようと言う提案。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
