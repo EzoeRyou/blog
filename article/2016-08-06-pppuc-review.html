@@ -1,0 +1,453 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+Bjarne Stroustrupのプログラミング入門書の査読の感想
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/08/bjarne-stroustrup.html">
+Bjarne Stroustrupのプログラミング入門書の査読の感想
+</a></h1>
+
+<blockquote class="twitter-tweet" data-lang="en"><p lang="ja" dir="ltr">C++の設計者ストラウストラップによるプログラミング入門書の最新版日本語訳が、9月に <a href="https://twitter.com/asciidwango">@asciidwango</a> から出版されます。 <a href="https://t.co/ssT9ubfXtT">https://t.co/ssT9ubfXtT</a></p>&mdash; アスキードワンゴ編集部 (@asciidwango) <a href="https://twitter.com/asciidwango/status/761485323570335744">August 5, 2016</a></blockquote>
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+<p>
+アスキードワンゴ編集部からBjarne StroustrupのProgramming -- Principles and Practice Using C++という本の第二版の邦訳が出版される。初版は翔泳社が出していたが、C++14に対応した改訂版の第二版の版権が空いていたので、アスキードワンゴから出すための作業をしていた。私は邦訳の査読をした。
+</p>
+
+<p>
+今年になってから半年は、ずっとこの本の査読をしていた。このためにC++標準化委員会の最新の文書を把握する作業が数ヶ月ほど滞った。そして、この仕事は、私がドワンゴに入社して以来、最悪の仕事であった。ただし学びはあった。それについて書いていこうと思う。
+</p>
+
+<p>
+Bjarne Stroustrupは、ご存知の通りC++の最初の設計者にして最初の実装者である。現在、Texas A&amp;M Universityで教鞭をとっている。この本はStroustrupの講義のための教科書として書かれた。対象読者は、入学して最初のセメスターで初めてプログラミングを学ぶ学生である。
+</p>
+
+<p>
+結論から言うと、この本は極めて悪く書かれている。およそ悪書の見本のような本だ。悪文の集大成といってもよい。プログラミング言語入門用としても悪い。
+</p>
+
+<p>
+先に、この本の査読の仕事は、私がドワンゴに入って以来最悪の仕事だと書いたのは、この本が極めて読みづらく不必要に難解で、しかもその内容が噴飯物の間違いだらけであったからだ。学びがあったというのは、この悪書の見本を網羅している本を査読することで、「いかに本を書いてはいけないか」について実感できたからだ。かのLinus Torvaldsは言った（どこかで読んだ記憶があるのだが、出典が見当たらない）
+</p>
+
+<blockquote>
+<p>
+「迷いが生じた時は、Subversionの逆をやることにした」
+</p>
+
+<p>
+-- Linus Torvalds、gitを開発することにおいて
+</p>
+</blockquote>
+
+<p>
+今回、この本の査読という貴重な体験ができたことで、今後私がプログラミングの参考書を執筆するときは、反面教師として逆張りを行うようにする。
+</p>
+
+<p>
+さて、ここからは、Stroustrupのプログラミング入門がいかに悪書であるかを、具体的に書いていく。
+</p>
+
+<h2>
+本の文章量が多すぎる。
+</h2>
+
+<p>
+Stroustrupのプログラミング入門第二版の原書は1312ページある。邦訳も同じ程度のページ数がある。本書の担当の編集者は、「僕が担当した本のなかでも最大の記録を更新しましたね」と言った。私はこの本を鈍器と呼んでいる。理由は、人が殴り殺せるほどの重さがあるからだ。
+</p>
+
+<p>
+これが、Stroustrupのプログラミング言語C++のような本であれば、どれだけ文章量が多かろうと問題はない。そういう本だからだ。しかし、これは初心者への入門書である。
+</p>
+
+<p>
+本書の翻訳は、第一版と同じ翻訳者が新たに行った。翻訳の質は、概ね原書に忠実だ。一部変な翻訳を発見したし、まだ未発見の問題もあるだろうが、これだけの文章を翻訳したにしては、かなり一貫している翻訳だ。
+</p>
+
+<p>
+問題は翻訳ではなく原文（英語）にあるというのも原文は極めて読みづらく関係詞（thatとかwhichとか）や接続詞（andとかorとかyetとか）で文章を遠慮無く一文一文を長大にしている上に括弧の多用（こういうやつ）で更に文章の長さを水増ししているからであって決して翻訳の質が低いからではなく概ね原文に責任がある。
+</p>
+
+<p>
+文章はしばしば話が脱線する。「Aをするのは良い作法であるとされている」、「Bは悪い作法であるとされている」などの妥当ではあるが冗長な話への脱線がよくある。
+</p>
+
+<p>
+そして中でもひどいのは、わざと間違ったソースコードを提示したうえで、「これが私たちの考えた最初の解法だ。しかしこれは動かない。なぜだろうか考えてみよう。一見すると動くように見える。何が間違っているのだろうか。ひょっとしてAだろうか。いや違う。Bだろうか。そうでもない。実は・・・」といった自問自答の文章が延々と続くものだ。
+</p>
+
+<p>
+この本は、筆者と読者をひっくるめて「私たち」と表現している。これはこの本の独特の表記法であり、わざわざ、「なぜ私たちは私たちという表記を採用するに至ったか」という説明まで書いてある。
+</p>
+
+<blockquote>
+<p>
+<img title="The most ridiculous offender of all is the sudoers man page, which for 15 years has started with a 'quick guide' to EBNF, a system for defining the grammar of a language. 'Don't despair', it says, 'the definitions below are annotated.'" src="http://imgs.xkcd.com/comics/manuals.png"></img>
+</p>
+
+<p>
+<a href="https://xkcd.com/1343/">xkcd: Manuals</a>
+</p>
+</blockquote>
+
+<p>
+そこまで書いている以上、翻訳でも「私たち」という表現を維持しなければならないのは当然の話だ。実際維持しているが、極めて日本語として不自然な文章になっている。
+</p>
+
+<p>
+このことから、私たちはとても重大な教訓を得た。
+</p>
+
+<p>
+教訓1: 文章は簡潔にすべし
+</p>
+
+<p>
+人間が読める文の量と速度は有限である。重要なのはプログラミングの仕方を教育することであって、文章の量ではない。
+</p>
+
+<p>
+これは文が悪文だったというものだ。次は技術的な悪書の理由について書く。
+</p>
+
+<h2>
+サンプルコードの1割ほどがコンパイルできない
+</h2>
+
+<p>
+コンパイルできない理由は、識別子が間違っているとか、あるべき記号が欠けているとか、極めて些細でお粗末なtypoがほとんどだ。
+</p>
+
+<p>
+このような問題は、本のソースコードからサンプルコードを抜き出してコンパイラーに通して文法違反がないかどうか確かめるテストを書けば防げる話だ。そして、この本はわざわざ大量の文章を割いて、テストの重要性を説いている。Stroustrupには、「医者の不養生」というニッポンのコトワザを教えてあげたい。
+</p>
+
+<p>
+この本は、はじめC++11向けに、おそらく2006年か2007年ごろから書かれたものが、2008年に出版され、それをC++14に対応させ、また　C++11の規格制定後に、C++11の新機能を使った行儀の良いお作法に対応させる修正を行っている。
+</p>
+
+<p>
+その過程で、「ふふん、この程度の変更は自明だからコンパイルして確認するまでもないね」という怠惰とうぬぼれがあったのだろう。テストを書くべきである。
+</p>
+
+<p>
+Stroustrupであろうと混乱したであろう興味深い間違いの例はある。例えば、変数の初期化をbrace-or-equal-initializerにすることでnarrowing conversionを防ぐなどのお作法のために、サンプルコードを全面的に修正したりしている。
+</p>
+
+<pre><code>void f( int x )
+{
+    short s1 = x ; // OK、ただし縮小変換
+    short s2{x} ; // エラー、縮小変換は禁止されている
+} 
+</code></pre>
+
+<p>
+問題は、これを以下のようなstd::string s(1, 'a')というコードに対して盲目的に適用してしまったことだ。
+</p>
+
+<pre><code>// "a"で初期化
+std::string s1(1, 'a') ;
+// "\x01a"で初期化
+std::string s1{1, 'a'} ;
+</code></pre>
+
+<p>
+理由は、brace-or-equal-initializerでは、まずstd::initializer_list&lt;T&gt;を引数に取るコンストラクターが探され、ない場合は、その他のコンストラクターで引数の数と型があるものが探される。std::stringには、initializer_list&lt;char&gt;を引数に取るコンストラクターがあるので、そちらが優先される。
+</p>
+
+<p>
+そして、リスト初期化のnarrowing conversionの禁止は、コンパイル時定数で変換先の表現可能な範囲である場合は発生しない（より正確には、そのような場合はnarrowing conversionとみなされない）。その結果、{'\x01', 'a'}というリスト初期化だと解釈されてしまった。
+</p>
+
+<p>
+これはコンパイルも正常に通ってしまうので、実行して出力を確認しない限り見抜けないバグだ。
+</p>
+
+<p>
+もうひとつの例は、C++03とC++11で挙動が変わるコードだ。
+</p>
+
+<pre><code>bool can_open(const string&amp; s)
+// check if a file named s exists and can be opened for reading
+{
+     ifstream ff(s);
+     return ff;
+}
+</code></pre>
+
+<p>
+can_open関数は、引数として与えられたファイル名でファイルを開けるかどうかを確認する関数だ。問題は、ffがファイルを開いているかどうかを、boolへの暗黙の型変換で調べている。ifstreamはbasic_iosから派生していて、basic_iosはoperator void *()という変換関数を持っていて、ファイルが開いているかどうかをnullptrかどうかで返すのだが、これは問題が多いとして、library issue 468ではexplicit operator bool()に変更された。そのため、C++11ではコンパイルエラーになる。
+</p>
+
+<p>
+そもそも、暗黙の型変換に頼るのが間違いなのだ。ファイルを開いているかどうか確認するメンバー関数is_open()があるのだから、それを使えばよい。
+</p>
+
+<p>
+これは、コンパイルさえしていれば発見できた問題だ。
+</p>
+
+<p>
+全体的には、極めてお粗末で些細なill-formedなサンプルコードばかりだ。
+</p>
+
+<p>
+教訓2: テストは重要だ
+</p>
+
+<h2>
+著者の文字コードへの理解がない
+</h2>
+
+<p>
+本にはこう書いてある。
+</p>
+
+<blockquote>
+<p>
+「テキストファイルの最初の4バイトは4文字である」
+</p>
+</blockquote>
+
+<p>
+この文脈は、テキストファイル一般の話だ。これから扱う課題の入力に使うテキストファイルの最初の4バイトは常に4文字であるとみなすという仮定の話ではない。つまり、1文字は1バイトであると書いていることになる。
+</p>
+
+<p>
+このような内容のプログラミングの参考書を日本で出版したならば、マサカリが雨となって降り注ぎ、著者、編集者、査読者は二度と顔を出して表を歩けず、出版社の信頼は地に落ちることうけ合いだ。そして、すでにC++11にはUTF-8/UTF-16/UTF-32文字列リテラルが入っているのだからなおさら悪い。この文章は到底受け入れがたい。
+</p>
+
+
+<p>
+そして、この本には、「中国の文字やマラヤーラム文字をサポートするには」などという文章も入っている。中国の文字やマラヤーラム文字をサポートした現実の文字コードは、すべて可変長エンコードであり、1文字は1バイトとは限らない。
+</p>
+
+<p>
+また、中国の文字やマラヤーラム文字をサポートするには、というのに続けて、C++の標準ライブラリのiostreamやlocaleの詳細な参考書を読むべきだとも書いている。iostreamやlocaleは、設計上可変長エンコードに対応できず、この文書は無責任である。
+</p>
+
+<p>
+またひどいことに、C++11で入った正規表現ライブラリもUnicodeに対応していると書いている。実際は対応していない。そもそも、可変上文字列に対応できない設計になっている。受け入れがたく無責任にもほどがある。
+</p>
+
+
+<p>
+筆者はこれを何度もBjarne Stroustrupに指摘したが、残念ながら話が噛み合わず、本人に修正を促すことはできなかった。曰く、「これは英語圏の話であるから」。しかし、もはや英語圏とてUnicodeから逃れることはできないというのに。
+</p>
+
+<p>
+そして、筆者の使う、unacceptableとかirresponsibleという言葉を侮辱的であると返すばかり。侮辱的にしろ、unacceptableなものはunacceptableであり、irresponsibleなものはirresponsibleでしかない。
+</p>
+
+<p>
+このため、該当箇所に間違っていると指摘する注釈を入れ、また原文にない章を特別に追加して、現実の文字コードと、C++の文字と文字列とライブラリ、C++の規格と現実の文字コードの対応、Apple, GNU/Linux, Windowsにおける文字コードの取り扱いなど、日本人プログラマーなら誰でも知っているし、Wikipediaなどで簡単に調べられることを、簡単に浅く説明した。筆者の専門ではない分野を扱ったのでマサカリが山と飛んでくることを恐れている。
+</p>
+
+
+<h2>
+Cプリプロセッサー
+</h2>
+
+<p>
+この本のサンプルコードは、すべて<a href="http://stroustrup.com/Programming/PPP2code/std_lib_facilities.h">std_lib_facilities.h</a>というヘッダーファイルを#includeすることが前提で書かれている。このヘッダーの中身は、本で使っている標準ライブラリヘッダーの#includeや、有益ないくつかの関数の追加。またusing namespace std ;などが書かれている。グローバル名前空間に読み込まれるヘッダーファイルでusing namespace std;を書くのはよろしくないが、これが入門書だということを考えると、まだ納得もできる。
+</p>
+
+<p>
+ただし、納得のできないことはある。これだ。
+</p>
+
+<pre><code>#define vector Vector
+</code></pre>
+
+<p>
+Cプリプロセッサーで、vectorというトークンをVectorに置き換えている。Vectorとは何か。以下のように定義されている。
+</p>
+
+<pre><code>template&lt; class T&gt; struct Vector : public std::vector&lt;T&gt; {
+	using size_type = typename std::vector&lt;T&gt;::size_type;
+
+
+	using std::vector&lt;T&gt;::vector;	// inheriting constructor
+
+	T&amp; operator[](unsigned int i) // rather than return at(i);
+	{
+		if (i&lt;0||this-&gt;size()&lt;=i) throw Range_error(i);
+		return std::vector&lt;T&gt;::operator[](i);
+	}
+	const T&amp; operator[](unsigned int i) const
+	{
+		if (i&lt;0||this-&gt;size()&lt;=i) throw Range_error(i);
+		return std::vector&lt;T&gt;::operator[](i);
+	}
+};
+</code></pre>
+
+<p>
+ようするに、operator[]でもat()を使った範囲外チェックを行うようにするものだ。
+</p>
+
+<p>
+本では、これを必要悪であり、現実のソフトウェアプロジェクトでもこのような技法を使うことはあり、実際に役に立っていると書いているが、とんでもないことだ。
+</p>
+
+<p>
+範囲外チェックを行いたければ、最初からat()を使っておけばいいのだ。fstreamを暗黙の型変換でboolに変換してファイルがオープンされているかどうか調べようとしたり、Stroustrupは大昔の粗野な時代の悪い癖が抜けていないのではないかと疑う。
+</p>
+
+<h2>
+課題の設定
+</h2>
+
+<p>
+この本では、まず冒頭で変数や関数、式、文など言語の文法の基本を教えたあと、次の章で練習課題を出している。この本は、まだプログラミング経験の一切ない初心者を対象にしていることを思い出してほしい。その上で、いま変数や関数やif文を覚えたばかりの初心者が、以下の課題を解く難易度を考えてほしい。
+</p>
+
+<p>
+「実数と四則演算と括弧がある数式を標準入力から読み込んで計算結果を標準出力する計算機を実装せよ」
+</p>
+
+<p>
+実数と四則演算までならまだ初心者でもなんとかなるだろうが、括弧が出てきた時点で完全に初心者向けではない。
+</p>
+
+<p>
+この本では、まずBNF記法で数式の文法を定義したあと、教科書的な再帰下降構文解析による数式のパーサーを書いて計算を行っている。SICPでも冒頭でここまで無茶な課題はなかったはずだ。
+</p>
+
+<p>
+もちろん、面白い課題であり、全プログラマーがプログラミング学習の比較的早い段階で一度は練習のために実装してみるべき課題ではあるが、いかにもタイミングが早すぎる。
+</p>
+
+<p>
+Bjarne Stroustrupの本がここまで悪書だとは思わなかった。特に文字コードへの理解が致命的にない。
+</p>
+
+<p>
+Stroustrupのプログラミング入門の査読の仕事で、筆者は反面教師としての貴重な教訓を得た。また、C++11/14コア言語の執筆の経験からも、いろいろと執筆環境の不満点はあった。そこで、筆者が次に参考書を執筆するときは、以下のような環境で行おうと考えている。
+</p>
+
+<ul>
+<li>
+OSにUbuntu GNU/Linuxを使う。理由は、必要なソフトウェアが標準のパッケージマネージャーで揃う上、C++を書く上で圧倒的に快適だからだ。
+</li>
+
+<li>
+テキストディターにVimを使う。
+</li>
+
+<p>
+執筆環境はgitで管理する。
+</p>
+
+<li>
+GNU Makeで参考書のビルドとテストを管理する。これ以上に複雑なビルドシステムは、参考書執筆では必要がないと判断した。
+</li>
+
+<li>
+参考書のソースコードはMarkdownで書く。
+</li>
+
+<li>
+HTMLなどの各種フォーマットへのコンパイルはpandocを使う。
+</li>
+
+<li>
+HTMLへの出力では、数式はmathjaxを使う。ただし、KaTexも興味深いので評価中だ。
+</li>
+
+<li>
+HTMLへの出力では、ソースコードはhighlight.jsを使ってシンタックスハイライトする。
+</li>
+
+<li>
+参考書のソースコードからサンプルコードを抽出してGCCとClangで文法チェックをする。
+</li>
+
+<li>
+textlintで日本語のチェックをする。できるだけ簡潔な文章を維持するために文章にこういったツールで制約をかける。
+</li>
+
+</ul>
+
+<p>
+すでに、これらのことをだいたい実装している。まだC++17の参考書を書くには不確定要素が多すぎるが、そろそろ準備は始めるべきだ。
+</p>
+
+<p>
+一つ不満なのが、textlintの実装がnode.jsで書かれていることだ。もちろん、ツールとして使うのであるから、正しく動作さえすれば、どのような言語で書かれていようと気にしないのだが、結果的に、textlintの導入方法がなかなか厄介だった。Ubuntuにはnodejsパッケージがあるが、これはJavaScriptの実行環境が/usr/bin/nodejsというファイル名になっている。理由はすでにnodeというファイル名のパッケージが存在していて、名前が衝突するからだ。nodeパッケージをいれないのであれば、nodejs-legacyパッケージを入れることによって、/usr/bin/nodeへのsymlinkを貼れる。そして、GitHubのレポジトリから直接/usr/localにファイルを引っ張ってくる。npmにより、パッケージ間の存関係が極めて複雑で、とても些細な機能ですらパッケージ化されている。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは1文字は1バイトではないとわかっている本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
