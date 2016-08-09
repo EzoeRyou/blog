@@ -1,0 +1,441 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0340R0-P0349R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/08/c-p0340r0-p0349r0.html">
+C++標準化委員会の文書: P0340R0-P0349R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0340r0.html">P0340R0: Making std::underlying_type SFINAE-friendly</a>
+</h2>
+
+<p>
+underlying_type<T>に対して非enum型を渡した時にクラスが定義されるように変更することで、SFINAEフレンドリーにする提案。
+</p>
+
+<p>
+入るべきだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0341r0.html">P0341R0: Leveraging parameter packs outside of templates</a>
+</h2>
+
+<p>
+この提案は素晴らしい。
+</p>
+
+<p>
+テンプレートパラメーターパックは素晴らしい。しかし、その利用はテンプレートに制限されている。実にもったいないことだ。パラメーターパックはもっと使われるべきだ。
+</p>
+
+<p>
+そもそもパラメーターパックを、そのまま変数にしたい。
+</p>
+
+<pre><code>template &lt; typename ... T &gt;
+struct X
+{
+    T ... t ;// 認められるべきだ。
+} ;
+
+template &lt; typename ... T &gt;
+void f( T ... a )
+{
+    T ... fa(f(a)) ; // 認められるべきだ
+}
+</code></pre>
+
+<p>
+パラメーターパックはテンプレートの外からでもアクセスできるべきだ。例えばi番目パラメーターパックの値を得るために、以下のようなコードが書けるべきだ。
+</p>
+
+<pre><code>template&lt;typename ...T&gt;
+struct easy_tuple {
+	template&lt;typename U&gt; easy_tuple(U &amp;&amp;u) : t{u}... {}
+	T ...t;  // パラメーターパックをそれぞれデータメンバーとして持つ
+};
+
+template &lt;int i, typename ...T&gt; auto ith_argument(T &amp;&amp; ...t) { /*i番目のパラメーターパックを返すコード*/ }
+	
+template&lt;typename int i; typename ...T&gt; auto get(easy_tuple&lt;T...&gt; tup) {
+	return ith_argument&lt;i&gt;(tup....t&amp; ...);  クラスの外側からパラメーターパックのデータメンバーアクセス
+}
+</code></pre>
+
+<p>
+さて、これはほんの基本だ。本題は、パラメーターパックはテンプレートの外でも扱えるようになるべきだ。そのために、パックリテラルを追加する。
+</p>
+
+<pre><code>template&lt;typename...T = &lt;double, double&gt; &gt;
+struct euclidean_space { /* ... */ };
+</code></pre>
+
+<p>
+パックリテラルがあるからには、パック値が存在する。例えば、以下のようなコードは、現在ill-formedである。
+</p>
+
+<pre><code>auto f()
+{
+    return { 2, "foo"} ;
+}
+</code></pre>
+
+
+<p>
+{}で囲まれた式は何らかのリテラルのように見えるが、現在はそのような扱いを受けていない。パックリテラルが導入されれば、braced-init-listは第一級式として扱えるようになる。すなわち、型は&lt;int, char const *&gt;というパックとなる。z
+</p>
+
+
+<p>
+パックを返すのは、pairやtupleで包んで返すより自然だ。
+</p>
+
+<pre><code>&lt;double, double&gt; calculateTargetCoordinates();
+double distanceFromMe(double x, double y);
+	
+void launch() {
+	if(distanceFromMe(calculateTargetCoordinates()...))
+		getOuttaHere();
+}
+</code></pre>
+
+<p>
+名前付きパックリテラル
+</p>
+
+<pre><code>&lt;string topSong, person president, double avgTemp&gt; someFactsAboutYear(int year) {
+  if(year==1962)
+    return {"Stranger On The Shore", Presidents.get("Kennedy"), 14};
+}
+</code></pre>
+
+<p>
+パックリテラルはtupleよりも直感的な型リストを実現できる。
+</p>
+
+<pre><code>template&lt;typename L, typename R&gt; struct append;
+	
+template&lt;typename ...Ls, typename ...Rs&gt;
+struct append&lt; &lt;Ls...&gt;, &lt;Rs...&gt; &gt; {
+	using type = &lt;Ls..., Rs...&gt;;
+};
+</code></pre>
+
+<p>
+パラメーターパックは型だけではなく非型も入れられるので、値リストも作れる。
+</p>
+
+<pre><code>template&lt;typename theoretical, typename actual&gt; struct accuracy;
+
+template&lt;double... predictions, double... measurements&gt; 
+struct accuracy&lt; &lt;predictions...&gt;, &lt;measurements...&gt; &gt;) { /* ... */ };
+</code></pre>
+
+<p>
+この提案は素晴らしい。パラメーターパックが第一級市民になる。夢が広がる。ぜひとも入るべきだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0342r0.html">P0342R0: Timing barriers</a>
+</h2>
+
+<p>
+パフォーマンスの計測は高速なコードを書くために重要だ。パフォーマンスを計測するには処理の前後で時間を取得して差分を得る。
+</p>
+
+<pre><code>int main()
+{
+    auto start = std::chrono::high_resolution_clock::now() ;
+    do_something() ;
+    auto end = std::chrono::high_resolution_clock::now() ;
+
+    auto elasped = end - start ;
+    auto millisec = std::chrono::duration_cast&lt;std::chrono::milliseconds&gt;( elasped ) ;
+
+    std::cout &lt;&lt; millisec.count() &lt;&lt; std::endl ;
+}
+</code></pre>
+
+<p>
+問題は、C++実装は規格上、as-ifルールにしたがって、処理をリオーダーできるということだ。そのため、C++実装はdo_something関数の呼び出しをstartとendの間からどこか別の場所に移しても、規格上全く問題ない。
+</p>
+
+<p>
+このas-ifルールはとても強力で、現在、C++規格には移植性のある方法であるコード辺の処理時間の計測をする方法がない。mutexやスレッドの使用はリオーダーを妨げないし、分割コンパイルですら、プログラム全体の最適化やリンク時最適化の前では通用しない。
+</p>
+
+<p>
+そこで、この文書では、std::timing_fenceというコードをそのブロックを超えてリオーダーしないフェンスを追加することを提案している。
+</p>
+
+<p>
+確かに入るべきだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0343r0.pdf">[PDF] P0343R0: Meta-programming High-Order Functions</a>
+</h2>
+
+<p>
+メタプログラミングのためのライブラリを追加する提案。MetaとBoost.MPLとboost.Hanaを参考に設計されている。
+</p>
+
+<p>
+meta::id
+</p>
+
+<p>
+引数をそのまま返すメタ関数。いわゆるidentity。
+</p>
+
+
+<p>
+meta::eval
+</p>
+
+<p>
+typename T::typeをしてくれるメタ関数
+</p>
+
+<p>
+Meta-Callables型
+</p>
+
+<p>
+メタ呼び出し可能型は、ネストされたテンプレートエイリアスinvokeを持つ型である。Booste.MPLならばapplyに相当する。
+</p>
+
+<pre><code>struct identity
+ {
+ template &lt;class T&gt;
+ using invoke = T;
+ };
+</code></pre>
+
+<p>
+meta::invoke
+</p>
+
+<p>
+meta-callablesのinvokeを呼び出すメタ関数
+</p>
+
+<p>
+その他、様々なメタプログラミングを助けるためのライブラリがある。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0345r0.html">P0345R0: Allowing any unsigned integral type as parameter type for literal operators</a>
+</h2>
+
+<p>
+ユーザー定義リテラルの仮引数の型に任意のunsigned integer型を許可する。また、縮小変換を禁止する。
+</p>
+
+<pre><code>std::uint8_t operator "" _foo ( unsigned long long int x ) { return x ; }
+
+// 縮小変換がかかるが、ユーザー定義リテラルの定義を見なければ縮小変換が起こることがわからない。
+auto a = 1024_foo ;
+// 縮小変換がかかることが明らかなので警告できる。
+std::uint8_t b = 1024 ;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0346r0.pdf">[PDF] P0346R0:
+A &lt;random&gt; Nomenclature Tweak
+</a>
+</h2>
+
+<p>
+Uniform Random Number Generatorは誤解しやすい用語なのでUniform Random Bit Generatorに改名する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0347r0.html">P0347R0: P0347R0
+Simplifying simple uses of &lt;random&gt;
+</a>
+u
+</h2>
+
+<p>
+乱数ライブラリを使いやすくするラッパー、random_genrator&lt;T&gt;の提案
+</p>
+
+<p>
+現在の乱数ライブラリは初心者には使いにくい。まずUniform Random Number Generatorのオブジェクトを作り、seedを初期化して、望みのdistributionクラスのオブジェクトを作り、URNGとdistributionの2つのオブジェクトを組み合わせて乱数を作る。
+</p>
+
+<p>
+提案されているライブラリは、以下のように使える。
+</p>
+
+<pre><code>#include &lt;random&gt;
+#include &lt;iostream&gt;
+int main()
+{
+    std::mt19937_rng rng; // nondeterministically seeded, convenience typedef for std::random_generator&lt;std::mt19937&gt;
+    std::cout &lt;&lt; "Greetings from Office #" &lt;&lt; rng.uniform(1,17) // uniform integer in [1, 17]
+              &lt;&lt; " (where we think PI = "  &lt;&lt; rng.uniform(3.1,3.2) &lt;&lt; ")\n\n" // uniform real in [3.1, 3.2)
+              &lt;&lt; "We " &lt;&lt; rng.pick({"welcome",
+                                    "look forward to synergizing with",
+                                    "will resist",
+                                    "are apathetic towards"})
+                       &lt;&lt; " our management overlords\n\n";
+
+    std::cout &lt;&lt; "On the 'business intelligence' test, we scored "
+              &lt;&lt; rng.variate(std::normal_distribution&lt;&gt;(70.0, 10.0))
+              &lt;&lt; "%\n";
+}
+</code></pre>
+
+<p>
+mt19937_rngは、random_generator&lt;mt19937&gt;へのtypedefである。random_generatorは、テンプレート実引数て指定されたURNGのオブジェクトを作り、非決定的な方法でseedする。メンバー関数のuniform(a, b)に整数か浮動小数点数を渡すと、aからbまでの範囲の乱数が生成される。pickを使うと引数に渡したコンテナーの中の要素から一つが選ばれて返される。variateは非一様分布を渡すことができる。
+</p>
+
+<p>
+同等のコードをrandom_generatorを使わずに書くと、以下のようになる。
+</p>
+
+<pre><code>#include &lt;random&gt;
+#include &lt;iostream&gt;
+int main()
+{
+    std::random_device rd; // assume unsigned int is 32 bits
+    std::seed_seq sseq {rd(), rd(), rd(), rd(), rd(), rd(), rd(), rd()};
+    std::mt19937 engine(sseq); // seeded with 256 bits of entropy from random_device
+
+    auto strings = {"welcome",
+                    "look forward to synergizing with",
+                    "will resist",
+                    "are apathetic towards"
+                   };
+
+    std::cout &lt;&lt; "Greetings from Office #" &lt;&lt; std::uniform_int_distribution&lt;&gt;(1,17)(engine) // uniform integer in [1, 17]
+              &lt;&lt; " (where we think PI = "  &lt;&lt; std::uniform_real_distribution&lt;&gt;(3.1, 3.2)(engine) &lt;&lt; ")\n\n" // uniform real in [3.1, 3.2)
+            &lt;&lt; "We " &lt;&lt; *(strings.begin() + std::uniform_int_distribution&lt;&gt;(0, std::size(strings) - 1)(engine))
+                       &lt;&lt; " our management overlords\n\n";
+
+    std::cout &lt;&lt; "On the 'business intelligence' test, we scored "
+              &lt;&lt; std::normal_distribution&lt;&gt;(70.0, 10.0)(engine)
+              &lt;&lt; "%\n";
+}
+</code></pre>
+
+
+<p>
+ただ、このライブラリは、uniformメンバー関数を呼び出すたびに対応するdistributionクラスのオブジェクトが作られるので、効率が悪い。このライブラリは効率と引き換えに手軽さを提供するライブラリなのでこれでいいのだとしている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0348r0.html">P0348R0: Validity testing issues</a>
+</h2>
+
+<p>
+immediate contextによるエラーはハードエラーではないというのがSFINAEの基本となっている。では、immediate contextとは何かという問題が残っている。
+</p>
+
+<p>
+この文書は、現在解釈が揺れている例をいくつか上げて、委員会はこの例に対する回答を示すべきであるとしている。
+</p>
+
+<p>
+deleted定義を宣言以外の方法で参照するとill-formedであると規定されているが、別の場所では、ハードエラーにはならないと規定されている。どちらが優先されるべきなのか。ハードエラーにはならないほうがSFINAEによる利用ができて好ましい。
+</p>
+
+<p>
+GCCもClangも、変数テンプレートの初期化子はimmediate contextにはならないと解釈している。
+</p>
+
+<p>
+関数のデフォルト実引数の中の式はimmediate contextかどうかClangとMSVCは一貫してimmediate contextではないとするが、GCCは一貫していない。
+</p>
+
+<p>
+他にもまだ問題提起はある。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0349r0.pdf">[PDF] P0349R0: Assumptions about the size of datapar</a>
+</h2>
+
+<p>
+P0214でdataparというベクトル型の提案をしているが、size()がコンパイル時定数になっている。しかし、世の中には可変長ベクトル型をサポートしたアーキテクチャもある。ベクトル超を可変長にするのは、将来性も見込まれている。size()をコンパイル時定数にする設計は将来の足かせになると主張する文書
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
