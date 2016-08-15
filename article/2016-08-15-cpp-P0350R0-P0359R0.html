@@ -1,0 +1,268 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0350R0-P0359R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/08/c-p0350r0-p0359r0.html">
+C++標準化委員会の文書: P0350R0-P0359R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0350r0.pdf">[PDF] P0350R0: Integrating datapar with parallel algorithms and executors</a>
+</h2>
+
+<p>
+P0214で提案されているベクトル型、dataparを並列アルゴリズムに対応させて、専用の実行ポリシーを追加する提案。そこまで明示的にする必要があるのは本末転倒な気がする。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0352r0.pdf">[PDF] P0352R0:
+Smart References through Delegation: An Alternative to N4477's Operator Dot
+</a>
+</h2>
+
+<p>
+operator .をオーバーロードすることによりスマートリファレンスを実装可能にしようと言うのがN4477の提案だが、operator .の現在の提案は極めてややこしい。オーバーロード解決のルールにめちゃくちゃ複雑な新ルールを導入するものだ。
+</p>
+
+<p>
+この提案では、派生機能を拡張した移譲機能を追加することにより、スマートリファレンスを実装可能にしようと言うものだ。
+</p>
+
+<p>
+例えば、以下のように
+</p>
+
+<pre><code>template &lt; typename T &gt;
+class shared_ref : public using T
+{
+    std::shared_ptr&lt;T&gt; ptr ;
+    operator T &amp;() { return *ptr ; }
+
+public :
+    // auto x = shared_ref&lt;T&gt;{}のxの型はTになる
+    using auto = T ;
+    // sizeofの結果はsizeof(T)の結果になる。、
+    using sizeof = T ; 
+
+    explicit shared_ref( shared_ptr&lt;T&gt; ptr ) : ptr(ptr)
+    { }
+
+    // X::funcをhidingする。
+    void func() { }
+} ;
+</code></pre>
+
+<p>
+このように、既存の派生と継承の上に作ることで、すでによく知られたルールを適用できる。文法はXから派生しているようだが、shared_refのオブジェクトはXのサブオブジェクトを持たない。Xへのリファレンスは、変換関数で取得できるようにしておくことで、shared_refをXとして使いたい場合には、変換関数が使われる。
+</p>
+
+<p>
+この拡張によって、スマートリファレンスを実装できるほか、pimplイディオムなども、より自然に実装できる。
+</p>
+
+<p>
+これはいい提案だ。operator .のオーバーロードよりはるかに気が利いている。派生と継承のルールはすでによく知られているのでわかりやすい。
+</p>
+
+<p>
+入るべきだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0353r0.html">P0353R0: Unicode Encoding conversions</a>
+</h2>
+
+<p>
+UTF-8/UTF-16/UTF-32の間の相互変換ライブラリの提案。現在でもC++標準ライブラリで可能ではあるが、極めてクソなライブラリしかない。
+</p>
+
+<pre><code>using std::literals ;
+auto u8str = u8"hello,world"s ;
+auto u16str = std::to_u16string( u8str ) ;
+auto u32str = std::to_u32string( u8str ) ;
+u8str = std::to_u8string( u32str ) ;
+<code></pre>
+
+<p>
+UTF-8文字型にはcharではなくて独自の型がほしい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0354r0.pdf">[PDF] P0354R0: 
+default == is &gt;, default &lt; is &lt; so
+</a>
+</h2>
+
+<p>
+P0221で提案されているデフォルトの大小比較演算子に対して、デフォルトの大小比較演算子は有害だと主張する文書。
+</p>
+
+<p>
+クラスに対して、デフォルトの==と!=を生成するのはわかる。しかし、&lt;はわからない。多くのクラスは大小比較可能ではない。大小比較がデフォルトで生成されるようになった場合、筆者はコーディング規約でデフォルトでオプトアウトするように支持し、そのためにマクロを使うことも吝かではない。そのような機能はデフォルトで有効にすべきではない。
+</p>
+
+<p>
+その上で、文書はデフォルトの大小比較演算子について、以下のいずれかを取るべきだとしている。
+</p>
+
+<ol>
+<li>採用しない</li>
+<li>デフォルトでオプトインにして、明示的な利用宣言を必要とする</li>
+<li>std::orderingのようなカスタマイゼーションポイントを提供して、特殊化することでオプトインにする<li>
+<li>新しい演算子を追加する</li>
+</ol>
+
+<p>
+文書は、採用しないことが最も望ましく、オプトインもカスタマイゼーションポイントや新しい演算子で行われるべきだと主張している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0355r0.html">P0355R0: Extending <chrono> to Calendars and Time Zones</a>
+</h2>
+
+
+<p>
+<chrono>にグレゴリオ暦を追加する提案
+</p>
+
+<pre><code>int main()
+{
+    using namespace std::chrono_literals ;
+
+    auto date = 2016y/8/10 ;
+    std::cout &lt;&lt; date ;
+}
+</code></pre>
+
+<p>
+まあ、ある程度便利だ。日付、曜日、タイムゾーン、うるう秒などに対応している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0356r0.html">P0356R0: Simplified partial function application</a>
+</h2>
+
+<p>
+std::bindに変わる単純なbindの提案。
+</p>
+
+<p>
+bind_frontとbind_backは、関数オブジェクトfと、任意個の実引数を取り、関数オブジェクトを呼び出す際に、実引数の先頭か末尾に受け取った引数を付け加える。
+</p>
+
+<pre><code>auto front = std::bind_front( f, a, b, c ) ;
+front( d, e, f ) ; // f( a,b,c,d,e,f )
+
+auto back = std::bind_back( f, a, b, c )
+back( d, e, f ) ; // f( d,e,f,a,b,c) 
+</code></pre>
+
+<p>
+std::bindと違い、引数の順序変更や、引数の無視はできないが、この機能で実需要のほとんどは満たせるとしている。
+</p>
+
+<p>
+個人的には、lambda式があるのでbind自体がいらないのではないかと思う。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0357r0.html">P0357R0: 'reference_wrapper' for incomplete types</a>
+</h2>
+
+<p>
+reference_wrapperを不完全型に対して使用可能にする提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0358r0.html">P0358R0: Fixes for 'not_fn'</a>
+</h2>
+
+<p>
+C++17に入るnot_fnの文面に問題があり、ref-qualifierを無視してしまうので、その修正をした新しい文面案の提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0359r0.pdf">[PDF] P0359R0: SG5: Transactional Memory (TM) Meeting Minutes
+2016/02/22-2016/05/23</a>
+
+<p>
+SG5、トランザクショナルメモリーの会議の議事録
+</p>
+</h2>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
