@@ -1,0 +1,167 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++17のiostreamに入った変更点
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/08/c17iostream.html">
+C++17のiostreamに入った変更点
+</a></h1>
+
+<p>
+C++17のドラフトには、現在までに、iostreamへの変更点として、以下のような変更が加えられている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0004r1.html#0.2">P0004R1.HTML#0: Remove Deprecated iostreams aliases</a>
+</h2>
+
+<p>
+C++98の時点でdeprecated扱いだった一部のメンバーが、とうとう削除された。最初の正式なC++規格の時点ですでにdeprecated扱いだったライブラリが、ようやく削除されたことになる。
+</p>
+
+<p>
+ios_baseからは、以下のメンバーが削除された。
+</p>
+
+<pre><code>class ios_base {
+       public:
+         typedef T1 io_state;
+         typedef T2 open_mode;
+         typedef T3 seek_dir;
+         typedef implementation-defined streamoff;
+         typedef implementation-defined streampos;
+       };
+</code></pre>
+
+<p>
+basic_streambufからは、stosscが削除された。これは以下のように実装できる。
+</p>
+
+<pre><code>       template&lt;class charT, class traits = char_traits&lt;charT&gt; &gt;
+       class basic_streambuf {
+       public:
+         void stossc() { sbumpc() ; }
+       };
+</code></pre>
+
+<p>
+その効果は、ストリームの場所を一つすすめるというものだ。
+</p>
+
+<p>
+他にも、実装が自明すぎて意味のないメンバー、重複するメンバーがいくつか削除された。たとえば、basic_iosからはclear。basic_streambufからはpubseekoff, pubseekpos。basic_filebuf/basic_ifstream/basic_ofstreamからはchar const *を引数に取るopenが削除された。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3654.html">N3654: "quoted" proposal</a>
+</h2>
+
+<p>
+iostreamにquotedマニピュレーターが入った。サンプルコードを引用すると以下の通り。
+</p>
+
+<pre><code>std::stringstream ss;
+std::string original = "foolish me";
+std::string round_trip;
+
+ss &lt;&lt; original;
+ss &gt;&gt; round_trip;
+
+std::cout &lt;&lt; original;   // outputs: foolish me
+std::cout &lt;&lt; round_trip; // outputs: foolish
+
+assert(original == round_trip); // assert will fire
+</code></pre>
+
+<p>
+iostreamでは空白文字で入力が区切られてしまうので、空白を含む文字列を入力した良い場合に問題になる。これに対処するために、デリミタ文字にはバックスラッシュを付与して出力し、入力にあたってはバックスラッシュを取り除く処理をする、quoted manipulatorを追加する。これにより、以下のようにかける。
+</p>
+
+<pre><code>std::stringstream ss;
+std::string original = "foolish me";
+std::string round_trip;
+
+ss &lt;&lt; quoted(original);
+ss &gt;&gt; quoted(round_trip);
+
+std::cout &lt;&lt; original;     // outputs: foolish me
+std::cout &lt;&lt; round_trip;   // outputs: foolish me
+
+assert(original == round_trip); // assert will not fire
+</code></pre>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
