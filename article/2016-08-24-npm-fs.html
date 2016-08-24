@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+npm、一見無意味なパッケージを消したら1000件ものパッケージが依存するパッケージであったことが判明
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/08/npm1000.html">
+npm、一見無意味なパッケージを消したら1000件ものパッケージが依存するパッケージであったことが判明
+</a></h1>
+
+<p>
+npmが一見無意味に思えるfsというパッケージをSPAMとみなして削除したところ、1000件ほどのパッケージが依存するパッケージだったので、削除を取り消した。
+</p>
+
+<blockquote>
+
+<p>
+今日、数分ほど、"fs"というパッケージが、ユーザーからSPAMであるという報告を受けて、レジストリから非公開にされた。これは現在復旧されている。これは私(@seldo)による人為的なミスである。私は非公開が安全であるかを確認する内部のガイドラインに従っていなかった。ビルドが阻害されたユーザーに謝罪する。
+</p>
+
+
+<p>
+詳細："fs"というパッケージは、無意味なパッケージである。これは単に"I am fs"をログに残して終了する。このパッケージが何らかのモジュールの依存に含まれるべき理由は一切ない。しかし、1000件ほどのパッケージが、誤って"fs"に依存している。おそらく、"fs"という組み込みのnodeモジュールを使おうとしているのだろう。この理由により、我々は同モジュールを非公開ではなく、ガイドラインに従って、deprecated扱いにした。
+</p>
+
+
+<p>
+もし、既存のモジュールが"fs"に依存しているのであれば、安全に消すことができる。実際、消すべきである。仮に消さなかったとしても、今後も問題なく動作はする。
+</p>
+</blockquote>
+
+
+<p>
+npmやnodejsが悪いのか、nodejs界隈のユーザー層が悪いのか判断に苦しむが、いずれにせよnode.jsはクソであることがわかる。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
