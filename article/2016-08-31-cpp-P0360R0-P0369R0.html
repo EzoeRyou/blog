@@ -1,0 +1,460 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0360R0-P0360R9
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/08/c-p0360r0-p0360r9.html">
+C++標準化委員会の文書: P0360R0-P0360R9
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0360r0.pdf">[PDF] P0360R0:SG14: Low Latency Meeting Minutes 2016/02/17-2015/05/25 </a>
+</h2>
+
+<p>
+SG14 低レイテンシー会議の議事録
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0361r0.pdf">[死んで欲しいPDF] P0361R0: 	Invoking Algorithms asynchronously</a>
+</h2>
+
+<p>
+Parallelism TSで提案されたアルゴリズムの並列実行を拡張する形で、アルゴリズムを非同期実行を追加する提案。
+</p>
+
+<p>
+従来のシーケンシャル実行のアルゴリズムの使い方は以下で、
+</p>
+
+<pre><code>Container c ;
+
+sort( begin(c), end(c) ) ;
+</code></pre>
+
+
+<p>
+Parallelism TSによって、以下のようにかける。
+</p>
+
+
+<pre><code>Container c ;
+
+
+// シーケンシャル実行
+sort( seq, begin(c), end(c) ) ;
+// 並列実行
+sort( par, begin(c), end(c) ) ;
+// 並列ベクトル実行
+sort( par_vec, begin(c), end(c) ) ;
+</code></pre>
+
+<p>
+この提案は、Parallelism TSを拡張する形で、アルゴリズムの非同期実行版を追加する。
+</p>
+
+<pre><code>Container c ;
+
+
+// シーケンシャル非同期実行
+auto f = sort( seq(task), begin(c), end(c) ) ;
+f.get() ;
+
+// 並列非同期実行
+auto f = sort( par(task), begin(c), end(c) ) ;
+f.get() ;
+
+// 並列ベクトル非同期実行
+auto f = sort( par_vec(task), begin(c), end(c) ) ;
+f.get() ;
+</code></pre>
+
+<p>
+非同期実行版の選択は、実行ポリシーのoperator ()にtaskシングルトンを与えることで行える。非同期実行版のアルゴリズムは、通常の戻り値の型をTとした場合、future&lt;T&gt;を戻り値の型として返す。
+</p>
+
+<p>
+戻り値に対してメンバー関数getを呼び出すと、非同期処理の完了に同期する。
+</p>
+
+<p>
+なかなかいい提案だ。自然に拡張できている。
+</p>
+
+<p>
+例えば以下のようなコードがあったとして
+</p>
+
+<pre><code>template&lt;typenameBiIter, typenamePred&gt;
+pair&lt;BiIter, BiIter&gt;
+gather( BiIterf, BiIterl, BiIterp, Predpred )
+{
+    BiIter it1 = stable_partition( f, p, not1(pred) );
+    BiIter it2 = stable_partition( p, l, pred );
+    return make_pair(it1,it2);
+}
+</code></pre>
+
+<p>
+これを非同期実行版に書き換えると、以下のようになる。
+</p>
+
+<pre><cogJde>
+template&lt;typenameBiIter,typenamePred&gt;
+future&lt;pair&lt;BiIter,BiIter&gt;&gt;
+gather_async(BiIterf,BiIterl,BiIterp,Predpred)
+{
+    future&lt;BiIter&gt;f1=stable_partition(par(task),f,p,not1(pred));
+    future&lt;BiIter&gt;f2=stable_partition(par(task),p,l,pred);
+    return when_all(f1,f2).then(
+        [](tuple&lt;future&lt;BiIter&gt;,future&lt;BiIter&gt;&gt;p)
+        { return make_pair(get&lt;0&gt;(p).get(),get&lt;1&gt;(p).get());}
+    );
+}
+</code></pre>
+
+<p>
+これはわかりにくいが、現在提案中のコルーチンを使えば、
+</p>
+
+<pre><code>
+return make_pair( co_await f1, co_await f2);
+</code></pre>
+
+<p>
+こうできる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0362r0.pdf">[PDF] P0362R0: Towards support for Heterogeneous Devices in C++ (Concurrency aspects)</a>
+</h2>
+
+<p>
+SIMDやGPGPUのようなHeterogeneousなデバイスを利用するには、現在のところOpenMPやOpenCLのように、C++ではないプロプライエタリな言語を用いている。C++はこのようなデバイスをサポートする力があり、プロプライエタリな言語を使わずに標準規格で定められた言語のみを使って移植性の高いプログラミングできるのは価値が高い。
+</p>
+
+<p>
+ホストCPUと、Heterogeneousなデバイスを、単一のC++のソースファイルで利用したい。OpenCLのように分離されている場合、型システムなどのエラーチェックが行えない。
+</p>
+
+<p>
+この提案では、Khronosの<a href="https://www.khronos.org/sycl">SYCL</a>を元に、デバイスをサポートする方法について考察している。文書中でサポートするにあたって興味深い問題がふたつある。
+</p>
+
+<p>
+lambda式のABI問題。
+</p>
+<p>
+デバイスで実行するコードを渡すのには、lambda式が最も都合がよい。ただし、lambda式のABIは規格で定められておらず、複数のC++コンパイラーを使う場合に問題になる。
+</p>
+
+<p>
+lambda式は規格で名前が規定されていないので、名前マングリングが実装ごとに異なる。lambda式がキャプチャーした変数に対する、クロージャーオブジェクト内でのデータメンバーのレイアウトも規格で規定されていないので、実装ごとに異なる。
+</p>
+
+<p>
+このために、コア言語で規定するか、静的リフレクションが必要だとしている。
+</p>
+
+<p>
+非フラットなアドレス空間の問題
+</p>
+
+<p>
+CPUはメモリに対してフラットなアドレス空間を持っている。ところが、GPUのメモリはフラットではなく、特性の異なる複数のメモリがあり、アドレス空間も複数ある。どうやってC++でサポートすればよいのか。
+</p>
+
+<p>
+コア言語でアドレス空間を型システムに含める方法。アドレス空間を表現するクラスライブラリを経由してアクセスする方法。非効率的だがフラットなアドレス空間に見せかける方法などが考察されている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0363r0.pdf">[PDF] P0363R0: Towards support for Heterogeneous Devices in C++ (Language aspects)</a>
+</h2>
+
+<p>
+HeterogeneousなデバイスをC++でサポートする際のlambda式のABI問題について少し深く掘り下げているが、基本的に内容はP0362R0からそれほど変わっていない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0364r0.pdf">[PDF] P0364R0: Report on Exception Handling Lite (Disappointment) from SG14</a>
+</h2>
+
+<p>
+ゲーム、組み込み、金融分野が低レイテンシーについて議論するSG14から、例外処理の報告書。
+</p>
+
+<p>
+例外にはオーバーヘッドがある。プログラムが実行中に例外を投げないとしても、依然としてオーバーヘッドがある。
+</p>
+
+<p>
+例外のオーバーヘッドは確かに存在するのだが、現実的なソフトウェアにおけるコストが計測されたことは一度もない。このために、ソースコードが入手できるQuakeなどのエラー処理を例外を使うものに書き換えて計測する実験が行われてほしい。
+</p>
+
+<p>
+ともかく、例外による予測できない処理時間の増加の可能性を避けるために、ゲームをコンパイルするときは、慣習的に例外は無効化されている。このために、例外を使わない設計のEASTLのようなものが開発されている。例外が使えないので、多くのC++ライブラリがゲーム業界では使えない。これによりC++利用者は分断され、C++の発展によろしくない。
+</p>
+
+<p>
+文書は、SwiftやRustにおける例外は既存の言語の問題を認識したうえで改良がなされているとして、比較している。例外を外に投げる関数を呼び出すには、明示的な文法が必要となる。C++の例外をそのようにするのは利益が大きいが、何十年もの移行期間が必要だ。
+</p>
+
+<p>
+また、組み込み業界からは、例外なき例外(exceptionless exception handling)という要望が出ている。これは、例外によるstack unwindingは行う者の、例外オブジェクトは扱わないというものだ。
+</p>
+
+<p>
+例外オブジェクトが存在すると、そのオブジェクトのためのストレージを確保しなければならない。例外ハンドラーでは、オブジェクトの実行時に型に対して派生関係を比較するコードが必要だ。これは組み込みでは支払うことができないコストである。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0365r0.pdf">[PDF] P0365R0: Report on SG14, a year later and future directions</a>
+</h2>
+
+<p>
+SG14の設立経緯と注目している提案と将来性についての報告書。
+</p>
+
+<p>
+SG14は、ゲーム、金融、組み込みの業界人がC++の低レイテンシーについて議論するために設立された。
+</p>
+
+<p>
+その発端は、2014年のCPPCONで、筆者であるMichael Wongがパネルを務める議論において、カナダのゲーム会社の人間からC++をゲーム対応を改良することについて質問を受けたのがきっかけだ。
+</p>
+
+<p>
+SG14は、市場初めて、ゲーム業界がその名前を名乗って業界を代表してC++に意見を表明する場所になった。というのも、C++標準化委員会は定期的に会議に参加して、会社、団体を代表して意見を表明し、提案し、議論し、コンセンサスを持ち帰って伝える役目を果たす人間が必要なのだが、ゲーム業界は厳しい納期に追われているために、そのような活動ができなかった。
+</p>
+
+<p>
+SG14の目的は、制約のあるリソース、リアルタイムグラフィック、低レイテンシー、といった、ゲーム開発、金融、組み込みによくある要求の追求だ。
+</p>
+
+<p>
+文書では、現在までにSG14が提案した文書を示している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0366r0.pdf">[PDF] P0366R0: Extending the Transactional Memory Technical Specification with an in_transaction Statement</a>
+</h2>
+
+<p>
+トランザクションメモリーにトランザクション中かどうかを判定する機能を追加する提案。
+</p>
+
+<p>
+トランザクショナルメモリーではトランザクションメモリーによる実行ができる関数とできない関数を型システムで区別している。transaction_safeな関数からtransaction-unsafeな関数を呼び出すことはできないし、transaction-unsafeな処理を行うこともできない。
+</p>
+
+<p>
+問題は、ある関数が、トランザクション安全な実装をされているが、トランザクションの外で実行されたならば、もっと効率のいい実装ができる場合がある。このような実装を許可するために、トランザクションを実行中かどうかで実行時に条件分岐する機能がほしい。
+</p>
+
+<p>
+この機能をどのように提供するかについて、提案は3つの案を示している。
+</p>
+
+<p>
+ひとつ目の案はコア言語によるものだ。
+</p>
+
+<p>
+何らかのキーワード(例えばin_transaction)を使う。
+</p>
+
+<pre><code>void* memcpy(void* dest, void* src, size_t n) transaction_safe {
+    in_transaction {
+        return memcpy_safe(dest, src, n);
+    } else {
+        return memcpy_asm(dest, src, n);
+    }
+}
+</code></pre>
+
+
+<p>
+in_transaction文のelseに続く文では、transaction-unsafeなコードを記述できるというものだ。
+</p>
+
+<p>
+ふたつ目の案は、ライブラリによるものだ。
+</p>
+
+<p>
+std::in_transaction()のようなboolを返す関数を使う。そして、falseが返った時に評価されるブランチでは、transaction-unsafeなコードを記述できる。
+</p>
+
+<pre><code>
+void* memcpy(void* dest, void* src, size_t n) transaction_safe {
+    if (std::in_transaction()) {
+        return memcpy_safe(dest, src, n);
+    } else {
+        return memcpy_asm(dest, src, n);
+    }
+}
+</code></pre>
+
+<p>
+3つめの案は、トランザクション実行の判定字体はふたつ目の案と同じくライブラリによるものだが、transaction-unsafeなコードを実行するには、コア言語に頼る。何らかのキーワード(例えばnot_in_transaction)で文を囲むことによって、transaction-unsafeなコードを記述できる。　
+</p>
+
+<pre><code>
+void* memcpy(void* dest, void* src, size_t n) transaction_safe {
+    if (std::in_transaction()) {
+        return memcpy_safe(dest, src, n);
+    } else {
+        not_in_transaction { return memcpy_asm(dest, src, n); }
+    }
+}
+</code></pre>
+
+<p>
+ふたつ目の案が最も良いように思われる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0367r0.pdf">[PDF] P0367R0: a C++ standard library class to qualify data accesses</a>
+</h2>
+
+<p>
+汎用的なアクセッサーライブラリの提案。アクセッサーはラッパークラスとして提供される。
+</p>
+
+<pre><code>int x = 0 ;
+auto ax = std::make_accessor&lt; ... &gt; ( x ) ;
+
+// 元の型と同じように使える。
+ax = 0 ;
+int r = ax ;
+</code></pre>
+
+<p>
+このアクセッサーを通して、様々なアクセス方法の指定が行える。
+</p>
+
+<p>
+例えば、1TBものdouble型の配列を初期化するとしよう。このような巨大な配列に対して先頭から最後まで値を書き込んでいく場合、わざわざそのストレージの極一部をキャッシュするのは無駄である。そこで、アクセスは一時的なものではないと指定することで、キャッシュを行わせないヒントを与えることができる。
+</p>
+
+<pre><code>// 1 TBもの配列
+double a [2 &lt; &lt;37];
+auto ac = make_accessor &lt; non_temporal , write &gt;( a ) ;
+// 先頭から最後まで、42で始まるインクリメントされる整数値で初期化
+std :: iota ( std :: par_vec , ac . rbegin () , ac . rend () , 42) ;
+</code></pre>
+
+<p>
+ある関数some_io()は、とても遅いI/O処理を行うので、値を返すのに時間がかかるとする。ただし、その値は、ほとんどの場合42であるとわかっているとする。
+</p>
+
+<pre><code>auto result = f( same_io() ) ;
+</code></pre>
+
+<p>
+その場合、f( 42 )をまず計算しておいて、some_ioが42以外の値を返した場合、関数fを計算し直すという投機的な実行が行える。そのためのヒントを出すことができる。
+</p>
+
+<pre><code>auto result = f ( make_accessor &lt; likely &gt; { some_io () , 42 }) ;
+</code></pre>
+
+<p>
+このように、様々なデータへのアクセスに対して、アクセス方法の指定を行える。
+</p>
+
+<p>
+提案されているアクセス方法は極めて多岐にわたる。具体的なアクセス方法や、特定のパターンや特定のハードウェア機能に特化したアクセスの際のヒントを指定することができる。
+</p>
+
+<p>
+異なるメモリ間のアクセス、read/writeアクセス、一時的ではないアクセス（キャッシュ回避）、エイリアシング、シーケンシャルアクセス、プリフェッチ、バーストモード、パイプラインアクセス、DMA、バスタイプ、アクセス幅、アドレスモード、アドレス変換、modulo addressing、アドレスビット設定（アドレスに使わないビットを指定できる）、トランザクショナルメモリー、予測。
+</p>
+
+<p>
+だいぶ野望のある提案だが、ライブラリベースではなくてattributeではダメなのだろうか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0369r0.pdf">[PDF] P0369R0: 2017-07 Toronto ISO WG21 C++ Standard Meeting information</a>
+</h2>
+
+<p>
+2017年7月に開催されるトロント会議の現地情報。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
