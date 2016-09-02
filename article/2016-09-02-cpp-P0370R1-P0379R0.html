@@ -1,0 +1,338 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0370R1-P0379R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/09/c-p0370r1-p0379r0.html">
+C++標準化委員会の文書: P0370R1-P0379R0
+</a></h1>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0370r1.html">P0370R1: Ranges TS Design Updates Omnibus</a>
+</h2>
+
+<p>
+Range TSに存在する問題を修正する提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0371r1.html">P0371R1: P0371R1: Temporarily discourage memory_order_consume</a>
+</h2>
+
+<p>
+タイトル通り、memory_order_consumeの利用を一時的に非推奨にする提案。
+</p>
+
+<p>
+Linus Torvaldsも激怒していたように、現行のmemory_order_consumeには問題が山ほどあり、大抵の実装はその実装困難性からmemory_order_aquireと同じにしているのみならず、至るところでkill_dependencyや[[carries_dependency]]を明示的に使わなければならないので、不便なことこの上ない。
+</p>
+
+<p>
+そこで、memory_order_consumeは改良が必要だが、それには時間がかかるので、それまでの間非推奨扱いにする。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0372r0.html">P0372R0: P0372R0 - A type for utf-8 data</a>
+</h2>
+
+<p>
+UTF-8の1単位を表現するchar8_t型の提案。
+</p>
+
+<p>
+char8_tからcharへの標準変換はできるが、逆はできない。
+</p>
+
+<p>
+C++11のときにchar8_tが必要だと訴えたら、charは古典的にバイト列を表現する型なので十分だ。char型以外の型があるのは混乱する。などと理解のないUnicodeの世界に生きていない名だたる委員達から散々に批判された。その委員達も、今では、「やっぱりchar8_tがないのは失敗だったなぁ」とぼやいている。それ見たことか。
+</p>
+
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0373r0.pdf">[PDF] P0373R0: Proposal of File Literals</a>
+</h2>
+
+<p>
+ファイルリテラルの提案。ファイルパスを指定すると、コンパイル時にそのファイルの内容が値として得られるリテラル。
+</p>
+
+<p>
+例えば、hello.txtの中身が、
+</p>
+
+<pre><code>Hello,World
+</code></pre>
+
+<p>
+であるとすると
+</p>
+
+<pre><code>int main()
+{
+    // "Hello,World"と出力
+    std::cout &lt;&lt; tF"hello.txt" ;
+}
+</code></pre>
+
+<p>
+プログラム中にデータを埋め込む需要がある。データを埋め込む方法は、C++の文法に従う方法や、実装依存の方法まで、様々ある。データはデータとしてファイルで独立させたい場合、実装依存の移植性のない方法を使わなければならない。
+</p>
+
+<p>
+ファイルリテラルは、ファイルパスで指定されたファイルのデータを、コンパイル時に値として返す。その文法は
+</p>
+
+<pre><code>F"file pah"
+</code></pre>
+
+<p>
+を基本としてFの前にfile-encoding-prefixがつく。file-encoding-prefixは、b, t,L, u8, u, Uのいずれかだ。
+</p>
+
+<p>
+bは、ファイルをバイナリデータとして扱う。ファイルリテラルの値は、ファイルをバイナリモードで開いて読み取ったものと同じ値で、その型はunsigned charの配列となる。null終端はされない。
+</p>
+
+<p>
+例えば、hello.txtの中身が、UTF-8でエンコードされた
+</p>
+
+<p>
+hello
+</p>
+
+<p>
+であり、改行はないものとする。
+</p>
+
+<pre><code>auto data = bF"hello.txt" ;
+</code></pre>
+
+<p>
+この例では、dataの型はunsigned char [5]であり、その値は、{u8'h',u8'e',u8'l',u8'l',u8'o'}となる。null終端はされない。
+</p>
+
+<p>
+tは、通常の文字列エンコードで、L,u8,u,Uはそれぞれの文字列のエンコードだ。この場合、コンパイル時にファイルの中身が対応する文字列のエンコードであると仮定され、生文字列リテラルに書かれたものと同じ扱いになる。
+</p>
+
+<pre><code>auto text = u8F"hello.txt" ;
+</code></pre>
+
+<p>
+これは、以下のコードと同じ意味だ。
+</p>
+
+<pre><code>
+auto text = u8R"(hello)" ;
+</code></pre>
+
+<p>
+ユーザー定義リテラルは、現状では問題があるので、将来の拡張案として保留するそうだ。
+</p>
+
+
+<p>
+なるほど、需要はあると思う。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0374r0.pdf">[PDF] P0374R0: Stream parallelism patterns</a>
+</h2>
+
+<p>
+ストリーム並列パターンをサポートするための提案。Parallerism TSで、ある程度有名な並列アルゴリズムはあるが、ストリーム並列パターンへの対応が欠けているという。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0375r0.html">P0375R0:[[exhaustive]] attribute for enums </a>
+</h2>
+
+<p>
+enum名に対する[[eustive]属性の提案
+</p>
+
+<p>
+以下のようなenumがあるとして、
+</p>
+
+<pre><code>enum color 
+{
+    red, green, blue  
+} ;
+</code></pre>
+
+<p>
+コンパイラーは、以下のようなコードに警告を発することがある。
+</p>
+
+<pre><code>switch ( color c = get_color() ; c )
+{
+    case red :
+        break ;
+    case green :
+        break ;
+    case blue :
+        break ;
+}
+</code></pre>
+
+<p>
+なぜか。unscoped enumはenumerators以外の値になることもなるからだ。
+</p>
+
+<p>
+そこで、この提案はコンパイラーの警告を抑制するための属性、[[exhaustive]]を提案している。
+</p>
+
+<pre><code>enum [[exhaustive]] color 
+{
+    red, green, blue  
+} ;
+</code></pre>
+
+<p>
+これで、enumeratorsのみが使われることを明示的に指定するので警告を抑制できる。
+</p>
+
+<p>
+素直にscoped enumを使えばいいと思うのだが。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0376r0.html">P0376R0: A Single Generalization of std::invoke, std::apply, and std::visit</a>
+</h2>
+
+<p>
+std::invoke, std::apply, std::visitを一般化したtupleの展開までできるstd::callの提案。
+</p>
+
+<p>
+便利だが使うのが面倒な気がする。汎用性のために利用方法が面倒になっているし、ドキュメンを参照せずに記述するのが難しいほど煩雑だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0377r0.html">P0377R0: std::integral_constant with a Deduced Value Type</a>
+</h2>
+
+<p>
+C++17の非型テンプレートの推定機能を使ったstd::integral_constantのエイリアステンプレート、std::constantの提案。
+</p>
+
+<p>
+実装
+</p>
+
+<pre><code>template &lt;auto V&gt;
+using constant = integral_constant&lt;decltype(V), V&gt;;
+</code></pre>
+
+<p>
+使い方
+</p>
+
+<pre><code>using answer = std::constant&lt;42&gt; ;
+</code></pre>
+
+<p>
+便利だ。悪影響もない。入るべきだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0379r0.html">P0379R0: Why a joining thread from P0206 is a Bad Idea</a>
+</h2>
+
+<p>
+デストラクターが自動的にjoin()を呼ぶスレッド、std::joining_threadが提案されているが、これは問題があるとする文書。
+</p>
+
+<p>
+例えば、並列処理に使うスレッドを管理するために、std::vector&lt;std::thread&gt;に対してpush_backでstd::threadのオブジェクトを追加していくようなコードでは、push_backが失敗して例外が投げられると、std::threadのオブジェクトのデストラクターが走り、まだjoinableなのでstd::terminateが呼ばれる。
+</p>
+
+<p>
+問題は、並列処理の最初ですべてのスレッドがお互いに最初に必要な処理が終わるのをロックで待っている場合、push_backが失敗しても処理が終わらないのでロックが解放されず、デッドロックになる。
+</p>
+
+<p>
+デッドロックは未定義だが、std::terminateが呼び出されるのは十分に意味が定義されている。失敗するなら速いほうがいい。デッドロックよりはterminateが呼び出されるほうがいい。
+</p>
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
