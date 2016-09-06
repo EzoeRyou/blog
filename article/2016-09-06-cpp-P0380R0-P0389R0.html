@@ -1,0 +1,324 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0380R0-P0389R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/09/c-p0380r0-p0389r0.html">
+C++標準化委員会の文書: P0380R0-P0389R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0380r0.pdf">[PDF] P0380R0: A Contract Design</a>
+</h2>
+
+<p>
+contract programmingの議論のたたき台になった実験的実装の紹介。属性でcontractsを指定する。
+</p>
+
+<pre><code>void push(queue &amp; q)
+    [[ expects: !q. full () ]] // there must be room for another element
+    [[ ensures: !q.empty() ]] // q can’t be empty after adding an element
+{
+    // ...
+    [[ assert: q.is_ok() ]]; // q’s invariant is (re)established at this point
+}
+</code></pre>
+
+<p>
+contractsには、3段階の契約履行レベルを指定できる。defaultとauditとaxiomだ。defaultは最小の実行時コスト、auditは大きな実行時コストのかかる契約、axiomは人間のためのソースコード内ドキュメントと静的解析ツールのためのコンパイル時チェックのレベル
+</p>
+
+<pre><code>
+[[ expects: ...]] // 暗黙のデフォルト
+[[ expects default : ... ]] //明示的なデフォルト
+[[ expects audit : ... ]] // audit
+[[ expects axiom : ... ]] // axiom
+</code></pre>
+
+<p>
+契約違反はプログラムの終了になる。契約違反の際の挙動も指定できる。無効、デフォルト、audit（デフォルト＋audit契約チェック）
+</p>
+
+<p>
+関数の宣言時に契約を記述した場合、すべての同じ関数の宣言は同一の契約を記述しなければならない。
+</p>
+
+<p>
+まあ、言ってみればコア言語による高級assertだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0381r0.html">P0381R0: Numeric Width</a>
+</h2>
+
+<p>
+&lt;cstdint&gt;のジェネリック実装ライブラリの提案
+</p>
+
+<p>
+&lt;cstdint&gt;には、int16_tやuint16_tなどといった、符号とビット長を指定した整数型があるが、この実装はジェネリックではない。ジェネリックコードから符号やビット長を指定したい。
+</p>
+
+<p>
+そのために、width&lt;T&gt;とset_width&lt;T, N&gt;を提案する。
+</p>
+
+<pre><code>width_v&lt;std::int16_t&gt; ; // 16
+width_v&lt; char &gt; ; // 少なくとも8以上
+width_v&lt; wchar_t &gt; ; // 少なくともワイド文字以上
+width_v&lt; long long int &gt; ; // 少なくとも64以上
+</code></pre>
+
+
+<p>
+set_widthは、指定した型と同じ符号で、指定したビット長以上の整数型を返す。
+</p>
+
+<pre><code>set_width_t&lt; int, 8 &gt; a ; // int8_t相当
+set_width_t&lt; unsigned, 32&gt; b ; // uint32_t相当
+set_width_t&lt; char, 32 &gt; c ; // 符号付きか符号なしの32bit長の整数
+set_width_t&lt; signed, 10 &gt; d ; // 大抵の実装ではint16_t相当
+</code></pre>
+
+<p>
+charの符号は未規定なので、cの符号がどうなるかは実装に依存する。
+</p>
+
+<p>
+set_widthは使いづらいように見えるが、テンプレート実引数として渡された型と互換性のある符号でビット長保証のある型を得るための設計となっている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0382r0.html">P0382R0: Comments on P0119: Overload sets as function arguments</a>
+</h2>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0119r1.pdf">P0119R1</a>でテンプレート内で関数名からオーバーロード解決するために、関数名からクロージャーオブジェクトを合成する気嚢が定庵されているが、この機能は既存のコードにも将来のコードにも悪影響を及ぼすという反論。
+</p>
+
+<p>
+確かにそうだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0384r0.html">P0384R0: Core "tentatively ready" Issues</a>
+</h2>
+
+<p>
+コア言語に入る予定の修正案
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0385r0.pdf">[PDF] P0385R0: Static reflection: Rationale, design and evolution</a>
+</h2>
+
+
+<p>
+静的リフレクションについて、これまでの議論の経緯や推移を解説する82ページもある文書。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0386r2.pdf">[PDF] P0386R2: Inline Variables</a>
+</h2>
+
+<p>
+inline変数の提案。C++17のドラフトに入っている。
+</p>
+
+<p>
+inline変数は、複数の翻訳単位で定義できる。定義は同一でなければならない。inline変数は、あたかもひとつの変数のオブジェクトがあるかのように振る舞う。
+</p>
+
+<pre><code>inline int x ;
+</code></pre>
+
+<p>
+extern宣言して、変数定義用の翻訳単位を用意する必要がなくなる。
+</p>
+
+<p>
+constexpr staticデータメンバーは暗黙にinlineとなる。名前空間スコープのconstexpr変数は暗黙にinlineにはならない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0387r0.html">P0387R0: P0387R0: Memory Model Issues for Concurrent Data Structures</a>
+</h2>
+
+<p>
+現在、Concurrent queueやdistributed counterといった、並列データ構造の提案が上がっている。並列データ構造のメモリーモデルはどうすればいいのか。
+</p>
+
+<ol>
+<li>memory_orderを引数に渡して指定する</li>
+<li>まともなコードでは観測不可能にする</li>
+<li>非決定性であると規定する</li>
+</ol>
+
+<p>
+1.について、並列データ構造をロックフリーにすることにパフォーマンス上の意味がないのであれば、memory_orderを指定する必要はない。2.について、現在、非現実的なコードで無理矢理にメモリーモデルの違いを観測することができるが、規格はそのような非現実的なコードについてはまともに取り合っていない。3.について、現在、規格はtry_lockを非決定性であるとしている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0388r0.html">P0388R0: Proposal: conversions to arrays of unknown bound</a>
+</h2>
+
+<p>
+Core issue 393を解決する上で、関数の引数は要素数が未束縛の配列へのリファレンス型を使えるようになった。
+</p>
+
+<pre><code>void f( int (&amp;)[] ) ;
+</code></pre>
+
+<p>
+問題は、要素数が束縛された配列型を、要素数が未束縛の配列へのリファレンス型で束縛することができないということだ。
+</p>
+
+<pre><code>
+int main()
+{
+    int a[1] ;
+
+    int (&amp;ref)[] = a ; // エラー
+    f( a ) ; // エラー
+}
+</code></pre>
+
+<p>
+このような制限は不要であるから緩和する提案。
+</p>
+
+<p>
+現在、Clangは実装している。GCCはまだ実装していない。そのため、互換性の問題もない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0389r0.html">P0389R0: Proposal: template keyword in unqualified-ids</a>
+</h2>
+
+<p>
+unqualifed-idがtemplate-idであることを示すためのtemplateキーワードを記述できるようにする提案。
+</p>
+
+<p>
+メンバーテンプレートがテンプレートであることを示すために、templateキーワードが使える。
+</p>
+<pre><code>template &lt; typename T &gt;
+void f()
+{
+    T::f&lt;int&gt;() ; // エラー、fはtemplate-idとはみなされない。&lt;は演算子
+
+    T::template f&lt;int&gt;() ; // OK、fはtemplate-idとみなす
+}
+</code></pre>
+
+<p>
+同様のことを、名前空間スコープ内のtemplate-idに対して行いたい。そして、ADLによってname lookupされるようにしたい。
+</p>
+
+<pre><code>namespace N {
+	struct A { };
+	template &lt;typename T&gt;
+	T func(const A&amp;) { return T(); }
+}
+
+void f() {
+	N::A a;
+	func&lt;int&gt;(a); // エラー、funcはtemplate-idではない。
+}
+</code></pre>
+
+<p>
+このコードがill-formedである直接の理由は、名前funcが見つからないためではない。ADLによって名前funcは見つかるのだが、template-idであるとみなされず、&lt;は大小比較演算子であるとみなされてしまう。
+</p>
+
+<p>
+N::func&lt;int&gt;と書くと、この問題は解決するのだが、それでは意味が変わってしまう。修飾名なのでADLが働かない。
+</p>
+
+<p>
+そこで、非修飾名に対してtemplate-idであることを示すtemplateキーワードを記述できるようにする。その結果、以下のように書ける。
+</p>
+
+<pre><code>template func&lt;int&gt;(a) ;
+</code></pre>
+
+<p>
+一部のライブラリ作者が幸せになる機能だ。
+</p>
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
