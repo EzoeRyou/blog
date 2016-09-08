@@ -1,0 +1,194 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0390R0-P0399R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/09/c-p0390r0-p0399r0.html">
+C++標準化委員会の文書: P0390R0-P0399R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0390r0.htm">P0390R0: ISO/IEC JTC1/SC22/WG21 p0390r0</a>
+</h2>
+
+<p>
+shared_ptrにムーブ対応のキャスト関数を追加する提案。
+</p>
+
+<p>
+クラスBaseと、Baseから派生するクラスDerivedがあり、Derivedのオブジェクトを指し示すshared_ptr&lt;Base&gt;を返す関数get_ptr()があるとする。この時、shared_ptr&lt;Base&gt;からshared_ptr&lt;Derived&gt;に安全に型変換できる。
+</p>
+
+<pre><code>
+class Base { } ;
+class Derived : public Base { } ;
+
+std::shared_ptr&lt;Base&gt; get_ptr() ;
+
+std::shared_ptr&lt;Derived&gt; p = std::static_pointer_cast&lt;Derived&gt;( get_ptr() ) ;
+</code></pre>
+
+<p>
+問題は、std::static_pointer_castは、引数としてconstなlvalueリファレンスしか取らないため、shared_ptrの参照カウンターのアトミックなインクリメントとデクリメントが発生する。
+</p>
+
+<p>
+そこで、static_pointer_castにrvalueリファレンスの引数を取り、ムーブに対応させる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0391r0.html">P0391R0: P0391R0: Introducing the term "templated entity"</a>
+</h2>
+
+<p>
+templated entity(テンプレート化されたエンティティ)という用語を定義する提案。
+</p>
+
+<p>
+templated entityとは、テンプレートと、テンプレートの中で宣言されたエンティティのことだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0392r0.pdf">[PDF] P0392R0:Adapting string_view by filesystem paths </a>
+</h2>
+
+<p>
+filesystemをstring_viewに対応させる提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0393r3.html">P0393R3: Variant: relational operators.</a>
+</h2>
+
+<p>
+どこぞの大統領候補が言いそうな題名の文書。
+</p>
+
+<p>
+内容は、variantの各種比較演算子を、variantの内部の値による比較にデリゲートする提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0394r4.html">P0394R4: Hotel Parallelifornia: terminate() for Parallel Algorithms Exception Handling</a>
+</h2>
+
+<p>
+タイトルはHotel Californiaへのリファレンス。冒頭に、歌詞の最後の部分を改変した、"You can throw any time you like, but the exceptions can never leave."と書かれている。
+</p>
+
+<p>
+並列アルゴリズムに渡した要素アクセス関数が例外を投げた時は、投げられた複数の例外がstd::exception_listに格納されて返されるという仕様になっている。しかし、実行ポリシーがpar_unseqの時だけはstd::terminate()を呼び出すとなっており、一貫性がない。
+</p>
+
+<p>
+これを考えるに、一律std::terminate()を呼び出すことで統一したほうがよい。そのほうが生成されるコードも簡単になるし、exception_listに持ち上がっている数々の問題への対処も不要になる。
+</p>
+
+<p>
+という変更をする提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0396r0.html">P0396R0: P0396R0: C++ Concepts Active Issues List (Snapshot of Revision 4)</a>
+</h2>
+
+<p>
+コンセプトに対する問題集
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0397r0.html">P0397R0: C++ Standard Library Priority 1 Issues Resolved Directly In Oulu</a>
+</h2>
+
+<p>
+Oulu会議で解決されたライブラリ問題の一覧
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0398r0.html">P0398R0: P0398R0: Core issue 1518: Explicit default constructors and copy-list-initialization</a>
+</h2>
+
+<p>
+デフォルトコンストラクターがexplicitか、継承コンストラクターを使っているクラス型は、アグリゲートから外すよう文面を変更する提案。
+</p>
+
+<p>
+厳密には意味の変更になるが、文面の解釈揺れや間違いを修正する変更。
+</p>
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
