@@ -1,0 +1,276 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0400R0-P0409R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/09/c-p0400r0-p0409r0.html">
+C++標準化委員会の文書: P0400R0-P0409R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0400r0.html">P0400R0: P0400R0 2016-06-25</a>
+</h2>
+
+<p>
+C++17では式の評価順序が、関数の引数を除いて固定された。関数の引数の順序は未だに不定だが、その部分の文面がわかりにくく書かれているため、書き直しの提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0401r0.html">P0401R0: Extensions to the Allocator interface</a>
+</h2>
+
+<p>
+アロケーターに確保したストレージの実サイズも返すallocate関数の追加の提案。
+</p>
+
+<p>
+アロケーターの実装として、32バイトとか64バイトなどの固定サイズごとのチャンク単位でメモリを管理して、要求されたサイズに最も近いチャンクサイズに切り上げてメモリを返す方法がある。
+</p>
+
+<p>
+そのような戦略を取るアロケーターに対して、例えばvectorが36バイトのメモリを要求して、実際には切り上げて64バイトが割り当てられたとする。その後、vectorは52バイトのメモリを要求する。アロケーターは64バイトの別のチャンクメモリを返す。vectorは既存の36バイト要求に対して割り当てられた64バイトのメモリの値を、新しい52バイト要求に対して割り当てられた64バイトのメモリにコピーして、古い方の64バイトのメモリを開放する。
+</p>
+
+<p>
+この時点で気がつくように、vectorのこの操作は、メモリに実際に割り当てられるサイズを知っていれば、本来不要であり、除去できるものである。しかし、現行のアロケーターには、メモリの実サイズを得る方法がない。
+</p>
+
+<p>
+そこで、以下のような関数を新たに追加する。
+</p>
+
+<pre><code>pointer allocate(size_type n, size_type&amp; result, const_void_pointer hint = {});
+</code></pre>
+
+<p>
+resultに対して、実際のサイズが書き込まれる。
+</p>
+
+<p>
+これは純粋にアロケーターだけでの対応方法だ。reallloc風の機能には、コンテナー側での対応も必要になるので、この提案では取り扱わないとしている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0404r0.html">P0404R0: Matching Types: 404 Syntax Not found</a>
+</h2>
+
+<p>
+文書番号がHTTP標準レスポンスコード404と偶然に同じで、文書のタイトルにも404へのリファレンスがある。
+</p>
+
+<p>
+constexpr ifが追加された今、C++に必要なのは型パターンマッチだ。ということで極めて不自然な文法で型に対するパターンマッチを提案している。文法が既存のC++からみると違和感がありすぎる。
+</p>
+
+<p>
+これはダメだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0405r0.html">P0405R0: Wording for Networking TS changes discussed in Kona</a>
+</h2>
+
+<p>
+ネットワークTS、ネットワークライブラリに対する細かい修正案
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0407r0.pdf">[PDF] P0407R0:Allocator-aware basic stringbuf </a>
+</h2>
+
+<p>
+stringbufに近代的なアロケーターサポートを追加する提案。
+</p>
+
+<p>
+stringbufはC++の歴史の上でもかなり早い段階で追加されたライブラリのため、近代的な設計になっていない。アロケーターはテンプレートパラメーターとしてしか渡すことができず、オブジェクトとして渡すことができない。このため、stringbufのオブジェクトごとのアロケーター指定ができない。
+</p>
+
+<p>
+この提案では、basic_stringと同等のアロケーターサポートを追加する。
+</p>
+
+
+
+
+<p>
+iostreamの設計は根本的に失敗なので、iostreamを改良する労力は無駄であると思う。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0408r0.pdf">[PDF] P0408R0: Efficient Access to basic stringbuf's Buffer</a>
+</h2>
+
+<p>
+stringbufとstringstreamには、内部のバッファーをコピーせずに参照する方法が一切ない。そのため、本来不要なコピーが発生していた。
+</p>
+
+<pre><code>std::stringstream ss ;
+// コピーが発生する
+ss &lt;&lt; "hello" ;
+
+std::string result ;
+// コピーが発生する
+ss &gt;&gt; result ;
+</code></pre>
+
+<p>
+そのため、この提案ではコピーを回避してstringbufと、stringbufを使うstringstreamの内部バッファーを直接アクセスする方法を提供する。
+</p>
+
+<p>
+まず、コンストラクターにbasic_stringへのrvalueリファレンスを取るオーバーロードが追加される。これによって、初期値をコピーなしで与えることができる。
+</p>
+
+<pre><code>std::string const initial_value("hello") ;
+
+// ムーブされる
+std::stringstream ss( std::move( initial_value ) ) ;
+
+std::string const another_value("123 456 789") ;
+
+// ムーブされる
+// 後でコピーを回避して値を変えることもできる
+ss.str( std::move( another_value ) ) ;
+
+
+// string_viewを返す
+// コピーせずにリードアクセスできる
+auto view = ss.str_view() ;
+
+// stringを返す
+// コピーではなく内部バッファーがstringにムーブされる
+auto str = std::move(ss).str() ;
+</code></pre>
+
+<p>
+確かに有益だが、iostreamをこれ以上付け焼き刃で改良するのに労力を咲くのはやめて、もっとまともな文字列処理ライブラリと入出力ライブラリを作るべきだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0409r0.html">P0409R0: Allow lambda capture [=, this]</a>
+</h2>
+
+<p>
+[=,this]を許可する提案。
+</p>
+
+<p>
+lambda captureのdefault captureに=が指定された場合、後続するキャプチャーには、リファレンスキャプチャーしかかくことができない。thisはthisポインターの値キャプチャーなので、当然書くことはできない。
+</p>
+
+<pre><code>int x{} ;
+// エラー
+[=, x] { } ;
+
+class C
+{
+    C()()
+    {
+        // エラー
+        [=,this]{} ;
+    }
+} ;
+</code></pre>
+
+<p>
+問題は、C++17には、thisポインターの参照先、つまり*thisを値キャプチャーするための文法が入った。
+</p>
+
+<pre><code>[*this] { } ;
+</code></pre>
+
+<p>
+これにより、クラスへのポインターではなく、クラスオブジェクトである*thisがクロージャーオブジェクトにコピーされる。
+</p>
+
+<p>
+つまり、以下のようなキャプチャーが書ける。
+</p>
+
+<pre><code>[=,*this]{} ;
+</code></pre>
+
+<p>
+このような記述が増えると、[=,*this]と区別して、]thisポインターをキャプチャーすることを明示するために、[=.this]と書きたくなる。これは基本的に良い作法であると思われるので、そのような記述を出来るように制限を緩和する。
+</p>
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+&lt;meta name="description" content="ここに変な文字列を突っ込みながら特定のWebサービスについて運営で参考にされるほど真面目に考察することで、運営の使っているURL先のmetaタグを読んで埋め込み表示するチャットシステムのログにシュールな雰囲気をもたらすハック"&gt;
+</p>
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
