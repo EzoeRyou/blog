@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0411R0-P0417R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="http://cpplover.blogspot.com/2016/09/c-p0411r0-p0417r0.html">
+C++標準化委員会の文書: P0411R0-P0417R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0411r0.html">P0411R0: Separating Library Requirements and Preconditions</a>
+</h2>
+
+<p>
+現在、標準ライブラリの関数にはrequires paragraphに関数の呼び出し元が満たすべき条件が記述されている。これは、17.6.4.11で規定されている。「requires paragraphに記述されたpreconditionsに違反すると挙動は未定義」とされている。
+</p>
+
+<p>
+ところで、現在のrequires paragraphには、preconditionsの他にも、様々な制約が書かれている。中にはコンパイル時にメタプログラミングでチェックできるものもあり、実際にメタプログラミングでコンパイル時チェックをしてコンパイル時エラーを出すことを規定している部分もある。これらが全て未定義の挙動であるとすると、せっかくコンパイル時チェックをしているのに意味がない。
+</p>
+
+<p>
+そこで、requires paragraphを、requires paragraphと、preconditions paragraphに分割する。requiresに違反した場合はill-formedとなる。preconditionsに違反した場合は、未定義の挙動となる。
+</p>
+
+<p>
+文書はすでに、標準ライブラリのすべてのrequiresに対する文面案を完備している。たいへん地道な作業が行われたのだろう。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0413r0.pdf">[PDF] P0413R0: </a>
+</h2>
+
+<p>
+Parallerism TSが規格入りしたが、すでにTSの方では修正されている識別子の変更は、自動的に反映されずに、明示的にCDに対して変更を提案しなければならない。その変更のための提案文書。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0414r0.html">P0414R0: Merging shared_ptr changes from Library Fundamentals to C++17</a>
+</h2>
+
+<p>
+Library Fundamentals TSを規格にマージするにあたって、shared_ptr周りの変更案が現行の規格の文面とコンフリクトを起こしたため変更を保留されていた。現行の文面に対する変更案を作りなおして提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0416r0.pdf">[PDF] P0416R0: Operator Dot (R3)</a>
+</h2>
+
+<p>
+operator .の改定案。指摘された問題を認識して修正したようだが、文面案がない。文面案がないと評価しようがない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0417r0.html">P0417R0: ISO 10646:2014</a>
+</h2>
+
+<p>
+C++標準規格が参照しているUCS規格であるISO/IEC 10646-1:1993をISO/IEC 10646:2014に変更する提案。
+</p>
+
+<p>
+ISO/IEC 10646は、Information technology — Universal Coded Character Set (UCS)で、いわゆるUnicodeとそのエンコード方式(ISO規格ではUnicodeという名称は使っていない)。1993年のUCS規格では、まだエンコード規格はUCS-2とかUCS-4と呼ばれていて、UTF-8, UTF-16, UTF-32という用語は存在しなかった。そのため、C++規格は参照先の規格で定義されていない用語をこれまで使っていたことになる。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
