@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+LenovoのWindows 10 Signature EditionがSATAがRAIDモードに固定されているのはIntelのせい
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/09/lenovowindows-10-signature.html">
+LenovoのWindows 10 Signature EditionがSATAがRAIDモードに固定されているのはIntelのせい
+</a></h1>
+
+<p>
+<a href="https://cpplover.blogspot.jp/2016/09/lenovowindows-10-signature-edition.html">本の虫: LenovoのWindows 10 Signature Edition PCにLinuxのインストールを妨害する機能が発覚</a>
+</p>
+
+<p>
+前回、LenovoのコンピューターのSATAがRAIDモードに固定されているため、Windows以外のOSをインストールすることができないと書いたが、この真の原因はIntelだそうだ。
+</p>
+
+<p>
+<a href="http://mjg59.dreamwidth.org/44694.html">mjg59 | Microsoft aren't forcing Lenovo to block free operating systems</a>
+</p>
+
+<p>
+<a href="https://mjg59.dreamwidth.org/41713.html">mjg59 | Skylake's power management under Linux is dreadful and you shouldn't buy one until it's fixed</a>
+</p>
+<p>
+IntelのSkylake世代のCPUの省電力機能を完全に使うためには、SATAも省電力機能に対応していなければならない。SATAを省電力機能に対応させる方法を、Intelは現在、公開していない。IntelのAHCIドライバーはSATAの省電力機能に対応しているが、MicrosoftのAHCIドライバーは対応していない。そこで、IntelのAHCIドライバーを確実に使わせるために、MicrosoftのAHCIドライバーが対応していないRAIDモードを有効にしているのだという。
+</p>
+
+<p>
+RAIDモードに固定する嫌がらせのような仕様にしている理由は、通常のユーザーがうっかり変えないようにするためなのだろう。
+</p>
+
+<p>
+この件における真の悪役はIntelであり、IntelにSATA省電力機能のための情報公開を迫るべきであるそうだ。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
