@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+カプコンのPC版ストリートファイター5にチート対策として誰でもカーネルモードで任意のコードを実行できるルートキットが仕込まれている問題
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/09/pc5.html">
+カプコンのPC版ストリートファイター5にチート対策として誰でもカーネルモードで任意のコードを実行できるルートキットが仕込まれている問題
+</a></h1>
+
+<p>
+<a href="http://www.theregister.co.uk/2016/09/23/capcom_street_fighter_v/">Double KO! Capcom's Street Fighter V installs hidden rootkit on PCs • The Register</a>
+</p>
+
+<p>
+カプコンのPC版ストリートファイター5のアップデートで、チート防止機能の実装に、rootkitが含まれている問題。
+</p>
+
+<p>
+PC版ストリートファイター5のアップデートに含まれているカーネルドライバー、capcom.sysは、IOCTLでサービスを提供する。その挙動は、まずSMEPを無効にし、呼び出し元の指定したポインターの参照するユーザーモードのアドレス空間上のコードを実行し、SMEPを再び有効にする。
+</p>
+
+<p>
+とんでもない脆弱性で、ユーザーモードからカーネルモードでの任意のコード実行を可能にするので、rootkitに分類できる。
+</p>
+
+<p>
+Supervisor Mode Execution Protection(SMEP)とは、カーネルモードからユーザーモードに割り当てられたアドレス空間のコードの実行を防ぐCPUの保護機能。
+</p>
+
+<p>
+この実装者がヤクでもキメていたかのようなイカれた挙動は、ストリートファイター5でメモリ書き換えのチートを防止する機能のために使われているようだ。
+</p>
+
+<p>
+カーネルドライバーを実装できるほどMSのドキュメントを辛抱強く読める能力を有したプログラマーが、この挙動がいかにヤバイものであるかを認識できないというのはにわかに信じられないのだが、一体どうなっているのだろう。
+</p>
+
+<p>
+なお、カプコンは公式Twitterアカウントで近いうちに修正を出すと発言している。
+</p>
+
+<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">We apologize for the inconvenience and will have an update on the time-frame for the PC rollback solution soon.</p>&mdash; Street Fighter (@StreetFighter) <a href="https://twitter.com/StreetFighter/status/779415276399931392">September 23, 2016</a></blockquote>
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
