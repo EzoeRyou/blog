@@ -1,0 +1,189 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++17の標準ライブラリの参考書を書く
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/09/c17.html">
+C++17の標準ライブラリの参考書を書く
+</a></h1>
+
+<p>
+江添がドワンゴに入社してから、もうかれこれ3年目になる。そろそろ、「江添ごときがC++の規格で飯を食っているのはけしからん。俺はC++の規格にも詳しいしC++コンパイラーも実装できる。俺が代わりにやる」という強者が出てきて私の仕事が楽になって欲しいのだが、残念ながら、そのような状況にはなっていない。より一層のC++の啓蒙活動が必要だ。
+</p>
+
+<p>
+ところで、2017年に制定される予定のC++17規格が迫っている。すでにドラフトには多くの新機能が入っている。C++17の参考書を書くのであれば今から始めるしかない。まだ紙の本として出すかどうかはわからないが、とにかく書き始めることにする。
+</p>
+
+<p>
+前回のC++11のコア言語の参考書の執筆と、Bjarne Stroustrupのプログラミング入門書の査読を経て、私はいくつかの教訓を得た。
+</p>
+
+<ul>
+<li>不必要に堅苦しく難しい文章を書くな。簡潔で必要最小限の文章を書け</li>
+<li>参考書のソースコードはファイルを分割しろ</li>
+<li>参考書のサンプルコードは自動でテストしろ</li>
+</ul>
+
+<p>
+私の最初の本も、Bjarne Storustrupのプログラミング入門書も、必要以上に文章が堅苦しく複雑で読みづらかった。これは改善しなければならない。
+</p>
+
+<p>
+私の最初の参考書のソースコードは、単一のXHTMLで書かれた。最終的にはファイルサイズが1MBを超えてしまい、テキストエディターでの編集が難しくなってしまった。
+</p>
+
+<p>
+Bjarne Stroustrupのプログラミング入門書のサンプルコードは、数割がコンパイルすら通らないお粗末なものであった。これは一度書いたソースコードを手で修正したにもかかわらず、コンパイラーによるチェックを行わなかったためである。参考書は、何度もの修正編集を経て完成する。そのため、参考書の中のサンプルコードは、参考書のソースコードから自動で抽出して自動でコンパイルにかけてテストする仕組みを作る必要がある。
+</p>
+
+<p>
+そこで今回、上の3つの教訓を元に、以下のような対策を講じた。
+</p>
+
+<ul>
+<li>
+<a href="https://github.com/textlint/textlint">textlint</a>を使って日本語の文章に制約をかける
+</li>
+<li>
+Markdownで書いて<a href="http://pandoc.org/">Pandoc</a>で他のフォーマットに変換する
+</li>
+<li>
+参考書のソースコードからサンプルコードを抽出してGCCとClangでコンパイルにかける仕組みを作る
+</li>
+
+</ul>
+
+<p>
+textlintは、node.jsで書かれた日本語の文章を形態素解析して特定のルールに従っているかどうかをチェックするためのツールである。あらかじめ技術文書用のルールが用意されているので、今回はこれをそのまま使う。デフォルトのルールはやや厳しいと思うのだが、文章を簡潔にするための制約として甘んじて受け入れる。
+</p>
+
+<p>
+PandocはMarkdownなどの様々な入力フォーマットから、更に多数の様々な出力フォーマットへの変換を行うツールだ。アスキードワンゴ編集部はtexを使っているが、作業用のtexを生成するのもMarkdownからPandoc経由で生成している。
+</p>
+
+<p>
+参考書のソースコードからサンプルコードを抽出してコンパイルするテストは、適当なツールがなかったので適当に実装した。C++で書いて200行ぐらいだった。
+</p>
+
+<p>
+あとは通常のプログラムと変わらない。参考書のソースコードはテキストファイルであるのでgitでバージョン管理できる。アスキードワンゴ編集部の編集者はgitもGitHubも使えるので、修正作業などはgitとGitHubのPRを経由して行うことができる。ソースコードから参考書のビルドにはMakeを使う。
+</p>
+
+<p>
+思うに、すべての作家はgitを使うべきである。また、簡単なコードのひとつぐらいは書けたほうが執筆に必要な作業のやテストの一部を自動化できてよい。
+</p>
+
+<p>
+さて、ここまでは理想通りだ。しかし、現実は理想通りには行かない。
+</p>
+
+<p>
+私がこれから書くのは、C++17規格に準拠した参考書である。しかし、C++17は2017年の年末になるまで制定されない。当然、執筆中にドラフトの内容が変わっていくので、執筆当時のドラフト段階の規格は、正式な規格とは異なる可能性がある。もちろん、サンプルコードのテストは用意したので、規格準拠のC++17コンパイラーが出れば検証できる。しかし、ここに最大の問題がある。
+</p>
+
+<p>
+現在、ドラフトに完全準拠しているC++17コンパイラーは存在しない。したがって、いま執筆している部分のサンプルコードは、コンパイラーによるチェックができない。私の予想では、C++17のコア言語の規格に準拠したC++コンパイラーのリリースには、まだ2年ほどかかると見ている。C++17の標準ライブラリの規格準拠の実装はさらに遅れるだろう。
+</p>
+
+<p>
+状況は2009年ごろにC++11のコア言語の参考書を書いていた時と同じだ。ただし、当時と違って今はClangがある。Clangの規格準拠度と実装速度は素晴らしいので、当時よりはマシだ。例えば、Clangは最新の構造化束縛を不完全ながら実装し始めている。
+</p>
+
+<pre><code>std::tuple&lt; int, float, double &gt; f()
+{
+    return { 1, 2.0f, 3.0 } ;
+}
+
+int main()
+{
+    auto[ a, b, c ] = f() ;
+}
+</code></pre>
+
+<p>
+ただし、コンストラクターからのクラステンプレートのテンプレート実引数推定はまだ実装していない。
+</p>
+
+<pre><code>// std::tuple&lt;int, float, double&gt;
+std::tuple t( 1, 2.0f, 3.0 ) ;
+</code></pre>
+
+<p>
+そして、ライブラリの参考書の執筆はコア言語以上に難しい。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
