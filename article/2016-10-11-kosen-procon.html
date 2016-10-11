@@ -1,0 +1,169 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+高専プロコンの問題がクソすぎるのでプログラミングを放り出して人力に走るのは最適解であり協賛企業はプログラミングを軽視する企業として唾棄されるべき
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/10/blog-post.html">
+高専プロコンの問題がクソすぎるのでプログラミングを放り出して人力に走るのは最適解であり協賛企業はプログラミングを軽視する企業として唾棄されるべき
+</a></h1>
+
+<p>
+第27回高等専門学校プログラミングコンテストが不評を買っている。プログラミングコンテストと名前が付いているのにもかかわらず、本選の上位入賞者は、人力で問題を説いたという。特にコンピューターを持ち込んですらいないチームまでいたという噂まで流れている始末。
+</p>
+
+<p>
+なぜそんな残念な結果になるのか、高専生のアルゴリズム力が低いからこうなったのだろうか。この謎を改名すべく、筆者は課題を確認した。
+</p>
+
+<p>
+<a href="http://www.procon.gr.jp/uploads/procon27/1_Apply27.pdf">http://www.procon.gr.jp/uploads/procon27/1_Apply27.pdf</a>
+</p>
+
+<p>
+課題を要約すると、以下の通りだ。
+</p>
+
+<p>
+問題
+</p>
+
+<p>
+「一枚の木の板（中密度繊維板）を切り出して、50個以下のピース（凹多面体を含む多角形）に分割する。このピースを枠内で組み合わせて板にせよ。正しい位置のピースの数が得点となる」
+</p>
+
+<p>
+制限時間は10分から20分。
+</p>
+
+<p>
+その他：コンピューター類を持ち込んでよい。ただし競技ブースに電源はない。外部との通信は認めない。
+</p>
+
+<p>
+まるでプログラミングするなと言っているような課題だ。要するに、問題は多角形のパズルを解くものであるが、それは問題の最も簡単な部分である。
+</p>
+
+<p>
+ピースは物理的に与えられるので、プログラミングで処理するためには、これを何らかの方法でデータとして表現しなければならない。ピースが十分に薄ければスキャナーが使えるかもしれないが、会場に電源はない。したがってスキャナーのような大電力の装置を稼働させるには、大容量バッテリーか発電機を持ち込む必要がある。
+</p>
+
+<p>
+なるべく電力を消費しない方法としては、無地単色の布などを背景に、距離を固定したカメラでピースを一つづつ撮影する必要がある。しかし、制限時間は最大でも20分、ピースは最大50個。撮影装置を一台用意した場合、何のトラブルも起こらずに撮影しても10分から20分の制限時間を超過してしまうだろう。
+</p>
+
+<p>
+すると、ピースをすべて並べて一度に撮影して、複雑な画像処理をする必要があるが、カメラの角度がピースに対して正面ではない、レンズの歪み、ピースの加工精度など、様々な要因がピースをデータで表現して処理する際の面倒事となる。
+</p>
+
+<p>
+外部との通信が禁じられているので、たとえば画像処理に外部のクラウドサーバーのインスタンスを立ち上げるといったこともできない。
+</p>
+
+<p>
+それ以外でも、極めて短い制限時間はやはり問題だ。機器のわずかなトラブルにより、10分、20分程度の時間は容易に失われる。
+</p>
+
+<p>
+さて、ここに人間という計算機がある。人間は高精度なカメラ、マイク、スピーカー、多関節脚、マニピュレーターを取り付けられた計算機である。人間は完全に自律移動できる。人間は極めて正確なピースの移動操作ができる。人間のパターン認識能力は極めて高く、完全な乱数列に対して存在しないパターンを見出してしまうほどである。この人間を訓練すれば、パズルを高速に解くことができる。人間はコンデンサの破裂、接触不良、宇宙線によるソフトメモリエラーを起こしたりしない。人間のバッテリー容量はとても高く、外部から燃料を一切供給せずとも長時間稼働できる。
+</p>
+
+<p>
+したがって、この問題を解くのに人間を使うのは当然の最適解である。ちなみに、同点の場合、勝敗はサイコロを振って決定される。実際に優勝者はサイコロを振って決定されたそうなので、この戦略は適切であったことが実証されている。
+</p>
+
+<p>
+明らかに、この問題と制約（電源なし、制限時間10分、外部通信禁止）はプログラミングコンテストにふさわしくない。この内容でプログラミングをさせたいのであれば、競技ではなく、課題公開から半年から1年ほど問題を解けるシステムを開発させたうえで皆で集まって成果報告会を開くべきである。競技には競技として適切な課題がある。この課題は競技に向かない。
+</p>
+
+<p>
+高専プロコンの上位入賞者が人力解答者で占められたのは今年が初めてではない。高専プロコンの課題作成者は競技プログラミングを理解していないとしか言いようがない。この課題は、少し考えただけでも、純粋なプログラミング以外の部分が困難である。課題作成者は自分で課題を解いてみたのだろうか。
+</p>
+
+<p>
+そして、この高専プロコンを協賛した企業は覚えておくべきだ。これらの企業は、プログラミングコンテストと銘打ちながら純粋なプログラミング力を競う競技のための課題を作成できず、至極自然で適切な戦略として人力解答者が上位を占めるという失態をしでかしたイベントの恥ずべき協賛者である。これらの協賛企業のプログラミングの認識と熱意と尊敬は、こんなイベントを協賛したレベルである。
+</p>
+
+<p>
+<a href="http://www.procon.gr.jp/modules/procon27/category.php?categoryid=12">全国高等専門学校プログラミングコンテスト - 協賛企業 - 第27回大会</a>
+</p>
+
+<blockquote>
+<p>
+協賛企業 
+</p>
+
+<p>
+プログラミングコンテストは情報関連企業のみなさまの多大なご協力により運営されています。
+</p>
+
+<p>
+これらの企業はプログラミングコンテストの目的や高専教育に対して理解を示して下さっています。皆さんも就職対象として検討されてはいかがでしょうか。
+</p>
+
+<ul><br><li><a href="https://www.cygames.co.jp/" target="_blank">(株)Cygames</a><br></li><li><a href="http://home.saison.co.jp/" target="_blank">(株)セゾン情報システムズ</a><br></li><li><a href="http://labo.dmm.com/" target="_blank">(株)DMM.comラボ</a><br></li><li><a href="http://www.team-lab.com/" target="_blank">チームラボ(株)</a><br></li><li><a href="http://www.toshiba-sol.co.jp/" target="_blank">東芝ソリューション(株)</a><br></li><li><a href="http://www.well-net.jp/" target="_blank">ウェルネット(株)</a><br></li><li><a href="http://github.co.jp/" target="_blank">ギットハブ・ジャパン合同会社</a><br></li><li><a href="http://www.sakura.ad.jp/" target="_blank">さくらインターネット(株)</a><br></li><li><a href="http://www.cac.co.jp/" target="_blank">（株）シーエーシー</a><br></li><li><a href="http://www.spacetime-eng.com/jp/" target="_blank">(株)スペースタイムエンジニアリング</a><br></li><li><a href="http://www.denso.co.jp/ja/aboutdenso/corporate/business/newbusiness/newbusinessdomain/" target="_blank">（株）デンソー</a><br></li><li><a href="http://www.toyota-cs.com/" target="_blank">(株)トヨタコミュニケーションシステム</a><br></li><li><a href="http://www.dreamarts.co.jp/" target="_blank">（株）ドリーム・アーツ</a><br></li><li><a href="http://www.nextware.co.jp/" target="_blank">ネクストウェア(株)</a><br></li><li><a href="http://www.fixer.co.jp/" target="_blank">(株)FIXER</a><br></li><li><a href="http://www.fujitsu.com/jp/" target="_blank">富士通(株)</a><br></li><li><a href="http://www.blueship.co.jp/" target="_blank">(株)Blueship</a><br></li><li><a href="http://www.broadleaf.co.jp/" target="_blank">(株)ブロードリーフ</a><br><hr><br><b>一般協賛</b><br><ul><br><li><a href="http://www.i-system.co.jp" target="_blank">アイ・システム(株)</a><br></li><li><a href="http://www.iforcom.jp/" target="_blank">アイフォーコム(株)</a><br></li><li><a href="http://www.xlsoft.com/jp/products/intel/index.html?procon_b" target="_blank">エクセルソフト(株)</a><br></li><li><a href="http://www.ntt-me.co.jp/" target="_blank">(株)エヌ・ティ・ティ　エムイー （NTT-ME)</a><br></li><li><a href="http://www.nttpc.co.jp/" target="_blank">(株)NTTPCコミュニケーションズ</a><br></li><li><a href="http://www.open-tec.co.jp/" target="_blank">オープンテクノロジー(株)</a><br></li><li><a href="http://www.epson.jp/" target="_blank">セイコーエプソン(株)</a><br></li><li><a href="http://www.sonydna.com/" target="_blank">ソニーデジタルネットワークアプリケーションズ(株)</a><br></li><li><a href="http://www.timedia.co.jp/" target="_blank">(株)タイムインターメディア</a><br></li><li><a href="https://www.daiwa-computer.co.jp/jp/index.html" target="_blank">(株)大和コンピューター</a><br></li><li><a href="https://ksj.co.jp/recruit/" target="_blank">ナレッジスイート(株)</a><br></li><li><a href="https://www.microsoft.com/ja-jp/education/it-hrd.aspx" target="_blank">日本マイクロソフト(株)</a><br></li><li><a href="http://www.bcn.co.jp/" target="_blank">(株)ＢＣＮ</a><br></li><li><a href="http://www.forum8.co.jp/" target="_blank">(株)フォーラムエイト</a><br></li><li><a href="http://www.fsi.co.jp/" target="_blank">富士ソフト(株)</a><br></li><li><a href="https://www.preferred-networks.jp/" target="_blank">(株)Preferred Networks</a><br></li><li><a href="http://mda.ne.jp/" target="_blank">メディア総研(株)</a><br></li><li><a href="http://lecre.jp/" target="_blank">(株)ルクレ</a><br></li><li><a href="http://www.wacom.com/ja-jp" target="_blank">(株)ワコム</a><br></li></ul><br>
+								</li></ul>
+</blockquote>
+
+<p>
+上に引用した内容によれば、これらの協賛企業は、プログラミングコンテストに不向きで人間が最適解である見当違いの課題を設定するこのような謎のイベントの目的に理解を示しているようだ。イベントの実際の内容から考えるに、これらの協賛企業はプログラミングに理解は示しておらず、人間が頑張って単調作業をすることが最適解となることに理解を示しているのだろう。プログラマーの地位と尊厳を重要視する人間はこの事実を踏まえて、就職対象として検討するべきである。
+</p>
+
+<p>
+なお、信じられないことに、高専プロコンのWebサイトはこの2016年にもかかわらずTABLEレイアウトを使っていた。繰り返す。TABLEレイアウトを使っていた。お後がよろしくなさすぎる。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
