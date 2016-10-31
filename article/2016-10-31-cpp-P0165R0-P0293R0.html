@@ -1,0 +1,327 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0165R0-P0293R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/10/c-p0165r0-p0293r0.html">
+C++標準化委員会の文書: P0165R0-P0293R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0165r3.html">P0165R3: C++ Standard Library Issues to be moved in Issaquah</a>
+</h2>
+
+<p>
+Issaquah会議で議論されるマイナーな問題集。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0187r1.pdf">[PDF] P0187R1: Proposal/Wording for Bit-field Default Member Initializer Syntax</a>
+</h2>
+
+<p>
+ビットフィールド付きのデータメンバーにメンバー初期化子を書けるようにする提案。
+</p>
+
+<p>
+前回の提案では以下のような文法が提案されていたが、
+</p>
+
+<pre><code>struct X
+{
+    int data : 5 = 1 ;
+} ;
+</code></pre>
+
+<p>
+この文法は曖昧だとして、以下のような文法になった。
+</p>
+
+<pre><code>struct X
+{
+    int data : 5 : = 1 ;
+    int another_data : 5 : {2} ;
+} ;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0194r2.html">P0194R2: P0194R2 — Static reflection</a>
+</h2>
+
+<p>
+様々な型情報、ソースコード情報を取得する静的リフレクション機能の文面。テンプレートメタプログラミングを土台としている極めて使いづらい設計となっている。
+</p>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0195r1.html">P0195R1: Modernizing using-declarations</a>
+</h2>
+
+<p>
+using宣言をパラメーターパックに対応させる提案。
+</p>
+
+<pre><code>template &lt; typename ... Funcs &gt;
+struct overload
+{
+    using Funcs::operator () ... ;
+} ;
+</code></pre>
+
+<p>
+overloadのようなライブラリを再帰を使わずに簡単に実装できるようになる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0196r2.pdf">[PDF] P0196R2: Generic none() factories for Nullable types</a>
+</h2>
+
+<p>
+nullableな型のためにnone_t型と、ファクトリー関数none&lt;T&gt;()を追加する提案。ポインターやoptionalなど様々なnullableな型に使える。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0201r1.pdf">[PDF] P0201R1: An indirect value-type for C++</a>
+</h2>
+
+<p>
+ディープコピーを行う版unique_ptr&lt;T&gt;のような型、indirect&lt;T&gt;の提案。前回の提案では、cloned_ptr&lt;T&gt;と呼ばれていた。
+</p>
+
+<pre><code>
+indirect&lt;int&gt; i{ new int(42) } ;
+// ディープコピーされる
+// 新しいint型のオブジェクトが確保されて値42がコピーされる
+auto j = i ; 
+
+// 42
+std::cout &lt;&lt; *j &lt;&lt; '\n' ;
+
+// i, jのデストラクターで所有するint型のオブジェクトがそれぞれ破棄される
+</code></pre>
+
+<p>
+unique_ptrはポインターを所有し、コピーを禁止し、デストラクターで破棄する。。shared_ptrはポインターを所有し、コピーはリファレンスカウントにより所有権を共有し、デストラクターでリファレンスカウントを減じて、どこからも参照されていなければ破棄する。indirectはポインターを所有し、コピー時にはディープコピーし、デストラクターでは破棄する。
+</p>
+
+<p>
+コピーと破棄には、コピーアーとデリーターによって独自の挙動を設定できる。
+</p>
+
+<pre><code>int * ptr = static_cast&lt;int *&gt;( std::malloc( sizeof(int) ) ) ;
+*ptr = 42 ;
+indirect&lt;int&gt; i( ptr,
+[]( auto ptr ){
+    int * copy = static_cast&lt;int * &gt;( std::malloc( sizeof(int)) ) ;
+    *copy = *ptr ;
+    return copy },
+[]( auto ptr )
+{
+    std::free( ptr ) ;
+} ) ;
+
+// mallocでメモリが確保される
+auto j = i ;
+
+// freeでメモリが破棄される
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0214r2.pdf">[PDF] P0214R2: Data-Parallel Vector Types & Operations</a>
+</h2>
+
+<p>
+SIMDやGPGPUなどの並列処理を行うためのベクトル型の提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0233r2.pdf">[PDF] P0233R2: Hazard Pointers: Safe Reclamation for Optimistic Concurrency</a>
+</h2>
+
+<p>
+ハザードポインターライブラリー、haz_ptrの提案
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0237r3.html">P0237R3: Wording for fundamental bit manipulation utilities</a>
+</h2>
+
+<p>
+符号なし整数型に対して、ビット単位のイテレーターを提供するライブラリ。イテレーターを提供することにより、汎用的なアルゴリズムにビット列処理のために渡すことができる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0249r2.pdf">[PDF] P0249R2: Input Devices For 2D Graphics</a>
+</h2>
+
+<p>
+2Dグラフィックライブラリのために、GUIプログラミングで一般的なイベント駆動を実現するためにメッセージ処理を行うためのライブラリの提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0252r2.pdf">[PDF] P0252R2: Operator Dot Wording</a>
+</h2>
+
+<p>
+複雑怪奇で理解不可能なoperator .のオーバーロードを可能にする文面案。
+</p>
+
+<p>
+このような極めてわかりにくい機能が提案されているのは、おそらくこれがBjarne Stroustrupのお気に入り案件だからだろう。最近のBjarne StroustrupのC++の判断能力は、最近の書籍から判断すると、極めて疑問である。Bjarne StroustrupはC++から引退するべきではないだろうか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0261r1.html">P0261R1: C++ Distributed Counters</a>
+</h2>
+
+<p>
+高頻度のインクリメントを行うが読み込みはまれなアトミックなカウンターライブラリの提案。
+</p>
+
+<p>
+アトミック操作では、インクリメントは読み込みよりコストがかかる。多くのプログラムではカウンターを用いるが、めったに読み込まないカウンターのためにアトミックなインクリメント操作を行うのはスケールしない。そこで、読み込みのコストを犠牲にインクリメントを高速化した分散カウンターが標準ライブラリにほしい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0262r1.html">P0262R1: A Class for Status and Optional Value</a>
+</h2>
+
+<p>
+値と情報を保有できる、status_valueライブラリの提案。
+</p>
+
+<p>
+現在提案されているexpectedは、値か情報のどちらかを保有するライブラリだ。expectedは値と情報の両方を保有したい時には使えない。つまり、
+</p>
+
+<ul>
+<li>値を保有する。情報は保有しない</li>
+<li>値を保有しない。情報を保有する</li>
+<li>値を保有する。情報を保有する</li>
+<li>値を保有しない。情報を保有しない</li>
+</ul>
+
+<p>
+というどの状態にもでき、かつoptionalやexpectedのように値がない場合の簡単に書けるようなライブラリを提案している。
+</p>
+
+<p>
+こういう目的に特化したライブラリを乱立させるより、C++のコア言語にnullableな値も含む多値を扱える仕組みを入れたほうがいいのではないか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0279r1.pdf">[PDF] P0279R1: 	Read-Copy Update (RCU) for C++</a>
+</h2>
+
+<p>
+RCUライブラリの提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0290r1.html">P0290R1: P0290R1: apply() for synchronized_value<T></a>
+</h2>
+
+<p>
+synchronized_value&lt;T&gt;はT型とmutexを保持するクラスだ。この文書で提案されているapplyは、synchronized_valueをlockして値にアクセスしunlockするための関数だ。
+</p>
+
+<pre><code>void f( synchronized_value&lt;int&gt; &amp; s )
+{
+    apply( []( auto value ) { ++x ; }, s ) ;
+}
+</code></pre>
+
+<p>
+applyは関数オブジェクトと、Variadic Templatesで任意個のsynchronized_valueを受け取る。デッドロックを起こさない方法ですべてロックして、値を関数オブジェクトに渡し、アンロックする。
+</p>
+
+<p>
+便利だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0293r0.pdf">[PDF] P0293R0: Template deduction for nested classes</a>
+</h2>
+
+<p>
+クラステンプレート内にネストしたクラステンプレートの実引数推定ができるようにする提案。
+</p>
+
+<p>
+趣旨はわかるのだが、すでにC++規格でも標準ライブラリのコンテナーのイテレーターはコンテナークラスの外で定義されるように規定されているので、このような提案が必要になるコードはそもそも扱いづらいので避けるべきではないか。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
