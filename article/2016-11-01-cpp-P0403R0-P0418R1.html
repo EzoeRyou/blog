@@ -1,0 +1,334 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0403R0-P0418R1
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/11/c-p0403r0-p0418r1.html">
+C++標準化委員会の文書: P0403R0-P0418R1
+</a></h1>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0403r0.html">P0403R0: Literal suffixes for basic_string_view</a>
+</h2>
+
+<p>
+string_viewに対するユーザー定義リテラル、svの提案。
+</p>
+
+<pre><code>std::string_view s = "hello"sv ;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0406r1.html">P0406R1: Intrusive Containers</a>
+</h2>
+
+<p>
+タイトル通り、Intrusiveコンテナーを追加する提案。BoostのIntrusive Containersを土台にしているが、だいぶ簡略化している。
+</p>
+
+<p>
+要素型のIntrusiveコンテナーへの対応方法として、Base hookしか提供しない。要素型は、container_name_element(boostならばcontainer_name_base_hookであったもの)を派生することによってIntrusiveコンテナーに対応できる。
+</p>
+
+<p>
+Boostにあるauto linkとsafe mode機能は提供しない。
+</p>
+
+<p>
+現在標準ライブラリにあるコンテナーに相当するものだけを追加する。つまり、list, forward_list, set, multiset, unordered_set, unordered_multisetだ。メンバーも現行の標準ライブラリのコンテナーにあるものだけを提供する。Boostのようなアルゴリズムやデータ構造が固定された具体的なコンテナーやリッチなメンバーは提供しない。
+</p>
+
+<p>
+あれば便利だろう。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0409r1.html">P0409R1: Allow lambda capture [=, this]</a>
+</h2>
+
+<p>
+ラムダ式のデフォルトキャプチャーに=が書かれた場合でも、thisを書けるようにする提案。わかりやすさのために。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0412r0.html">P0412R0: Benchmarking Primitives</a>
+</h2>
+
+<p>
+ベンチマーク用に最適化を抑制するライブラリの提案。
+</p>
+
+<p>
+あるコード辺の処理時間を計測するには、以下のようなコードを書く。
+</p>
+
+<pre><code>auto start = chrono::high_resolution_clock::now();
+double answer = perform_computation(42);
+auto delta = chrono::high_resolution_clock::now() - start;
+</code></pre>
+
+<p>
+問題は、コンパイラーは最適化によってこのベンチマークを意味のないものにしてしまう。関数に渡した値はコンパイル時に計算できるので、コンパイラーは処理をコンパイル時に済ませてしまうかもしれない。また、結果であるanswerが出力に使われていないので、コンパイラーは処理をまるごと消してしまうかもしれない。
+</p>
+
+<p>
+さらに、C++規格上、コンパイラーが処理を以下のような順番に並び替えてもよい。
+</p>
+
+<pre><code>double answer = perform_computation(42);
+auto start = chrono::high_resolution_clock::now();
+auto delta = chrono::high_resolution_clock::now() - start;
+</code></pre>
+
+
+<p>
+P0409R0では、この問題に対処するため、時間フェンスが提案された。timing_fence()を呼び出すとその前後の処理がリオーダーされないことを保証する。しかし、時間フェンスはコンパイラー実装者によって、実装不可能だと回答された。
+</p>
+
+<p>
+そこで、この提案では、最適化阻害のための擬似IOライブラリを提案している。
+</p>
+
+<pre><code>namespace std {
+namespace experimental {
+namespace benchmark {
+
+template&lt;class T&gt;
+void keep(T &amp;&amp;) noexcept;
+
+template&lt;class T&gt;
+void touch(T &amp;) noexcept;
+
+} } }
+</code></pre>
+
+<p>
+keepは、実引数に渡されたオブジェクトの内部表現のバイト列を、あたかも(as-if)何らかのデバイスに出力したかのように振る舞う。
+</p>
+
+<p>
+touchは、実引数に指定されたオブジェクトの内部表現のバイト列を、あたかも(as-if)何らかのデバイスから入力を得てきたかのように振る舞う。
+</p>
+
+<p>
+これにより、C++実装はコンパイル時に値を推定して最適化することができなくなる。
+</p>
+
+<pre><code>auto start = chrono::high_resolution_clock::now();
+int value = 42;
+experimental::benchmark::touch(value);
+double answer = perform_computation(value);
+experimental::benchmark::keep(answer);
+auto delta = chrono::high_resolution_clock::now() - start;
+</code></pre>
+
+<p>
+実装可能なライブラリとしては簡単だが、使いづらそうだ。漏れがあると最適化がかかってしまう。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0414r1.html">P0414R1: Merging shared_ptr changes from Library Fundamentals to C++17</a>
+</h2>
+
+<p>
+shared_ptrを配列に対応させる変更をLibrary Fundamentals TSから切り離して単独でC++17に追加。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0415r0.html">P0415R0: Constexpr for std::complex</a>
+</h2>
+
+<p>
+std::complexをconstexprに対応させる提案。コンストラクターがconstexprになるのでリテラル型となりconstexpr変数として使うことができるが、演算はconstexprに対応しない。
+</p>
+
+<p>
+libstdc++は、std::complexの実装にコンパイラーマジックである__complex__を使っていて、これはコンパイル時定数として扱える。
+</p>
+
+<p>
+libc++は、純粋にライブラリとして実装している。&lt;cmath&gt;に依存しているため、演算をconstexpr化できない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0416r1.pdf">[PDF] P0416R1: Operator Dot (R3)</a>
+</h2>
+
+<p>
+operator .をオーバーロードできるようにする提案。
+</p>
+
+<p>
+目的は、スマートリファレンスを実装できるようにするため。ただし、operator .のオーバーロードを実現するために挙動がとても不可解になっており、理解不可能なほどクソになっている。
+</p>
+
+<p>
+こんなクソな提案が行われているのは、これがBjarne Stroustrupのお気に入りの提案だからだろう。Bjarne Stroustrupはもはや現代のC++の発展のために害悪ではないかと思う。Bjarne Stroustrupが関わった最近の機能はだいたい失敗している気がする。コンセプトしかり、dynarryしかり。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0418r1.html">P0418R1: P0418r1: Fail or succeed: there is no atomic lattice</a>
+</h2>
+
+<p>
+言語法家の熾烈な争い。
+</p>
+
+<p>
+atomic操作のcompare_exchangeに渡すメモリーオーダー引数、successとfailureについて、規格は、「failure引数はsuccess引数より強くてはならない」としている。この「より強く」とはどのような意味か。規格は「より強く」を定義していない。メモリーオーダー同士を比較してより強いかどうかを判断するための半順序をC++規格は規定すべきだ。
+</p>
+
+<p>
+これを受けて、Urbana会議で、relaxedが一番弱く、set_cstが一番強く、その間にいろいろと半順序でメモリーオーダーが入る、以下のようなメモリーオーダーの束を規定した。
+</p>
+
+<div>
+<svg class="railroad-diagram" height="92" viewBox="0 0 601 92" width="601">
+       <g transform="translate(.5 .5)">
+        <path d="M 20 21 v 20 m 10 -20 v 20 m -10 -10 h 20.5" data-type="start" data-updown="10 10"></path>
+        <path d="M40 31h10"></path>
+        <path d="M126 31h10"></path>
+        <g data-type="terminal" data-updown="11 11">
+         <path d="M50 31h0.0"></path>
+         <path d="M126.0 31h0.0"></path>
+         <rect height="22" rx="10" ry="10" width="76" x="50.0" y="20"></rect>
+         <text x="88.0" y="35"> relaxed</text>
+        </g>
+        <g data-type="choice" data-updown="11 41">
+         <path d="M136 31h0.0"></path>
+         <path d="M368.0 31h0.0"></path>
+         <path d="M136.0 31h20"></path>
+         <path d="M348.0 31h20"></path>
+         <g data-type="terminal" data-updown="11 11">
+          <path d="M156.0 31h58.0"></path>
+          <path d="M290.0 31h58.0"></path>
+          <rect height="22" rx="10" ry="10" width="76" x="214.0" y="20"></rect>
+          <text x="252.0" y="35"> release</text>
+         </g>
+         <path d="M136.0 31a10 10 0 0 1 10 10v10a10 10 0 0 0 10 10"></path>
+         <path d="M348.0 61a10 10 0 0 0 10 -10v-10a10 10 0 0 1 10 -10"></path>
+         <g data-type="sequence" data-updown="11 11">
+          <path d="M156.0 61h0.0"></path>
+          <path d="M348.0 61h0.0"></path>
+          <path d="M156.0 61h10"></path>
+          <path d="M242.0 61h10"></path>
+          <g data-type="terminal" data-updown="11 11">
+           <path d="M166.0 61h0.0"></path>
+           <path d="M242.0 61h0.0"></path>
+           <rect height="22" rx="10" ry="10" width="76" x="166.0" y="50"></rect>
+           <text x="204.0" y="65"> consume</text>
+          </g>
+          <path d="M252.0 61h10"></path>
+          <path d="M338.0 61h10"></path>
+          <g data-type="terminal" data-updown="11 11">
+           <path d="M262.0 61h0.0"></path>
+           <path d="M338.0 61h0.0"></path>
+           <rect height="22" rx="10" ry="10" width="76" x="262.0" y="50"></rect>
+           <text x="300.0" y="65"> acquire</text>
+          </g>
+         </g>
+        </g>
+        <path d="M368 31h10"></path>
+        <path d="M454 31h10"></path>
+        <g data-type="terminal" data-updown="11 11">
+         <path d="M378 31h0.0"></path>
+         <path d="M454.0 31h0.0"></path>
+         <rect height="22" rx="10" ry="10" width="76" x="378.0" y="20"></rect>
+         <text x="416.0" y="35"> acq_rel</text>
+        </g>
+        <path d="M464 31h10"></path>
+        <path d="M550 31h10"></path>
+        <g data-type="terminal" data-updown="11 11">
+         <path d="M474 31h0.0"></path>
+         <path d="M550.0 31h0.0"></path>
+         <rect height="22" rx="10" ry="10" width="76" x="474.0" y="20"></rect>
+         <text x="512.0" y="35"> seq_cst</text>
+        </g>
+        <path d="M 560 31 h 20 m -10 -10 v 20 m 10 -20 v 20" data-type="end" data-updown="10 10"></path>
+       </g>
+      </svg>
+</div>
+
+<p>
+しかし、メモリーオーダーの束を規定するこの修正案には問題がある。releaaseとconsume/acquireの間には順序がないが、どのように解釈すればいいのか。そもそもsuccessとfailureにこのような制約を設けることに意味はあるのか。ロードとストアがそれぞれ単独の命令であるようなアーキテクチャでは、命令ごとにメモリーオーダーも異なるわけだ。
+</p>
+
+<p>
+そこで、最終的な修正案では、このような制約自体をなくすことにした。これにより、メモリーオーダー同士の束を規定する必要もなくなった。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
