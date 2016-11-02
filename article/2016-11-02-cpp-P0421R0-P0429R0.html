@@ -1,0 +1,193 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0421R0-P0429R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/11/c-p0421r0-p0429r0.html">
+C++標準化委員会の文書: P0421R0-P0429R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0421r0.html">P0421R0: Static class constructor</a>
+</h2>
+
+<p>
+staticクラスコンストラクターの提案。
+</p>
+
+<p>
+staticクラスコンストラクターは、一度だけ、main関数の実行前に実行される。
+</p>
+
+<p>
+同等のことは、グローバル変数でもできるが、ヘッダーオンリーのコードで実現するためには、提案されている機能が必要になる。
+</p>
+
+<p>
+クラスのメンバーという文法である必要があるだろうか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0422r0.html">P0422R0: Out-of-Thin-Air Execution is Vacuous</a>
+</h2>
+
+<p>
+Out of thin air valueの考察
+</p>
+
+<p>
+複数のスレッドで複数のアトミックオブジェクトに対するアトミック操作をmemory order relaxedで行った場合に、値が未規定になることが規格上許されているが、その結果として、絶対に起こりえない値が出てきたらどうするのかという問題。
+</p>
+
+<p>
+例えば、2つの初期値がゼロのアトミック変数を複数のスレッドからお互いに間接的に代入し合った結果、人生、宇宙、すべての答えである42がでてくる可能性がある。
+</p>
+
+<p>
+Java規格では10年以上も問題になっていて、未だに結論が出ていない問題。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0423r0.html">P0423R0: Variable templates for Networking TS traits</a>
+</h2>
+
+<p>
+Networking TSのtraitsに値テンプレート版(_v)が提供されていないので、提供する提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0424r0.pdf">[PDF] P0424R0: Reconsidering literal operator templates for strings</a>
+</h2>
+
+<p>
+ユーザー定義リテラルのオーバーロードに文字列リテラルを取って文字をそれぞれテンプレート実引数に渡すオーバーロードの追加の提案。
+</p>
+
+<pre><code>template &lt; typename T, T ... args &gt;
+auto operator "" _udl( ) ;
+
+// operator "" _udl&lt; char, 'h', 'e', 'l', 'l', 'o', &gt; ;
+"hello"_udl ;
+</code></pre>
+
+<p>
+この提案は、C++14にも提案されたが、コンパイル時に文字列を扱う機能が必要だとして却下された。そのような特別な機能は必要ないので当時の提案をそのまま入れるべきだと主張しているのがこの文書。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0426r0.html">P0426R0: Constexpr for std::char_traits</a>
+</h2>
+
+<p>
+string_viewをconstexpr対応させるために、char_traitsのメンバー、length, compare, findをconstexprにする提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0428r0.pdf">[PDF] P0428R0: Familiar template syntax for generic lambdas</a>
+</h2>
+
+<p>
+lambda式にテンプレートを記述できる機能の提案。
+</p>
+
+<pre><code>[]&lt;typename T &gt;(T x ) { } ;
+</code></pre>
+
+<p>
+もともと、C++14に入ったジェネリックラムダの提案に含まれていた機能だが、C++14ではautoを使ったジェネリックラムダだけが入った。しかし、引数の型を扱いたい場合に、autoだけでは不便なので、テンプレートも明示的書けたほうがよい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0429r0.pdf">[PDF] P0429R0: A Standard flat_map</a>
+</h2>
+
+<p>
+連続したストレージ上に構築されたソート済みの要素をバイナリサーチすることによる連想コンテナー実装、flat_mapの提案。Boostにあるものが土台になっている。
+</p>
+
+<p>
+flat_mapと従来のmapのベンチマーク結果があるが、要素の挿入と削除はとても遅く、イテレートはとても速く、検索はmapより速いがunordered_mapよりは遅い結果となっている。そのデータ構造から考えて予想通りの特性だ。
+</p>
+
+<p>
+また、メモリ使用量が少ない。これは当然の話で、mapを素直に実装するには左右の葉ノードと親ノードへの3個のポインターを持つノードによるバイナリツリーになる上に、メモリ確保をノード単位で行うためにメモリ管理のためのメモリも必要になる。また、連続したストレージ上に確保されるためキャッシュの局所性が最高だ。
+</p>
+
+<p>
+多くのmapを使うところでは、flat_mapをデフォルトで使ったほうがいいのではないかと思う。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
