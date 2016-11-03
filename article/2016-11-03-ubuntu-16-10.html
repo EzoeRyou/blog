@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+Ubuntu 16.10にアップグレードしたらログイン時にディスプレイが点灯しない不具合に悩まされている
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/11/ubuntu-1610.html">
+Ubuntu 16.10にアップグレードしたらログイン時にディスプレイが点灯しない不具合に悩まされている
+</a></h1>
+
+<p>
+Ubuntu 16.10にアップグレードした。
+</p>
+
+<p>
+アップグレードは何事もなく終了したようであるが、ログイン時に高確率でディスプレイが点灯しないという不具合に悩まされている。
+</p>
+
+<p>
+今使っているコンピューターは、AMDのGPUを積んでおり、Ubuntu 16.04からは、AMDのGPUはAMDの不自由なドライバーを廃止して、自由なドライバーが使われている。Ubuntu 16.04では、OpenGLを使うゲームを起動してしばらく負荷をかけると、急にGPUに問題が発生したらしきエラーメッセージを端末に表示してカーネル自体が止まる問題があったが、日々のテキスト編集作業では何の問題もなかった。
+</p>
+
+<p>
+Ubuntu 16.10では、起動に16.04より時間がかかり、かつログイン時に不自然なディスプレイのちらつきがある。時にLightDMのGreeterが表示する場面でディスプレイが消灯してしまう。Greeterが表示されていても、ログインするとディスプレイが消灯することもある。
+</p>
+
+<p>
+ディスプレイが点灯しない以外は問題がないので、手探りでリブートを行うと、再びディスプレイの点灯ガチャが引ける。ディスプレイが点灯するかどうかは確率の問題のようだ。一度点灯したままGreeterを突破まで行くと、そのあとは安定しているようだ。少なくとも、現在これを書いている時点で、30分ほどはディスプレイが安定して点灯している。
+</p>
+
+<p>
+そして、安定して動作する状態でdmesgをみてみると、AMDのGPU回りのエラーがいくつも表示されている。
+</p>
+
+<p>
+画面が見えない状態でリブートする最も確実な方法は、Ctrl+Alt+F1でtty1に切り替えて、ユーザー名とパスワードを入力し、"sudo shutdown -r now"と入力し、パスワードを入力することだ。
+</p>
+
+<p>
+さて、Ubuntu 16.10は、GCCのバージョンが6になっている。その他にはあまり目新しい変更はない。デフォルトのClangはまだ3.8のままだ。3.9もパッケージには存在する。libc++の&lt;string&gt;のコンストラクター宣言でnoexceptが一致していない問題もそのままだ。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
