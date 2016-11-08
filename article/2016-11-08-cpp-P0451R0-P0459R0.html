@@ -1,0 +1,208 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0451R0-P0459R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/11/c-p0451r0-p0459r0.html">
+C++標準化委員会の文書: P0451R0-P0459R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0451r0.html">P0451R0: P0451r0: Future-Proofing Parallel Algorithms Exception Handling</a>
+</h2>
+
+<p>
+並列アルゴリズムで要素アクセス関数が例外を投げた時、並列に実行されるので当然複数の例外がキャッチされる可能性があるが、この例外はexception_listという複数の例外を格納するクラスに入れてthrowされるということになっていた。
+</p>
+
+<p>
+しかし、このexception_listについて、実装経験がなく規格通りに実装できるかどうかわからないとして、要素アクセス関数が例外を投げた場合は、std::terminate()が呼ばれるように変更された。
+</p>
+
+<p>
+この提案では、将来の拡張のために、カスタマイゼーションポイントとしてfail()関数を呼ぶようにしてはどうかと提案している。デフォルトのfailはterminateを呼ぶ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0452r0.html">P0452R0: P0452r0: Binary-Binary transform_reduce(): The Missing Overload</a>
+</h2>
+
+<p>
+inner_productは規格の定義上並列化できないので、並列化できる設計のtransform_reduceを提案。また、既存のアルゴリズムの流儀に従って同じオーバーロードを提供する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0454r0.html">P0454R0: P0454r0: Wording for a Minimal mdspan</a>
+</h2>
+
+<p>
+連続したストレージを多次元配列に見せかけるラッパーライブラリ、mdspanの文面案。
+</p>
+
+<p>
+名前が暗号的だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0457r0.html">P0457R0: String Prefix and Suffix Checking</a>
+</h2>
+
+<p>
+basic_stringとbasic_string_viewに対して、指定した文字列が冒頭、末尾にあるかどうかを調べる、starts_with/ends_withというメンバー関数を追加する。
+</p>
+
+<p>
+この機能は極めてよく使う機能であり、また一般的でもある。例えばPythonやJavaの文字列ライブラリは実装しているしQtの文字列ライブラリも実装している。また、最近のQtのコードは1193件のstarts_withと953件のends_withを利用している。他の例を見ても、webkitは304件のstarts_with、142件のends_withを使っている。LLVMは113件のstarts_withと38件のends_withを使っている。
+</p>
+
+<p>
+フリー関数ではなくメンバー関数にした理由としては、既存の設計と一貫性があることと、フリー関数にした場合は引数の順序という問題が発生するためである。
+</p>
+
+<pre><code>using std::literals ;
+
+auto s = "hello world" ;
+
+bool b1 = s.starts_with("hello") ;
+bool b2 = s.starts_with("hell") ;
+bool b3 = s.starts_with('h') ;
+</code></pre>
+
+<p>
+basic_string_viewもしくはcharを引数に取る。
+</p>
+
+
+<p>
+今更追加するのか呆れるが、とはいえよく使う処理ではある。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0458r0.html">P0458R0: Checking for Existence of an Element in Associative Containers</a>
+</h2>
+
+<p>
+連想コンテナーに指定した要素が存在するかどうかを調べるメンバー関数containsの追加の提案。
+</p>
+
+<p>
+現状では、連想コンテナーcにある値eの要素が存在するかどうかを調べるには、メンバー関数findを呼び出して、戻り値がc.end()と等しいかどうかを調べることで実装できる。
+</p>
+
+<pre><code>template &lt; typename C, typename E &gt;
+bool contains( C &amp;&amp; c, E &amp;&amp; e )
+{
+    return c.find( e ) != c.end() ;
+}
+</code></pre>
+
+<p>
+このコードは甚だ冗長である。初心者はこのコードを読んでも意図がわからない。また、初心者はこのコードを思いつかず、stack overflowに「連想コンテナーにinsertせずに要素が存在するかどうかを調べる方法ってないの？」という質問をする
+</p>
+
+<p>
+<a href="http://stackoverflow.com/questions/3886593/how-to-check-if-stdmap-contains-a-key-without-doing-insert">c++ - How to check if std::map contains a key without doing insert? - Stack Overflow</a>
+</p>
+
+<p>
+この提案により、以下のように書けるようになる。
+</p>
+
+
+<pre><code>template &lt; typename C, typename E &gt;
+bool contains( C &amp;&amp; c, E &amp;&amp; e )
+{
+    return c.contains( e ) ;
+}
+</code></pre>
+
+<p>
+あまりにも今更な機能追加だが、直ちに追加すべきだ。もともと要望としてはstd-proposalsに上がっていたのだが、誰も公式に提案文書を書いて標準化委員会に提出して国際会議に出席して議論するという労力をかけるものがいなかったのだ。
+</p>
+
+<p>
+委員会による設計の欠点の最たる例だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0459r0.pdf">[PDF] P0459R0: C++ Extensions for Ranges, Speculative Combined Proposal Document</a>
+</h2>
+
+<p>
+修正案をマージしたRangeの文面案。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
