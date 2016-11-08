@@ -1,0 +1,208 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0440R0-P0448R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/11/c-p0440r0-p0448r0.html">
+C++標準化委員会の文書: P0440R0-P0448R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0440r0.html">P0440R0: P0440r0 : Floating Point Atomic View</a>
+</h2>
+
+<p>
+浮動小数点数に対するatomic_viewの提案
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0441r0.html">P0441R0: Ranges: Merging Writable and MoveWritable</a>
+</h2>
+
+<p>
+Range TSでWritableコンセプトとMoveWritableコンセプトがほとんど同じなので、このままにしておくとジェネリックコードが分断されてしまうので、マージしようと言う提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0443r0.html">P0443R0: 	A Unified Executors Proposal for C++</a>
+</h2>
+
+<p>
+様々なC++の提案で必要な実行媒体について、その最小の共通項を抜き出して低レベルなライブラリとする提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0444r0.pdf">[PDF] P0444R0: Unifying suspend-by-call and suspend-by-return</a>
+</h2>
+
+<p>
+コルーチンとresumable関数の統合のための低レベルライブラリの提案。
+</p>
+
+<p>
+文書中で、WG21は技術の発明ではなく、既存の技術の標準化を目的としている、この提案は既存の記述の標準化であると言い訳をしているが、どうも発明しているように思えてならない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0445r0.pdf">[PDF] P0445R0: SG14: Low Latency Meeting Minutes 2016/09/21-2016/10/13</a>
+</h2>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0446r0.pdf">[PDF] P0446R0: SG5: Transactional Memory (TM) Meeting Minutes 2016/07/18-2016/10/10</a>
+</h2>
+
+<p>
+それぞれ、タイトル通りの会議の議事録
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0447r0.html">P0447R0: Introduction of std::colony to the standard library</a>
+</h2>
+
+<p>
+colonyコンテナーの提案。colonyコンテナーは順序保証がないソート可能な非連想コンテナーだ。要素の追加や削除の操作で、削除される要素とイテレーターの終端以外を指すイテレーターは無効化されない。
+</p>
+
+<p>
+データ構造的には、複数の要素を格納できる大きさのメモリブロックが複数と、メモリに要素が構築されていないことを示すスキップフラグで構成されている。リファレンス実装では、メモリブロックとスキップフラグを双方向リンクリストで管理している。メモリブロックが空になった場合はメモリは解放される。要素を追加した時に、メモリブロック内に要素を確保できる空きがある場合は、その空きに確保される。このため、順序保証がない。
+</p>
+
+<pre><code>colony&lt;int&gt; c ;
+
+// 要素を挿入
+// 要素を挿入する位置を指定する必要はない。
+c.insert( 1 ) ;
+c.insert( 2 ) ;
+c.insert( 3 ) ;
+
+// イテレーターを取得。値の順番は保証されていない
+auto i1 = c.begin() ;
+auto i2 = std::next(i1) ;
+auto i3 = std::next(i2) ;
+auto end = c.end() ;
+
+// イテレーターi2の参照する要素を削除
+c.erace(i2) ;
+
+// i1, 13, endは無効化されない
+
+// assertはかからない
+assert( i3 == std::next(i1) ) ;
+
+// 要素を挿入、endが無効化される
+c.insert( 4 ) ;
+</code></pre>
+
+<p>
+利用用途として想定しているのはゲームだ。ゲームでは、多数のオブジェクトがhas-a関係を構築する。たとえば、あるゲーム中の物体を表現するオブジェクトはメッシュやテクスチャやシェーダーやサウンドといったオブジェクトを参照する。このオブジェクトは当たり判定だとか描画だとかを受け持つ様々なオブジェクトから参照される。さらに、オブジェクトはゲームに頻繁に追加されたり削除されたりする。
+</p>
+
+<p>
+参照を表現するのに最も都合のいい方法はポインターだ。しかし、オブジェクトを管理するのにvectorなどの既存のコンテナーを使うと、要素の追加削除の際に、イテレーターが無効化されて参照が壊れてしまう。ゲームでは要素の追加削除が頻繁に行われる。
+</p>
+
+<p>
+このために、ゲーム業界ではたいてい独自のコンテナーをそれぞれ書いて使っているわけだが、汎用的な実装がほしい。
+</p>
+
+<p>
+それが今回提案しているcolonyコンテナーだ。
+</p>
+
+<p>
+なかなか良いので、flat_map同様に入ってほしい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0448r0.pdf">[PDF] P0448R0:
+A strstream replacement using span&lt;charT&gt; as
+</a>
+</h2>
+
+<p>
+廃止されたstrstreamの代替案の提案。固定長のバッファーを使うストリームライブラリは必要であり、近代的な設計により安全に使うことができるというもの。
+</p>
+
+<p>
+今更ストリームに労力を注ぐのもどうかと思う。
+</p>
+
+
+<p>
+残りの文書はあと40件ぐらい
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
