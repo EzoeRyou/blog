@@ -1,0 +1,455 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0460R0-P0469R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/11/c-p0460r0-p0469r0.html">
+C++標準化委員会の文書: P0460R0-P0469R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0460r0.pdf">[PDF] P0460R0: 	Flat containers wording</a>
+</h2>
+
+<p>
+連続したストレージ上に構築したソート済みのデータ構造を持つ連想コンテナー、flat_map/flat_setの文面案。
+</p>
+
+<p>
+入るべきだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0461r0.pdf">[PDF] P0461R0: Proposed RCU C++ API</a>
+</h2>
+
+<p>
+物理ページを仮想2ページに分割するクソみたいなオナニーレイアウトを使用したゴミ文書。
+</p>
+
+<p>
+内容はRCUライブラリのようだがレイアウトがクソすぎて詳しく読む気がしない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0462r0.pdf">[PDF] P0462R0: Marking memory order consume Dependency Chains</a>
+</h2>
+
+<p>
+memory_order_consumeの依存チェインについてLinusが激怒したことが発端の議論の落とし所。
+</p>
+
+<p>
+これまたクソみたいなオナニーレイアウトを使用しているため読みづらい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0463r0.html">P0463R0: endian</a>
+</h2>
+
+<p>
+コンパイル時にエンディアンを取得するこれ以上ないくらいわかりやすいライブラリの提供。&lt;type_traits&gt;に以下の定義が追加される。実装例は以下の通り。
+</p>
+
+<pre><code>
+enum class endian
+{
+    little = __ORDER_LITTLE_ENDIAN__,
+    big    = __ORDER_BIG_ENDIAN__,
+    native = __BYTE_ORDER__
+};
+</code></pre>
+
+<p>
+nativeは実装のエンディアンになる。
+</p>
+
+<p>
+コンパイラーはバイトオーダーを知っているし、バイトオーダーはコンパイル時に取得できる。
+</p>
+
+<p>
+世の中にはバイトオーダーを実行時に変更できるCPUが存在するが、バイトオーダーの実行時の変更に耐えるOSは存在しない。バイトオーダーを変更する関数は提案されていないが、これは提案しない。PDPエンディアンが存在しないが、現在、PDPをターゲットにしたC++14コンパイラーは存在しない。将来、全く新しいエンディアンに対応する必要が生じた場合でも、この設計ならば容易に対応可能である。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0464r0.html">P0464R0: Revisiting the meaning of foo(ConceptName,ConceptName)</a>
+</h2>
+
+<p>
+現在のコンセプト提案では、
+</p>
+
+<pre><code>R f( ConceptName a, ConceptName b ) ;
+</code></pre>
+
+<p>
+という関数宣言は、
+</p>
+
+<pre><code>template &lt; Conceptname C &gt;
+R f( C a, C b ) ;
+</code></pre>
+
+<p>
+と書いたものと同等になるが、これを、
+</p>
+
+<pre><code>template &lt; Coceptname C1, ConceptName C2 &gt;
+R f( C1 a, C2 b ) ;
+</code></pre>
+
+<p>
+と同等にしようと言う提案。
+<p>
+
+<p>
+これは当然こうなるべきだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0465r0.pdf">[PDF] P0465R0: Procedural Function Interfaces</a>
+</h2>
+
+<p>
+一応読んだが、なんとも一言でまとめがたい提案だ。一種の契約型プログラミングなのだろうか。それにしても、コードが冗長になり、しかも関数という単位が断片化され、非常に人間の目によって処理が追いにくくなるのではないか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0466r0.pdf">[PDF] P0466R0: Layout-compatibility and Pointer-interconvertibility Traits</a>
+</h2>
+
+<p>
+2つの型がレイアウト互換かどうかを調べるtraits, are_layout_compotible&lt;T, U&gt;の追加
+</p>
+
+<p>
+レイアウト互換とは、例えば以下のような型だ。
+</p>
+
+<pre><code>struct A { int x, y ; } ;
+struct B { int x, y ; } ;
+
+void f( A * a )
+{
+    B * b = reinterpret_cast&lt;B *&gt;(a) ;
+}
+</code></pre>
+
+<p>
+このようなコードは必要になる。問題は、プログラマーがいかに注意深くレイアウト互換に気をつけようと、後でクラスの定義が変更されてレイアウト互換が壊れた場合、このコードはコンパイル時にエラーにならず、実行時に不可解なエラーとなる。ところで、コンパイラーは型がレイアウト互換であるかどうかを知っている。ならば、型がレイアウト互換であるかどうかを返すtraitsがあれば、このようなコードはコンパイル時に検証できる。
+</p>
+
+
+<pre><code>struct A { int x, y ; } ;
+struct B { int x, y ; } ;
+
+void f( A * a )
+{
+    static_assert( are_layout_compatible_v&lt;A, B&gt; ) ;
+    B * b = reinterpret_cast&lt;B *&gt;(a) ;
+}
+</code></pre>
+
+<p>
+これは便利なtraitsだ。
+</p>
+
+<p>
+この提案は他にも、以下のようなtraitsを提案している。
+</p>
+
+<pre><code>is_initial_base&lt;base, derived&gt;
+</code></pre>
+
+<p>
+baseがderivedの最初の基本クラスである場合にtrueを返すtraits
+</p>
+
+<pre><code>struct b1 { int data ; } ;
+struct b2 { int data ; } ;
+
+struct d1 : b1, b2 { } ;
+struct d2 : b2, b1 { } ;
+
+// true
+constexpr bool a = is_initial_base_v&lt;b1, d1&gt; ;
+// false
+constexpr bool b = is_initial_base_v&lt;b1, d2&gt; ;
+</code></pre>
+
+<pre><code>template &lt;class S, class M&gt;
+constexpr bool is_initial_member( M S::*m ) noexcept;
+</code></pre>
+
+<p>
+Sが標準レイアウトクラス型で、Sがunion型か、mがSの最初の非staticデータメンバーである場合にtrueを返す。
+</p>
+
+
+<pre><code>struct X { int x, y ; } ;
+union Y { int x ; short y ; } ;
+int main()
+{
+    // true
+    is_initial_member( &amp;X::x ) ; 
+    // false
+    is_initial_member( &amp;X::y ) ;
+
+    // true
+    is_initial_member( &amp;Y::x ) ;
+}
+</code></pre>
+
+<pre><code>template &lt;class S1, class M1, class S2, class M2&gt;
+constexpr bool
+are_common_members( M1 S1::*m1, M2 S2::*m2 ) noexcept;
+</code></pre>
+
+<p>
+S1とS2が標準レイアウト型で、m1とm2がそれぞれS1とS2のレイアウト内で共通のオフセットから始まる場合にtrueを返す。
+</p>
+
+<pre><code>struct S1
+{
+    int x ;
+    int y ;
+} ;
+
+struct S2
+{
+    int x ;
+    char y[sizeof(int)] ;
+} ;
+
+// true
+are_common_members( &amp;S1::y, &amp;S2::y ) ;
+</code></pre>
+
+<p>
+あれば便利だろう。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0467r0.html">P0467R0: Iterator Concerns for Parallel Algorithms</a>
+</h2>
+
+<p>
+並列アルゴリズムは、既存のアルゴリズムのオーバーロードという形で追加された。既存のアルゴリズムのイテレーターの要件はあまりにも弱すぎて、並列アルゴリズムで使うには問題がある。
+</p>
+
+<p>
+入力イテレーターと出力イテレーターは、値に対する具体的なオブジェクトがあるとは限らず、かつマルチパス保証（複数回イテレートして結果が同じこと）がない。並列アルゴリズムで入力イテレーターから入力を得るには、まず入力の個数分のメモリを確保して入力を全部コピーしなければならない。並列アルゴリズムで出力アルゴリズムに順番に出力するには、先頭から出力するよう同期処理が必要だ。
+</p>
+
+<p>
+このため、並列アルゴリズムのイテレーターの要件を前方イテレーターに引き上げる。将来的に、イテレーターの要件を引き下げることができる制約や実装が示されたならば、要件を引き下げる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0468r0.html">P0468R0: P0468R0 : An Intrusive Smart Pointer</a>
+</h2>
+
+<p>
+intrusive reference countingを採用したスマートポインター、retain_ptrの提案。
+</p>
+
+<p>
+現在のshared_ptr&lt;T&gt;は、Tへのポインター型とリファレンスカウントのための整数型を別々に確保して管理している。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+class shared_ptr
+{
+    T * ptr ;
+    long * count
+public :
+    explicit shared_ptr( T * ptr )
+        : ptr( ptr ), count( new long{1} )
+    { }
+    shared_ptr( shared_ptr other )
+        : ptr( other.ptr ), count( other.count )
+    {
+        ++*count ;
+    }
+
+    ~shared_ptr( )
+    {
+        --*count ;
+        if ( *count == 0 )
+        {
+            delete ptr ;
+            delete count ;
+        }
+    }
+} ;
+</code></pre>
+
+<p>
+これを見ればわかるように、shred_ptr&lt;T&gt;は、ポインターの参照数を管理するためにlong型のオブジェクトを動的確保している。つまり、T型のオブジェクトのためのメモリに加えて、long型のオブジェクトのためのメモリを別々に確保する必要がある。
+</p>
+
+<p>
+しかし、もしT型のなかにカウンターがあればどうだろう。メモリ確保は一回で済む。メモリ管理によるオーバーヘッドが減少し、データの局所化によるキャッシュの恩恵も受けられる。
+</p>
+
+<pre><code>
+class UserData
+{
+    long count = 1 ;
+    // その他のデータ
+
+public :
+    void increment() noexcept { ++count ; }
+    void decrement() noexcept { --count ; }
+    long use_count() noexcept { return count ; }
+} ;
+</code></pre>
+
+<p>
+あとは、要素型の中のカウンターの取得、インクリメント、デクリメントをする方法さえ共通化してしまえばよい。この提案では、mixin設計を採用している。
+</p>
+
+<p>
+要素型Tは、reference_count&lt;T&gt;を基本クラスに持つことでカウンター処理を提供できる。
+</p>
+
+<pre><code>class UserData : public std::reference_count&lt;UserData&gt;
+{
+// その他のデータ
+} ;
+</code></pre>
+
+<p>
+不自由なMicrosoft Windowsが使っているクソみたいなAPIであるCOMのリファレンスカウントのような独自のリファレンスカウントのAPIに対応するには、retain_traitsを使う。
+</p>
+
+<pre><code>template &lt; &gt;
+struct retain_traits&lt;IUnknown&gt;
+{
+    static void increment ( IUnknown * ptr ) noexcept
+    { ptr-&gt;AddRef() ; }
+    static void decrement ( IUnknown * ptr ) noexcept
+    { ptr-&gt;Release() ; }
+} ;
+</code></pre>
+
+<p>
+retain_ptrはリファレンスカウンターの値が0になっても、自動的にdeleteを呼び出してくれない。deleteを呼び出すのはretain_traits::decrementの役目である。Micorsoft WindowsのCOMの場合、deleteを呼び出す設計ではないため何もしていない。また、リファレンスカウントの値が取得できる場合は、long retain_tratis::use_count() noexceptを呼び出すと取得できる。COMの場合、リファレンスカウンターを変更せずに値を得る方法がなく、またその値もテスト目的のみであるとドキュメントに示されているので、実装しない。retain_traitsにuse_countメンバー関数がない場合は、retain_ptrのuse_countは-1を返す。
+</p>
+
+<p>
+様々な場合に対処できる設計になっているのでなかなか悪くない。
+</p>
+
+<p>
+ちなみに、retain_ptrはBoost.intrusive_ptrとは全く異なる設計になっている。これは、boostのintrusive_ptrは2001年当時の設計のままで、当時のC++の制約を受けているので、今の進化したC++の恩恵を受けることができないからだ。boostのintrusive_ptrと混同されることを考えて、名前もretain_ptrにしたそうだ。
+</p>
+
+<p>
+reference_countの代わりにatomic_reference_countを用いることでリファレンスカウンターの増減をアトミック操作にできる。
+</p>
+
+<p>
+また、掴んでいるポインターの解放はreleaseではなくdetachになっている。これはretain_ptrはポインターを所有しているわけではなく、ポインターの解放処理にもかかわらないため、その違いを区別するためにわざと別の名前にしているらしい。
+</p>
+
+<p>
+悪くない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0469r0.html">P0469R0: P0469R0: Sample in place</a>
+</h2>
+
+<p>
+inplace_sampleアルゴリズムの提案。
+</p>
+
+<p>
+sample( first, last, out, n, g )は、[first,last)の範囲の値から乱数gを使ってmin( distance(first, last), n )個の標本をoutにコピーするアルゴリズムだ。
+</p>
+
+<p>
+inplace_sample( begin, end, n, g )には、コピー先のoutがない。標本は[first,first+min( distance(first, last),n) )の範囲に配置される。イテレーターの参照する型のコピーのコストが重いか不可能で、swapのコストは軽い場合に便利なアルゴリズムだ。
+</p>
+
+<p>
+これは追加されるべきだ。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
