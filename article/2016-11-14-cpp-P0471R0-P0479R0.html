@@ -1,0 +1,380 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0471R0-P0479R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/11/c-p0471r0-p0479r0.html">
+C++標準化委員会の文書: P0471R0-P0479R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0471r0.html">P0471R0: Single argument std::inserter</a>
+</h2>
+
+<p>
+引数が1つのinserterを追加する提案。
+</p>
+
+<p>
+vectorの要素をすべてsetにコピーする場合、inserterを使うと便利だ。
+</p>
+
+<pre><code>std::vector&lt;int&gt; vector ;
+std::set&lt;int&gt; set ;
+
+std::copy( begin(vector), end(vector), std::inserter( set, begin(set) ) ) ;
+</code></pre>
+
+<p>
+問題は、inserterの第2引数は、この場合何の意味も果たしていないということだ。第2引数はbegin(set)でもend(set)でも挙動は変わらない。ならば、inserterに引数を1つしか取らないオーバーロードを追加すべきではないか。
+</p>
+
+<p>
+引数を1つしか取らないinserter( Container c )は、inserter( c, c.begin() )と同じ意味になる。
+</p>
+
+<p>
+これは入るべきだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0472r0.html">P0472R0: 
+Put std::monostate in &lt;utility&gt;
+</a>
+</h2>
+
+<p>
+&lt;variant&gt;にあるstd::monostateを&lt;utility&gt;に移動する提案。
+</p>
+
+<p>
+monostateは1値を表現する型である。monostateは1種類の状態しか取らない。monostateは比較演算子をサポートしている。この特性は汎用的に便利なので、variant以外の場面でも使いたい。monostateだけを使うのに&lt;variant&gt;に依存させるよりは、&lt;utility&gt;に移したい。
+</p>
+
+<p>
+利用例としては、テンプレートコードがうっかり型独自の操作に依存しているかどうかを調べるテストの入力として、futureなどで値を持たないことを意味するためにvoidを渡しているが、voidは特殊な特性があり扱いづらいため、voidの代わりとして渡すことが上げられている。
+</p>
+
+<p>
+voidは完全型にする提案が上がっているが、まあ、別にutilityでもいい気はする。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0473r0.html">P0473R0: + for std::vector concatenation</a>
+</h2>
+
+<p>
+operator +とoperator +=でvectorを連結できる機能の提案。まるでbasic_stringのようだ。
+</p>
+
+<pre><code>int main()
+{
+    std::vector&lt;int&gt; v1 = { 1, 2, 3 } ;
+    std::vector&lt;int&gt; v2 = { 4, 5, 6 } ;
+
+    auto v3 = v1 + v2 ;
+    v3 += v1 ;
+
+    // v3の中身は{1,2,3,4,5,6,1,2,3}
+}
+</code></pre>
+
+<p>
+いまさら？　確かに、vectorの連結はよく行う処理ではあるので、簡単にかけるのは便利なのだろうが。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0474r0.html">P0474R0: Comparison in C++: Basic Facilities</a>
+</h2>
+
+<p>
+partial, weak, total orderの3種類の比較を提供する関数群の提案の文面案
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0475r0.html">P0475R0: LWG 2511: guaranteed copy elision for piecewise construction</a>
+</h2>
+
+<p>
+C++17でコピー省略が必須になったので、CopyConstructible要件を付けなくて良くなった箇所から要件を取り除く提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0476r0.html">P0476R0: P0476r0: Bit-casting object representations</a>
+</h2>
+
+<p>
+ビット列を指定した型として解釈するライブラリ、bit_cast&lt;To&gt;(From)の提案。
+</p>
+
+<p>
+ビット列を型として解釈するには、reinterpret_castやunionがよく使われるが、これには未定義の挙動の問題がある。規格に詳しいプログラマーはstd::aligned_storageとmemcpyを使うが、memcpyはconstexprではない。そこで、constexprなビット列キャストライブラリを追加する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0477r0.pdf">[PDF] P0477R0:
+std::monostate_function&lt;&gt;
+ </a>
+</h2>
+
+<p>
+関数ポインター、メンバー関数へのポインターのラッパーライブラリ、std::monostate_functionの提案。
+</p>
+
+<pre><code>
+void f() { }
+
+struct X
+{
+    void f() { }
+} ;
+
+int main()
+{
+    std::monostate_function&lt;&amp;f&gt; f1 ;
+    f1() ; // fを呼び出す
+
+    std::monostate_function&lt; &amp;X::f &gt; f2 ;
+    X x ;
+    f2( x ) ; // X::fを&amp;xをthisとして呼び出す
+}
+<code></pre>
+
+<p>
+C++17から新しく入った非型テンプレートパラメーターに対するautoを使っているので、テンプレート実引数には値を指定するだけでよい。
+</p>
+
+<pre><code>
+template &lt; auto Callable &gt;
+struct monostate_function
+{
+    template &lt; typename ... Types &gt;
+    constexpr
+    auto operator () ( Types ... args )
+    noexcept( std::invoke( Callable, std::declval&lt;Types&gt;... ) )
+    {
+        return std::invoke( Callable, std::forward&lt;Types&gt;(args)... ) ;
+    }
+} ;
+</code></pre>
+
+<p>
+なぜこんなライブラリが必要なのか。関数ポインターを呼び出したければそのまま呼びだせばいいのではないか。一見するとそう思うかもしれない。このライブラリの目的は、非型ではなくて型を受け取るテンプレートに関数ポインターを渡すためのものだ。
+</p>
+
+<p>
+当然ながら、関数ポインターは値である。値は型ではない。型ではないものは型テンプレートパラメーターには渡せない。
+</p>
+
+<p>
+たとえば、setの比較関数に独自のcompare関数を使いたいとする。以下のように書ける。
+</p>
+
+<pre><code>
+struct UserData { /* データ */ } ;
+// UserData型を比較する既存の関数
+bool compare_UserData( UserData const &amp; a, UserData const &amp; b ) ;
+
+int main()
+{
+    std::set&lt; UserData, decltype( &amp;compare_UserData )&gt; set( &amp;compare_UserData ) ;
+}
+</code></pre>
+
+<p>
+これは甚だ冗長だ。かならずcompare_UserDataを呼び出す型ががあれば、setのコンストラクターに関数ポインターを渡す必要はない。そこで、以下のように書ける。
+</p>
+
+<pre><code>struct call_compare_UserData
+{
+    bool operator ()( UserData const &amp; a, UserData const &amp; b )
+    {
+        return compare_UserData( a, b ) ;
+    }
+} ;
+
+int main()
+{
+    std::set&lt; UserData, call_compare_UserData &gt; set ;
+}
+</code></pre>
+
+<p>
+しかし、これでは関数ごとにクラスをつくって引数を転送するだけのボイラープレートコードを書かなければならない。そこで、monostate_functionの登場だ。
+</p>
+
+<pre><code>std::set&lt; UserData, std::monostate_function&lt; compare_UserData &gt; &gt; set ;
+</code></pre>
+
+<p>
+このように簡単に書ける。
+</p>
+
+<p>
+また、unique_ptrにデリーターをわざわざ書かなくても、引数さえあうのであれば、monostate_functionが使える。例えば、mallocで確保したメモリはfreeで解放しなければならないが、monostate_functionを使えば、以下のようにunique_ptrのデリーターが書ける。
+</p>
+
+<pre><code>int main()
+{
+    std::unique_ptr&lt;int, std::monostate_function&lt;&amp;std::free&gt; &gt;
+        ptr( reinterpret_cast&lt;int*&gt;(malloc(sizeof(int))) ) ;
+}
+</code></pre>
+
+<p>
+なかなか悪くない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0478r0.pdf">[PDF] P0478R0: Template argument deduction for non-terminal function parameter packs</a>
+</h2>
+
+<p>
+Variadic Templatesが最後のテンプレートパラメーターではなくても、実引数推定を行えるように制限を緩和する提案。
+</p>
+
+<p>
+以下のように書けるようになる。
+</p>
+
+<pre><code>template &lt; typename ... A, typename B &gt; struct A { } ;
+template &lt; typename A, typename ... B, typename C &gt; struct B { } ;
+</code></pre>
+
+<p>
+Variadic Templatesはテンプレート内に1つでなければならない。
+</p>
+
+<p>
+これにより、パラメーターパックの最後の要素を取得したり、引数の順序に自由度が出せたりする。
+</p>
+
+<p>
+これは当然入るべきだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0479r0.html">P0479R0: Attributes for Likely and Unlikely Branches</a>
+</h2>
+
+<p>
+条件分岐の分岐が実行される頻度をヒントとして与える属性、[[likely]]と[[unlikely]]の提案。
+</p>
+
+<p>
+条件分岐で、どちらかの分岐がほぼ実行されることが事前に予測できる場合、これをコンパイラーに伝えると、よりよいコードを生成できる。また、現在の深いパイプライン、高度な分岐予測になったアーキテクチャ上でも、条件分岐の結果があらかじめ予想できるのは都合がいい。
+</p>
+
+<p>
+GCCとClangには、__builtin_expectedという拡張機能がある。これを使って、ある分岐の選択が期待できるかどうかをコンパイラーにヒントとして与えることができる。既存のコードを調べたところ、__builtin_expectedを使うコードのほとんどは、
+</p>
+
+<pre><code>#define likely(x) __builtin_expect(!!(x), 1)
+#define unlikely(x) __builtin_expect(!!(x), 0)
+</code></pre>
+
+<p>
+このふたつのマクロだけで用が足りる。現在、likelyとunlikelyを最も使っているのはおそらくLinuxカーネルで、likelyを3000回以上、unlikelyを14000回以上使っている。他にも、Mozillaはlikelyを200回以上、unlikelyを7000回以上使っている。chromiumも数百回以上likelyとunlikelyを使っている。
+</p>
+
+<p>
+そこで、分岐が選ばれることが期待できる[[likely]]と、分岐が選ばれないことが期待できる[[unlikely]]というふたつの属性を追加する。これにより、コンパイラーにヒントを与えることができる。
+</p>
+
+<p>
+この属性は、conditionに記述できる。
+</p>
+
+<pre><code>// エラーは通常起こらない
+if ( [[unlikely]] check_error() )
+{
+    do_error_log() ;
+}
+
+// 計算は通常ならばすでに終わっている。
+if ( [[likely]] is_calculation_completed() )
+{
+    show_result() ;
+}
+</code></pre>
+
+<p>
+入るべきだ。
+</p>
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
