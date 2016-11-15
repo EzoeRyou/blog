@@ -1,0 +1,272 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0480R0-P0489R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2016/11/c-p0480r0-p0489r0.html">
+C++標準化委員会の文書: P0480R0-P0489R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0480r0.html">P0480R0: Explicit type checking with structured bindings</a>
+</h2>
+
+<p>
+構造化束縛に型を制約できる機能を追加すべきではないかという提案。
+</p>
+
+<p>
+我々は変数の型に制約をかけられる。
+</p>
+
+<pre><code>SpecificType var = func() ;
+// 間に長いコード
+process( var ) ;
+</code></pre>
+
+<p>
+このように書いた場合、funcの返す型はSpecificTypeに変換可能であり、processはSpecificTypeを受け取るという制約を書いたことになる。後にfuncやprocessの定義が書き換わって、このコードが通らなくなった場合は、コンパイル時に発見できる。
+</p>
+
+<pre><code>auto var = func() ;
+process( var ) ;
+</code></pre>
+
+<p>
+このように書いた場合、型に制約がかからない。
+</p>
+
+<p>
+構造化束縛では、型に制約をかす方法がない。ライブラリである程度の制約をかすことはできるが、そのためには冗長なコードを書かなければならない。構造化束縛で型に制約をかける機能が必要ではないか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0481r0.pdf">[PDF] P0481R0: 	Bravely Default</a>
+</h2>
+
+
+<p>
+デフォルトのコピーコンストラクターがあるならば、デフォルトのoperator ==を生成しようという提案。
+</p>
+
+<p>
+そして、operator ==が定義されていて、operator !=が定義されていないならば、デフォルトのoperator !=を生成する。
+</p>
+
+<p>
+コピーは等価と深く結びついているので、この挙動は問題がないという主張。
+</p>
+
+<p>
+なお、タイトルはスクエアエニックスから出された3DSのゲームが元ネタだという。タイトルは完全に意味不明だが、この提案に不思議と合っているから使ったという。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0482r0.html">P0482R0: char8_t: A type for UTF-8 characters and strings</a>
+</h2>
+
+<p>
+UTF-8文字型であるchar8_tの提案。
+</p>
+
+
+<p>
+UTF-8文字列リテラルの型もchar8_t[]型になる。
+</p>
+
+<p>
+移行のために、char8_t[]からchar[]への暗黙の型変換を追加する。この暗黙の型変換を追加するには標準変換の細かいルールを変更しなければならないので、最初からdeprecated扱いで入れるのもありだ。
+</p>
+
+<p>
+std::u8stringからstd::stringへの暗黙の変換も提供する。
+</p>
+
+<p>
+必ず入れなければならない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0483r0.pdf">[PDF] P0483R0: Extending Memory Management Tools, And a Bit More</a>
+</h2>
+
+<p>
+T型の値を参照するイテレーター[first, last)を受け取り、未初期化のメモリを参照する出力イテレーターoutに対して、T型がnoexceptなムーブを提供していればムーブ構築を、そうでなければコピー構築を行うアルゴリズム、uninitialized_move_if_noexcept(first, last, out)の提案。
+</p>
+
+<p>
+実装は簡単だがあっても困らないだろう。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0484r0.pdf">[PDF] P0484R0: Enhancing Thread Constructor Attributes</a>
+</h2>
+
+<p>
+C++のスレッドライブラリを使わず、実装依存の独自拡張のスレッドを使う理由に、スレッドに対して様々な実装依存のオプションを指定したいという需要がある。
+</p>
+
+<p>
+オプションというのは、例えばスレッドの優先度、アフィニティ、スケジューリング戦略、スタックサイズ、スタック拡大の有無などだ。
+</p>
+
+<p>
+これらのオプションをどうやって指定するか。実装がサポートしていない無効なオプションを渡した時にどう通知するか。実装がサポートしているオプションをクエリーする方法などについて、どのように設計すればいいのかということについて軽くまとめている。特に提案はない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0485r0.pdf">[PDF] P0485R0:Amended rules for Partial Ordering of function templates </a>
+</h2>
+
+<p>
+テンプレートのpartial orderingの文面に考慮漏れがあり、パラメーターパックが関わった時に、関数テンプレートのテンプレートの実体化が曖昧になる問題を修正。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0486r0.pdf">[PDF] P0486R0: for_each_iter algorithm proposal</a>
+</h2>
+
+<p>
+参照する値ではなくイテレーターを得るfor_each_iterアルゴリズムの提案。
+</p>
+
+<pre><code>std::vector&lt;int&gt; v = { 1,2,3,4,5 } ;
+for_each_iter( begin(v), end(v), [](auto &amp;&amp; i )
+    { std::cout &lt;&lt; *i &lt;&lt; '\n' ; } ) ;
+</code></pre>
+
+<p>
+ありそうでなかった。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0487r0.html">
+P0487R0: Fixing operator&gt;&gt;(basic_istream&amp;, CharT*) (LWG 2499)
+</a>
+</h2>
+
+<p>
+以下のコードはバッファーオーバーフローの危険性がある。
+</p>
+
+<pre><code>char buffer[32] ;
+std::cin &gt;&gt; buffer ;
+</code></pre>
+
+<p>
+C11でgetsが廃止されたように、operator &gt;&gt;( basic_istream &amp;, charT * )も廃止しようという声がある。このオーバーロードは廃止すべきだが、以下のように変更してはどうか。
+</p>
+
+<pre><code>template&lt;class charT, class traits, size_t N&gt;
+  basic_istream&lt;charT, traits&gt;&amp; operator&gt;&gt;(basic_istream&lt;charT, traits&gt;&amp; in,
+					   charT* scharT (&amp;s)[N]);
+</code></pre>
+
+<p>
+これでバッファーオーバーフローの危険性はなくなる。
+</p>
+
+<p>
+ついでにstd::arrayにも対応させよう
+</p>
+
+<pre><code>template&lt;class charT, class traits, class arrayT&gt;
+  basic_istream&lt;charT, traits&gt;&amp; operator&gt;&gt;(basic_istream&lt;charT, traits&gt;&amp; in,
+					   charT*arrayT&amp;&amp; s);
+</code></pre>
+
+<p>
+という提案。安全のために採用されるべきだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0488r0.pdf">[PDF] P0488R0: WG21 Working paper: NB Comments, ISO/IEC CD 14882</a>
+</h2>
+
+<p>
+現在のドラフト規格の文面に対するNBコメント集
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0489r0.pdf">[PDF] P0489R0: WG21 Working paper: Late Comments on CD 14882</a>
+</h2>
+
+<p>
+NBコメントの締め切りまでに提出が間に合わなかったコメント集
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
