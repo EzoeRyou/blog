@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+AWSのアクセスキーをハニートークンとして使うアイディア
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="<a href="https://cpplover.blogspot.jp/2016/12/aws.html">本の虫: AWSのアクセスキーをハニートークンとして使うアイディア</a>">
+AWSのアクセスキーをハニートークンとして使うアイディア
+</a></h1>
+
+<p>
+<a href="https://blog.komand.com/early-warning-detectors-using-aws-access-keys-honeytokens">Early Warning Detectors Using AWS Access Keys as Honeytokens</a>
+</p>
+
+<p>
+この発想はなかった。
+</p>
+
+<p>
+AWSのアクセスキーはハニートークンとして使える。
+</p>
+
+<p>
+ハニートークンとは、普段使用しないものが使用されたことを検知して、意図しない利用を検知するトリックである。例えば、通常ならば使われないメールアドレスをパスワードとともに、自分しかアクセスできないストレージに格納しておく。その状態で、もしメールサーバーにログインされた場合は、自分しかアクセスできないはずのストレージに他人がアクセスして、マヌケにもメールアドレスとパスワードをストレージ上に保存しているのを発見して、利用を試みたということになる。つまり、侵入を検知できる。
+</p>
+
+<p>
+AWSのアクセスキーは、ハニートークンに使うことができる。AWSに権限を持たないユーザーを追加して、そのユーザーでアクセスキーを発行する。アクセスキーの使用を検知してログをとったりアラートを飛ばしたりするために、AWSのCloudTrail/CloudWatchを設定する。あとはこのアクセスキーを自分しかアクセスできないはずの秘密の場所にばらまいておけばいい。たとえば、
+</p>
+
+<ul>
+<li>サーバーのストレージ、特に ツールが慣習的に使う~/.aws/credentialsなど</li>
+<li>自分のローカルのコンピューターのストレージ</li>
+<li>アプリケーションとかsystemdの設定ファイルの中</li>
+<li>GitHubのプライベートレポジトリ</li>
+</ul>
+
+<p>
+その後、アクセスキーが使われた場合、自分以外の誰かが自分以外には本来アクセスできないはずのストレージにアクセスしたということだ。
+</p>
+
+<p>
+この方法の素晴らしいことには、AWSのインスタンスは立ち上げないため、金がかからないということだ。アクセスキーは無料でいくらでも発行できる。
+</p>
+
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
