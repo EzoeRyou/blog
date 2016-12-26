@@ -3,7 +3,7 @@
 <head>
 
 <title>
-paizaの問題はC++17でも成り立つ
+誤り：paizaの問題はC++17でも成り立つ
 </title>
 
 
@@ -49,8 +49,16 @@ GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
 
 <article>
 <h1><a href="https://cpplover.blogspot.jp/2016/12/paizac17.html">
-paizaの問題はC++17でも成り立つ
+誤り：paizaの問題はC++17でも成り立つ
 </a></h1>
+
+<p>
+この記事は間違っていた。
+</p>
+
+<p>
+この変更では、インクリメント演算子の副作用のコミット順序はまだ規定されていない。
+</p>
 
 <p>
 paizaが以下のような質問を出している。
@@ -79,8 +87,12 @@ C言語では、この式を評価した結果は未定義である。
 C++14までは、この式を評価した結果は未定義である。
 </p>
 
-<p>
+<p style="text-decoration: line-through ;">
 C++17では、サブ式の評価順序が固定されたことにより、この式は以下のように評価されることが規格上保証されている。
+</p>
+
+<p>
+C++17でも未だに未定義。§1.10 p18に書かれている。
 </p>
 
 <ol>
