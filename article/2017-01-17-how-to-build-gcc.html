@@ -1,0 +1,294 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+GCCのSVN trunkをビルドする方法
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" ></link>
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css"></link>
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/01/gccsvn-trunk.html">
+GCCのSVN trunkをビルドする方法
+</a></h1>
+
+<p>
+GCC 7がC++17のコア言語機能を完全に実装したので、ようやく参考書のサンプルコードが検証できるようになった。
+</p>
+
+<p>
+<a href="https://gcc.gnu.org/projects/cxx-status.html">C++ Standards Support in GCC - GNU Project - Free Software Foundation (FSF)</a>
+</p>
+
+<p>
+しかし、GCC 7はまだリリースされていない。少し試すだけならばwandboxが使えるが、本格的に使うにはローカルにほしい。
+</p>
+
+<p>
+<a href="http://melpon.org/wandbox">[Wandbox]三へ( へ՞ਊ ՞)へ ﾊｯﾊｯ</a>
+</p>
+
+<p>
+そこで、GCCを自前でビルドすることにした。ビルドは以下の手順に従う。
+</p>
+
+<p>
+<a href="https://gcc.gnu.org/install/">Installing GCC - GNU Project - Free Software Foundation (FSF)</a>
+</p>
+
+<p>
+GCCのコンパイルに必要なソフトウェア
+</p>
+
+<p>
+<a href="https://gcc.gnu.org/install/prerequisites.html">Prerequisites for GCC - GNU Project - Free Software Foundation (FSF)</a>
+</p>
+
+<p>
+GCCのコンパイル環境を整えるには、有名なGNU/Linuxディストリビューションを使うのが最も手っ取り早い。筆者はUbuntuを使っている。
+</p>
+
+<p>
+GCCはC++98で書かれているためにC++98コンパイラーが必要になる。ある程度最近の安定版バージョンのGCCを使うのが最も手っ取り早い方法だ。
+</p>
+
+<p>
+POSIX互換シェルが必要だ。これにはGNU bashを使えばよい。
+</p>
+
+<p>
+awkが必要だ。GNU awkの最近のバージョンを使っておけば問題ない。
+</p>
+
+<p>
+GNU binutilsが場合によっては必要だ。とはいえ、GNU binutilsが入っていない環境でGCCを使いたいとは思わないだろう。
+</p>
+
+<p>
+gzip, bzip2, GNU make, GNU tar, Perlが必要だ。
+</p>
+
+<p>
+GCCはオプショナルではあるが、デフォルトで4つのライブラリを使う。GNU GMP、MPFR, MPC, islだ。DebianとUbuntuでは以下のようにして入手できる。
+</p>
+
+<pre><code>apt-get install libgmp-dev libmpfr-dev libmpc-dev libisl-dev 
+</code></pre>
+
+<p>
+この4つのライブラリは、主要なGNU/Linuxディストロならば十分に最近のバージョンがパッケージ化されているだろうが、GCCのソースコードには./contrib/download_prerequisitesというスクリプトがある。これを実行すると、4つのライブラリのソースコードをダウンロードしてGCCのビルド時にビルドして使うようにもできる。
+</p>
+
+
+<p>
+flexが必要だ。GCCのリリース版のソースコードには、.lファイルからflexで生成したファイルは含まれているのだが、SVN trunkには含まれていない。configureスクリプトはflexが存在しないことを警告してくれないのでハマる。
+</p>
+
+<p>
+GCCのソースコードのダウンロード
+</p>
+
+<p>
+<a href="https://gcc.gnu.org/install/download.html">Downloading GCC - GNU Project - Free Software Foundation (FSF)</a>
+</p>
+
+<p>
+GCCのソースコードは様々な方法でダウンロードできる。最新のSVN trunkのソースコードを入手するにはSubversionを使うのが最も手っ取り早い。
+</p>
+
+<pre><code>svn checkout svn://gcc.gnu.org/svn/gcc/trunk gcc-trunk
+</code></pre>
+
+<p>
+一度チェックアウトしたソースコードから最新版への差分をダウンロードするには、svn updateを使う。
+</p>
+
+<p>
+他にも、gitミラーやtarで固められたスナップショットもある。
+</p>
+
+<p>
+Configure
+</p>
+
+<p>
+<a href="https://gcc.gnu.org/install/configure.html">Installing GCC: Configuration - GNU Project - Free Software Foundation (FSF)</a>
+</p>
+
+<p>
+GCCのビルドは、configureスクリプトを実行してMakefileを生成してmakeするという古典的な方法で行われる。configureスクリプトの実行は、GCCのソースディレクトリとは別の場所で行うことが強く推奨されている。そこでそのようにする。
+</p>
+
+<pre><code>
+svn checkout svn://gcc.gnu.org/svn/gcc/trunk gcc-trunk
+mkdir gcc-build
+cd gcc-build
+../gcc-trunk/configure オプション
+</code></pre>
+
+<p>
+configureスクリプトには、いくつかのオプションを渡す。
+</p>
+
+<p>
+今回、GCCをビルドする目的はC++17のコア言語機能を試すことだ。したがって、言語はCとC++しか必要がない。GCCはCとC++の他にも、Ada, Fortran, go, 醜悪なobjective-C, 太古の忌まわしきObjective-C++に加えて、LTOとJITも言語としてサポートしている。
+</p>
+
+<p>
+言語をCとC++に限定するには、
+</p>
+
+<pre><code>--enable-languages=c,c++
+</code></pre>
+
+<p>
+をオプションに指定する。
+</p>
+
+<p>
+この2017年では、ほとんどの読者はx86-64アーキテクチャのコンピューター上で自由なOSを実行しているはずだ。x86-64アーキテクチャは複数のビルドターゲットがある。GCCでは、32bitコードをm32、64bitードをm64、アドレスは32bitだがその他は64bitなコードをmx32としている。今回の目的はC++17のコア言語を試すことなので、複数ターゲットのコードを吐くことにしか興味がない。なので、multilibを無効にする。
+</p>
+
+<pre><code>--disable-multilib
+</code></pre>
+
+<p>
+GCCのビルドは、他のよくあるソフトウェアと違い、ややこしい。というのも、GCCはかつてCで、今はC++で書かれているからだ。システムのC++コンパイラーでGCCをビルドしたとして、システムのC++コンパイラーが壊れている場合、ビルドしたGCCも壊れてしまう。この問題を発見するため、GCCのビルドは3-stage bootstrapと呼ばれる方法で行われる。
+</p>
+
+<ol>
+<li>システムのコンパイラーでstage-1 GCCをビルドする</li>
+<li>stage-1 GCCでstage-2 GCCをビルドする</li>
+<li>stage-2 GCCでstage-3 GCCをビルドする</li>
+<li>stage-2とstage-3を比較して挙動に差がないことを確認する</li>
+<li>stage-3コンパイラーでランタイムライブラリをビルドする</li>
+</ol>
+
+<p>
+今回はC++17コンパイラーを手っ取り早く試す目的なので、3-stage bootstrapは無効化する
+</p>
+
+<pre><code>--disable-bootstrap
+</code></pre>
+
+<p>
+結果として、configureスクリプトは以下のように実行する
+</p>
+
+<pre><code>configure --enable-languages=c,c++ --disable-bootstrap --disable-multilib
+</code></pre>
+
+<p>
+GCCのビルド
+</p>
+
+<p>
+<a href="https://gcc.gnu.org/install/build.html">Installing GCC: Building - GNU Project - Free Software Foundation (FSF)</a>
+</p>
+
+<p>
+configureが成功したならば、configureを実行したディレクトリにMakefileが生成されているので、あとはmakeするだけでよい。
+</p>
+
+<p>
+最適化を有効にして並列コンパイルもできる。
+</p>
+
+
+
+<pre><code>make BOOT_CFLAGS='-O' -j4
+</code></pre>
+
+
+<p>
+GCCのインストール
+</p>
+
+<p>
+<a href="https://gcc.gnu.org/install/finalinstall.html">Installing GCC: Final installation - GNU Project - Free Software Foundation (FSF)</a>
+</p>
+
+<p>
+無事にビルドが終わればインストールできる。
+</p>
+
+<pre><code>make install
+</code></pre>
+
+<p>
+デフォルトではインストール先が/usr/local/下になっているので権限が必要だ。
+</p>
+
+<p>
+筆者の体験では、flexをインストールしていない状態でconfigureが通り、makeに失敗した後、flexをインストールした後も途中からのmakeは失敗した。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
