@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+GCCの実験的なfilesystemを使う方法
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/01/gccfilesystem.html">
+GCCの実験的なfilesystemを使う方法
+</a></h1>
+
+<p>
+C++17には&lt;filesystem&gt;が追加される。GCCは実験的な実装として&lt;experimental/filesystem&gt;を実装している。
+</p>
+
+<p>
+これを使えば、例えば以下のようにディレクトリを列挙できる。
+</p>
+
+<pre><code>#include &lt;experimental/filesystem&gt;
+
+namespace fs = std::experimental::filesystem ;
+
+int main()
+{
+    fs::directory_iterator iter("/usr/bin"), end ;
+    std::copy( iter, end, std::ostream_iterator&lt;fs::path&gt;(std::cout, "\n") ) ;
+}
+</code></pre>
+
+<p>
+GCCのfilesystemは、実験的な実装であるので、ヘッダーファイルが&lt;experimental/filesystem&gt;であることに加え、デフォルトではライブラリがリンクされない。
+</p>
+
+<p>
+GCCのfilesystemを使うにはライブラリとして、libstdc++fs.aとリンクしなければならない。これは、gccに-lstdc++fsオプションを渡すとよい。また、libstdc++fsにshared library版はないので、安全のためにコマンドラインオプションの最後に書くべきだ。
+</p>
+
+<pre><code>
+g++ -std=c++1z その他のオプション... -lstdc++fs
+</code></pre>
+
+<p>
+libstdc++fsについては、極めてわかりにくい場所に申し訳程度にドキュメントがある。
+</p>
+
+<p>
+<a href="https://gcc.gnu.org/onlinedocs/libstdc++/manual/using_dynamic_or_shared.html#manual.intro.using.linkage.experimental">Linking</a>
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
