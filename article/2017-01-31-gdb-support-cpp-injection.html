@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+GDBがC++コード注入をサポート
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/01/gdbc.html">
+GDBがC++コード注入をサポート
+</a></h1>
+
+<p>
+<a href="http://www.phoronix.com/scan.php?page=news_item&px=GCC-CPP-libcc1">C++ Support Added To GCC's libcc1, Benefiting GDB - Phoronix</a>
+</p>
+
+<p>
+<a href="https://developers.redhat.com/blog/2016/10/06/cxx-support-in-libcc1-a-comprehensive-update/">C++ support in libcc1: A comprehensive update – RHD Blog</a>
+</p>
+
+<p>
+最新のGCC 7では、GDBがC++のコード注入をサポートするようになった。
+</p>
+
+<p>
+GDBは、デバッグ中のプログラムにC言語のコードをその場でコンパイルしてコード注入して実行する機能を持っている。これにC++が対応した。
+</p>
+
+<p>
+この機能はlibcc1.soを通じてGDBとGCCが強調動作することによって実現されている機能だ。
+</p>
+
+<p>
+CとC++は似ている言語ではあるが、名前空間など名前検索のルールが異なるので、シンボル名を探すにもGDBにC++の名前検索を実装しなければならない。また、テンプレートにも特別な対応が必要だ。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
