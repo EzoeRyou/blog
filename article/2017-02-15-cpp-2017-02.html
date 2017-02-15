@@ -1,0 +1,378 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: 2017-02のまとめ
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/02/c-2017-02.html">
+C++標準化委員会の文書: 2017-02のまとめ
+</a></h1>
+
+<p>
+2017-02 Pre-Kona mailingsが公開されている。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/#mailing2017-02">#MAILING2017-0: ISO/IEC JTC1/SC22/WG21 - Papers 2016</a>
+</p>
+
+<p>
+参考書の執筆に注力したいため、この記事では改訂版の提案のうち興味深い文書を取り上げる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/n4637.pdf">[PDF] N4637: Working Draft, Extensions to C++ for Modules</a>
+</h2>
+
+<p>
+モジュールのドラフト
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/n4640.pdf">[PDF] N4640: Working Draft, Standard for Programming Language C++</a>
+</h2>
+
+<p>
+現在のドラフト。変更点はeditorial上のものにとどまる。valarrayの文面が最新の用語を使って書き直された。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0045r1.pdf">[PDF] P0045R1:Qualified std::function signatures </a>
+</h2>
+
+<p>
+constなstd::functionにconstではない関数オブジェクトを代入するとconstなオブジェクトが変更できてしまう問題がある。
+</p>
+
+<pre><code>struct delay_buffer {
+int saved = 42;
+int operator () ( int i ) { return std::exchange( saved, i ); }
+};
+// Small object optimization — no heap allocation.
+const std::function&lt; int( int ) &gt; f = delay_buffer{};
+assert ( f( 1 ) == 42 );
+assert ( f( 5 ) == 1 );
+</code></pre>
+
+<p>
+この問題への対処として、std::functionのテンプレート実引数にconst修飾を書けるようになる。既存のconstなstd::functionは[[deprecated]]を利用してdeprecated扱いであることを明示した上でconst_castを使う
+</p>
+
+<pre><code>std::function&lt; void() &gt; const f = []() mutable {} ;
+f() ; // [[deprecated]]警告付きで動作する
+
+// コンパイルエラー
+std::function&lt; void () const &gt; const g = []() mutable {} ;
+</code></pre>
+
+<p>
+これは便利だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0052r3.pdf">[PDF] P0052R3: Generic Scope Guard and RAII Wrapper for the Standard Library</a>
+</h2>
+
+<p>
+汎用RAIIラッパーライブラリ、だいぶ仕様が固まってきたので、これ以上大きな変更はなさそうだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0059r3.pdf">[PDF] P0059R3: A proposal to add a ring span to the standard library</a>
+</h2>
+
+<p>
+固定長リングバッファーを実装するring_spanの提案。ring_spanはストレージを管理せず、コンストラクターでcontiguous iteratorで渡されたストレージを使う。
+</p>
+
+<p>
+この提案では、ring_spanからイテレーターを得るbegin/endが削除された。ring_spanはストレージを所有しないため、イテレーターを提供するのは好ましくないとのことだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0082r2.pdf">[PDF] P0082R2: For Loop Exit Strategies (Revision 3)</a>
+</h2>
+
+<p>
+繰り返し文を条件式がfalseになって抜けたのか、break文で抜けたのかによって、繰り返し文を抜けた後で条件分岐したいことがある。しかし、C++ではそれを直接表現する方法がないので、極めて冗長かつ非効率的な方法で書かなければならない。
+</p>
+
+<pre><code>bool did_break = false ;
+
+for ( ... )
+{
+    if ( ... )
+    {
+        did_break = true ;
+        break ;
+    }
+}
+
+if ( did_break )
+    ... ;
+else
+    ... ;
+</code></pre>
+
+<p>
+この提案はC++に繰り返し文のあとにbreakで抜けたかどうかで条件分岐する文法を追加するものだ。この改訂版では、既存のキーワードを使い回すのではなく、新しいキーワードを追加する設計に改められた。
+</p>
+
+<pre><code>
+for ( int i = 0  ; is_completed(i) ; ++i )
+{
+    if ( is_error() )
+        break ;
+}
+on_complete
+    do_normal_things() ;
+on_break 
+    do_abnormal_things() ;
+</code></pre>
+
+<p>
+キーワードはon_complete/on_breakだ。
+</p>
+
+<p>
+だいぶわかりやすくなった。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0091r4.html">P0091R4: Template argument deduction for class templates (Rev. 7)</a>
+</h2>
+
+<p>
+deduction guideをdelete定義できるようにする提案。まあ、必要になる場合もあるかもしれない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0103r1.html">P0103R1: Overflow-Detecting and Double-Wide Arithmetic Operations</a>
+</h2>
+
+<p>
+オーバーフローが検出できる整数の四則演算と左シフト演算のライブラリの提案。オーバーフローの有無がbool型の戻り値で、演算結果が実引数に渡したポインター経由で得られる関数と、ひとつの型で返す関数がある
+</p>
+
+<pre><code>
+template &lt;typename T&gt; bool overflow_add( T* result, T a, T b );
+</code></pre>
+
+<p>
+1つの型で返す関数の方は、split_lowerとsplit_upperで上位下位に分けることができる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0104r1.html#DefinitionWord">P0104R1: Multi-Word Integer Operations and Types</a>
+</h2>
+
+<p>
+固定長整数ライブラリの提案
+</p>
+
+<pre><code>template&lt;int words&gt; multi_int;
+template&lt;int words&gt; multi_uint;
+</code></pre>
+
+<p>
+演算子がオーバーロードされていて普通に組み込みの整数型のように使える。問題は、現在の文面では、1ワードが何バイトなのか実装依存だということだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0105r1.html">P0105R1: Rounding and Overflow in C++</a>
+</h2>
+
+<p>
+浮動小数点数の丸め方とオーバーフローの挙動を指定して演算できるライブラリの提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0237r5.html">P0237R5: Wording for fundamental bit manipulation utilities</a>
+</h2>
+
+<p>
+整数型をビットのコンテナーとみなしてビットへのイテレーターなどのアクセス方法を提供するアダプターライブラリの提供。おそらく規格に入る。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0267r3.pdf">[PDF] P0267R3: A Proposal to Add 2D Graphics Rendering and Display to C++,</a>
+</h2>
+
+<p>
+2Dグラフィックライブラリのドラフト。よくもここまでまとめたものだ。文字列描画機能はないようだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0275r1.html">P0275R1: A Proposal to add Classes and Functions Required for Dynamic Library Load</a>
+</h2>
+
+<p>
+shared libraryやWindowsのDLLのように、動的に関数やクラスの実装をプログラムにロードして使えるライブラリの提案。果たして標準化できるのだろうか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0316r0.html">P0316R0: allocate_unique and allocator_delete</a>
+</h2>
+
+<p>
+指定したアロケーターでストレージを確保してunique_ptrを構築するライブラリallocate_uniqueの提案。すでにshared_ptrに対するallocate_sharedはあるので、その補完。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0352r1.pdf">[PDF] P0352R1: 	Smart References through Delegation (2nd revision)</a>
+</h2>
+
+<p>
+operator .ではなく派生を使ってスマートリファレンスを実装できる機能の提案。operator .よりよほどマシな文法と意味だ。こちらが採用されるべきだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0355r2.html">
+P0355R2: Extending &lt;chrono&gt; to Calendars and Time Zones
+</a>
+</h2>
+
+<p>
+&lt;chrono&gt;を日付に対応させる提案。これでようやくCライブラリを使わずにC++で型安全に日付が扱えるようになる。
+</p>
+<pre><code>
+
+int main()
+{
+    using namespace std::chrono_literals;
+    auto date = 2016y/may/29;
+    cout &lt;&lt; date &lt;&lt; "\n";
+    // 2016-05-29
+}
+</code></pre>
+
+<p>
+便利だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0447r1.pdf">[PDF] P0447R1: Introduction of std::colony to the standard library</a>
+</h2>
+
+<p>
+flat_mapと同じくらい注目している新しいコンテナーの提案、colony。
+</p>
+
+<p>
+colonyはvectorのような連続したストレージ上に構築される要素に順番の概念があるシーケンスコンテナーだが、中間要素への削除が定数時間ですむ。
+</p>
+
+<p>
+どのように実装しているかというと、要素の数だけのビットマップを持っていて、それぞれの要素が有効かどうかの情報をビットマップで保持している。これにより、要素をずらす処理が必要なくなる。そして、中間への挿入も無効な要素がたまたまあれば定数時間で終わる。
+</p>
+
+<p>
+これはほしい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0479r1.html">P0479R1: Attributes for Likely and Unlikely Statements</a>
+</h2>
+
+<p>
+分岐先が実行されると期待できる場合と期待できない場合にその情報をコード中に記述できる属性、[[likely]]と[[unlikely]]の提案。
+</p>
+
+<pre><code>
+if ( is_unexpected_error() ) [[unlikely]]
+{
+    // まず発生しないエラーの処理
+}
+
+while( is_program_exit() )
+[[likely]]{
+// 終了することがほとんどないプログラムの処理
+}
+</code></pre>
+
+<p>
+深いパイプラインを持つ近代的なプロセッサーでは、分岐予測を外した時のペナルティは大きい。もし、プログラム中のある分岐先がほとんど確実に実行される、あるいは実行されないことがコンパイル時にわかっている場合、プロセッサーによっては分岐予測にヒントを与える命令を使うことによって分岐命令のパフォーマンスを上げることができる。そのような情報をソースコードに付加するための属性。
+</p>
+
+<p>
+if, while, do while, for, range-based forに記述できる。
+</p>
+
+
+<p>
+既存の提案の改訂版を片付けた。あとは新しい提案のうち興味のあるものだけをさっと解説して参考書の執筆に戻りたい。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
