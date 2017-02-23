@@ -1,0 +1,551 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0501R0-P0549R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/02/c-p0501r0-p0549r0.html">
+C++標準化委員会の文書: P0501R0-P0549R0
+</a></h1>
+
+<p>
+タイトルの範囲で興味深い文書だけ紹介。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0506r0.pdf">[PDF] P0506R0: 
+use string_view for library function parameters instead of const string &amp; / const char *
+</a>
+</h2>
+
+<p>
+string_viewで既存の標準ライブラリのstringやchar const *を引数に取る部分を全部置き換える提案。これにより規格の文面も標準ライブラリの定義もかなり短縮される。
+</p>
+
+<p>
+ABI互換をぶち壊しそうだがそれに対する考察がない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0515r0.pdf">[PDF] P0515R0: Consistent comparison</a>
+</h2>
+
+<p>
+operator &lt;=&gt;の提案。
+</p>
+
+<p>
+これまで、様々な種類の比較(strong/weak/partial orderingやequality)について、それぞれstrong_order_less_thanとかweak_order_less_than
+</p>
+
+<p>
+operator &lt;=&gt;はthree-way comparisonを提供する。
+</p>
+
+<p>
+a &lt;=&gt; bを評価した結果の値rは、a &lt; bの場合 r &lt; 0。a &gt; bの場合r &gt; 0。a == bの場合r == 0となる。
+</p>
+
+<p>
+operator &lt;=&gt;によって、比較の種類の問題が解決できる。戻り値の型によって種類を表せばよい。例えばある型がstrong orderingをサポートしている場合は、以下のように書く。
+</p>
+
+<pre><code>class X
+{
+    int a ;
+
+public :
+    friend std::strong_ordering operator &lt;=&gt;( X const &amp;, X const &amp; ) = default ;
+} ;
+</code></pre>
+
+<p>
+weak_orderingしか対応できない型の場合は、以下のように書く。例えば、大文字小文字を区別しない文字列型は、weak orderingしか提供できない。
+</p>
+
+<pre><code>
+class CaseInsensitiveString
+{
+    std::string s ;
+public :
+    frined std::weak_ordering operator &lt;=&gt;( CaseInsensitiveString const &amp; a, CaseInsensitiveString const &amp; b )
+    {
+        // 大文字小文字を区別しない比較を行う関数
+        return case_incensitive_compare( a, b ) ;
+    }
+} ;
+</code></pre>
+
+<p>
+比較の種類を型システムに載せることで、より強い比較を無理やり提供しようとするとコンパイルエラーになる。
+</p>
+
+<pre><code>
+class X
+{
+    CaseInsensitiveString s ;
+public :
+    // コンパイルエラー
+    friend std::strong_ordering operator &lt;=&gt; ( X const &amp;, X const &amp; ) = default ;
+} ;
+</code></pre>
+
+<p>
+同様に、partial orderingにしか対応できない型は、std::partial_orderingを返す。また、大小比較を提供できず、等価比較しか出来ない場合は、std::strong_equalityやstd::weak_equalityを返す。
+</p>
+
+<p>
+さて、残りの比較演算子は、すべてoperator &lt;=&gt;から生成できる。
+</p>
+
+<p>
+operator &lt;=&gt;をユーザーが使うこともできるが、通常はその必要はない。というのも、a &lt; bを実現するには、(a &lt;=&gt; b) &lt;0と書かなければならないからだ。
+</p>
+
+<p>
+これは今までの提案よりだいぶマシな提案だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0533r0.pdf">[PDF] P0533R0: 
+	constexpr for &lt;cmath&gt; and &lt;cstdlib&gt;
+</a>
+</h2>
+
+<p>
+&lt;cmath&gt;と&lt;cstdlib&gt;の関数の内constexpr実装できるものの基準の考察
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0534r0.pdf">[PDF] P0534R0: call/cc (call-with-current-continuation): A low-level API for stackful context switching</a>
+</h2>
+
+<p>
+call/ccを実現するライブラリの提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0535r0.html">P0535R0: Generalized Unpacking and Parameter Pack Slicing</a>
+</h2>
+
+<p>
+これは興味深い提案。
+</p>
+
+<p>
+パラメーターパックのスライシングができる機能の提案。
+</p>
+
+<pre><code>template &lt; typename ... pack &gt;
+struct X
+{
+    // 1番目のパラメーター
+    using t1 = [0]pack ;
+    using t1a = []pack ; 
+
+    // 2番目のパラメーター
+    using t2 = [1]pack ;
+    
+    // 最後のパラメーター
+    using t_last = [-1]pack ;
+    // 最後の一つ前のパラメーター
+    using t_before_last = [-2]pack ;
+
+
+
+    // 3番目から6番目までの3つのパラメーターを持つ新たなパラメーターパック
+    using t3 = std::tuple&lt;[2:5]pack&gt; ;
+    // 2番目から最後までのパラメーターを持つ新たなパラメーターパック
+    using t4 = std::tuple&lt;[1:]pack&gt; ;
+    // 1番目から5番目までの4つのパラメーターを持つ新たなパラメーターパック
+    using t5 = std::tuple&lt;[:4]pack&gt; ;
+    // packと同じパラメーターパック
+    using t4 = std::tuple&lt;[:]pack&gt;
+} ;
+</code></pre>
+
+<p>
+また、以下のような使い方もできる。
+</p>
+
+<pre><code>
+struct X
+{
+    int a ;
+    int b ;
+    int c ;
+} ;
+
+X x ;
+[0]x = 1 ; // x.a = 1
+[1]x = 2 ; // x.b = 2
+[2]x = 3 ; // c.c = 3
+</code></pre>
+
+<p>
+興味深いし便利だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0536r0.html">P0536R0: Implicit Return Type and Allowing Anonymous Types as Return Values</a>
+</h2>
+
+<p>
+匿名型を関数の戻り値の型に記述できる提案。
+</p>
+
+<pre><code>struct { int id ; double value } f() ;
+</code></pre>
+
+<p>
+この関数の宣言に対して、後から定義を書く際には、以下のように書ける。
+</p>
+
+<pre><code>
+decltype(return) f()
+{
+    return { 123, 5.0 } ;
+}
+</code></pre>
+
+<p>
+decltype(return)はすでに宣言された関数の戻り値の型を示す。したがって、以下のような例はエラーとなる。
+</p>
+
+<pre><code>
+int f(int) ;
+float f(float) ;
+
+// エラー、すでに宣言された関数と一致しない
+decltype(return) f( double d )
+{
+    return d ;
+}
+</code></pre>
+
+<p>
+すでに、関数の戻り値の型推定があるので、以下のようには書ける。
+</p>
+
+<pre><code>
+auto f()
+{
+    struct { int id ; double value ; } result( 123, 5.0 ) ;
+    return result ;
+}
+</code></pre>
+
+<p>
+この提案は、関数のシグネチャをあらかじめ宣言しておけるという機能を提供する。
+</p>
+
+<p>
+どうもこのまま受け入れるには問題の多い曖昧な提案だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0538r0.html">P0538R0: A Qualified Replacement for #pragma once</a>
+</h2>
+
+<p>
+#pragma onceの機能を標準に追加する提案。
+</p>
+
+<p>
+#pragma onceとは主要なC++コンパイラーが実装している非標準機能で、#pragmra onceを書いたヘッダーファイルの#includeを一回のみにする機能だ。
+</p>
+
+<p>
+ヘッダーファイルの多重includeを防ぐために、伝統的に以下のようなinclude guardと呼ばれる方法が用いられてきた。
+</p>
+
+<pre><code>// foo.h
+#ifndef _MYLIB_FOO_H_INCLUDED
+#define _MYLIB_FOO_H_INCLUDED
+...
+#endif // _MYLIB_FOO_H_INCLUDED
+</code></pre>
+
+<p>
+今回提案されている#onceディレクティブは、ユニークな識別子が必要となる。
+</p>
+
+<pre><code>#once identifier [ &lt;whitespace&gt; version ]
+</code></pre>
+
+<p>
+識別子は::で結合することができる。これは名前空間的に使うことができる。また、識別子の後に空白文字に続けてバージョン番号を記述できる。
+</p>
+
+<p>
+すでに一度#includeしたヘッダーと同じ識別子を使っている#onceディレクティブは、残りのヘッダーが無効化される。
+</p>
+
+<pre><code>
+// foo.h
+
+#once mylib::foo
+</code></pre>
+
+<p>
+提案では、#forgetというディレクティブも提案している。これは既存の識別子を忘れることで、#onceの書かれたヘッダーを多重includeできるようにする機能だ。必要性が理解できない。
+</p>
+
+<p>
+結局、一言でまとめれば、提案されている機能は伝統的なinclude guardのシンタックスシュガーだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0539r0.html">P0539R0: A Proposal to add wide_int Class</a>
+</h2>
+
+<p>
+wide_int&lt;bytes, signed&gt;型の追加。
+</p>
+
+<p>
+long long int型の追加で、64bit長の整数型は表現できるようになったが、それ以上のビット長の整数型を扱いたい場合に標準で表現することが出来ない。そこで、ライブラリで任意のバイト長の整数型を表現できるものを入れようと言う提案。
+</p>
+
+<pre><code>template&lt;size_t Bytes, bool Signed&gt; class wide_int;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0540r0.html">P0540R0: A Proposal to Add split/join of string/string_view to the Standard Library</a>
+</h2>
+
+<p>
+split/joinをstringとstring_viewとregexに提供する提案。
+</p>
+
+<p>
+splitとjoinはメンバー関数という形で提供される。
+</p>
+
+<p>
+splitには3種類ある。splitsとsplitfとsplitcだ。これらはセパレーターを引数に取る。文字列をセパレーターで分割する。
+</p>
+
+<p>
+セパレーターは、文字、文字列、regexのいずれかだ。セパレーターの文字数がゼロもしくはnull文字ひとつの場合、文字型ひとつづつでsplitされる。
+</p>
+
+<pre><code>int main()
+{
+    using std::literals ;
+    auto str = "aaa bbb\nccc ddd"s ;
+
+    auto r1 = str.splits(' ') ;
+    // r1は{"aaa", "bbb\nccc", "ddd"}
+
+    auto r2 = str.splits("bbb") ;
+    // r2は{"aaa", "\nccc ddd"}
+
+    auto r3 = str.splits( std::regex(R"(\s)") ) ;
+    // r3は{"aaa", "bbb", "ccc", "ddd"}
+
+    auto str2 = "abc"s ;
+    auto r4 = str2.splits("") ;
+    // r4は{"a", "b", "c"}
+}
+</code></pre>
+
+<p>
+splitsは結果をvector&lt;string&gt;で返す。コンテナーをハードコードしている理由は、簡単なライブラリにしたいためだ。splitvは結果をvector&lt;string_view&gt;で返す。こちらは文字列をコピーしないでstring_viewの参照で返す。
+</p>
+
+<pre><code>vector&lt;basic_string&lt;CharT, Traits&gt; &gt; splits(const basic_string_view&lt;CharT, Traits&gt; &amp;Separator) const
+vector&lt;basic_string_view&lt;CharT, Traits&gt; &gt; splitsv(const basic_string_view&lt;CharT, Traits&gt; &amp;Separator) const 
+</code></pre>
+
+<p>
+splitfは分割した文字列を関数オブジェクトに渡す。
+</p>
+
+<pre><code>template &lt;class F&gt;
+void splitf(const basic_string_view &amp;Separator,F functor) const
+</code></pre>
+
+<p>
+以下のように使う。
+</p>
+
+<pre><code>int main()
+{
+    using std::literals ;
+    auto str = "a b c" ;
+    str.splitf( ' ', []( auto s ) { std::cout &lt;&lt; s &lt;&lt; '\n' ; } ) ;
+}
+</code></pre>
+
+<p>
+splitcは分割した文字列をコンテナーにemplace_backしていく。これにより、vector以外のコンテナーを使いたい場合に使える。
+</p>
+
+<pre><code>int main()
+{
+    using std::literals ;
+    auto str = "a b c" ;
+    std::list&lt;std::string&gt; c ;
+    str.splitc( ' ', c ) ;
+    // cは{"a", "b", "c"}
+}
+</code></pre>
+
+<p>
+このコンテナーへのリファレンスを取る既存の標準ライブラリに似つかわしくないデザインについて提案著者に質問したところ、お手軽に使いたいからとのこと。あまりよろしくない動機だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0543r0.html">P0543R0: P0543R0: Saturation arithmetic</a>
+</h2>
+
+<p>
+C++で符号なし整数は演算結果が最低値、最大値を上回る場合、アンダーフロー、オーバーフローするが、最低値、最大値になって欲しい場合がある。そのためのsaturation演算を提供する提案。
+</p>
+
+<p>
+具体的にはコードを見ると一目瞭然。
+</p>
+
+<pre><code>int main()
+{
+    // 7
+    auto r1 = satadd( 3, 4 ) ;
+    // 3
+    auto r2 = std::numeric_limits&lt;unsigned int&gt;::max() + 4 ;
+    // std::numeric_limits&lt;unsigned int&gt;::max()
+    auto r3 = satadd( std::numeric_limits&lt;unsigned int&gt;::max(), 4 ) ;
+}
+</code></pre>
+
+<p>
+便利だ。
+</p>
+
+<p>
+多くのアーキテクチャのSIMD命令は、saturation演算を提供している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0544r0.html">P0544R0: User Injection of Filesystems</a>
+</h2>
+
+<p>
+std::filesystemにユーザー側が独自の実装を追加することができる昨日の提案。
+</p>
+
+<p>
+ユーザースペースによるファイルシステムの実装、例えばアーカイブファイルをファイルシステムとして扱うとか、メモリ内キャッシュをファイルシステムとして扱うような場合に、std::filesystemの実装をユーザー側が提供したいことがある。そのためにstd::filesystemの実装を追加できるようにする機能が必要だ。
+</p>
+
+<p>
+また、filesystemの意図的にエラーを発生させることによるエラー時の処理のテストにも使える。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0545r0.html">P0545R0: 	Supporting offsetof for Stable-layout Classes</a>
+</h2>
+
+<p>
+クラスのメンバーのクラスレイアウト上のオフセットを求めるoffsetofは、standard layout classにしか使えない。しかし、standard layout classは制限が厳しすぎる。例えば、派生やコンストラクターやコピー代入演算子などがあるだけでもstandard layout classから外れる。
+</p>
+
+<p>
+しかし、クラスのレイアウトを決定するのに、コンストラクターやコピー代入演算子の存在の有無が影響を与える必要はない。実際、Itanium ABIやWindows x64 ABIはそのようになっている。offsetofを適用できるクラスを増やすために、クラスのレイアウトがコンパイル時に決定できるstable layout classを新たに定義しようという提案。
+</p>
+
+<p>
+ある型がstable layout class型となるためには、
+</p>
+
+<ul>
+<li>virtual基本クラスを持たない</li>
+<li>virtual関数を持たない</li>
+<li>非staticデータメンバーはスカラー型かstable layout型か、そのような型の配列型か、リファレンス型であること</li>
+<li>非stable layout classを基本クラスに持たない</li>
+</ul>
+
+<p>
+virtual関数についても、主要な実装方法では、隠しデータメンバーとして実際の関数へのオフセットを保持するvtableを持つ。このメンバーのサイズと位置は固定なのでレイアウトはコンパイル時に計算できる。実際、GCC, Clang, MSVCではそうなっている。しかし、今回の提案では、virtual関数を持つ型がstable layout classを満たすことについてはconditionally supportedに留める。将来的には緩和を考える。
+</p>
+
+<p>
+virtual基本クラスはvirtual関数と同じように隠しデータメンバーとして持つ。virtual関数とは違いそのサイズと位置は可変だ。最終的な最も派生されたクラス型がわかっているならばコンパイル時にレイアウトの計算ができるが、一般的にはコンパイル時に計算できないので、サポートしない。
+</p>
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
