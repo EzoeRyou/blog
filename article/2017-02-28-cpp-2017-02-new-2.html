@@ -1,0 +1,484 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+C++標準化委員会の文書: P0550R0-P0601R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/02/c-p0550r0-p0601r0.html">
+C++標準化委員会の文書: P0550R0-P0601R0
+</a></h1>
+
+<p>
+興味深いものだけ解説。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0550r0.pdf">[PDF] P0550R0: Transformation Trait uncvref</a>
+</h2>
+
+<p>
+decayとよく似たtraits、uncvrefの追加。
+</p>
+
+<p>
+uncvref&lt;T&gt;::typeはTからCV修飾子とリファレンスを取り除いた型になる。decay&lt;T&gt;::typeとは違い、配列からポインター、関数から関数ポインターへの変換は行わない。
+</p>
+
+<p>
+あるべきだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0551r0.pdf">[PDF] P0551R0:	Thou Shalt Not Specialize std Function Templates! </a>
+</h2>
+
+<p>
+std名前空間内の関数テンプレートはユーザーが特殊化してはいけないというルールを作ろうと言う提案。関数テンプレートはC++11から特殊化できるようになったので、これまで考慮されてこなかった問題が出てきた。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0552r0.pdf">[PDF] P0552R0:enable_if vs. requires </a>
+</h2>
+
+<p>
+既存のenable_ifを利用した関数テンプレートに制約を与えるコードを、Concept Liteのrequires実装に置き換えてみたところ、Conceptによる制約付きテンプレートは、制約なしテンプレートよりもpartial orderingで優先されるため、オーバーロード解決の結果に違いをもたらすという警告。
+</p>
+
+<p>
+文書では、std::swapをenable_if実装とrequires実装したものを比較して既存のテストに失敗したときの挙動の違いが驚きだったとしている。
+</p>
+
+<p>
+既存のコンセプトを使わないコードにコンセプトを使うコードを混ぜると思わぬ挙動の違いに出くわすかもしれない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0553r0.html">P0553R0: P0553R0: Bit operations</a>
+</h2>
+
+<p>
+ビットイテレーターが提案されているが、それを実装するために必要な基礎的なビット操作関数の追加。
+</p>
+
+<p>
+rotl, rotr, popcount, countl_zero, countl_one, countr_zero, countr_oneの追加
+</p>
+
+<p>
+rotlとrotrは左右へのロテート。popcountは1のビット数のカウント。countl_zeroは左から連続した0のビットのカウント、_oneは1のビットのカウントcountrは右から。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0556r0.html">P0556R0: P0556R0: Integral power-of-2 operations</a>
+</h2>
+
+<p>
+符号なし整数型に対して適用できる2の累乗に関係したフリー関数を追加する提案。
+</p>
+
+<p>
+ispow2, ceilpow2, floorpow2, log2の追加。引数は符号なし整数型でなければならない。
+</p>
+
+<p>
+ispow2(x)はxが2の累乗である場合trueを返す。ceilpow2(x)はx以上の最小の2の累乗数を返す。floorpow2はx以下の最大の2の累乗数を返す。log2は2が底のxの対数を返す。小数部は切り捨てられる
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0557r0.pdf">[PDF] P0557R0:Concepts: The Future of Generic Programming </a>
+</h2>
+
+<p>
+Bjarne Stroustrupによるコンセプトの解説。軽く解説(briefly explain)と言っておきながらこの分量はどうなのか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0559r0.pdf">[PDF] P0559R0:	Operating principles for evolving C++ </a>
+</h2>
+
+<p>
+C++標準化の原則のガイドライン。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0562r0.pdf">[PDF] P0562R0:Initialization List Symmetry </a>
+</h2>
+
+<p>
+クラスのメンバー初期化子の末尾に余計なコンマがあっても許す提案。enumと似ている。
+</p>
+
+<pre><code>class C
+{
+    int a, b, c ;
+public :
+    C( int x, int y, int z ) :
+        a(x),
+        b(y),
+        c(z), // 最後に余計なコンマが付いているが許す
+    { }
+}
+</code></pre>
+
+<p>
+まあ、入れてもそれほど問題にはならないだろうが、今更入れるべきことだろうか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0563r0.pdf">[PDF] P0563R0:Vector Front Operations </a>
+</h2>
+
+<blockquote>
+<p>
+今は昔、賢者たる男女らは非効率的なコードを書く定めの卑しき我らを救い給うために標準テンプレートライブラリを作り給いき。しかるに、賢者は長生なる魔法使いにのみ許されたる危うげなる魔術を我らの前から隠し給いき。天旋り日転じて、田舎の若人に至るまで幾年もの魔術の鍛錬を積むこと久しく、まさに黒魔術をつまびらかにせんとする日、来たれり。何をいいたいかというと、vectorのpush_frontとpop_frontのことだ。
+</p>
+</blockquote>
+
+<p>
+vectorにpush_frontとpop_frontがない理由は、O(N)の非効率的な操作だからだ。vectorへの先頭へのinsertやeraseは、残りの要素をすべて1つづつずらす必要がある。
+</p>
+
+<p>
+ところで、最近のハードウェアの事情はすっかり変わってしまった。もはや見かけ上のオーダーより、データの局所性の方が重要になってしまった。局所性のあるデータを隣接するメモリにずらす操作より、メモリ確保の方がはるかにコストのかかる処理となってしまった。
+</p>
+
+<p>
+実際、マイクロベンチマークでも先頭へのinsertやeraseは、vectorの方がlistやdequeより速い。
+</p>
+
+<p>
+そこで、もはやvectorにpush_frontやpop_frontを付けない理由はない。
+</p>
+
+<p>
+ちなみに、vectorにpush_frontとpop_frontをつけると、std::queueの内部コンテナーとして使うことができる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0564r0.html">P0564R0: P0564R0: Wording for three-way comparisons</a>
+</h2>
+
+<p>
+operator &lt;=&gt;の文面案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0565r0.pdf">[PDF] P0565R0:Prefix for operator as a pack generator and postfix operator[] for pack indexing </a>
+</h2>
+
+<p>
+pack-like(パック風)なものを生成するfor式と、packの中からインデックスで要素やサブパックを取り出す式の提案。
+</p>
+
+<pre><code>
+template &lt; typename ... Types &gt;
+void f( Types ... args )
+{
+    // 4つめのパラメーターを取り出す
+    std::cout &lt;&lt; args[3] &lt;&lt; std::endl ;
+}
+
+
+int main()
+{
+    // f(1,2,3,4,5,6,7,8,9)と同じ
+    f( for( int i = 1 ; i != 10 ; ++i ) i... ) ;
+}   
+</code></pre>
+
+<p>
+便利だ。最近、パラメーターパックを第一級市民として扱おうと言う提案が多く見られる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0572r0.html">P0572R0: p0572r0: bit_sizeof and bit_offsetof</a>
+</h2>
+
+<p>
+ビットフィールドメンバーのビット数を取得できるbit_sizeofとビットフィールドメンバーのクラスの先頭アドレスからのオフセットを取得できるbit_offsetの提案。
+</p>
+
+<pre><code>
+struct Foo {
+   uint8_t A : 2;
+   uint8_t B : 4;
+   uint8_t C : 1;
+   uint8_t D : 1;
+};
+
+int main()
+{
+    bit_sizeof(Foo::B) ; // 4
+    bit_offsetof(Foo::B) ; // 先頭アドレスからのビット数のオフセット
+}
+</code></pre>
+
+<p>
+ほしい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0573r0.html">P0573R0: abbreviated lambdas</a>
+</h2>
+
+<p>
+lambda式を使いやすくするために3つの機能を追加。
+</p>
+
+<p>
+まず=&gt; expr 
+</p>
+
+<pre><code>// []( auto &amp;&amp; x ) -&gt; decltype(expr) { return expr ; }
+// と同等
+[]( auto &amp;&amp; x ) =&gt; expr ;
+</code></pre>
+
+<p>
+引数の型名省略
+</p>
+
+<pre><code>// []( auto &amp;&amp; x ) =&gt; x 
+// と同等
+[]( x ) =&gt; x ;
+</code></pre>
+
+<p>
+オーバーロード不可能な単項演算子&gt;&gt;
+</p>
+
+<pre><code>// static_cast&lt;decltype(x)&gt;(x)
+// と同等
+(&gt;&gt;x) ;
+</code></pre>
+
+<p>
+これはstd::forwardを楽に書くための記法。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0577r0.pdf">[PDF] P0577R0:Keep that Temporary! </a>
+</h2>
+
+<p>
+一時オブジェクトの寿命を延長するための機能の提案。registerキーワードを再利用する。
+</p>
+
+<p>
+この提案は、register exprというregister式を追加する。register式によって、式の結果の一時オブジェクトの寿命はその書かれている文脈のブロックスコープの終わりまで延長される。register式はブロックスコープ内にしか書けない。
+</p>
+
+<p>
+以下のようなコードが可能になる。
+</P>
+
+<pre><code>
+std::mutex mtx ;
+
+void f()
+{
+    register std::lock_guard(mtx) ;
+    std::string_view = register std::to_string(42) ;
+}
+</code></pre>
+
+<p>
+lock_guardは変数を束縛するかムーブ代入しておかないと、一時オブジェクトの寿命が尽きてmutexがunlockされてしまう。問題はその変数自体は使わないので冗長な記述が必要になってしまう。
+</p>
+
+<pre><code>auto ref = std::lock_guard(mtx) ;
+</code></pre>
+
+<p>
+to_stringの結果は一時オブジェクトだが、これをstring_viewで受けてしまうと、直接参照で束縛したわけではないので、寿命が尽きてしまう。register式が役に立つ。
+</p>
+
+<p>
+一時オブジェクトの寿命を延長する機能は以前にも提案されたが、ライブラリの実装にしか役に立たない仕組みだった。これならばユーザーも使うことができる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0589r0.pdf">[PDF] P0589R0:Tuple-based for loops </a>
+</h2>
+
+<p>
+tupleの各要素にrange-based forの文法でアクセスできる機能の提案。ループというよりは展開だ。tupleコンセプトを満たしたものがrange-base forで展開可能になる。
+</p>
+
+<p>
+今のConcept Liteが気に入らない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0592r0.html">P0592R0: To boldly suggest an overall plan for C++20</a>
+</h2>
+
+<p>
+明らかにスタートレック信者が書いたらしきC++20の計画。以下の項目について注力する。
+</p>
+
+<ul>
+<li>モジュール</li>
+<li>コンセプト</li>
+<li>レンジ</li>
+<li>ネットワーク</li>
+</ul>
+
+<p>
+筆者はコンセプトLite提案を気に入っていないのでコンセプトについては懐疑的だ。
+</p>
+
+<p>
+そんなことよりUnicode対応が必要だと思うのだが。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0593r0.html">P0593R0: What to do with buffers that are not arrays, and undefined behavior thereof?</a>
+</h2>
+
+<p>
+mallocで確保したメモリにオブジェクトを構築したものは配列ではないので配列としてアクセスするとC++の規格上未定義の動作になるが、実際そのような処理は書かれている。どうすべきかという問題提起。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0595r0.html">P0595R0:The "constexpr" Operator </a>
+</h2>
+
+<p>
+constexpr演算子の提案。コンパイル時に評価されているかどうかを見分けることができる。
+</p>
+
+<p>
+例えば、コンパイル時にはポータブルなコードで計算しないといけないが、実行時には実装依存の高速な方法で計算できるような処理があった場合に、constexpr演算子によってコンパイル時評価されているかどうかで条件分岐できる。
+</p>
+
+<pre><code>
+constexpr double power( double d, int x )
+{
+    if ( constexpr() )
+    {
+    // コンパイル時評価されているのでポータブルな実装
+    }
+    else
+    {
+    // 実行時に評価されているので最適な処理を実行時ライブラリに任せる
+        return std::pow( d, static_cast&lt;double&gt;(x) ) ;
+    }
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0596r0.html">P0596R0:std::constexpr_trace and std::constexpr_assert </a>
+</h2>
+
+<p>
+コンパイル時printfとしてのconstexpr_traceとコンパイル時assertとしてのconstexpr_assertの提案。コンパイル時に評価された時にコンソールにメッセージを出力する方法が提供される。
+</p>
+
+<p>
+constexpr_assertの存在理由はよくわからない。static_assertがあれば十分ではないか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0597r0.html">P0597R0:
+std::constexpr_vector&lt;T&gt;
+ </a>
+</h2>
+
+<p>
+コンパイル時計算の中でも使えるmutableなconstexpr_vector&lt;T&gt;の提案。もちろんpush_backもできる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0599r0.pdf">[PDF] P0599R0:noexcept for Hash Functions </a>
+</h2>
+
+<p>
+std::hashの数値、ポインター、標準ライブラリに対する特殊化は例外を投げるべきではないのでnoexceptにしろというアメリカNBからの要求コメント。わかる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0600r0.pdf">[PDF] P0600R0:applying [[nodiscard]] for C++17 </a>
+</h2>
+
+<p>
+[[nodiscard]]を追加する標準ライブラリの策定。malloc, async, launder, allocateにつける。
+</p>
+
+<p>
+これで興味深い文書はすべて解説した。リフレクション周りの文書は無視した。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
