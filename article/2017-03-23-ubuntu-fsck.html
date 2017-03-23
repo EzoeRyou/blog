@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+<head>
+
+<title>
+Ubuntuがブート時にmanual fsckが必要だとしてinitramfsで止まった時
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/03/ubuntumanual-fsckinitramfs.html">
+Ubuntuがブート時にmanual fsckが必要だとしてinitramfsで止まった時
+</a></h1>
+
+<p>
+Ubuntuが塊操作不可能になったのでREISUBでリブートしようとしたら、以下のようなメッセージを表示して止まった。
+</p>
+
+<pre>
+/dev/mapper/ubuntu--vg-root contains a file system with errors, check forced.
+Inodes that were part of a corrupted orphan linked list found.
+
+/dev/mapper/ubuntu-vg-root: UNEXPECTED INCONSISTENCY; Run fsck MANUALLY.
+    (i.e., without -a or -p options)
+
+fsck exited with status code 4.
+The root file system on /dev/mapper/ubuntu--vg-root requires manual fsck
+</pre>
+
+<p>
+これはエラーメッセージの通りファイルシステムに不整合な問題が発生している。おそらく原因は先程正しくunmountできなかったためで、ストレージの故障ではないだろう。おそらくBを早く押しすぎたのだ。
+</p>
+
+<p>
+この問題を解決するには、そのまま、fsck /dev/mapper/ubuntu--vg-root　とコマンドを入力すればよい。そしてaと入力すると、運が良ければファイルシステムの不整合が修正される。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
