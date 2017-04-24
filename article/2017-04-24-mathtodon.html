@@ -76,7 +76,28 @@ GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
 すると、
 </p>
 
-<pre><code>$$\mathsf{K}_\nu(x)=(\pi/2)\mathrm{i}^{\nu+1}(\mathsf{J}_\nu(\mathrm{i}x)+\mathrm{i}\mathsf{N}_\nu(\mathrm{i}x))=\left\{\begin{array}{cl}\displaystyle\frac{\pi}{2}\frac{\mathsf{I}_{-\nu}(x)-\mathsf{I}_{\nu}(x)}{\sin\nu\pi},&amp;\mbox{for$x\ge0$andnon-integral$\nu$}\\\\\displaystyle\frac{\pi}{2}\lim_{\mu\rightarrow\nu}\frac{\mathsf{I}_{-\mu}(x)-\mathsf{I}_{\mu}(x)}{\sin\mu\pi},&amp;\mbox{for$x\ge0$andintegral$\nu$}\end{array}\right.$$
+<pre><code>$$
+ \mathsf{K}_\nu(x) =
+  (\pi/2)\mathrm{i}^{\nu+1} (            \mathsf{J}_\nu(\mathrm{i}x)
+       + \mathrm{i} \mathsf{N}_\nu(\mathrm{i}x)
+       )
+  =
+  \left\{
+  \begin{array}{cl}
+  \displaystyle
+  \frac{\pi}{2}
+  \frac{\mathsf{I}_{-\nu}(x) - \mathsf{I}_{\nu}(x)}
+       {\sin \nu\pi },
+  & \mbox{for $x \ge 0$ and non-integral $\nu$}
+  \\
+  \\
+  \displaystyle
+  \frac{\pi}{2}
+  \lim_{\mu \rightarrow \nu} \frac{\mathsf{I}_{-\mu}(x) - \mathsf{I}_{\mu}(x)}
+                                  {\sin \mu\pi },
+  & \mbox{for $x \ge 0$ and integral $\nu$}
+  \end{array}
+  \right.$$
 </code></pre>
 
 <p>
@@ -84,7 +105,28 @@ GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
 </p>
 
 <p>
-$$\mathsf{K}_\nu(x)=(\pi/2)\mathrm{i}^{\nu+1}(\mathsf{J}_\nu(\mathrm{i}x)+\mathrm{i}\mathsf{N}_\nu(\mathrm{i}x))=\left\{\begin{array}{cl}\displaystyle\frac{\pi}{2}\frac{\mathsf{I}_{-\nu}(x)-\mathsf{I}_{\nu}(x)}{\sin\nu\pi},&\mbox{for$x\ge0$andnon-integral$\nu$}\\\\\displaystyle\frac{\pi}{2}\lim_{\mu\rightarrow\nu}\frac{\mathsf{I}_{-\mu}(x)-\mathsf{I}_{\mu}(x)}{\sin\mu\pi},&\mbox{for$x\ge0$andintegral$\nu$}\end{array}\right.$$
+$$
+ \mathsf{K}_\nu(x) =
+  (\pi/2)\mathrm{i}^{\nu+1} (            \mathsf{J}_\nu(\mathrm{i}x)
+       + \mathrm{i} \mathsf{N}_\nu(\mathrm{i}x)
+       )
+  =
+  \left\{
+  \begin{array}{cl}
+  \displaystyle
+  \frac{\pi}{2}
+  \frac{\mathsf{I}_{-\nu}(x) - \mathsf{I}_{\nu}(x)}
+       {\sin \nu\pi },
+  & \mbox{for $x \ge 0$ and non-integral $\nu$}
+  \\
+  \\
+  \displaystyle
+  \frac{\pi}{2}
+  \lim_{\mu \rightarrow \nu} \frac{\mathsf{I}_{-\mu}(x) - \mathsf{I}_{\mu}(x)}
+                                  {\sin \mu\pi },
+  & \mbox{for $x \ge 0$ and integral $\nu$}
+  \end{array}
+  \right.$$
 </p>
 
 <p>
@@ -99,7 +141,7 @@ $$\mathsf{K}_\nu(x)=(\pi/2)\mathrm{i}^{\nu+1}(\mathsf{J}_\nu(\mathrm{i}x)+\mathr
 ちなみに、コードは以下の通り。
 </p>
 
-<p>(function(){
+<pre><code>(function(){
 let script = document.createElement( "script" ) ;
 script.type = "text/javascript" ;
 script.async="async" ;
@@ -116,7 +158,7 @@ script.appendChild( document.createTextNode( inner_script ) ) ;
 
 document.head.appendChild(script) ;
 })() ;
-</p>
+</code></pre>
 
 <p>
 ちなみに、このコードはデフォルトで入力欄に#mathを入力する。この挙動が気に入らない人は、以下のブックマークレットを使うとよい。
