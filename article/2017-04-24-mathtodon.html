@@ -1,0 +1,158 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+マストドンで数式を表示するブックマークレット
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/04/blog-post_24.html">
+マストドンで数式を表示するブックマークレット
+</a></h1>
+
+<p>
+読者はすでにマストドンをしているだろうか。マストドンは自由なSNSで未来がある。もはや不自由なSNSであるTwitterやFacebookの時代は終わった。今年中にも滅びるだろう。
+</p>
+
+<p>
+さて、マストドンで不便な点として、数式が表示できないという問題がある。しかし、これは自由なソフトウェアであれば改良が可能だ。
+</p>
+
+<p>
+以下のリンクをブックマークバーまでドラッグするか、URLをコピーしてブックマークとして追加しよう。
+</p>
+
+<p style="font-size : 5em ;">
+<a href="javascript:(function()%7Blet%20script%20%3D%20document.createElement(%20%22script%22%20)%20%3Bscript.type%20%3D%20%22text%2Fjavascript%22%20%3Bscript.async%3D%22async%22%20%3Bscript.src%3D%22https%3A%2F%2Fcdnjs.cloudflare.com%2Fajax%2Flibs%2Fmathjax%2F2.7.0%2FMathJax.js%3Fconfig%3DTeX-MML-AM_CHTML%22%20%3Blet%20inner_script%20%3D'window.setInterval(%20function()%20%7B%20MathJax.Hub.Queue(%5B%22Typeset%22%2CMathJax.Hub%5D)%3B%20'%2B%20%20%20'let%20textarea%20%3D%20document.getElementsByClassName(%22autosuggest-textarea__textarea%22)%5B0%5D%20%3B'%2B%20%20%20'if%20(%20textarea%20!%3D%3D%20null%20%26%26%20textarea.value%20%3D%3D%3D%20%22%22%20)'%2B%20%20%20%20%20%20%20'textarea.value%20%3D%20%22%23math%20%22%20%3B'%2B%20%20%20'%7D%2C%201000%20)%20%3B'%20%3Bscript.appendChild(%20document.createTextNode(%20inner_script%20)%20)%20%3Bdocument.head.appendChild(script)%20%7D)()">#mathトドン</a>
+</p>
+
+<p>
+そして、マストドンを開いたタブで、ブックマークをクリックするのだ。
+</p>
+
+<p>
+すると、
+</p>
+
+<pre><code>$$\mathsf{K}_\nu(x)=(\pi/2)\mathrm{i}^{\nu+1}(\mathsf{J}_\nu(\mathrm{i}x)+\mathrm{i}\mathsf{N}_\nu(\mathrm{i}x))=\left\{\begin{array}{cl}\displaystyle\frac{\pi}{2}\frac{\mathsf{I}_{-\nu}(x)-\mathsf{I}_{\nu}(x)}{\sin\nu\pi},&amp;\mbox{for$x\ge0$andnon-integral$\nu$}\\\\\displaystyle\frac{\pi}{2}\lim_{\mu\rightarrow\nu}\frac{\mathsf{I}_{-\mu}(x)-\mathsf{I}_{\mu}(x)}{\sin\mu\pi},&amp;\mbox{for$x\ge0$andintegral$\nu$}\end{array}\right.$$
+</code></pre>
+
+<p>
+が
+</p>
+
+<p>
+$$\mathsf{K}_\nu(x)=(\pi/2)\mathrm{i}^{\nu+1}(\mathsf{J}_\nu(\mathrm{i}x)+\mathrm{i}\mathsf{N}_\nu(\mathrm{i}x))=\left\{\begin{array}{cl}\displaystyle\frac{\pi}{2}\frac{\mathsf{I}_{-\nu}(x)-\mathsf{I}_{\nu}(x)}{\sin\nu\pi},&\mbox{for$x\ge0$andnon-integral$\nu$}\\\\\displaystyle\frac{\pi}{2}\lim_{\mu\rightarrow\nu}\frac{\mathsf{I}_{-\mu}(x)-\mathsf{I}_{\mu}(x)}{\sin\mu\pi},&\mbox{for$x\ge0$andintegral$\nu$}\end{array}\right.$$
+</p>
+
+<p>
+と表示される。ちなみにこれはIrregular modified cylindrical Bessel functionだ。
+</p>
+
+<p>
+これで、マストドンで数式を表現できる。このブックマークレットを使っているもの同士ならば、数式で会話できる。
+</p>
+
+<p>
+ちなみに、コードは以下の通り。
+</p>
+
+<p>(function(){
+let script = document.createElement( "script" ) ;
+script.type = "text/javascript" ;
+script.async="async" ;
+script.src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" ;
+
+let inner_script =
+    'window.setInterval( function() { MathJax.Hub.Queue(["Typeset",MathJax.Hub]); '
++   'let textarea = document.getElementsByClassName("autosuggest-textarea__textarea")[0] ;'
++   'if ( textarea !== null &amp;&amp; textarea.value === "" )'
++       'textarea.value = "#math " ;'
++   '}, 1000 ) ;' ;
+
+script.appendChild( document.createTextNode( inner_script ) ) ;
+
+document.head.appendChild(script) ;
+})() ;
+</p>
+
+<p>
+ちなみに、このコードはデフォルトで入力欄に#mathを入力する。この挙動が気に入らない人は、以下のブックマークレットを使うとよい。
+</p>
+
+<p style="font-size : 5em ;">
+<a href="javascript:(function()%7Blet%20script%20%3D%20document.createElement(%20%22script%22%20)%20%3Bscript.type%20%3D%20%22text%2Fjavascript%22%20%3Bscript.async%3D%22async%22%20%3Bscript.src%3D%22https%3A%2F%2Fcdnjs.cloudflare.com%2Fajax%2Flibs%2Fmathjax%2F2.7.0%2FMathJax.js%3Fconfig%3DTeX-MML-AM_CHTML%22%20%3Blet%20inner_script%20%3D'window.setInterval(%20function()%20%7B%20MathJax.Hub.Queue(%5B%22Typeset%22%2CMathJax.Hub%5D)%3B%7D%2C%201000%20)%20%3B'%20%3Bscript.appendChild(%20document.createTextNode(%20inner_script%20)%20)%20%3Bdocument.head.appendChild(script)%20%7D)()">mathトドン</a>
+</p>
+
+<p>
+コードは以下の通り。
+</p>
+
+<pre><code>(function(){
+let script = document.createElement( "script" ) ;
+script.type = "text/javascript" ;
+script.async="async" ;
+script.src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" ;
+
+let inner_script =
+    'window.setInterval( function() { MathJax.Hub.Queue(["Typeset",MathJax.Hub]);}, 1000 ) ;' ;
+
+script.appendChild( document.createTextNode( inner_script ) ) ;
+
+document.head.appendChild(script) ;
+})() ;
+</code></pre>
+
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
