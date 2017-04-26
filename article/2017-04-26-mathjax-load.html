@@ -1,0 +1,165 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+どんなWebページでもtexによる数式描画を追加できるブラウザー拡張
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/04/webtex.html">
+どんなWebページでもtexによる数式描画を追加できるブラウザー拡張
+</a></h1>
+
+<p>
+<a href="https://github.com/EzoeRyou/inject-mathjax">EzoeRyou/inject-mathjax: どんなWebページにもMathJaxをロードするブラウザー拡張</a>
+</p>
+
+<p>
+任意のWebページにMathJaxを読み込ませてtexによる数式表現を化膿するChromium, Google Chrome向けブラウザー拡張。
+</p>
+
+<p>
+インストール
+</p>
+
+<pre><code>
+git clone
+vim whitelist_urls.conf
+make
+</code></pre>
+
+<p>
+してからChromiumにインストールする。
+</p>
+
+<p>
+whitelist_urls.confには一行にひとつ、MathJaxを読み込ませたいURLをマッチパターンで記述する
+</p>
+
+<p>
+<a href="https://developer.chrome.com/extensions/match_patterns">Match Patterns - Google Chrome</a>
+</p>
+
+<p>
+特徴
+</p>
+<p>
+このブラウザー拡張はwhitelist_url.confに記述したマッチパターンのURLに対し、
+</p>
+
+<ol>
+<li>
+CSP(Content Security Policy)を無効化する
+</li>
+<li>
+MathJaxをロードする
+</li>
+<li>
+MathJaxを定期的に呼び出す
+</li>
+</ol>
+
+<p>
+という処理を行う。
+</p>
+
+<p>
+類似のブラウザー拡張より優れている点
+</p>
+
+<p>
+すでに類似機能を提供しているブラウザー拡張があるが、コンピューターリテラシーのないユーザーのためにあまり洗練されていない実装になっている。
+</p>
+<p>
+CSPの普及により、多くのWebサイトでは外部ドメインのスクリプトがロードできなくなっている。CDN経由でMathJaxをロードするには、まずCSPを無効化しなければならない。CSPはセキュリティを向上させるものであり、不必要に無効化すべきではない。そのため、MathJaxをロードする必要があるURLのみ無効化すべきだ。
+
+Chromium, Google ChromeでCSPを無効化するには、レスポンスヘッダーをブラウザーが解釈する前に改変するブラウザー拡張用の機能を使う。そしてCSPの部分を削除する。
+</p>
+
+<p>
+これは以下のようなコードになる。
+</p>
+
+<pre><code>
+for (var i = 0; i &lt; details.responseHeaders.length; i++) {
+    if ('content-security-policy' === details.responseHeaders[i].name.toLowerCase()) {
+        details.responseHeaders[i].value = '';
+        // 実際にはCDNを追加するのでもう少しマシ
+    }
+}
+</code></pre>
+
+<p>
+巷に出回っているブラウザー拡張は、このレスポンスヘッダーからCSPを削除するためのコールバック関数を、すべてのURLに対して読み出す。そして、自薦に設定したURLのみに適用するように条件分岐する。
+</p>
+
+<pre><code>
+function( details ) {
+
+    if ( !is_whiltelist_urls(details.url) )
+        return ;
+}
+</code></pre>
+
+<p>
+ブラウザー拡張側のコードでURLを判定している。
+</o>
+<p>
+理想的には、ブラウザー拡張のmanifest.jsonのpermissionsで適用されるURLを厳しく指定すべきだ。しかし、そのためにはユーザーがmanifest.jsonを変更する必要がある。
+</p>
+<p>
+このブラウザー拡張は、whitelist_urls.confに記述されたマッチパターンをpermissionsにもつmanifest.jsonを生成して、ブラウザー拡張をユーザーが作るようになっている。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
