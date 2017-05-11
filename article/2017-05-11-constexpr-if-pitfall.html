@@ -1,0 +1,308 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+constexpr-ifの落とし穴
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/05/constexpr-if.html">
+constexpr-ifの落とし穴
+</a></h1>
+
+<p>
+会社の同僚から、以下のようなコードが動かない、ネット上をググると解決策らしきものが見つかるがそれもいまいち納得できない、という相談を受けた。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+void f()
+{
+    if constexpr ( std::is_same&lt;T, int&gt;{} )
+    {
+        // Tがintのときのみ発動してほしい
+        // 実際は常に発動する
+        static_assert( false ) ;
+    }
+}
+</code></pre>
+
+<p>
+C++17にはconstexpr ifが追加された。これは条件付きコンパイルではない。条件付き実体化抑制だ。
+</p>
+
+<p>
+constexpr ifは以下のように使う。
+</p>
+
+<pre><code>struct S
+{
+    int value() { return 42 ; }
+} ;
+
+template &lt; typename T &gt;
+int to_int(T t)
+{
+    int value{} ;
+    if constexpr ( std::is_same&lt;T, S &gt;{} )
+    {
+        value = t.value() ;
+    }
+    else if constexpr ( std::is_integral&lt;T&gt;{} )
+    {
+        value = static_cast&lt;int&gt;(t) ;
+    }
+
+    return value ;
+}
+
+int main()
+{
+    f(42) ;
+    S s ;
+    f( s ) ;
+}
+</code></pre>
+
+<p>
+to_intは引数からint型の値を取り出すための関数だ。クラスSの場合、int型を取り出すためにメンバー関数valueを呼び出す特別な処理をする。
+</p>
+
+<p>
+これをみると、constexpr ifは条件付きコンパイルのように思える。つまり、if文によって選択されるブランチのみをコンパイルする機能だ。しかし、それは間違いだ。
+</p>
+
+<p>
+constexpr ifは選択されないブランチのテンプレートの実体化を抑制する機能だ。
+</p>
+
+<p>
+テンプレートは、まず宣言を解釈され、その後、具体的なテンプレート実引数を与えられて実体化する。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+void f( T t )
+{
+    t.func() ;
+} 
+
+int main() { }
+</code></pre>
+
+<p>
+この例では、Tにint型を渡すとエラーとなる。なぜならばint型はメンバー関数funcを持っていないからだ。
+</p>
+
+<p>
+しかし、この例はコンパイルエラーにならない。なぜならば、テンプレートfのテンプレート実引数にint型は渡されていないからだ。
+</p>
+
+<p>
+テンプレートは、具体的な型をテンプレート実引数として渡され実体化して、初めてコードが正しいかどうか検証される。
+</p>
+
+<p>
+というのは間違いで、テンプレートは宣言の時点でもコードが正しいかどうかを検証される。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+void f(T t)
+{
+    // エラー、名前gは宣言されていない
+    g( t ) ;
+}
+
+template &lt; typename T &gt; void g( T ) { }
+
+
+int main() { }
+</code></pre>
+
+<p>
+この例はエラーになる。なぜならば名前gは事前に宣言されていないからだ。C++は名前を使う際には、事前に明示的な宣言を求める言語だ。
+</p>
+
+<p>
+しかし、以下のような例はエラーにならない。
+</p>
+
+<pre><code>
+template &lt; typename T &gt;
+void f()
+{
+    // エラーではない
+    T::g() ;
+}
+</code></pre>
+
+<p>
+これはなぜかと言うと、名前T::gはテンプレート仮引数Tに依存しているからだ。テンプレート仮引数Tに依存している名前は、Tの具体的な型が与えられるまで、コードの合法性が検証できない。そのため、そのようなコードの検証はテンプレートの実体化まで遅延される。
+</p>
+
+<p>
+まとめると、テンプレート仮引数に依存しないコードはテンプレートの宣言時に検証され、依存するコードはテンプレートの実体化時に検証されるということだ。
+</p>
+
+<p>
+これを踏まえて、以下のコードが動かない理由を考えてみよう。
+</p>
+
+<pre><code>
+template < typename T >
+void f(T t)
+{
+    if constexpr ( false )
+    {
+        // エラー、名前gは宣言されていない
+        g() ; 
+    }
+}
+</code></pre>
+
+<p>
+名前gはテンプレート仮引数に依存していないため、テンプレートの宣言時に検証される。その結果、エラーとなる。
+</p>
+
+<p>
+ここまでくれば、冒頭のコードが意図通りに動かない理由もわかるはずだ。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+void f()
+{
+    if constexpr ( std::is_same&lt;T, int&gt;{} )
+    {
+        // Tがintのときのみ発動してほしい
+        // 実際は常に発動する
+        static_assert( false ) ;
+    }
+}
+</code></pre>
+
+<p>
+static_assert(false)はテンプレート仮引数Tに依存していないため、テンプレートの宣言時に検証され、エラーとなる。
+</p>
+
+<p>
+ではどうすればいいのか。たんにstatic_assertの中にconstexpr ifと同じ式をいれてやればよい。
+</p>
+
+
+<pre><code>template &lt; typename T &gt;
+void f()
+{
+    static_assert( std::is_same&lt;T, int&gt;{} ) ;
+
+    if constexpr ( std::is_same&lt;T, int&gt;{} )
+    {
+        // ...
+    }
+}
+</code></pre>
+
+<p>
+しかしこれは同じ式が重複してよろしくない。式を変えたいときは二箇所を同時に変更しなければならない。
+</p>
+
+<p>
+式の重複を防ぐには、変数を使ってやればよい。
+</p>
+
+<pre><code>constexpr bool cond = expr ;
+static_assert( cond ) ;
+if constexpr ( cond ) { }
+</code></pre>
+
+<p>
+しかし、if文というのはネストさせたいものだ。
+</p>
+
+<pre><code>if constexpr ( E1 )
+    if constexpr ( E2 )
+        if constexpr ( E3 )
+        { }
+        else if constexpr ( E4 )
+        {
+            // static_assertしたい。
+        }
+</code></pre>
+
+<p>
+このような複雑なネストしたif文に相当する式を書くのは面倒なので、constexpr ifの中に入れて、そのブランチが実体化されるときのみstatic_assertが働くようにしたい。
+</p>
+
+<p>
+そのためにはどうすればいいかというと、static_assertのオペランドの式を依存式にすればよい。そうすればテンプレートの実体化まで評価を遅延させることができる。constexpr ifに囲まれていてテンプレートが実体化しないのであればstatic_assert(false)も発動しない。
+</p>
+
+<pre><code>using &lt; typename ... &gt;
+constexpr bool false_v = false ;
+
+template &lt; typename T &gt;
+void f( T t )
+{
+    if constexpr ( std::is_same&lt;T, int&gt;{} )
+    {
+        static_assert( false_v&lt;T&gt; ) ;
+    }
+}
+</code></pre>
+
+<p>
+false_vというのは任意の型を取って常にfalseを返すテンプレートconstexpr変数だ。このテンプレートにテンプレート引数を与えてやれば依存させることができる。結果として、この関数fはTがint型のときのみstatic_assertを発動させる。
+</p>
+
+<p>
+現在書いているC++17の参考書には、このような落とし穴も含めたC++17の新機能の解説を書いている。なるべく早く書き上げたい。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
