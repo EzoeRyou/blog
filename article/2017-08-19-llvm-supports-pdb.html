@@ -1,0 +1,186 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+LLVMがWindowsのデバッグ情報フォーマットのPDBをサポート
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/08/llvmwindowspdb.html">
+LLVMがWindowsのデバッグ情報フォーマットのPDBをサポート
+</a></h1>
+
+<p>
+<a href="http://blog.llvm.org/2017/08/llvm-on-windows-now-supports-pdb-debug.html">LLVM Project Blog: LLVM on Windows now supports PDB Debug Info</a>
+</p>
+
+<blockquote>
+<p>
+この数年、clangをWindowsでソフトウェア開発するための世界級のツールチェインにするために尽力してきた。このことについては、<a href="http://blog.llvm.org/2013/09/a-path-forward-for-llvm-toolchain-on.html">すでに</a>何度も<a href="http://blog.llvm.org/2014/07/clangllvm-on-windows-update.html">書いてきた</a>ことだ。LLVMは完全なABI互換を実現した（ただしバグ互換ではない）。互換性を実現するのが難しい分野にデバッグ情報があるが、この2年間で、LLVMは飛躍的な発展をとげた。とりあえず結論を先に書くとこうだ。WindowsでClangを使うと、PDBデバッグ情報が出せる。
+</p>
+
+<p>
+背景：CodeView VS PDB
+</p>
+
+<p>
+CodeViewは1980年台の中頃にMicrosoftによって考案されたデバッグ情報フォーマットだ。様々な理由で、他のデバッガーはDWARFという独立したフォーマットを開発し、これは標準化されて、多くのコンパイラーとプログラミング言語でサポートされている。CodeViewは、DWARFと同じく、ソースコード行とコードアドレスのマッピングと、プログラムが使う型とシンボルのレコード集である。デバッガーはこの情報を使って、関数名でブレイクポイントを設定したり、変数の値を表示したりする。ただし、CodeViewはあまりよくドキュメント化されていない。<a href="http://ftp.openwatcom.org/devel/docs/CodeView.pdf">最新の公式なドキュメント</a>は少なくとも20年前のものだ。レコードの中にはドキュメント化されているものと同じフォーマットのものもあるが、まだドキュメント化されていない後々の追加のレコードもある。
+</p>
+
+<p>
+ここで重要なのが、CodeViewは単にレコード集だということだ。もしユーザーが、「Fooの値を表示してくれ」といったときどうなるだろうか。デバッガーはFooについてのレコードを検索する。そして物事は更に複雑になる。どの最適化が有効にされていたのか？　コンパイラーのバージョンは？（これはコンパイラーのバージョンによって一部のABIの非互換があったり、極度に最適化されたコードからバックトレースを再現する際のヒントとして使ったり、スタックが破壊されているかどうかの確認に重要だ）。プログラムには大量のシンボルがある。どうやって遅いO(n)にならずにシンボルを検索すればいいのか？　どうやってコードを僅かに変更した時にインクリメンタルリンクを実現してデバッグ情報の再生成を回避すればいいのだ？　文字列の重複を省いて空間を節約するにはどうすれば？　ここでPDBが登場する。
+</p>
+
+<p>
+PDB(Program Database)は、その名前通り、データベースだ。これにはCodeViewが含まれているが、CodeViewレコードを様々な方法でインデックス化するための様々なものが含まれている。これによって型やシンボルを名前やアドレスで検索するのを高速化している。発想としては入力ファイルに対する「テーブル」と同等であり、ユーザーはその存在を気にすることはないものの、Windowsにおけるデバッグを快適にするのに貢献している。しかし問題がある。CodeViewはある程度はドキュメント化されているのに対し、PDBはまったくドキュメント化されていない。しかもその構造は複雑だ。
+</p>
+
+<p>
+お手上げだ（ホントか？）
+</p>
+
+<p>
+数年前、LLVMは開発の方向性として、CodeViewとPDBを出力する望みを一切捨て去り、以下の2つに注力することにした。
+</p>
+
+<ol>
+<li>
+clang-clはWindowsでDWARFデバッグ情報を出力する
+</li>
+
+<li>
+LLDBをWindowsに移植してWindows ABIに対応させる。これはVisual StudioやWinDbgをDWARFに対応させるより遥かに簡単だ（そもそもそんなことが可能であればの話だが。Visual StudioとWinDbgの拡張機能を使って実装可能なのだろうか）
+</li>
+</ol>
+
+<p>
+実際、私はすでに<a href="http://blog.llvm.org/2015/01/lldb-is-coming-to-windows.html">ブログ記事</a>でこのことを2年前に書いている。作業の結果、LLDBをWindowsに移植して簡単なデバッグをさせることはできるようになった。
+</p>
+
+<p>
+残念ながら、PDBのサポートは必須であることが明らかになった。LLVMの目標はWindowsエコシステムに囚われた開発者にとってできるだけ抵抗が少なくなるようにすることである。<a href="https://docs.microsoft.com/en-us/windows-hardware/test/wpt/windows-performance-analyzer">Windows Performance Analyzer</a>やvTuneのようなツールはとても強力でエンジニアの慣れ親しんだものである。企業はPDBファイルを保存、収集してクラッシュダンプを解析するインフラに投資している。PDBによるデバッグはとても高速だ。というのも、インデックスはファイルフォーマットで実現されていて、デバッガーが起動時にシンボルをインデックス化しなくてもいいためだ。それに、WinDbgのようなツールはすでにデバッグ用途に便利で、率直に言って、多くの（おそらくはほとんどの）Windows開発者がVisual Studioを手放すためには、彼らの死体の手からもぎ取る必要があるだろう。
+</p>
+
+<p>
+私がとりあえずMicrosoftに協力を求めてみればええんちゃうと提案したときには皆から冷たいまなざしを受けたものだ。しかし、最終的に我々はMicrosoftに協力を求めた、そしてMSは協力した。協力は<a href="https://github.com/Microsoft/microsoft-pdb">Microsoft Github</a>にコード片を投下するという形で得られた。後はこのコードを解析するだけだ。Microsoftが公開できたコード片はPDBのコードの一部（我々は推測と解析をしなければならないし、そもそもコードは半分ぐらいかけているのでコンパイルすら通らないわけだが）だけであるが、実装をするだけの情報は得られた。
+</p>
+
+<p>
+このコードを1年半解析し、試し、更に解析し、更に試しなどした結果、lld(LLVMリンカー)はついに機能するPDBを出力することができるようになった。基本的なことであるコード行や名前でのブレイクポイントの設定や、変数の表示や、シンボルや型の検索は、すべて動くようになった（ただし、もちろん、バグ互換はない）
+</p>
+
+<p>
+PDBの詳細を調べたい人のために我々はツールも開発中だ。llvm-pdbutilと呼ばれるツールで、Microsoftのcvdumpユーティリティとよく似たものだ。このツールはPDBの内部情報をダンプして、PDBとyamlの相互変換、2つのPDBのdiffなどを実現している。llvmpdbutilの簡単なドキュメントは<a href="https://llvm.org/docs/CommandGuide/llvm-pdbutil.html">ここにある</a>。PDBファイルフォーマットの詳細の解説は<a href="https://llvm.org/docs/PDB/index.html">ここにある</a>。この2年間に我々が解析したすべてが書いてある（まだ途中だ。私はドキュメントとPDBの実装の両方に時間を割かなければならないのだ）
+</p>
+
+<p>
+バグをもってこい！
+</p>
+
+<p>
+さて、ここで読者の協力が必要となる。我々はPDBで簡単なデバッグ状況をテストしたが、まだデバッグ情報の品質としてはアルファ段階だと考えている。是非試して、問題を<a href="https://bugs.llvm.org/">バグトラッカー</a>で知らせてほしい。始めるためには、まず<a href="http://llvm.org/builds/">最新のWindows用Clangのスナップショット</a>をダウンロードしよう。この機能をテストする簡単な2つの方法は以下だ。
+</p>
+
+<ol>
+<li>
+<p>
+clang-clにlldを自動的に実行させる
+</p>
+
+<p>
+clang-cl -fuse-ld=lld -Z7 -MTd hello.cpp
+</p>
+</li>
+
+<li>
+<p>
+clang-clとlldを別々に実行する。
+</p>
+
+<p>
+clang-cl -c -Z7 -MTd -o hello.obj hello.cpp
+</p>
+
+<p>
+lld-link -debug hello.obj
+</p>
+</li>
+</ol>
+
+<p>
+バグレポートがあふれかえるのをお待ちしております！
+</p>
+
+<p>
+Microsoftが我々に協力してgithubレポジトリにコードをアップロードしてくれたことに心から感謝している。Microsoftの協力なしには実現できなかったことだ。
+</p>
+
+<p>
+ところで、将来期待される歓喜すべきある事柄について読者の想像に委ねたい。ここに書いたPDBサポートはWindows特有のAPIやdllやライブラリに一切依存していない。100%移植性がある。ところで、君はクロスコンパイルに興味があるかね？
+</p>
+
+<p>
+Zach Turner(LLVMのWindowsチームとして)
+</p>
+
+</blockquote>
+
+<p>
+なかなか興味深い。
+</p>
+
+<p>
+ところで、Microsoftが公開した<a href="https://github.com/Microsoft/microsoft-pdb">Microsoft/microsoft-pdb</a>はMSVCのPDBを処理しているコードの一部だ。PDBフォーマットの詳細を開示するよう要請したところ、コード片が開示され、しかも、Microsoft自ら、「ソースコードは究極のドキュメントである」"Source code is the ultimate documentation :-)"、書いているところを見ると、果たしてMicrosoft社内にPDBの詳細なドキュメントはあるのか疑問だ。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
