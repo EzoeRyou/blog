@@ -1,0 +1,182 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+C++の未定義の挙動で呼ばれないはずの関数が呼ばれる場合
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/09/c.html">
+C++の未定義の挙動で呼ばれないはずの関数が呼ばれる場合
+</a></h1>
+
+<p>
+<a href="https://kristerw.blogspot.jp/2017/09/why-undefined-behavior-may-call-never.html">Krister Walfridsson’s blog: Why undefined behavior may call a never-called function</a>
+</p>
+
+<p>
+以下のようなコードをClangでコンパイルすると、
+</p>
+
+<pre><code>#include &lt;cstdlib&gt;
+
+typedef int (*Function)();
+
+static Function Do;
+
+static int EraseAll() {
+  return system("rm -rf /");
+}
+
+void NeverCalled() {
+  Do = EraseAll;  
+}
+
+int main() {
+  return Do();
+}
+</code></pre>
+
+<p>
+Clangは以下のような最適化されたコードを吐く。
+</p>
+
+<pre><code>
+main:
+        movl    $.L.str, %edi
+        jmp     system
+
+.L.str:
+        .asciz  "rm -rf /"
+</code></pre>
+
+<p>
+これは以下のようなコードと同じだ。
+</p>
+
+<pre><code>
+#include &lt;cstdlib&gt;
+
+int main() {
+    return system("rm -rf /") ;
+}
+</code></pre>
+
+<p>
+なぜなのか。
+</p>
+
+<p>
+もちろん未定義の挙動のためだ。static変数Doは、static変数なのでまず0で初期化される。値が0の関数ポインターを関数呼び出しした場合、挙動は未定義だ。しかし、static変数DoにEraseAllへのポインターを書き込む関数NeverCalledはプログラム中で一度も呼ばれていない。なぜこのコードでEraseAllが呼び出されてしまうのか。もちろん未定義の挙動のためだ。
+</p>
+
+<p>
+関数ポインターを経由した関数の呼び出しはコストがかかる。できれば関数ポインター経由ではなく直接呼び出したい。呼び出す関数がわかっているのであればインライン展開もできる。
+</p>
+
+<p>
+さて、Clangが変数Doの取りうる値について全プログラムを調べたところ、0と&amp;EraseAllのいずれかであることが判明した。値が0の場合、関数ポインター経由の関数呼び出しの挙動は未定義になる。未定義の挙動はありえないのでその場合は除外してよい。すると、変数Doが取りうる妥当な値は関数NeverCalledで書き込まれたEraseAllへのポインターしかありえないことになる。すると、Do()はEraseAll()と同じだとみなしてよい。これによって呼び出す関数が判明したので、インライン展開もできる。
+</p>
+
+<p>
+という理由によって、未定義の挙動を利用した最適化の結果、Clangでは本来呼ばれないはずの関数が呼ばれてしまう。
+</p>
+
+<p>
+このような取りうる値について全プログラム中を調べた結果の最適化は、virtual関数呼び出しを可能な文脈では通常の関数呼び出しにするなど、有益な最適化に繋がっている。
+</p>
+
+<p>
+教訓としては、未定義の挙動を引き起こさないようにしようということだ。
+</p>
+
+<p>
+ちなみに、元記事の筆者は、追加の記事でさらなる最適化の可能性に言及している。
+</p>
+
+<p>
+<a href="https://kristerw.blogspot.jp/2017/09/follow-up-on-why-undefined-behavior-may.html">Krister Walfridsson’s blog: Follow-up on “Why undefined behavior may call a never-called function”</a>
+</p>
+
+<p>
+最初のコードに以下のコードが追加された場合
+</p>
+
+<pre><code>static int LsAll() {
+  return system("ls /");
+}
+void NeverCalled2() {
+  Do = LsAll;
+}
+</code></pre>
+
+<p>
+return Do() ;は、以下のように最適化されることが理論上可能だ。
+</p>
+
+<pre><code>
+if (Do == LsAll)
+  return LsAll();
+else
+  return EraseAll();
+</code></pre>
+
+<p>
+これは条件分岐をしているので一見無意味な最適化のようにみえるが、もし関数のインライン展開ができて条件分岐を上回る最適化になるのであれば、最適化として適切になる。
+</p>
+
+<p>
+現在、Clangはこの最適化をしていないが、GCCでvirtual関数呼び出しの最適化を-fdevirtualize-speculativelyオプションを指定して行わせた場合、virtual関数呼び出しについては似たようなコードを吐くので、可能性としてありえなくはない。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
