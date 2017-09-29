@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+C++のfilesystemライブラリが膨大すぎる
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/09/cfilesystem.html">
+C++のfilesystemライブラリが膨大すぎる
+</a></h1>
+
+<p>
+C++17の参考書はほぼ書き終えて、あとはfilesystemライブラリの解説を残すだけになっている。
+</p>
+
+<p>
+<a href="https://github.com/EzoeRyou/cpp17book">EzoeRyou/cpp17book: textbook for C++17</a>
+</p>
+
+<p>
+ファイルシステムライブラリは、ext4とかbtrfsのようないわゆるファイルシステムに対するライブラリではなく、ディレクトリとファイルに対する操作を提供するライブラリだ。具体的にはファイルパスの文字列処理や、ファイルのコピーやリネーム、ディレクトリ構造のトラバースといった雑多なファイルシステム操作を提供する。
+</p>
+
+<p>
+C++のファイルシステムライブラリは、原則としてPOSIX互換になっている。POSIXの規定するライブラリをモダンなC++風のライブラリとして設計したものだ。例えば、カレントディレクトリにあるファイルをすべて表示するプログラムは以下のように書ける。
+</p>
+
+<pre><code>#include &lt;filesystem&gt;
+#include &lt;iostream&gt;
+#include &lt;iterator&gt;
+#include &lt;algorithm&gt;
+
+int main()
+{
+    using namespace std::filesystem ;
+
+    directory_iterator iter("."), end ;
+    std::copy( iter, end, std::ostream_iterator&lt;path&gt;(std::cout, "\n") ) ;
+}
+</code></pre>
+
+<p>
+C++らしく、ディレクトリー構造をイテレーターでたどることができる。イテレーターなのでアルゴリズムに突っ込むこともできる。
+</p>
+
+<p>
+参考書としてファイルシステムライブラリを解説するにあたって、量が膨大すぎるという問題がある。POSIXのファイルシステム操作をカバーするライブラリなのだから膨大になるのは仕方がないが、まともに解説したのでは100ページを確実に超える解説が必要になる。
+</p>
+
+<p>
+しかも、絶対パスを得るabsolute(path)とかcopyとかcreate_directoryとかcreate_symlinkとか、自明で雑多な関数が多すぎる。
+</p>
+
+<p>
+これらの関数をいちいち解説しても、リファレンスにしかならない。リファレンスならばC++コンパイラーに付属のドキュメントを読めばいいはずだ。
+</p>
+
+<p>
+そこで、今書いている参考書では、ファイルシステムライブラリのすべてを解説するのではなく、概要を解説しようと思う。
+</p>
+
+<p>
+しかし、概要と言ってもやはり量が膨大で、エラー処理もあるし、なによりクラスpathの初期化だけで、C++が規定している文字列エンコードの話から始めなければならない始末だ。
+</p>
+
+<p>
+path::value_typeがどのような文字型をもつのかは未規定で実装に依存する。pathはできるだけポータブルなコードを書けるように、文字コードの変換をサポートしている。
+</p>
+
+<pre><code>
+int main()
+{
+    using namespace std::filesystem ;
+
+    // ネイティブナローエンコード
+    path p1( "/dev/null" ) ;
+    // ネイティブワイドエンコード
+    path p2( L"/dev/null" ) ;
+    // UTF-16エンコード
+    path p3( u"/dev/null" ) ;
+    // UTF-32エンコード
+    path p4( U"/dev/null" ) ;
+}
+
+</code></pre>
+
+<p>
+C++では、char型がネイティブナローエンコードとUTF-8エンコードの両方の文字型を兼ねているので、char型はネイティブナローエンコードであると解釈される。ネイティブナローエンコードがたまたまUTF-8ならばUTF-8を渡してもいいが、そうではない場合、おそらく動かない。
+</p>
+
+<pre><code>
+int main()
+{
+    using namespace std::filesystem ;
+
+    // ネイティブナローエンコードとして解釈される
+    path p(u8"ファイル名") ;
+}
+</code></pre>
+
+<p>
+このコードは、ネイティブナローエンコードがUTF-8ではない場合、動く保証がない移植性の低いコードだ。
+</p>
+
+<p>
+ファイルシステムライブラリは、移植性が高いUTF-8文字列でファイルパスを扱う方法としてu8path(Source)が用意されている。
+</p>
+
+<pre><code>
+int main()
+{
+    using namespace std::filesystem ;
+
+    path p = u8path(u8"ファイル名") ;
+}
+</code></pre>
+
+<p>
+こういった細かい落とし穴を解説していくだけでページ数がかさむ。早く完成させたい。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
