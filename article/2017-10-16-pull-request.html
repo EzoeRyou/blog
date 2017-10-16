@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+GitHubで他人のプルリクに対しコンフリクト解消や追加の修正を行いつつマージする方法
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/10/github.html">
+GitHubで他人のプルリクエストに対しコンフリクト解消や追加の修正を行いつつマージする方法
+</a></h1>
+
+
+<p>
+読者がGitHubで何かを公開しているとしよう。そのレポジトリに対して他人がプルリクエストを送ってきた。なかなか良さそうな変更だ。早速マージしたい。
+</p>
+
+<p>
+しかし、残念なことにそのプルリクをそのままマージすることができない。なぜならば、
+</p>
+
+<ul>
+<li>コンフリクトを起こしている</li>
+<li>追加の修正が必要だ</li>
+</ul>
+
+<p>
+こういう場合、大規模なプロジェクトや、PR主が職場の同僚や開発仲間であった場合、PR主に修正を依頼するものだ。しかし、個人的な小規模なプロジェクトなのでPR主はPRを出したまま返事がない。
+</p>
+
+<p>
+こういう場合に、PRをマージするにはどうすればいいのか。答えは簡単で、プルリクエストが裏でやっているgit操作を自分のローカルでやればいいのだ。
+</p>
+
+<p>
+まず、該当のPRのGitHub上のページの、「プルリクエストをマージ」ボタンの横に、コマンドライン操作を表示(view command line instructions)というリンクがあるはずだ。これをクリックすると、プルリクエストに相当する作業を、ローカルのコマンドでやる方法が表示される。その支持に従うだけでよい。
+</p>
+
+<p>
+ローカルのコマンドでやる方法は、以下のような意味になっている。
+</p>
+
+<pre><code># ローカルで新しくブランチを作る
+git checkout -b example master
+# 新ブランチにPR先の変更を入れる
+git pull git://example.com example
+
+# 必要に応じてローカルでコンフリクト解消と編集
+
+# masterブランチに切り替え
+git checkout master
+# masterブランチにマージ
+git merge --no-ff example
+# 結果をGitHubレポジトリにpush
+git push origin master
+</code></pre>
+
+<p>
+マージ操作の後はexampleブランチはいらないのでgit branch -d exampleで消してよい。
+</p>
+
+<p>
+これによって、PRをマージしたという歴史は正しくgitレポジトリに反映される。GitHubのプルリクエストの方は何もする必要はない。自動的にマージされた扱いになっている。
+</p>
+
+<p>
+GitHubのWebページ上でプルリクエストをマージするボタンを押すというのは、このgit操作をGitHubがリモートレポジトリ上でやってくれているだけの話だ。
+</p>
+
+<p>
+プルリク、プルリクエスト、PR, Pull Request、GitHubに特有の複数人のgit操作を楽にするための概念だ。PRは面倒で複雑なgit操作をユーザーから隠している。しかし、こういう問題が発生した時、裏で行われているgit操作を知らない場合、途方に暮れてしまう。その結果、masterにマージしてから追加の編集を行うとか、手作業で同様の編集をするなどといった日付zipと何ら変わらない運用が行われてしまうこともある。
+</p>
+
+<p>
+この記事はできるだけ簡潔に解説する目的で書いた。git強者な読者であれば、gitには同じ操作をもっと強力にやる方法が用意されているなど、俺のお気に入りのgitフロントエンドや拡張ツールを使えばもっと強力な操作が行えるなどと、言いたいことは様々あるかもしれないが、これは初心者用の解説だ。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
