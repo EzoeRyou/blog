@@ -1,0 +1,147 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+Ubuntu 17.10にアップグレードした
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/10/ubuntu-1710.html">
+Ubuntu 17.10にアップグレードした
+</a></h1>
+
+<p>
+Ubuntu 17.10がリリースされた。
+</p>
+
+<p>
+<a href="https://wiki.ubuntu.com/ArtfulAardvark/ReleaseNotes">ArtfulAardvark/ReleaseNotes - Ubuntu Wiki</a>
+</p>
+
+<p>
+今回のリリースでは、デスクトップ環境がUnityからGnomeに変わった。同時に、X.orgではなくWaylandに変わっている。
+</p>
+
+<p>
+このため、Ubuntuのデスクトップ環境の使用感がだいぶ変わっている。まず、GnomeはUnity風の操作感を再現するために、やや手が入っている。具体的にはSuper+数字でランチャーに登録されているソフトウエアのウインドウを選択できたりする。
+</p>
+
+<p>
+残念なことに、Global MenuやHUDは再現されていなかった。
+</p>
+
+<p>
+Waylandに移行したので、日本語入力環境が大変不便になった。fcitxはWaylandに対応していないので使えない。使えないが、そのことは警告されないので、fcitxを使っているUbuntu 17.04からアップグレードすると、日本語が入力できなくなる。iBusに切り替える必要がある。iBusはキーボードレイアウトとかな漢字変換機能を持つIMEをごちゃまぜにしているので本当に使いづらい。しかも、変換候補のウインドウが、カーソル位置ではなく画面左上に出る。極めてつらい。
+</p>
+
+<p>
+私は事前に調べているからいいものの、これは何も知らない人がアップグレードしたら日本語入力ができずに詰みそうだ。
+</p>
+
+<p>
+特に興味深いパッケージのバージョンという点では、Linuxカーネルが4.13に、GCCが7.2.0に、Clangが4.0.1.6に、Neovimが0.2.0になった。
+</p>
+
+<p>
+GCCとClangのバージョンが上がったので、これでfilesystemなどの一部のライブラリを除いて、どちらもC++17をある程度実装したコンパイラーになった。
+</p>
+
+<p>
+ただし、現在libc++にはxlocale.hをincludeするという不具合がある。xlocale.hは標準のヘッダーではなくglibcの内部ヘッダーであり、しかもそのコメントには、"This file is not standardized, don't rely on it, it can go away without warning"と書いてある。
+</p>
+
+<p>
+<a href="https://sourceware.org/git/?p=glibc.git;a=commit;h=f0be25b6336db7492e47d2e8e72eb8af53b5506d">sourceware.org Git - glibc.git/commit</a>
+</p>
+
+<p>
+libc++がなぜxlocale.hをincludeしているのか全くわからない。実装を読んだが、単にincludeしているだけだ。なので、とりあえず空のxlocale.hファイルを作り、そのファイルへのディレクトリーを-Iで追加して対処した。
+</p>
+
+<p>
+また、メインでは使っていないDellのLatitude E7470でUbuntuがうまく動かない問題は、Ubuntu 17.10でも解決しなかった。まずアップグレードが途中で失敗する。
+</p>
+
+<p>
+DellのLatitude E7470でUbuntuがうまく動かない問題は、未だに原因がわからない。以下のような問題がある。
+</p>
+
+<p>
+Live環境のブートが遅い。ログを見ると、pwconvが/etc/shadow-のパーミッションを0600に変更しようとしてエラーを出し、パッケージリストを読み込むのに時間を要し、regenerating SSL certificatesでまた時間を要する。放置しても絶対に進まず、キーボードを適当にワシャワシャ叩くと進む。まるで/dev/randomへのエントロピーが十分にたまるまで待っているかのような挙動をする。
+</p>
+
+<p>
+初回ログイン時に数回画面が暗転する。
+</p>
+
+<p>
+突然フリーズする。マウスカーソルは動くがそれ以外の操作を何も受け付けない。ttyの変更すらできない。文字入力をしているときにフリーズしやすい気がする。
+</p>
+
+<p>
+cat /dev/urandomが何故か目視できるほど遅い。urandomなのに遅い。
+</p>
+
+<p>
+grub-updateが遅い。
+</p>
+
+<p>
+apt upgradeしたときの"procescing triggers for man-db"が遅い。
+</p>
+
+<p>
+なので実用にならないのだが、一応維持している。Ubuntuの欠陥なのかDell Latitudeの欠陥なのか、個体の欠陥なのかわからないが、私は個体の欠陥だと思っている。しかし、memtest86+は何の問題もなく何パスも通るので、メモリではなさそうだ。また、ストレージへの読み書きも遅いわけではない。単純なベンチマークやストレステストで問題が見つからないのでよくわからない。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
