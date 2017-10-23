@@ -1,0 +1,291 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+インデックス付きRange-based for文を実装したらネストされた構造化束縛が欲しくなった
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/10/range-based-for.html">
+インデックス付きRange-based for文を実装したらネストされた構造化束縛が欲しくなった
+</a></h1>
+
+<p>
+親愛なるC++14以前の古臭いC++を書く読者諸君。疑う余地なく、私がC++17を華麗に使いこなす江添亮である。
+</p>
+
+<p>
+私のC++17参考書も余裕で書き終わり、後は出版を待つだけだ。私の中で、C++というのはもうすっかりC++17になってしまい、以前のC++のことは忘れてしまった。いまさらC++14のような使いづらい時代遅れのC++を書きたくはない。時代はいよいよC++17が当然になったと言えよう。
+</p>
+
+<p>
+私のC++17参考書はGPLv3という自由なライセンスで提供される究極の電子書籍だ。これから紙書籍、プロフェッショナルに組版された電子書籍も出版される予定になっているので、読者は読まないという法はない。
+</p>
+
+<p>
+<a href="https://github.com/EzoeRyou/cpp17book">EzoeRyou/cpp17book: C++17参考書</a>
+</p>
+
+<p>
+ところで、インデックス付きRange-based for文がほしいとさえずっていた。というのも、レンジの要素のイテレートを手で書きたくはないし、インデックスのインクリメントも手で書きたくないからだ。
+</p>
+
+<pre><code>template &lt; typename Container &gt;
+void f( Container &amp; c )
+{
+    // 要素のイテレートは手動
+    // インデックスのインクリメントは手動
+    for (   auto i = std::size_t(0),
+            iter = std::begin(c), end = std::end(c) ;
+            iter != end ; ++iter, ++i )
+    {
+        // iはインデックス
+        // *iterは要素 
+    }
+}
+</code></pre>
+
+<p>
+std::for_eachやRange-based for文を使うことにより、要素のイテレートは手で書かずにすむ。しかし、インデックスのインクリメントは依然として書かなければならない。
+</p>
+
+<pre><code>template &lt; typename Container &gt;
+void f( Container &amp; c )
+{
+    {
+        std::size_t i = 0 ;
+        for ( auto element : c )
+        {
+            // iはインデックス
+            // elementは要素
+            ++i ; // 手動インクリメント
+        }
+    }
+
+    std::for_each( std::begin(c), std::end(c),
+        [i = std::size_t(0)](auto element) mutable
+        {
+            // iはインデックス
+            // elementは要素
+            ++i ; 手動インクリメント
+        } ) ;
+}
+</code></pre>
+
+<p>
+これではfor文より読みやすさ、間違いにくさの点で悪化しているではないか。
+</p>
+
+<p>
+ところで、C++17では構造化束縛が追加された。
+</p>
+
+<pre><code>
+// クラステンプレートのコンストラクターの実引数からの推定も追加された
+std::pair p(1,2) ;
+auto [a,b] = p ;
+// 以下と同じ
+// auto a = p.first ;
+// auto b = p.second ;
+</code></pre>
+
+<p>
+構造化束縛は、もちろんRange-based for文でも使える。
+</p>
+
+<pre><code>
+int main()
+{
+    std::map&lt;int,int&gt; m = {{1,1},{2,2},{3,3}} ;
+
+    for ( auto [key, mapped] : m )
+    {
+        std::cout &lt;&lt; key &lt;&lt; mapped ;
+    }
+}
+</code></pre>
+
+<p>
+このコードは期待通りに動く。この程度のコードは、すでにC++17プログラマーである私にとってごく自然で当然のコードだが、未だに旧態依然のC++14以下にとらわれている読者には垂涎のコードだろう。
+</p>
+
+<p>
+ということは、コンテナーをラップして、インデックスカウンターを持ち、operator ++でインデックスをインクリメント、operator *でstd::pair&lt;std::size_t, reference&gt;を返すようなラッパーを書けば、Range-based for文にインデックスが追加できるのではないか。
+</p>
+
+<p>
+早速そのようなラッパー、with_indexを書いてみた。
+</p>
+
+<pre><code>
+int main()
+{
+    std::vector v = {1,2,3,4,5} ;
+
+    for ( auto[ i, element ] : with_index(v) )
+    {
+        std::cout &lt;&lt; i &lt;&lt; element ;
+    }
+}
+</code></pre>
+
+<p>
+いける。これは使える。
+</p>
+
+<p>
+しかし、問題がある。構造化束縛はネストできないので、std::mapに使うと以下のようになってしまう。
+</p>
+
+<pre><code>int main()
+{
+    std::map&lt;int,int&gt; m = { {1,1},{2,2},{3,3} } ;
+
+    for ( auto[ i, pair ] : with_index(m) )
+    {
+        auto [key, mapped] = pair ;
+        std::cout &lt;&lt; i &lt;&lt; key &lt;&lt; mapped ;
+    }
+}
+</code></pre>
+
+<p>
+C++にもネストされた構造化束縛がほしい。
+</p>
+
+<pre><code>// C++ではない
+int main()
+{
+    std::pair&lt; int, std::pair&lt;int,int&gt; &gt; p = { 1, {2,3} } ;
+
+    // これがほしい
+    auto [a, [b,c]] = p ;
+}
+</code></pre>
+
+<p>
+ちなみに、with_indexの実装は以下の通り。
+</p>
+
+<pre><code>template &lt; typename Iterator  &gt;
+class with_index_iterator
+    : public Iterator
+{
+    std::size_t i = 0 ;
+
+public :
+
+    with_index_iterator( Iterator iter )
+        : Iterator( iter )
+    { }
+
+    auto &amp; operator ++()
+    {
+        ++i ;
+        this-&gt;Iterator::operator ++() ;
+        return *this ;
+    }
+
+    auto operator *() const noexcept
+    {
+        return std::pair&lt;
+            std::size_t,
+            typename std::iterator_traits&lt;Iterator&gt;::reference &gt;
+        { i, *static_cast&lt;Iterator const &amp;&gt;(*this) } ;
+    }
+
+} ;
+
+template &lt; typename Range &gt;
+class with_index
+{
+    Range &amp; range ;
+
+public :
+    with_index( Range &amp; range )
+        : range(range)
+    { }
+
+    auto begin() const
+    {
+        return with_index_iterator{ std::begin(range) } ;
+    }
+    auto end() const
+    {
+        return with_index_iterator{ std::end(range) } ;
+    }
+
+} ;
+</code></pre>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
