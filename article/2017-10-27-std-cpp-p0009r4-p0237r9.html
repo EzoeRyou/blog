@@ -1,0 +1,309 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+C++標準化委員会の文書: P0009R4-P0237R9
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/10/c-p0009r4-p0237r9.html">
+C++標準化委員会の文書: P0009R4-P0237R9
+</a></h1>
+
+<p>
+2017年10月分の文書が公開された。この8ヶ月ほど、C++17参考書の執筆に注力していて文書のレビューを怠っていたが、さっくりと解説して、次はC++入門書の執筆に移りたい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0009r4.html">P0009R4: P0009r4 : Polymorphic Multidimensional Array Reference</a>
+</h2>
+
+<p>
+改定に改定を重ねてわけのわからないことになっている連続したストレージに対して多次元配列風のアクセスを提供するラッパーライブラリ。もともとarray_viewだったが、今ではmdspanという一見してわけのわからない名前になっている。これは、viewという用語が適切ではないという違憲によって変更された。
+</p>
+
+<p>
+もともとレイアウト指定はなかったのだが、レイアウト指定は絶対に必要だという違憲があって追加された。C/C++風の末尾の次元がメモリ上で連続しているレイアウトと、FORTAN風の先頭の次元がメモリ上で連続しているレイアウト、そして、subspanで一部を切り出したときにメモリが連続していないことを示すレイアウトがある。
+</p>
+
+<p>
+割と一見してコードの意味がわからなくなりそうな設計をしている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0037r4.md">P0037R4: Fixed-Point Real Numbers</a>
+</h2>
+
+<p>
+markdownで書かれている。ほー、いいじゃないか。こういうのでいいんだよ。こういうので。焦るんじゃない。俺はPDFで読みたくないだけなんだ。
+</p>
+
+<p>
+固定少数点数ライブラリfixed_point&lt; Rep, Exponent&gt;の提案。
+</p>
+
+<pre><code>fixed_point&lt; uin32_t, -12 &gt; a(1), b(2) ;
+
+// 0.5
+auto c = a / b ;
+</code></pre>
+
+<p>
+fixed_point&lt;Rep, Exponent&gt;の指数はpow(2, Exponent)となる。最小値はnumeric_limits&lt;Rep&gt;::min() * pow(2, Exponent)、最大値はnumeric_limits&lt;Rep&gt;::max() * pow(2, Exponent)
+</p>
+
+<p>
+面白いことに、クラステンプレートのコンストラクターからの実引数推定と実引数推定ガイドを使った、初期化子の整数値からのExponentの推定機能がある。
+</p>
+
+<pre><code>auto a = fixed_point(0ul);
+static_assert(is_same_v&lt;decltype(a), fixed_point&lt;unsigned long, 0&gt;&gt;);
+</code></pre>
+
+<p>
+Exponentは初期化子の整数値を表現できる最大の値が選ばれる。
+</p>
+
+<p>
+また面白いことに、演算結果でRepやExponentが変わる。operator *ではRepが変わらないが、multiply/divideではRepも変わる。
+</p>
+
+<pre><code>
+// 安全に演算結果を表現できる型に変わる。
+auto f = fixed_point&lt;uint8_t, -4&gt;{15.9375};
+auto p = multiply(f, f);
+// p === fixed_point&lt;uint16_t, -8&gt;{254.00390625}
+
+// operator *だとRepが変わらない。
+auto f = fixed_point&lt;unsigned, -28&gt;{15.9375};
+auto p = f * f;
+// p === fixed_point&lt;unsigned, -56&gt;{0}
+
+// Repも変える
+auto f = fixed_point&lt;unsigned, -28&gt;{15.9375};
+auto p = multiply(f, f);
+// p === fixed_point&lt;uint64_t, -56&gt;{254.00390625}
+</code></pre>
+
+<p>
+これは除算の場合も同じだ。
+</p>
+
+<pre><code>
+fixed_point&lt; uint32_t, -16&gt; a(1), b(2) ;
+auto c = a / b ;
+// c == fixed_point&lt; uint32_t, 0&gt;(0)
+
+auto d = divide( a, b ) ;
+// d == fixed_point&lt;uint64_t, -32&gt;(0.5) ;
+</code></pre>
+
+<p>
+Exponentの変化は、乗算の場合それぞれのExponentの加算、除算の場合は減算になる。
+</p>
+
+<p>
+わかりやすいようなわかりにくいような。最悪の場合を想定しすぎなような。
+</p>
+
+<p>
+exponentが小さくてもすむ型であれば最初から小さくしとけというのはわかるが、あまりにも目まぐるしくExponentが変わりすぎる。文書は組み込み型のDrop-in Replacementを意図して設計されているというが、以下の関数テンプレートに渡してエラーになるようなライブラリが本当にdrop-in replacementたりえるだろうか。
+</p>
+
+<pre><code>// 値を半分にして返す関数
+template &lt; typename T &gt;
+T half( T x )
+{
+    return x / T(2) ;
+}
+</code></pre>
+
+<p>
+このコードは、どんなfixed_pointを渡しても、小数部が切り捨てられる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0096r5.html">P0096R5: Feature-testing recommendations for C++</a>
+</h2>
+
+<p>
+機能テストマクロがC++17に対応。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0124r4.html">P0124R4: Linux-Kernel Memory Model</a>
+</h2>
+
+<p>
+Linuxカーネルのメモリーモデルの解説。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0196r4.pdf">[PDF] P0196R4: Generic none() factories for Nullable types</a>
+</h2>
+
+<p>
+ポインター、optionalなどnullableな型に使えるジェネリックなnone()の提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0201r2.pdf">[PDF] P0201R2:A polymorphic value-type for C++ </a>
+</h2>
+
+<p>
+polymorphic_value&lt;T&gt;の提案。コピー時にT型を基本クラスとするpolymorphic typeをディープコピーしてくれるクラス。ディープコピーをするためにT型は何か特別なclone関数を用意する必要はない。
+</p>
+
+<pre><code>
+struct Base { int x ; } ;
+struct Derived : Base { int y ; } ;
+
+polymorphic_value<Base> p1( new Derived ) ;
+
+// 値がディープコピーされる
+polymorphic_value<Base> p2 = p1 ;
+// Derivedのデストラクターが呼ばれる
+</code></pre>
+
+<p>
+アロケーターの指定がないのはなぜだろう。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0202r2.html">
+P0202R2: A Proposal to Add Constexpr Modifiers to Functions in &lt;algorithm&gt; and &lt;utility&gt; Headers
+</a>
+</h2>
+
+<p>
+algorithmとutilityをconstexprにする提案。
+</p>
+
+<p>
+前の提案はcstring(主にmemmove/memset/memcmp)もconstexprにする提案だったが、cstringに手を入れるのは見送られた。かわりに、compiler intrinsicsなどの方法で実現する方向に調整された。
+</p>
+
+<p>
+さて、既存のC++標準ライブラリの実装を見てみると、libstdc++はcompiler intrinsicsを使っているのでこのままconstexprに対応可能で、libc++はcstringを使っているので書き換えが必要だ。また、libc++はgotoを使っているのでこの点でも書き換えが必要となる。
+</p>
+
+<p>
+stable_partition, inplace_merge, stable_sortは、メモリ確保、placement newによる構築、unique_ptrの使用があるので、constexprからは除外する。
+</p>
+
+<p>
+shuffleとsampleはuniform_int_distributionを使うため、constexprからは除外する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0214r6.pdf">[PDF] P0214R6:
+Data-Parallel Vector Types &amp; Operations
+</a>
+</h2>
+
+<p>
+SIMDプログラミングのためのベクトル型の提案。なんだかすごく使いづらそうな設計だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0233r6.pdf">[PDF] P0233R6: 
+Hazard Pointers: Safe Reclamation for Optimistic Concurrency
+</a>
+</h2>
+
+<p>
+ハザードポインターライブラリの提案。ハザードポインターはIBMのMaged M. Michaelによって考案され、IBMのMaged M. Michaelによって特許申請された。最終的に特許申請は取り下げられた。ところでこの提案文書の執筆者はIBMのMaged M. Michaelである。この提案が特許汚染されていないかどうか注意深い検証が必要だ。
+</p>
+
+<p>
+ISO国際標準規格には特許汚染された技術を持ち込むべきではない。ましてや特許汚染の前科がある人間によって提案された機能は眉に唾をつけてみるべきだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0237r9.pdf">[PDF] P0237R9: 
+Wording for fundamental bit manipulation utilities
+</a>
+</h2>
+
+<p>
+Nビットの符号なし整数型をN個のbit要素が入っているコンテナーだとみなし、ビットに対するイテレーターを提供するイテレーターアダプターライブラリ、bit_iteratorの提案。
+</p>
+
+<h2>
+
+</h2>
+
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
