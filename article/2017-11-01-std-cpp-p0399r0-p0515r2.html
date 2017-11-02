@@ -1,0 +1,238 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+C++標準化委員会の文書: P0399R0-P0515R2
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/11/c-p0399r0-p0515r2.html">
+C++標準化委員会の文書: P0399R0-P0515R2
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0399r0.pdf">[PDF] P0399R0: 
+Networking TS &amp; Threadpools
+</a>
+</h2>
+
+<p>
+ネットワークライブラリーはスレッドプールを使いたいがどのようになるのかということを大雑把に説明したスライド資料。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0424r1.pdf">[PDF] P0424R1:Reconsidering literal operator templates for strings </a>
+</h2>
+
+<p>
+文字列リテラルに対するユーザー定義演算子で文字列を(harT const *, std::size_t)で取れるようにする提案。
+</p>
+
+<pre><code>template &lt; typename CharT, CharT const * str, std::size_t length &gt;
+auto operator "" _udl() ;
+
+auto x = "abcd"_udl ;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0429r2.pdf">[PDF] P0429R2:A Standard flat_map </a>
+</h2>
+
+<p>
+ソート済みの連続したストレージで実装されるset/mapの実装。flat_set/flat_mapの提案。
+</p>
+
+<p>
+既存のset/mapはノードベースのバイナリーツリーによる実装で、これは現代のメモリが凄まじく遅くキャッシュミスが悲惨なことになるアーキテクチャではとても遅い。連続したストレージはキャッシュが聞きやすく、キャッシュが聞いたメモリ領域への読み書きは高速に行える。すると、ソート済みの配列をバイナリサーチする実装のほうが、現実のアーキテクチャでは速度の点で有利だ。
+</p>
+
+<p>
+入ってほしい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0443r3.html">P0443R3:A Unified Executors Proposal for C++ </a>
+</h2>
+
+<p>
+実行媒体を表現するexecutorライブラリの提案
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0447r4.html">P0447R4: Introduction of std::colony to the standard library</a>
+</h2>
+
+<p>
+歯抜けを許す連続したストレージ上に構築される要素の順序保証のないコンテナー、colonyの提案。
+</p>
+
+<p>
+vectorのような連続したストレージ上に構築される要素の順序保証のあるコンテナーを考える。
+</p>
+
+<pre><code>std::vector v = {1,2,3,4,5} ;
+// 中間の要素を削除
+v.erase( v.begin()+2 ) ;
+</code></pre>
+
+<p>
+このコードは遅い。なぜかというと要素3を削除したあとに、要素3が構築されていたメモリー上に要素4をコピーし、要素4の場所には要素5をコピーして、間を詰めなければならないからだ。vectorでは最後尾以外の要素の削除は遅い。
+</p>
+
+<p>
+では要素を詰めなければいいのではないか。eraseを行った後のコンテナーの中身が、{1,2,無効,4,5}となるデータ構造はどうだろうか。要素にアクセスする際は無効になった要素を読み飛ばして無視する。要素2と4の間に要素を挿入すると、無効化されていたストレージに要素が追加される。さらに、位置を指定せずに挿入すると、無効化されているストレージのどこかに要素が追加される。
+</p>
+
+<p>
+colonyは要素の順序を保証しないが、中間の要素が定数時間で行える特性を持つコンテナーだ。
+</p>
+
+<p>
+なお、リファレンス実装では、無効要素の読み飛ばしは要素ごとに無効フラグを持つのでもなく、ビットマップで無効フラグを持つのでもなく、jump-counting skipfieldと呼ばれる手法を用いるらしい。これによって連続した無効要素を読み飛ばすのがキャッシュ効率よく行えるそうだ。
+</p>
+
+<p>
+<a href="http://em.rdcu.be/wf/click?upn=KP7O1RED-2BlD0F9LDqGVeSPyQHezub7M4gGFa4NTPPTU-3D_ih77hK-2FwXUNPXOClzbShNQsKzXRuUomlRdQ1DjaMsrpnUBwwtbFTp5VEo6fdTXEOm5aVQpvVZ28aaMucmOmTG7j6bqKdutLSZ5s-2FvVOpi0U-2BRUm-2BokLgfiyljrkOnlzzohhddyytFQ6xbOHnaSP-2BiryryBzyk0-2FcqHJHqWla0UjauVoYm2aWi5no-2F91Tum6XKjVqwSLtk3SZQBA-2BuYbfglhC7NGb-2F0qoV47pMMnoV-2Fo-3D">The Advanced “Jump-Counting” Skipfield Pattern</a>
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0461r2.pdf">[PDF] P0461R2: Proposed RCU C++ API </a>
+</h2>
+
+<p>
+同期処理のためのRCUライブラリの提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0479r2.html">P0479R2: Attributes for Likely and Unlikely Statements</a>
+</h2>
+
+<p>
+起こりうる可能性の高さと低さを指定する属性、[[likely]]と[[unlikely]]の提案。
+</p>
+
+<p>
+例えば分岐時に実行される可能性の低いブランチに指定することで、コンパイラーの最適化を助けることができる。
+</p>
+
+<pre><code>
+if ( is_error )
+[[ unlikely]] {
+// めったに起こらないエラー
+}
+</code></pre>
+
+
+<p>
+GCCとClangは独自拡張として__builtin_expectという同等機能のcompiler intrinsicsを提供している。MozillaやChromiumのような現実のコードでも使用されている。
+</p>
+
+<p>
+現実にどのように活用されるかというと、例えばキャッシュを多用するアーキテクチャでは、コードブロックの配置の場所によってキャッシュされるかどうかが変わるので、分岐時により実行される可能性の高いコードをキャッシュされやすい領域に配置することができる。x86では、隣接する複数の命令は内部で単一の命令にまとめられたりするので都合が良い。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0506r2.pdf">[PDF] P0506R2:
+use string_view for library function parameters instead of const string & / const char *
+ </a>
+</h2>
+
+<p>
+string_viewを標準ライブラリで文字列を受け取る引数の型として積極的に使っていこうという提案。std::string const &amp;やchar const *で受け取るよりよい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0514r2.pdf">[PDF] P0514R2:Efficient waiting for concurrent programs </a>
+</h2>
+
+<p>
+スレッド所有がないmutexとして、atomic_semaphoreの提案。atomic操作にatomic_waitやatomic_notify_oneも追加。そしてcondition_variable_atomicも提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0515r2.pdf">[PDF] P0515R2:Consistent comparison </a>
+</h2>
+
+<p>
+C++における比較をより厳密にするための新しい演算子、operator &lt;=&gt;の提案。
+</p>
+
+<p>
+operator &lt;=&gt;(a, b)はa, bの大小関係と等号関係に応じて適切な3値のいずれかを返す。また、strong order, weak order, partial order, strong equality, weak equalityも型で表現する。
+</p>
+
+<p>
+これでだいぶ比較がマシになる。今まで同じ演算子にごちゃまぜにしすぎていた。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
