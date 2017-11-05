@@ -1,0 +1,153 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+VimConf 2017に行ってきた
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/11/vimconf-2017.html">
+VimConf 2017に行ってきた
+</a></h1>
+
+
+<p>
+以下で告知されているVimConf 2017に行ってきた。
+</p>
+
+<p>
+<a href="http://vim-jp.org/blog/2017/08/04/vimconf2017-venue-and-date-ja.html">vim-jp » VimConf 2017を開催します</a>
+</p>
+
+<p>
+私はVimを毎日使っているし、実際このブログ記事もNeovimで書いているが、肝心のVim力はさほど高くない。私はHJKLではなくArrow Keyを使うし、マウスも使う。大抵のテキスト編集作業はInsert Modeで行う。ノーマルモードで行う作業はペースト(これも面倒なのでInsert Mode内でCtrl+Rを使うこともしばしばあるのだが)やgJ、数行の自作の関数によるHTMLでエスケープが必要な文字のエスケープとか、ブログ記事をBloggerで公開するときに本文やタイトルをコピーしたり、Bloggerへのリンクを挿入したりする作業だ。その他には:makeも使っているが、これは別にVimとはあまり関係がない。人から「でもあなたはoを使っているでしょう。他のエディターにはなかなか見かけない便利な機能です」と言われたことはあるし、実際oは使っているが、oはVimがモードを持つから存在するだけで、モードを持たないテキストエディターならばoはいらないのではないかと思う。
+</p>
+
+<p>
+そんな私がなぜVimConf 2017に行ってきたかというと、たまたま私が雇用されている会社、ドワンゴがVimConf 2017のスポンサーになっていたため、スポンサー枠がひとつ余っていたのだ。
+</p>
+
+<p>
+さて、会場の空気はと言うと、だいぶ常人離れしていて、毎朝Vimをビルドするのは当たり前という人がゴロゴロいた。
+</p>
+
+<p>
+発表者と発表に使ったスライド資料の一覧を記したタイムテーブルがどこかにあればいいのだが、そういう便利なものが見当たらないので、仕方なく記憶を頼りに書く。
+</p>
+
+<p>
+haya14busaの自分のVimに関する活動史についての発表、これは特に大した印象が残らなかった。
+</p>
+
+<p>
+fatihのvim-goの発表。vim-goとはvimをgo開発環境にするプラグインだ。その機能はgoの実装をインストールする機能に始まり、テストでcoverageされた部分のコードをハイライトする機能まであり、なかなか良さそうだ。
+</p>
+
+<p>
+デバッガーのサポートは現状のvimでは難しいが、LSPへの対応により状況は変わるだろうとの期待がある。
+</p>
+
+<p>
+VimConf 2017では昼になかなか豪華なすき焼き弁当がでた。壇上にmattnとk_tanakaとkaoriyaが上がって弁当を食べるところを眺めながら弁当を食べた。
+</p>
+
+<p>
+昼の休憩の間に色々と参加者に対する質問が行われたが、Microsoft Windowsを使っている参加者は数えるほどしかいなかった。WindowsｄもMacOSｄもGNU/LinuxでもないOSを使っているものはいるのだろうかと思ったが、Chrome OSを使っている者がいた。少し期待していた答えとは違う。Wayland上でvimを使っているのは、私ともうひとりしかいなかった。ただ、私ももうひとりも、Waylandは使っているものの、vim自体は端末エミュレーター上で動かしているため、果たしてそれはWaylandで使っていると言えるのか疑問だ。
+</p>
+
+<p>
+cocoponのcolor schemeを作成する発表。color schemeを作るための割と全てが解説されていた。どうやらcocoponによると、我々プログラマーは一日のうち8時間は眠り、8時間を日常の雑事や余暇に使い、8時間は働いている。すなわち、我々は一日のうち8/24にあたる33%の時間はcolor schemeを見ていることになる。したがってcolor schemeは極めて重要だ。通勤途中に急にcolor schemeを眺めたくなることがあるらしいので、Vimのcolor schemeを比較できるWebサイトを作り、モバイル対応もさせているらしい。
+</p>
+
+<p>
+t9mdによるAtomでVim風の操作を実現するVMPの発表。Vimの操作はテキストバッファーに対する変更であり、その文法はoperator + targetであるといったVim操作の本質の話、後半ではVim操作のデモ(Atomで動くVMPによるデモ)が行われた。
+</p>
+
+<p>
+私はVimでtext objectというものは使っていなかったのだが、熟練のvimmerはyipとvipが息を吐くように行えるのだという。AtomのVMPではtext objectを入力すると対応する部分がフラッシュするようになっていて、UIフィードバックがあるので、操作しやすくなっている。これはVimにも欲しいところだが、AtomはElectronで実装されていれるがためにCSSを数行書くだけでできる実装が、Vimでは難しいとのことであった。
+</p>
+
+<p>
+text objectは覚えたいところだ。
+</p>
+
+<p>
+senopenはPOSIX原理主義者として移植性の高い.vimrcの記述方法についての発表。移植性の高い.vimrc、つまりどんな環境に持っていっても変更無く正しく動作する.vimrcはどう書けばいいのか。まず、現実の環境で対応しなければならないVimのバージョンの下限を調べる。どうやらある有名なクラウドサーバーではCentOS 5.5をサポートしているらしく、するとVim 7.0を下限とすればよい。また、WindowsとPOSIXではファイルパスのフォーマットが違う。文字コードが違うといった問題があり、これに正しく対応するための記述方法が示された。
+</p>
+
+<p>
+暗黒美夢王ことShougoMatsuは暗黒の力によって作られているスニペットプラグインの発表。スニペットプラグインとは何か。スニペットプラグインの実装方法とその長短について。新しいdeoppet.nvimではVimにスニペットプラグインを作りやすくするための機能を追加することにより、パフォーマンスの問題を解決したなどと話していた。今回は歌はなかった。
+</p>
+
+<p>
+dice_zuは、ordinaryな人間がVimに貢献する方法について発表。どうやら彼の定義するところのordinaryには、毎朝Vimをビルドすることが含まれるらしい。
+</p>
+
+<p>
+p_ckはVimのシンタックスハイライトを記述する新しい方法について発表。既存のシンタックスハイライトの記述方法がいかにダメかという話をしていた。
+</p>
+
+<p>
+lambdalisueはgitのVimフロントエンドであるgina.vimについて発表。この発表を聞いた我々は、スーパーVimマン2になれるそうだ。スーパーVimマン2とは、CLIツールをVimで代替するスーパーVimマンを超えた人のことだそうだ。ちなみに、スーパーVimマン2を超えたスーパーVimマン3が存在し、これはデスクトップアプリをVimで代替する超人のことだそうだ。肝心のgina.vimだが、git logをVimで表示することができ、かつコミットを選択するとその変更内容を別枠で表示するなどの機能があり、たしかに便利そうだとは思った。しかし私はgitにVimフロントエンドが必要だとは思わない。
+</p>
+
+<p>
+VimConf 2017は国際カンファレンスという位置づけであり、発表の半分以上は英語で行われ、英語と日本語の同時通訳がついていた。私は英語は英語として聞いていたので日本語通訳は聞いていなかったのだが、どうも日本語通訳はだいぶ独創的な翻訳でなかなか面白かったらしい。何でもアレがソレしてヤバイとか。
+</p>
+
+<p>
+VimConfの規模をもっと大きくして来年も行うために、スポンサーを募集しているそうだ。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
