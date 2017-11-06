@@ -1,0 +1,208 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+C++標準化委員会の文書: P0533R1-P0573r2
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/11/c-p0533r1-p0573r2.html">
+C++標準化委員会の文書: P0533R1-P0573r2
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0533r1.pdf">[PDF] P0533R1:
+constexpr for &lt;cmath&gt; and &lt;cstdlib&gt;
+ </a>
+</h2>
+
+<p>
+algorithmをconstexpr化する提案で分離されたcmathとcstdlibのconstexpr化についての提案。組版がクソで読む気がしないが、一般的な算術演算子だけで実装できるものはconstexpr化できる。errnoの書き換えはconstexprではできないが、constexprの文脈で評価されたときの挙動を規定すればconstexpr化できる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0534r3.pdf">[PDF] P0534R3:call/cc (call-with-current-continuation): A low-level API for stackful context switching </a>
+</h2>
+
+<p>
+いわゆるcallccを実現するためのスタックフルなコンテキストスイッチを実現するための低級ライブラリの提案。コルーチン提案よりよっぽどわかりやすいのでこっちのほうがいい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0539r2.html">P0539R2: A Proposal to add wide_int Class</a>
+</h2>
+
+<p>
+Nビットの整数型を表現するwide_int&lt;N&gt;の提案。
+</p>
+
+<p>
+より大きな整数型の需要は年々高まるばかりで、GCCとClangには__int128型が存在する。将来的には256bitなどのより大きな整数型が出てくることは想像にかたくない。そこで、大きなサイズの整数型を汎用的に表現する方法がほしい。
+</p>
+
+<p>
+この提案では2の乗数の整数型しか扱わないが、将来的には拡張できる余地を残す。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0546r1.html">P0546R1: P0546r1 : Span - foundation for the future</a>
+</h2>
+
+<p>
+配列に範囲外チェックを行いつつアクセスできるストレージを所有しないライブラリspanの提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0549r2.pdf">[PDF] P0549R2: Adjuncts to std::hash</a>
+</h2>
+
+<p>
+ある型Tが有効なstd::hash&lt;T&gt;を持つかどうか調べるis_enabled_hash&lt;T&gt;、CVリファレンス修飾子を取り除いた型が有効なハッシュを持つかどうか調べるhash_for&lt;T&gt;、そしてハッシュ値を得るhash_value&lt;T&gt;(T &amp;&amp; t)、ハッシュが例外を投げないか返すis_nothrow_hashable&lt;T&gt;の提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0551r1.pdf">[PDF] P0551R1: Thou Shalt Not Specialize std Function Templates!</a>
+</h2>
+
+<p>
+標準ライブラリの関数テンプレートはユーザーが特殊化してはならないというルールの追加。なぜならば、ろくな結果にならないから。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0561r2.html">P0561R2: An RAII Interface for Deferred Reclamation</a>
+</h2>
+
+<p>
+リーダーライターロックのパターン、つまりあるオブジェクトの値を読むリーダーがリーダーロックをして値を読む。アップデーターは新しいメモリを確保して差し替えることで値を更新する。リーダーロックはアップデーターを妨げない。メモリの解放は最後のリーダーロックが外れて問題ないときに行う。
+</p>
+
+<p>
+このようなパターンを実現する方法として、リファレンスカウント、RCU、ハザードポインターといった方法が考案されていて、実際標準ライブラリに入れるべく提案もされている。問題は、提案は個別の実装方法に特有の低級な操作を提供している。本提案は、このパターンを実現する実装方法によらない汎用的な高級APIを提案する。
+</p>
+
+<p>
+たしかにほしい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0566r3.pdf">[PDF] P0566R3: Proposed Wording for Concurrent Data Structures: Hazard Pointer and Read-Copy-Update (RCU)</a>
+</h2>
+
+<p>
+ハザードポインターとRCUの文面案。もともと別の提案だったが似通った機能を提供するため、文面案を一緒にすることにしたとのこと。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0571r1.html">
+P0571R1: p0571r1: Type Requirements for &lt;numeric&gt; Algorithms
+</a>
+</h2>
+
+<p>
+&lt;numeric&gt;の一部のアルゴリズムに型要件が曖昧な部分があったので修正する。例えばaccumulateなどのアルゴリズムで、内部で使われる一時オブジェクトの型がどうなるか曖昧で実装の差異が生じていた。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0573r2.html">P0573R2: Abbreviated Lambdas for Fun and Profit</a>
+</h2>
+
+<p>
+省略ラムダの提案。
+</p>
+
+<p>
+ラムダ式の本体として=&gt; 式と書けるようになる。=&gt;の場合、戻り値の型推定は-&gt; decltype(auto)扱いになり、 例外指定もnoexcept(式)扱いになる。=&gt;の場合、引数の型を省略できる。その場合auto &amp;&amp;と書いた扱いになる。
+</p>
+
+
+<pre><code>
+std::sort( b, e, [](a,b) =&gt; a &lt; b ) ;
+</code></pre>
+
+<p>
+このコードは、
+</p>
+
+<pre><code>
+std::sort( b, e, []( auto &amp;&amp; a, auto &amp;&amp; b ) noexcept(a &lt; b) -&gt; decltype(auto){ return a &lt; b ; } ) ;
+</code></pre>
+
+<p>
+と書いたものと同じ意味になる。
+</p>
+
+<p>
+ほしい。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
