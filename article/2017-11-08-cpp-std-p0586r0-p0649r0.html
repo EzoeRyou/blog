@@ -1,0 +1,337 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+C++標準化委員会の文書: P0586R0-P0649R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/11/c-p0586r0-p0649r0.html">
+C++標準化委員会の文書: P0586R0-P0649R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0586r0.html">P0586R0: Safe integral comparisons</a>
+</h2>
+
+<p>
+2つの整数型の値を安全に比較するためのライブラリの提案。
+</p>
+
+<p>
+2つの異なる整数型の値を比較する時、符号が違ったり、一方がもう一方の表現できる範囲ではない場合、人間にとって不自然な結果になる。安全に比較するためには様々な符号や暗黙の型変換の考慮が必要だが、それを正しく書くのは面倒だ。なので標準ライブラリがほしい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0593r1.html">P0593R1: p0593r1: Implicit creation of objects for low-level object manipulation</a>
+</h2>
+
+<p>
+以下の現行規格では未定義の挙動となるコードの挙動を規格で定義する提案。
+</p>
+
+<pre><code>struct X { int x ; } ;
+
+int main()
+{
+    X * p = (X *) malloc( sizeof(X) ) ;
+
+    p-&gt;x = 0 ; // 未定義の挙動
+
+    free( p ) ;
+}
+</code></pre>
+
+<p>
+このようなコードはC言語ではよく書かれるが、C++では未定義だ。構築されていないオブジェクトへのアクセスは未定義の挙動だ。このコードはオブジェクトを構築していない。したがって挙動は未定義だ。
+</p>
+
+<p>
+しかし、現実を見ると、プログラマーはこのコードが動くことを期待しているし、現実のC++コンパイラーはこのコードの挙動について一致している。規格は現実を追認すべきだ。
+</p>
+
+<p>
+すると、どのような型ならば制限を緩和するかということになるが、構築や破棄にあたってコードが実行されない型ならばよい。これには、スカラー型、配列型、トリビアルなコンストラクターとデストラクターを持つクラス型が当てはまる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0609r1.pdf">[PDF] P0609R1: Attributes for Structured Bindings</a>
+</h2>
+
+<p>
+構造化束縛に属性を記述できる文法を追加する提案。
+</p>
+
+<pre><code>auto [a, b [[attribute]], c ] = e ;
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0624r1.pdf">[PDF] P0624R1: Default constructible stateless lambdas</a>
+</h2>
+
+
+<p>
+stateless lambdaによって生成されるクロージャーオブジェクトをデフォルト構築可能にする提案。
+</p>
+
+<pre><code>auto f = (){} ;
+decltype(f) g ; // OK
+g() ; // OK
+</code></pre>
+
+<p>
+stateless lambdaならばクロージャーオブジェクトをデフォルト構築しても問題になることはない。クロージャーオブジェクトがデフォルト構築可能になることで、より汎用的に関数オブジェクトとして使いまわせる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0631r1.pdf">[PDF] P0631R1: Math Constants</a>
+</h2>
+
+<p>
+数学定数を追加する提案。
+</p>
+
+<p>
+ヘッダーファイルは既存のヘッダーファイルに追加するのであれば&lt;cmath&gt;か&lt;numeric&gt;、新しいヘッダーファイルにするのであれば&lt;math_constants&gt;が提案されている。
+</p>
+
+<p>
+さて、数学定数はstd名前空間スコープの下に宣言されるわけだが、これは問題がある。というのも数学定数にはeといった小文字一文字の名前もあるので、以下のようなコードは壊れる。
+</p>
+
+<pre><code>using namespace std ;
+int e ;
+</code></pre>
+
+<p>
+これは自業自得と言えば自業自得だが、とはいえ小文字一文字という名前はstd名前空間下であっても危険すぎる。
+</p>
+
+<p>
+そのため、e_vのような形にするか、あるいはstd::math_constants下に置くという提案がされている。
+</p>
+
+<p>
+提案では数学定数は変数テンプレートの形を取る。
+</p>
+
+<pre><code>template &lt; typename T &gt; inline constexpr T e ;
+</code></pre>
+
+<p>
+これにより任意の型に対応できる。
+</p>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0634r1.html">P0634R1: Down with typename!</a>
+</h2>
+
+<p>
+依存名が型を意味するときにはtypenameを書かなければならないが、文脈上型しか書けない場所には書かなくてもすむようにする提案。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+auto f( T::type ) -&gt; T::type
+{
+    using t = T::type ;
+    new T::type ;
+    static_cast&lt;T::type *&gt;(nullptr) ;
+}
+
+template &lt; typename T &gt;
+struct A : T::type
+{
+    T::type t ;
+} ;
+<code></pre>
+
+<p>
+現在の標準規格では以下のように書かなければならない。
+</p>
+
+<pre><code>
+template &lt; typename T &gt;
+auto f( typename T::type ) -&gt; typename T::type
+{
+    using t = typename T::type ;
+    new typename T::type ;
+    static_cast&lt;typename T::type *&gt;(nullptr) ;
+}
+
+template &lt; typename T &gt;
+struct A : T::type
+{
+    typename T::type t ;
+} ;
+</code></pre>
+
+<p>
+大変だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0636r2.html">P0636R2: Changes between C++14 and C++17</a>
+</h2>
+
+<p>
+C++14からC++17の間の変更点。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0642r1.pdf">[PDF] P0642R1: Structural Support for C++ Concurrency</a>
+</h2>
+
+<p>
+構造化プログラミングがループをパターン化して簡単に書けるようにしたように、並列処理をパターン化して簡単に書けるようにした並列処理に対する構造化サポートのためのライブラリの提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0644r1.html">P0644R1: Forward without forward</a>
+</h2>
+
+<p>
+forwardを書かずにforwardする提案。
+</p>
+
+<p>
+Perfect Forwardingはだるい。例えば関数オブジェクトFuncに引数Argsを渡して戻り値を返す転送関数をPerfect Forwardingで書く場合
+</p>
+
+<pre><code>template &lt; typename Func, typename ... Args &gt;
+decltype(auto) f( Func &amp;&amp; func, Args &amp;&amp; ... args )
+{
+    return std::forward&lt;Func&gt;(func)( std::forward&lt;Args&gt;(args)... ) ;
+}
+</code></pre>
+
+<p>
+これをラムダ式で書く場合
+</p>
+
+<pre><code>auto f = []( auto &amp;&amp; func, auto &amp;&amp; ... args ) -&gt; decltype(auto)
+{
+    return std::forward&lt;decltype(func)&gt;(func)( std::forward&lt;decltype(args)&gt;(args)... ) ;
+}
+</code></pre>
+
+<p>
+とてもだるい。
+</p>
+
+<p>
+そこで、この提案ではオーバーロード不可能な単項operator &gt;&gt;を追加することにより、適切なforwardingを行う昨日を提案する。
+</p>
+
+<pre><code>template &lt; typename Func, typename ... Args &gt;
+decltype(auto) f( Func &amp;&amp; func, Args &amp;&amp; ... args )
+{
+    return (&gt;&gt;func)( &gt;&gt;args... ) ;
+}
+
+auto g = []( auto &amp;&amp; func, auto &amp;&amp; ... args ) -&gt; decltype(auto)
+{
+    return (&gt;&gt;func)( &gt;&gt;args... ) ;
+}
+</code></pre>
+
+<p>
+だいぶ楽になった。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0649r0.pdf">[PDF] P0649R0: Other Product-Type algorithms</a>
+</h2>
+
+
+<p>
+構造化束縛で分解できる型をproduct typeと呼び、その分解して得られる値を得るためのライブラリがP0327R2で提案されている。この提案は、product typeに対するtuple風アルゴリズムの提供だ。
+</p>
+
+<p>
+たとえばfor_each
+</p>
+
+<pre><code>int main()
+{
+    std::tuple t(1, 3.14, "hello") ;
+
+    std::product_type::for_each( [](auto x){ std::cout &lt;&lt; x &lt;&lt; '\n' ; }, t ) ;
+}
+</code></pre>
+
+<p>
+構造化束縛できるあらゆるproduct typeに使えるfor_eachだ。他にも様々なアルゴリズムが提案されている。Boost.FusionやBoost.Hanaからアイディアを得ている。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
