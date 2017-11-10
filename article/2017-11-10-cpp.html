@@ -201,7 +201,7 @@ CRTPがあるとゲームでよく使われる状態遷移モデルのような�
 </p>
 
 <pre><code>
-template < typename T >
+template &lt; typename T &gt;
 struct change_state_mixin
 {
     static void ChangeState( Obj aObj )
@@ -213,7 +213,7 @@ struct change_state_mixin
 
 // 待機状態
 struct StateWait
-    : change_state_mixin<StateWait>
+    : change_state_mixin&lt;StateWait&gt;
 {
     void procAnim()
     {
@@ -223,7 +223,7 @@ struct StateWait
 
 // プログラマーにコピペを強いる状態
 struct StateForceHallabProgrammerToCopyPasteTheBoilarPlateCode
-    : change_state_mixin<StateForceHallabProgrammerToCopyPasteTheBoilarPlateCode>
+    : change_state_mixin&lt;StateForceHallabProgrammerToCopyPasteTheBoilarPlateCode&gt;
 {
 
     void procAnim()
