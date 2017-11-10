@@ -1,0 +1,284 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+国際標準規格の紹介 〜ISO国際標準規格プログラミング言語C++について〜
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/11/isoc.html">
+国際標準規格の紹介 〜ISO国際標準規格プログラミング言語C++について〜
+</a></h1>
+
+<h2>
+はじめに
+</h2>
+
+<p>
+こんにちは、C++標準会員の江添です。
+</p>
+
+<p>
+今日は普段から表に出ている、閉鎖的なゲーム開発では使われていない開発環境についての紹介をします。
+</p>
+
+<p>
+今回省秋するのは、ISO国際標準規格プログラミング言語の「C++」です。
+</p>
+
+<p>
+なんと表の世界では、国際標準のプログラミング言語は、コンパイラーベンダーやC++利用企業と行ったC++に利害関係を持つ多数の代表が国際標準規格を制定しているのです。当たり前でしょ？
+</p>
+
+<p>
+C++は以下のような特徴を持っています。
+</p>
+
+<ul>
+<li>エラーに気づきやすい静的型付け言語</li>
+<li>C++経験者が理解しやすい言語仕様</li>
+<li>OSに依存しない移植性の高いC++実装</li>
+<li>実行環境に依存しないC++規格準拠の挙動の定義</li>
+<li>C/C++の関数・クラスに最初からバインドされている</li>
+</ul>
+
+<p>
+今でもクローズな実装の詳細のわからないプログラミング言語がたくさんあり、それらを使うデメリットは数多くあります。
+</p>
+
+<p>
+国際規格の言語を使うのは様々な利点があるからです。
+</p>
+
+<p>
+一番大きなものは「権力者の慈悲にすがるしかない状況が発生しない」ことです。もし特定の個人や団体が言語を所有している場合、将来の変更が既存のコードを壊さないこと、自分のほしい新機能が追加されることは、権力者の慈悲にすがるしかありません。ISO傘下の国際規格として制定されることで、企業や個人は等しく最適な言語仕様を考えることができます。
+</p>
+
+<p>
+今回はその中の一つとしてCRTPという技法を紹介します。
+</p>
+
+<h2>
+CRTP
+</h2>
+
+<p>
+自分の型を返す関数ってよくありますが、面倒くさいですよね。
+</p>
+
+<pre><code>class A_Class
+{
+public :
+    static auto Create()
+    {
+        return std::make_unique&lt;A_CLass&gt;() ;
+    }
+} ;
+</code></pre>
+
+<p>
+CRTPを使うと、先程のコードを以下のように書くことができます
+</p>
+
+<pre><code>template &lt; typename T &gt;
+struct factory_mixin
+{
+    static auto Create()
+    {
+        return std::make_unique&lt;T&gt;() ;
+    }
+} ;
+
+class A_Class
+    : public factory_mixin&lt;A_Class&gt;
+{ } ;
+</code></pre>
+
+<p>
+もう少し複雑な例を挙げます。これと似たような(しかもコピーする必要がある)クラスを、名前を変えながら数十、数百と増やしていくことを想像してみてください。
+</p>
+
+<pre><code>class A_VeryLongClassNameMadeByEzoe
+{
+public :
+    static auto Create()
+    {
+        return std::make_unique&lt;A_VeryLongClassNameMadeByEzoe&gt;() ;
+    }
+
+    static auto CreateWithTwo()
+    {
+        return std::make_unique&lt;A_VeryLongClassNameMadeByEzoe&gt;(2) ;
+    }
+
+    static auto Create( int value )
+    {
+        return std::make_unique&lt;A_VeryLongClassNameMadeByEzoe&gt;(value) ;
+    }
+
+    A_VeryLongClassNameMadeByEzoe() { }
+    A_VeryLongClassNameMadeByEzoe( int value )
+        : value(value) { }
+private :
+    int value = 0 ;
+} ;
+</code></pre>
+
+<p>
+CRTP実装は簡単ですね。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+struct factory_mixin
+{
+    template &lt; typename ... Types &gt;
+    static auto Create( Types &amp;&amp; ... args )
+    {
+        return std::make_unique&lt;T&gt;( std::forward&lt;Types&gt;(args)...) ;
+    }
+
+    static auto CreateWithTwo( )
+    {
+        // T::T(int)を持たない型は除外
+        constexpr bool b = requires { T(2) ; } ;
+        static_assert( b, "Type doesn't have constrcutor T::T(int)." ) ;
+        if constexpr ( b )
+        {
+            return Create(2) ;
+        }
+    }
+} ;
+</code></pre>
+
+<p>
+CRTPがあるとゲームでよく使われる状態遷移モデルのような仕組みを描くのが大変楽になります。
+</p>
+
+<p>
+現場では以下のようなクラスがたくさん作られるため、面倒なコードの重複によるバグを減らす(これが大切)ことができるのです。
+</p>
+
+<pre><code>
+template < typename T >
+struct change_state_mixin
+{
+    static void ChangeState( Obj aObj )
+    {
+        T newState( aObj )
+        aObj.stateChanger().setNextStage(newState) ;
+    }
+} ;
+
+// 待機状態
+struct StateWait
+    : change_state_mixin<StateWait>
+{
+    void procAnim()
+    {
+        // 状態ごとに違う処理
+    }
+}
+
+// プログラマーにコピペを強いる状態
+struct StateForceHallabProgrammerToCopyPasteTheBoilarPlateCode
+    : change_state_mixin<StateForceHallabProgrammerToCopyPasteTheBoilarPlateCode>
+{
+
+    void procAnim()
+    {
+        // コピペ処理
+        yank() ;
+        jjjjjjjjjjjjjjjjjjjjjjj() ;
+        paste() ;
+        enter_insert_mode() ;
+    }
+}
+</code></pre>
+
+<h2>
+まとめ
+</h2>
+
+<p>
+わざわざ閉鎖的な環境で独自言語を開発しなくても、ライブラリ作者向けの強力な機能が提供されているのがC++の強みです。時代とともに変化する様々な環境にも、C++は対応し続けています。
+</p>
+
+<p>
+これ以外にも、C++ではボイラープレートコードを削減するために様々な機能がありますが、それはまたの機会にぜひ。
+</p>
+
+<p>
+国際標準規格C++は、C++に利害関係を持つ様々な個人や企業がC++標準化委員会に代表を送り、ISOのルールに則って新機能の考案や策定を進めています。もし現行のC++に不満があるのであれば、C++標準化委員会に代表を送って提案し、実験的実装をし、その価値を示し、国際会議で議論して、規格策定に貢献しましょう。
+</p>
+
+<h2>
+真面目なまとめ
+</h2>
+
+<p>
+元ネタは以下の通り。
+</p>
+
+<p>
+<a href="http://www.hallab.co.jp/company/blog/detail/003062/">社内開発環境の紹介 ～社内製プログラミング言語Mintについて～ | ハル研ブログ | ハル研究所</a>
+</p>
+
+<p>
+元ネタで対処しようとしている問題は、コードをコピペするから生じるのであって、コードをコピペしなければよい。コードの重複を防ぐためには、昔から基本クラスという便利な機能がある。これにC++のテンプレートを組み合わせればボイラープレートコードをコピペして一部変更という不毛な処理を人間がする必要はない。そして、コンパイル時に解決できる問題はコンパイル時メタプログラミングで解決できる。
+</p>
+
+<p>
+そして、C++の言語機能に不満があるのであればC++標準化委員会に出てきて議論するべきだ。例えばC++17にはメモリ解放処理で何もしない、単なるポインターを加算して返すだけのメモリ確保ライブラリのモノトニックバッファーリソースが入った。C++20には、ソート済みの連続したストレージで実装された連想コンテナーのflat_map/flat_setや、歯抜けを許す連続したストレージで実装したvectorのようだが中間要素の削除が早いcolonyなど、コルーチン、スタックフルコンテキストスイッチライブラリなど、ゲーム用途にも便利な新機能がたくさん提案されている。他にも、this_typeで解決したい問題にも適用できる、静的リフレクション機能も活発に議論されている。C++を活用するのであればC++に貢献すべきだ。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
