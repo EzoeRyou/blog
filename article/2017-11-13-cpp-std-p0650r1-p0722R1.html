@@ -1,0 +1,538 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+C++標準化委員会の文書: P0650R1-P0722R1
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/11/c-p0650r1-p0722r1.html">
+C++標準化委員会の文書: P0650R1-P0722R1
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0650r1.pdf">[PDF] P0650R1: C++ Monadic interface</a>
+</h2>
+
+<p>
+C++でモナドをやるためのライブラリの提案。どうもライブラリでやると煩雑になる気がするのだが。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0655r0.pdf">[PDF] P0655R0: visit&lt;R&gt;: Explicit Return Type for visit</a>
+</h2>
+
+<p>
+戻り値の型Rを明示的に指定できるvisit&lt;R&gt;の提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0657r1.pdf">[PDF] P0657R1: Deprecate Certain Declarations in the Global Namespace</a>
+</h2>
+
+<p>
+C言語における標準ヘッダーファイル&lt;name.h&gt;はC++では&lt;cname&gt;になった。C++形式のヘッダーファイルをincludeすると、std名前空間スコープに名前が宣言される。同時に、グローバル名前空間に名前が宣言されるかもしれない。
+</p>
+
+<p>
+この提案は、C++形式のヘッダーファイルをincludeすると、グローバル名前空間に名前が宣言されることをdeprecated扱いする提案だ。なので、文面は「グローバル名前空間に名前が宣言されるかもしれない」から、「deprecated扱いではあるが、グローバル名前空間に名前が宣言されるかもしれない」になる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0658r1.html">P0658R1: Proposal for adding alias declarations to concepts</a>
+</h2>
+
+<p>
+conceptのrequires式の本体にエイリアス宣言を書けるようにする提案。
+</p>
+
+<pre><code>template &lt; typename T&gt;
+concept bool SomeReq = requires {
+    typename value_type_t&lt;T&gt; ;
+    requires Constructible&lt;T, value_type_t&lt;T&gt; &gt; ;
+} ;
+</code></pre>
+
+<p>
+が、
+</p>
+
+<pre><code>template &lt; typename T&gt;
+concept bool SomeReq = requires {
+    using value_type = value_type_t&lt;T&gt; ;
+    requires Constructible&lt;T, value_type &gt; ;
+} ;
+</code></pre>
+
+<p>
+になる。conceptでネストされた型名記述に誤解を生みそうな気がする。conceptはすでにドラフト入りしているのだが、果たして普通のC++プログラマーが書けるようになるのだろうか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0670r1.html">P0670R1: Static reflection of functions</a>
+</h2>
+
+<p>
+関数呼び出し式から呼び出される関数を得たり引数の型をそれぞれ得たりできるわりと軽めのリフレクション機能の提案。
+</p>
+
+<pre><code>void func(int);
+void func(std::string);
+using func_call_m = reflexpr(func(123));
+using func_m = get_callable_t&lt;func_call_m&gt;; // reflects void func(int)
+using param0_m = get_element_t&lt;0, get_parameters_t&lt;func_m&gt;&gt;;
+cout &lt;&lt; get_name_v&lt;get_type_t&lt;param0_m&gt;&gt; &lt;&lt; '\n'; // prints "int"
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0684r1.pdf">[PDF] P0684R1: C++ Stability, Velocity, and Deployment Plans</a>
+</h2>
+
+
+<p>
+C++標準化委員会が新機能を追加する際に下位互換性を破壊する変更を伴う時、ユーザーが既存のコードを変更する際に行われる行動を想定した上で、どのようにすべきかという提案。
+</p>
+
+<p>
+C++の新しい規格を受容する時は以下のようなステップで行われる。
+</p>
+
+<ol>
+<li>新しい規格をサポートした新しいコンパイラーにアップグレードする</li>
+<li>新しいコンパイラーの古い規格モードでの既存のコードをコンパイルすると互換性の問題になる箇所について警告を受ける</li>
+<li>警告を確認してコードを修正する</li>
+<li>新しい規格モードを有効にする</li>
+</ol>
+
+<p>
+これに従い、下位互換性を破壊する言語機能は容易に警告を出せるかどうかについて注意を払うべきである。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0692r0.html">P0692R0: Access Checking on Specializations</a>
+</h2>
+
+<p>
+知らなかった。
+</p>
+
+<p>
+クラスのprivateなメンバーは当然クラス外部からアクセスできないわけだが、既存のほとんどのコンパイラーはテンプレートの明示的特殊化でアクセス指定を無視する。また、GCCとMSVCは部分的特殊化でもアクセス指定を無視する。
+</p>
+
+<pre><code>
+class A {
+template < typename T >
+class impl { } ;
+} ;
+
+template < typename T >
+struct traits { } 
+
+// 明示的特殊化
+// 規格上はエラー
+// GCC, Clang, ICC, MSVCは通す
+template < >
+struct traits< A::impl<int> > { } ;
+
+// 部分的特殊化
+// 規格上はエラー
+// GCC, MSVCは通す
+// Clang, ICCはエラー
+template < typename T >
+struct traits< A::impl<T> > { } ;
+</code></pre>
+
+<p>
+これを踏まえると、現状のC++実装がこの場合にアクセス指定を無視するよう実装していて、またこの仕様ではないとprivateメンバーの型に対する特殊化が出来ないことも考えると、規格を変更してこの制限を取り払ったほうがよいので、明示的特殊化と部分的特殊化ではアクセス指定の制限を緩和をする提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0701r1.html">P0701R1: p0701r1: Back to the std2::future Part II</a>
+</h2>
+
+<p>
+名前がよい。
+</p>
+
+<p>
+内容はfutureに対する機能追加に対する提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0707r2.pdf">[PDF] P0707R2: Metaclasses: Generative C++</a>
+</h2>
+
+<p>
+現在提案されている静的リフレクションライブラリが入ったという前提でその静的リフレクション機能を使って実装できるmetaclassライブラリの提案。
+</p>
+
+<pre><code>constexpr { 						// コンパイル時実行
+    for ( auto m : $T.variables() ) // T型のメンバー変数それぞれに対し
+        if ( m.name() == "foo" ) 	// "foo"という名前のメンバーがあれば
+            -&gt; { int bar ; }		// int型の"bar"という名前のメンバーを注入する。
+
+}
+</code></pre>
+
+<p>
+割と衝撃的なコードだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0722r1.html">P0722R1: Efficient sized delete for variable sized classes</a>
+</h2>
+
+<p>
+sized deallocate functionにクラスへのポインターを取るオーバーロードを追加する提案。
+</p>
+
+<p>
+クラスオブジェクトの近隣のストレージ領域を活用した動的にオブジェクトサイズを変えるクラスを実装する時、sizeを効率的に指定するために使える。
+</p>
+
+
+<pre><code>
+void operator delete ( X *, std::destroying_delete_t, その他の引数 ) ;
+</code></pre>
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+C++標準化委員会の文書: P0650R1-P0722R1
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="url">
+C++標準化委員会の文書: P0650R1-P0722R1
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0650r1.pdf">[PDF] P0650R1: C++ Monadic interface</a>
+</h2>
+
+<p>
+C++でモナドをやるためのライブラリの提案。どうもライブラリでやると煩雑になる気がするのだが。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0655r0.pdf">[PDF] P0655R0: visit&lt;R&gt;: Explicit Return Type for visit</a>
+</h2>
+
+<p>
+戻り値の型Rを明示的に指定できるvisit&lt;R&gt;の提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0657r1.pdf">[PDF] P0657R1: Deprecate Certain Declarations in the Global Namespace</a>
+</h2>
+
+<p>
+C言語における標準ヘッダーファイル&lt;name.h&gt;はC++では&lt;cname&gt;になった。C++形式のヘッダーファイルをincludeすると、std名前空間スコープに名前が宣言される。同時に、グローバル名前空間に名前が宣言されるかもしれない。
+</p>
+
+<p>
+この提案は、C++形式のヘッダーファイルをincludeすると、グローバル名前空間に名前が宣言されることをdeprecated扱いする提案だ。なので、文面は「グローバル名前空間に名前が宣言されるかもしれない」から、「deprecated扱いではあるが、グローバル名前空間に名前が宣言されるかもしれない」になる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0658r1.html">P0658R1: Proposal for adding alias declarations to concepts</a>
+</h2>
+
+<p>
+conceptのrequires式の本体にエイリアス宣言を書けるようにする提案。
+</p>
+
+<pre><code>template &lt; typename T&gt;
+concept bool SomeReq = requires {
+    typename value_type_t&lt;T&gt; ;
+    requires Constructible&lt;T, value_type_t&lt;T&gt; &gt; ;
+} ;
+</code></pre>
+
+<p>
+が、
+</p>
+
+<pre><code>template &lt; typename T&gt;
+concept bool SomeReq = requires {
+    using value_type = value_type_t&lt;T&gt; ;
+    requires Constructible&lt;T, value_type &gt; ;
+} ;
+</code></pre>
+
+<p>
+になる。conceptでネストされた型名記述に誤解を生みそうな気がする。conceptはすでにドラフト入りしているのだが、果たして普通のC++プログラマーが書けるようになるのだろうか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0670r1.html">P0670R1: Static reflection of functions</a>
+</h2>
+
+<p>
+関数呼び出し式から呼び出される関数を得たり引数の型をそれぞれ得たりできるわりと軽めのリフレクション機能の提案。
+</p>
+
+<pre><code>void func(int);
+void func(std::string);
+using func_call_m = reflexpr(func(123));
+using func_m = get_callable_t&lt;func_call_m&gt;; // reflects void func(int)
+using param0_m = get_element_t&lt;0, get_parameters_t&lt;func_m&gt;&gt;;
+cout &lt;&lt; get_name_v&lt;get_type_t&lt;param0_m&gt;&gt; &lt;&lt; '\n'; // prints "int"
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0684r1.pdf">[PDF] P0684R1: C++ Stability, Velocity, and Deployment Plans</a>
+</h2>
+
+
+<p>
+C++標準化委員会が新機能を追加する際に下位互換性を破壊する変更を伴う時、ユーザーが既存のコードを変更する際に行われる行動を想定した上で、どのようにすべきかという提案。
+</p>
+
+<p>
+C++の新しい規格を受容する時は以下のようなステップで行われる。
+</p>
+
+<ol>
+<li>新しい規格をサポートした新しいコンパイラーにアップグレードする</li>
+<li>新しいコンパイラーの古い規格モードでの既存のコードをコンパイルすると互換性の問題になる箇所について警告を受ける</li>
+<li>警告を確認してコードを修正する</li>
+<li>新しい規格モードを有効にする</li>
+</ol>
+
+<p>
+これに従い、下位互換性を破壊する言語機能は容易に警告を出せるかどうかについて注意を払うべきである。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0692r0.html">P0692R0: Access Checking on Specializations</a>
+</h2>
+
+<p>
+知らなかった。
+</p>
+
+<p>
+クラスのprivateなメンバーは当然クラス外部からアクセスできないわけだが、既存のほとんどのコンパイラーはテンプレートの明示的特殊化でアクセス指定を無視する。また、GCCとMSVCは部分的特殊化でもアクセス指定を無視する。
+</p>
+
+<pre><code>
+class A {
+template < typename T >
+class impl { } ;
+} ;
+
+template < typename T >
+struct traits { } 
+
+// 明示的特殊化
+// 規格上はエラー
+// GCC, Clang, ICC, MSVCは通す
+template < >
+struct traits< A::impl<int> > { } ;
+
+// 部分的特殊化
+// 規格上はエラー
+// GCC, MSVCは通す
+// Clang, ICCはエラー
+template < typename T >
+struct traits< A::impl<T> > { } ;
+</code></pre>
+
+<p>
+これを踏まえると、現状のC++実装がこの場合にアクセス指定を無視するよう実装していて、またこの仕様ではないとprivateメンバーの型に対する特殊化が出来ないことも考えると、規格を変更してこの制限を取り払ったほうがよいので、明示的特殊化と部分的特殊化ではアクセス指定の制限を緩和をする提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0701r1.html">P0701R1: p0701r1: Back to the std2::future Part II</a>
+</h2>
+
+<p>
+名前がよい。
+</p>
+
+<p>
+内容はfutureに対する機能追加に対する提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0707r2.pdf">[PDF] P0707R2: Metaclasses: Generative C++</a>
+</h2>
+
+<p>
+現在提案されている静的リフレクションライブラリが入ったという前提でその静的リフレクション機能を使って実装できるmetaclassライブラリの提案。
+</p>
+
+<pre><code>constexpr { 						// コンパイル時実行
+    for ( auto m : $T.variables() ) // T型のメンバー変数それぞれに対し
+        if ( m.name() == "foo" ) 	// "foo"という名前のメンバーがあれば
+            -&gt; { int bar ; }		// int型の"bar"という名前のメンバーを注入する。
+
+}
+</code></pre>
+
+<p>
+割と衝撃的なコードだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0722r1.html">P0722R1: Efficient sized delete for variable sized classes</a>
+</h2>
+
+<p>
+sized deallocate functionにクラスへのポインターを取るオーバーロードを追加する提案。
+</p>
+
+<p>
+クラスオブジェクトの近隣のストレージ領域を活用した動的にオブジェクトサイズを変えるクラスを実装する時、sizeを効率的に指定するために使える。
+</p>
+
+
+<pre><code>
+void operator delete ( X *, std::destroying_delete_t, その他の引数 ) ;
+</code></pre>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
