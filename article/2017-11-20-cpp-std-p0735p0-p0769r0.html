@@ -1,0 +1,247 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+C++標準化委員会の文書: P0735P0-P0769R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/11/c-p0735p0-p0769r0.html">
+C++標準化委員会の文書: P0735P0-P0769R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0735r0.html">P0735R0: P0735R0: Interaction of memory_order_consume with release sequences</a>
+</h2>
+
+<p>
+memory_order_consumeがARMのとても弱いメモリーモデルでは実用的にならないのでなんとかしたいという文書。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0737r0.html">P0737R0: P0737r0 : Execution Context of Execution Agents</a>
+</h2>
+
+<p>
+現在のExecutor提案では実行媒体とかexecutorとか実行リソースについては考慮しているが、具体的なexecution contextについて考慮していない。とりあえず最低限の具体例を定める提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0750r0.html">P0750R0: p0750r0: Consume</a>
+</h2>
+
+<p>
+memory_order_consumeは未だにどのC++コンパイラーも実装していない。これは、C++のソースコードレベルでの依存と、ハードウェアでの依存に違いがあるためと、この業界でconsumeという用語の意味が一貫していないためだ。consumeを実装可能にするために色々と提案している文書。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0752r0.md">P0752R0: std::vector Destruction Order</a>
+</h2>
+
+<p>
+vectorの要素の破棄順序を自然にする提案。今まで規格でvectorの要素の破棄順序を規定していなかったので、実装ごとに差異があった。C++では破棄は構築の逆順に行われることが自然なので、vectorも配列やstd::arrayと同じく、末尾の要素から破棄される。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0753r1.pdf">[PDF] P0753R1: Manipulators for C++ Synchronized Buffered Ostream</a>
+</h2>
+
+<p>
+P0763R0のtypoを修正した。内容は同期バッファーでフラッシュをするかどうかを設定するマニピュレーターの提案
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0756r0.html">P0756R0: Lambda syntax should be more liberal in what it accepts</a>
+</h2>
+
+<p>
+lambda-captureの制限緩和の提案。
+</p>
+
+<p>
+現在、lambda-captureとして[&amp;x, =]は誤りだ。正しくは[=, &amp;x]。デフォルトキャプチャーの前に個別のキャプチャーを書くことはできない。
+</p>
+
+<p>
+現在、lambda-captureとして[=, x]は誤りだ。正しくは[=]。デフォルトキャプチャーと同じ意味の個別のキャプチャーを書くことはできない。
+</p>
+
+<p>
+しかし、これの意味は完全に曖昧製無く明らかであるし、初心者がハマる落とし穴であるので、制限緩和すべきであるという提案。
+</p>
+
+<p>
+正しい。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0757r0.html">P0757R0: regex_iterator should be iterable</a>
+</h2>
+
+<p>
+filesystemのdirectory_iteratorはrangeとしても使える。
+</p>
+
+<p>
+regex_iteratorもrangeとして振る舞うべきだという提案。
+</p>
+
+<p>
+確かに、デフォルトコンストラクターが終端イテレーターになるタイプのイテレーターであれば、rangeにもなる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0761r1.pdf">[PDF] P0761R1: Executors Design Document</a>
+</h2>
+
+<p>
+実行媒体を表現するExecutorについて。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0762r0.pdf">[PDF] P0762R0: Concerns about expected&lt;T, E&gt; from the Boost.Outcome peer review</a>
+</h2>
+
+<p>
+Boostのuncheckedの作者からexpectedに物申す文書。どうも些細な違いに思える。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0766r1.html">P0766R1: Fixing small-ish functionality gaps in constraints</a>
+</h2>
+
+<p>
+lambda式でrequires-clauseを使えるようにする提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0767r0.html">P0767R0: P0767R0: Expunge POD</a>
+</h2>
+
+<p>
+PODをdeprecated扱いにする提案。これまで規格でPOD型としていた部分はトリビアル型とし、初期化の文脈で「非POD型のグローバルオブジェクト」としていたところは「ユーザー提供コンストラクターで初期化されるグローバルオブジェクト」と書き直す。is_pod traitsはdeprecated扱いになりAnnex Dに移動する。 
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0768r0.pdf">[PDF] P0768R0: Library Support for the Spaceship (Comparison) Operaton</a>
+</h2>
+
+<p>
+operator &lt;=&gt;の標準ライブラリによる対応について。
+</p>
+
+<p>
+operator &lt;=&gt;はこの前の会議で入ることがほぼ決定した等価比較と大小比較をいっぺんにできる演算子だ。
+</p>
+
+<p>
+a == bのとき、a &lt;=&gt; bは0を返す。a &lt; bのとき、a &lt;=&gt; bは&lt;0を返す。a &gt; bのときa &lt;=&gt; bは&gt;0を返す。
+</p>
+
+<p>
+また、戻り値は単なる整数型ではなく特別なクラス型で、大小比較できる場合はstd::strong_order, std::weak_order, std::partial_order、等価比較しかできない場合はstd::strong_equality, std::weak_equalityを返す。これらの型は派生関係でis-a関係を表現しているので、例えばstd::strong_orderはstd::weak_orderとしても使えるが逆はない。
+</p>
+
+<p>
+大小比較が常にできてa == bのとき、常にf(a) == f(b)が成り立つのがstrong oder、成り立たないのがweak order
+</p>
+
+<p>
+例えば文字列のcase insensitiveな比較は等しいと判断されても大文字小文字の違いがあるのでweak_order。
+</p>
+
+<p>
+比較ができない値が存在する場合、partial order。
+</p>
+
+<p>
+例えばIEEE-754の浮動小数点数はNaN, +0, -0があるのでpartial order。
+</p>
+
+<p>
+この文書ではstd::strong_orderなどの標準ライブラリについて細かく定めている。ヘッダーファイルは&lt;cmp&gt;
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0769r0.pdf">[PDF] P0769R0: Add shift to &lt;algorithm&gt; </a>
+</h2>
+
+<p>
+algorithmにshift_leftとshift_rightを追加する提案。
+</p>
+
+<p>
+moveとmove_backwardと違い、同じレンジ内で操作する。rotateとは違う。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
