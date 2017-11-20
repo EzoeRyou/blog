@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+glibcのpowがslowpowを呼んで遅い件について
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/11/glibcpowslowpow.html">
+glibcのpowがslowpowを呼んで遅い件について
+</a></h1>
+
+<p>
+<a href="http://entropymine.com/imageworsener/slowpow/">Slow power computation by 64-bit glibc</a>
+</p>
+
+<p>
+x86-64 GNU/Linux環境でのglibcのpowは1.0に近い値を渡すと、768bitのソフトウェア実装された浮動小数点数計算を行い高精度な値を得ようとする。slowpowと命名されているこの実行パスは名前通りとても遅い。
+</p>
+
+<p>
+glibcはとても基本的なライブラリなので、例えばRubyとかRustのようなプログラミング言語もこの問題に引っかかる。
+</p>
+
+<p>
+手元で試したところ、GCC 7.2, glibc 2.26では、-Oと-ffastmathを指定するとpowにslowpowが呼ばれず高速に計算されるようだ。
+</p>
+
+<p>
+これでもだいぶ高速化されたのだとか。
+</p>
+
+<p>
+<a href="https://developers.redhat.com/blog/2015/01/02/improving-math-performance-in-glibc/">Improving math performance in glibc - RHD Blog</a>
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
