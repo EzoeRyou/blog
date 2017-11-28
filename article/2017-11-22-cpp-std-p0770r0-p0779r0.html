@@ -1,0 +1,284 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+C++標準化委員会の文書: P0770R0-P0779R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/11/c-p0770r0-p0779r0.html">
+C++標準化委員会の文書: P0770R0-P0779R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0770r0.md">P0770R0:A Proposal to Specify Behavior in Case of Exception Allocation Failure
+</a>
+</h2>
+
+<p>
+例外オブジェクトのストレージは未規定の方法で確保されると規格にある。動的確保する実装の場合、確保に失敗した場合に対処する方法がない。
+</p>
+
+<p>
+そこで、例外処理が失敗した場合に絶対に失敗せずに投げられる何らかの例外型を追加する提案。bad_allocを再利用するのがよいとしている。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0771r0.pdf">[PDF] P0771R0: std::function move operations should be noexcept</a>
+</h2>
+
+<p>
+std::functionのムーブ処理をnoexceptにする提案。すでにanyやshared_ptrはnoexceptなのでstd::functionをnoexceptにしない理由はない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0772r0.pdf">[PDF] P0772R0: Execution-Agent Local Storage</a>
+</h2>
+
+
+<p>
+スレッドより軽い実行媒体がTLSを使うとスレッドのTLSが使われてしまう。ExecutorにTLSを要求するAPIを用意して、ExecutorがTLSを提供するか拒否するかして、スレッドより下の軽い実行媒体にもTLSを提供しようという提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0773r0.html">P0773R0: Towards meaningful fancy pointers</a>
+</h2>
+
+<p>
+ポインター風に振る舞うクラス型fancy pointerについての考察。ポインターにメタ情報を付加したり、アドレスにnear/far/segmentといった概念があったりする場合に必要。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0774r0.pdf">[PDF] P0774R0: Module Declaration Location</a>
+</h2>
+
+<p>
+module宣言の文法を変える提案。相変わらず文法が安定しない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0775r0.pdf">[PDF] P0775R0: Module Partitions</a>
+</h2>
+
+<p>
+一つのソースファイルに複数のモジュールを書くことができるようにする提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0776r0.html">P0776R0: Rebase the Parallelism TS onto the C++17 Standard</a>
+</h2>
+
+<p>
+Parallerism TSはC++14の文面に合わせて書かれていたので、C++17の文面に合わせて書き直す提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0777r0.pdf">[PDF] P0777R0: Treating Unnecessary decay</a>
+</h2>
+
+<p>
+標準ライブラリでdecayを使っているがremove_cvrefですむ場所でremove_cvrefを使うよう書き換える提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0778r0.pdf">[PDF] P0778R0: Module Names</a>
+</h2>
+
+<p>
+モジュールが未だにこんな問題を抱えてるとは、C++20に入るのはおぼつかないのではないだろうか。
+</p>
+
+<p>
+モジュールでimport foo ;と書くと、「これはモジュール名fooをimportしろ」という意味だ。ではモジュール名fooに対応するモジュールが定義されているソースファイルは何だろうか。規格は何も定めていない。
+</p>
+
+<p>
+ヘッダーファイルでは、ヘッダー名は実装が実ファイルへのマッピングをするヘッダーか、直接物理のファイル名を意味している。ヘッダーを実装しているC++コンパイラーは存在せず、既存のすべてのコンパイラーはヘッダー名をファイル名として解釈し、所定のincludeディレクトリー群からヘッダー名のファイル名を探し出す。
+</p>
+
+<p>
+モジュールの実装では、モジュール名、モジュールソースファイル、モジュールバイナリファイルが存在するはずだ。モジュールバイナリファイルは規格の規定するところではないが、モジュールソースファイルを処理した結果の何らかのファイルだ。モジュールの目的がコンパイルの高速化にあるので、当然このような実装になるはずだ。
+</p>
+
+<p>
+すると、モジュール名fooをimportしたとき、C++コンパイラーはモジュール名fooに相当するモジュールバイナリファイルを探し出して使う。もしモジュールバイナリファイルがない場合、モジュールソースファイルを探してモジュールバイナリファイルを生成する。要するに今のビルドシステムがやっている依存関係の解決をC++コンパイラーが内部で直接やるようになる。ここでもやはり、モジュール名とモジュールソースファイルのマッピングが必要になる。
+</p>
+
+<p>
+このモジュール名とファイル名のマッピングは、現状のままでは実装ごとに異なることになり、ポータビリティのかけらも存在しない使いづらいものになる。
+</p>
+
+<p>
+モジュール機能を提供している他のプログラミング言語の例を列挙して比較してみるが、そもそも多くのプログラミング言語は単一の実行環境、単一の実装といったC++とは異なる状況にあるので参考にできないものも多い。
+</p>
+
+<p>
+この文書では、モジュール名の文法を識別子から文字列リテラルにしてファイル名とマッピングするルールを追加するように提案している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0779r0.pdf">[PDF] P0779R0: Proposing operator try() (with added native C++ macro functions!)</a>
+</h2>
+
+<p>
+なかなか野心的な提案。
+</p>
+
+<p>
+expected&lt;T,E&gt;を返す関数が内部でexpected&lt;U,E&gt;を返す関数を呼び、エラーを返した場合はそのエラーを含むoptionalを伝播して返す処理を考える。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+using expected = std::expected&lt;T, std::error_code &gt; ;
+
+expected&lt;int&gt; get_int() noexcept ;
+
+expected&lt;float&gt; get_float() noexcept
+{
+    auto r = get_int() ;
+
+    // 結果がエラーならば伝播する
+    if ( !r )
+        return unexpected( r.error() ) ;
+
+    // floatがintを完全に表現できなければエラーを返す
+    auto f = float( *r ) ;
+
+    if ( int(f) != *r )
+        return unexpected( std::errc::result_out_of_range ) ;
+    else
+        return f ;
+}
+</code></pre>
+
+<p>
+このとき、エラーを伝播させるのがとてもだるい。いちいちエラーかどうか調べてエラーならエラーを返す処理を書かなければならない。
+</p>
+
+<p>
+このボイラープレートコードを回避するためにCプリプロセッサーマクロを書くのも醜悪だ。
+</p>
+
+<p>
+このコードは、コルーチン提案をまねてoperator tryをオーバーロードできるようにすれば解決できる。
+</p>
+
+<pre><code>template &lt;class T, class E&gt;
+constexpr auto operator try(std::expected&lt;T, E&gt; v) noexcept
+{
+    struct tryer
+    {
+        std::expected&lt;T,E&gt; v ;
+
+        constexpr bool try_return_immediately() const noexcept { return !v.has_value() ; }
+        constexpr bool try_return_value() { return std::move(v).error() ; }
+        constexpr try_value() { return std::move(v).value() ; }
+    } ;
+    return tryer{ std::move(v) } ;
+}
+</code></pre>
+
+<p>
+これさえあれば、
+</p>
+
+<pre><code>auto r = get_int() ;
+if ( ! r )
+    return unexpected( r.error() ) ;
+auto i = int(*r) ;
+</code></pre>
+
+<p>
+は、以下のように書ける。
+</p>
+
+<pre><code>int i = try get_int() ;
+</code></pre>
+
+<p>
+しかし、operator tryも冗長なコードを大量に書かなければならない。そもそもコルーチン提案自体が冗長なコードを多数書かなければならない。この問題は、ネイティブ言語マクロを導入すれば解決できる。
+</p>
+
+<p>
+結局問題は、関数の呼び出し元の文脈でreturnしたいので、Cぷりプロセッサーに変わるネイティブなマクロがあれば、この問題は解決できるし、コルーチンが常用な問題も解決できるし、range-based forも実装できるし、割とあらゆるものがマクロで実装できることになる。
+</p>
+
+<p>
+興味深いのはその提案している文法で、文字#を使っている。#はCプリプロセッサーにかけたあとのC++のソースファイルに残らない文字で、既存の実装はプリプロセス後に文字#があるとエラーを吐く。なので安全に機能拡張に使うことができる。
+</p>
+
+<p>
+夢が広がる話だ。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
