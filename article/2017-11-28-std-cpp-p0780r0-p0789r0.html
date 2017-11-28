@@ -1,0 +1,359 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+C++標準化委員会の文書: P0780R0-P0789R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/11/c-p0780r0-p0789r0.html">
+C++標準化委員会の文書: P0780R0-P0789R0
+</a></h1>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0780r0.html">P0780R0: Pack expansion in lambda init-capture</a>
+</h2>
+
+<p>
+lambda式のinit-captureにpack expansionを認める提案。ムーブができるようになる。
+</p>
+
+<pre><code>template &lt; typename ... Types  &gt;
+void f( Types ... args )
+{
+    auto lambda = [ args = std::move(args)... ] { return g( args...) ; }
+}
+</code></pre>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0781r0.html">P0781R0: A Modern C++ Signature for Main</a>
+</h2>
+
+<p>
+mainのシグネチャーを近代化する提案。
+</p>
+
+<pre><code>int main( const 何らかのコンテナー型&lt;何らかの文字列型&gt; args ) ;
+</code></pre>
+
+<p>
+にしたい。この提案では、std::initializer_list&lt;std::string_view&gt;を推奨している。
+</p>
+
+<p>
+たしかに、そろそろmainも近代化されるべきだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0782r0.html">P0782R0: A Case for Simplifying/Improving Natural Syntax Concepts</a>
+</h2>
+
+<p>
+コンセプトを引数に取る関数テンプレートの文法を使った関数の依存名の解決は、コンセプトで示されているものしかできないようにしようという提案。
+</p>
+
+<p>
+現在のコンセプトは、制約テンプレートの使用者に対するチェックだけで、制約テンプレート内のチェックはない。
+</p>
+
+<p>
+例えば、現状のコンセプトは以下のコードが通る。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+concept has_f = requires( T x ) { x.f() ; }
+
+void call_f( has_f &amp; x )
+{
+    // コンセプトに書いてある
+    x.f() ;
+    // OK、ただしコンセプトに書いてない
+    x.g() ;
+}
+
+struct X
+{
+    void f() ;
+    void g() ;
+}
+
+int main()
+{
+    X x ;
+    call_f( x ) ;
+}
+</code></pre>
+
+<p>
+コンセプトによるチェックがないと、以下のようなコードが通ってしまう。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+concept has_const_f = requires( T x ) { const_cast&lt;const T &amp;&gt;(x).f() ; }
+
+void call_f( has_const_f &amp; x )
+{
+    x.f() ;
+}
+
+struct X
+{
+    void f() ;
+    void f() const ;
+} ;
+
+int main()
+{
+    X x ;
+    // 非const版のvoid X::f()が呼ばれる
+    f( x ) ;
+}
+</code></pre>
+
+<p>
+コンセプトは制約テンプレートを制限しないので、このような挙動になってしまう。
+</p>
+
+<p>
+文書では、初心者にコンセプトを使いやすいようにし混乱を防ぐために、ドラフト入りするときに削られたtarse notationによる関数制約テンプレートを復活させ、その依存名の解決はコンセプトに合致するものしか行わないようにしようという提案をしている。
+</p>
+
+<p>
+tarse notationを使わないものと使うもので挙動が違うのはますます混乱の元ではないか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0783r0.html">P0783R0: P0783: Continuations without overcomplicating the future</a>
+</h2>
+
+<p>
+現在、futureに継続を追加するための議論が行われているが、結局executorなしでは継続が実行される媒体が決定的ではなく意味がない。Facebookは<a href="https://github.com/facebook/folly">follyライブラリ</a>で継続とexecutorを持つfutureを実装して、社内で使った経験から、この件について意見している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0784r0.md">P0784R0: Standard containers and constexpr</a>
+</h2>
+
+<p>
+vectorやunordered_mapのような可変サイズのコンテナーは実行時プログラミングに便利だ。ということは、コンパイル時計算にも便利なはずだ。
+</p>
+
+<p>
+constexpr版のvectorやstringが提案されているが、vectorをそのままconstexr化することはできないのか。
+</p>
+
+<p>
+vectorのconstexpr化を妨げる処理は3つ。
+</p>
+
+<ol>
+<li>デストラクター</li>
+<li>メモリ確保</li>
+<li>in-place new</li>
+</ol>
+
+<p>
+デストラクターはconstexpr化できないが、この制約は取っ払うことができる。EDG, MSVC, GCC, Clangの開発者は皆同意している。
+</p>
+
+<p>
+メモリ確保はコンパイラーがコンパイル時のメモリ確保を特別に処理することでconstexpr化できる。しかし、コンパイル時メモリ確保は、未定義の挙動を完全に検出できなければならないので、アドレスには追加のメタデータを付与しなければならない。これによりポインターのvoid *への変換はできなくなる。
+</p>
+
+<p>
+問題は、いまのoperator newの宣言が以下のようになっていることだ。
+</p>
+
+<pre><code>void * operator new( std::size_t ) ;
+</code></pre>
+
+<p>
+ただし、new, deleteを使っているのならばコンパイラーが特別に対応することもできる。あるいは標準アロケーターで対処する。
+</p>
+
+<p>
+in-place newをすべてconstexpr化することは無理だが、vectorで使う一部の用例はconstexpr化できる。
+</p>
+
+<p>
+さて、コンパイル時計算で確保したメモリを開放しない場合どうなるのか。一番簡単な方法は未開放を禁止するということだ。しかし、コンパイル時処理の結果を実行時に渡したいときもあるだろう。すると開放されなかったコンパイル時メモリ確保はstaticストレージとして残すという手もある。
+</p>
+
+<p>
+夢が広がる話だ。あらゆる計算はコンパイル時計算になりうる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0785r0.html">P0785R0: P0785R0: Runtime-sized arrays and a C++ wrapper</a>
+</h2>
+
+<p>
+実行時サイズ配列復活論。CのVLAのサブセットとC++のラッパークラスの提案。
+</p>
+
+<p>
+ようするにスタックから実行時に指定したサイズのメモリを確保したいということだ。
+</p>
+
+<p>
+かつてC++14に入りそうだったdynarryは、スタックから確保できない場合、動的確保にフォールバックするという設計で、確実にスタックから確保されてほしい利用者にとって当てにできない設計であった。その後、厳格にスタックからしか確保しないフォールバックのないbs_arrayなども提案されたりしていた。
+</p>
+
+<p>
+C++規格では、スタックとヒープという存在を避けてきた。代わりに、オブジェクトは寿命期間を持つストレージで区別されてきた。殆どのコンパイラーはスタックとヒープを使っていて、その使い分けは自然なものだ。しかし、世の中には組み込みとかカーネルなどの極端な環境があり、スタックメモリーのサイズが極端に小さい環境もあるかもしれない。そういう環境ではメモリはヒープに確保し、スタックではヒープメモリへのアドレスを格納するだけという実装もあり得る。結局、C++規格としてはスタックの利用を強制することはできない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0786r0.pdf">[PDF] P0786R0: ValuedOrError and ValueOrNone types</a>
+</h2>
+
+<p>
+エラー処理を暗号的ではなくなるが冗長な記述になるライブラリの提案。
+</p>
+
+<p>
+提案されているライブラリの一部を使うと、以下のように書ける。
+</p>
+
+<pre><code>// 同じ
+x.has_value() ;
+value_or_error::has_value(x) ;
+
+// 同じ
+(o) ? f(*o) : nullopt ;
+value_or_error::transform(o, f) ;
+
+// 同じ
+(!e) ? e.error() : err
+value_or_error::error_or(e, err)
+
+// 同じ
+(e) ? false : e.error() == err ;
+value_or_error::check_error(e, err) ;
+</code></pre>
+
+<p>
+暗号的なコードではなくなるが、冗長な記述になるし、意味がわかりやすいかというとそれも疑問だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0787r0.pdf">[PDF] P0787R0: Proclaimed Ownership Declarations</a>
+</h2>
+
+<p>
+モジュールからproclaimed-ownership-declarationを削除する提案。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0788r0.pdf">[PDF] P0788R0: Standard Library Specification in a Concepts and Contracts World</a>
+</h2>
+
+<blockquote>
+<p>
+「プログラムの挙動に合わせて仕様を変えるのは、その逆より簡単だ」 Alan Perlis
+</p>
+
+<p>
+「8.5×11インチの紙1枚に収まらない仕様は理解不可能だ」  Mark Ardis
+</p>
+
+<p>
+「specというのは仕様(specification)の略か？　憶測(speculation)の略なんじゃないか？」　詠み人知らず
+</p>
+</blockquote>
+
+<p>
+標準ライブラリはどのようにconceptに対応すべきかという方針の提案。
+</p>
+
+<p>
+Requires: は現状維持。代わりに新しい要素を追加する。
+</p>
+
+<p>
+Requires: を段階的に廃止し、新しい要素で置き換える。
+</p>
+
+<p>
+新しい要素として、Constraitns:, Diagnostics:, Expects:, Ensures:を追加する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0789r0.pdf">[PDF] P0789R0: Range Adaptors and Utilities</a>
+</h2>
+
+<p>
+Rangeアダプターの提案。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
