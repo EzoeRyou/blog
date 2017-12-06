@@ -1,0 +1,307 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+C++標準化委員会の文書: P0790R0-P0799R0
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/12/c-p0790r0-p0799r0.html">
+C++標準化委員会の文書: P0790R0-P0799R0
+</a></h1>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0790r0.html">P0790R0: library-operator-spaceship</a>
+</h2>
+
+<p>
+operator &lt;=&gt;が標準ライブラリに与える影響について。
+</p>
+
+<p>
+operator &lt;=&gt;によって生成される比較演算子は、ソースコードの書き換えと同等の効果を及ぼすのであって、実際の比較演算子ではないため、アドレスを取ることができない。これにより、opeartor &lt;=&gt;アドレスを取るユーザーコードは動かなくなる。これは互換性の問題となるが、そもそも比較演算子のアドレスを取るユーザーコードはまれだ。というのも、比較演算子はメンバー関数とフリー関数のいずれかで実装されるので、ユーザーコードでアドレスを取るにはどちらで実装されているか知らなければならない。また、一部の標準ライブラリは、a @ bのような式が妥当だとのみ規定されていて、operator @がどのように実装されているかを規定していない。その場合、ユーザーコードでアドレスを取った場合、そもそも未定義となる。なので、互換性の問題はまれにしか起こらないはずだ。
+</p>
+
+<p>
+文書は、標準ライブラリで比較可能な型のうち、operator &lt;=&gt;に対応すべきではない型、変換関数を捨ててopeartor &lt;=&gt;に切り替えるべき型、既存の比較演算子に加えてoperator &lt;=&gt;を追加したほうがよい型、operator &lt;=&gt;を追加したほうがよい他の型をラップしている型、現在比較を提供していないがoperator &lt;=&gt;に対応したほうがよい型、operatgor &lt;=&gt;を追加したほうがよいCの型を列挙している。
+</p>
+
+<p>
+valarrayというだいぶ忘れ去られた型も考慮している。
+</p>
+
+<p>
+よく調べたものだ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0791r0.pdf">[PDF] P0791R0: Concepts are Adjectives, not Nouns</a>
+</h2>
+
+<p>
+コンセプトCを使うtemplate &lt; C X &gt;を、template &lt; C typename X &gt;に変える提案。
+</p>
+
+<p>
+template &lt; C X &gt;の意味はわからない。Xは型なのだろうか。値なのだろうか。CがコンセプトならばXは型だが、Cがintへのtypedef名ならば、Xは値だ。この問題は、内側のスコープの宣言で名前が隠れるともっとややこしくなる。
+</p>
+
+<pre><code>
+template &lt; typename T &gt; concept C = true ;
+
+// Xは型
+template &lt; C X &gt; struct S ;
+
+namespace ns {
+
+using C = int ;
+
+// Xは値
+template &lt; C X &gt; struct S ;
+}
+</code></pre>
+
+<p>
+字面は同じtemplate &lt; C X &gt;なのに意味が変わってしまう。
+</p>
+
+<p>
+この問題は、本来形容詞であるコンセプトを名詞として使っているから生じるのであって、形容詞的な文法にすればいい。すなわち、文法を以下のように変更する。
+</p>
+
+<pre><code>template &lt; CopyConstructible typename T &gt; struct S ;
+</code></pre>
+
+<p>
+この変更により、複数のコンセプトを簡単な文法で指定することも可能になる。
+</p>
+
+<pre><code>template &lt; CopyConstructible LessThanCompareble tyepname T &gt; struct S ;
+</code></pre>
+
+<p>
+なるほど、趣旨はわかるが文法が冗長になる。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0792r0.html">P0792R0: function_ref: a non-owning reference to a Callable</a>
+</h2>
+
+<p>
+Callableを所有しないラッパーfunction_refの追加。std::functionと違いメモリ確保をせず例外も投げない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0793r0.pdf">[PDF] P0793R0: SG5: Transactional Memory (TM) Meeting Minutes 2017/06/19-2017/10/09</a>
+</h2>
+
+<p>
+Transactional Memoryの会議の議事録。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0794r0.pdf">[PDF] P0794R0: SG14: Low Latency Meeting Minutes 2017/08/09-2017/10/11/ </a>
+</h2>
+
+<p>
+Low Latency会議の議事録。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0795r0.pdf">[PDF] P0795R0: From Vulkan with love: a plea to reconsider the Module Keyword to be contextual</a>
+</h2>
+
+<p>
+Vulkanより愛をこめて。
+</p>
+
+<p>
+モジュールTSではmoduleというキーワードの追加を提案しているが、moduleという識別子はすでに多くの既存のソースコードで使われている。特にKhronos Groupの低級グラフィックAPIのVulkanでもmoduleを識別子として使っている。moduleは文脈依存キーワードにすべき。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0796r0.pdf">[PDF] P0796R0: Supporting Heterogeneous &amp; Distributed Computing Through Affinity</a>
+</h2>
+
+<p>
+NUMAが当然となった現代では、メモリーアフィニティの重要性はいよいよ増すばかりだ。複数のスレッドによる並列処理を行ったとしても、そのメモリーが特定のひとつのスレッドだけで効率的にアクセスできるようになっている場合、並列処理はスケールしない。このようなメモリーとスレッドの関係をアフィニティと呼ぶ。
+</p>
+
+<p>
+そこで、C++は標準でシステムのリソーストポロジーをクエリーし、メモリー領域の相対的なアフィニティをクエリー子、実行とメモリ領域を制限するようなアフィニティの設定機能を持つべきだ。
+</p>
+
+<p>
+そんなの標準化できるのだろうか。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0797r0.pdf">[PDF] P0797R0: Exception Handling in Parallel STL Algorithms</a>
+</h2>
+
+<p>
+並列アルゴリズムを中断する方法の提案。
+</p>
+
+<p>
+シーケンシャルアルゴリズムは例外を投げることによって中断できた。並列アルゴリズムも提案段階ではexception_ptrを複数もつexception_listを例外として投げることで中断できる予定だったが、この設計には色々と問題があったので廃止された。
+</p>
+
+<p>
+この提案では、例外を格納するdisappointment_buffer&lt;disappointment_type&gt;を追加し、これを実行ポリシーオブジェクトで並列アルゴリズムに渡すことで例外リストを受け取る設計を提案している。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0798r0.html">P0798R0: p0798r0: Monadic operations for std::optional</a>
+</h2>
+
+<p>
+optionalにモナド操作として、and_then, or_else, mapを追加する提案。
+</p>
+
+<p>
+画像から猫を抽出してより可愛くするコードを考える。
+</p>
+
+<pre><code>image get_cute_cat (const image&amp; img) {
+    return add_rainbow(
+             make_smaller(
+               make_eyes_sparkle(
+                 add_bow_tie(
+                   crop_to_cat(img))));
+}
+</code></pre>
+
+<p>
+しかし、画像に猫が含まれていなかったらどうなるのだ。画像に蝶ネクタイを付加すべき場所が存在しなかったら、　猫が後ろを向いているので目を輝かすことができなかったら。それらの条件では、画像を返すことができない。
+</p>
+
+<p>
+例外を使うというのも手だが、プログラムが画像を大量に処理するもので、画像に猫が含まれないことは例外的ではない場合、例外をコントロールフローに使うのはよろしくない。
+</p>
+
+<p>
+そこでoptionalだ。
+</p>
+
+<pre><code>std::optional&lt;image&gt; get_cute_cat (const image&amp; img) {
+    auto cropped = crop_to_cat(img);
+    if (!cropped) {
+      return std::nullopt;
+    }
+
+    auto with_tie = add_bow_tie(*cropped);
+    if (!with_tie) {
+      return std::nullopt;
+    }
+
+    auto with_sparkles = make_eyes_sparkle(*with_tie);
+    if (!with_sparkles) {
+      return std::nullopt;
+    }
+
+    return add_rainbow(make_smaller(*with_sparkles));
+}
+</code></pre>
+
+<p>
+しかし、こんなボイラープレートコードを書きたくない。
+</p>
+
+<p>
+そこで、optionalのメンバーにmap, and_then, or_elseを追加すると、以下のように書ける。
+</p>
+
+<pre><code>std::optional&lt;image&gt; get_cute_cat (const image&amp; img) {
+    return crop_to_cat(img)
+           .and_then(add_bow_tie)
+           .and_then(make_eyes_sparkle)
+           .map(make_smaller)
+           .map(add_rainbow);
+}
+</code></pre>
+
+<p>
+趣旨はわかるが現実の問題を解決するC++のコードが、そんなにきれいに引数をひとつ受け取ってひとつ返すような簡単なコードになるわけがなく、したがってこれを使おうとするとラムダ式で囲んだボイラープレートを書かねばならず、机上の空論に見える。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0799r0.pdf">[PDF] P0799R0: Programming vulnerabilities for C++ (part of WG23 N0746)</a>
+</h2>
+
+<p>
+C++標準規格の文面に脆弱性に対する忠告の文面を入れようという提案
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
