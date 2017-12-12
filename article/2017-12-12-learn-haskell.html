@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+C++の入門書を書くためにHaskellを学ぶことにした
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/12/chaskell.html">
+C++の入門書を書くためにHaskellを学ぶことにした
+</a></h1>
+
+<p>
+C++17の参考書、江添亮の詳説C++17はすでに書き上げて、来年の出版を待つばかりになっている。
+</p>
+
+<p>
+<a href="https://github.com/EzoeRyou/cpp17book">https://github.com/EzoeRyou/cpp17book</a>
+</p>
+
+<p>
+次に書く本はC++の入門書にしようと思っているが、入門書を書く前に、少し時間をかけてHaskellを学ぼうと思っている。
+</p>
+
+<p>
+なぜHaskellを学ぶのか。Pandocのためだ。
+</p>
+
+<p>
+<a href="https://pandoc.org/">Pandoc</a>
+</p>
+
+<p>
+私の本は、Markdownで書いてPandocで各種フォーマットに変換している。アスキードワンゴでは、Pandocを使ってlatexに変換した上で、手作業で出力されたlatexを編集して組版している。つまり、私の参考書の執筆はPandocに支えられていると言ってよい。
+</p>
+
+<p>
+さて、アスキードワンゴ編集部(ドワンゴ)は私が本を出版契約している出版社であり、かつ私が雇用契約している会社でもある。アスキードワンゴの編集者は私の編集者であり同僚でもある。そういったサザエさんの家系図なみに複雑な理由で私はアスキードワンゴの編集者の負担を減らすことにインセンティブがある。編集者はPandocに不満点があり、改良したいと思ってはいるが、Haskellなので手が出せずにいる。話を聞く限り、不満点の解消は、Pandocのコードが理解できれば、それほど難しい変更でもなさそうだ。問題は、PandocはHaskellで書かれているということだ。
+</p>
+
+<p>
+Haskellというのは私が今までやってきたプログラミング言語とはだいぶパラダイムの異なる言語で、私はC++に関してはだいぶ理解したが、Haskellという点ではもはやプログラミング未経験者に近い。
+</p>
+
+<p>
+さて、早速定評のあるHaskellの入門書、Learn Haskell for Great Goodも買い込み、届くのを待っている間はオンライン版を読みながらHaskellを学ぶとしよう。
+</p>
+
+<p>
+<a href="http://learnyouahaskell.com/chapters">Chapters - Learn You a Haskell for Great Good!</a>
+</p>
+
+<p>
+プログラミング言語を学ぶには、まずプログラミング言語の実行環境を用意することが重要だ。どうやら、Haskellの実行環境はHaskell Platformとやらで揃うらしい。UbuntuでHaskell Platformをいれるには、
+</p>
+
+<pre><code>sudo apt install haskell-platform
+</code></pre>
+
+<p>
+すればよい。
+</p>
+
+<p>
+しかし、どうやらHaskell Platformはもうイケてないらしい。最近のクールなキッズは全員Stackとやらを用いるそうだ。
+</p>
+
+<p>
+stackを使うには、シェルスクリプトを落として実行するか、あるいはapt install haskell-stackして、stack upgradeすればいいらしい。さっそくstack upgradeしたが、延々とライブラリのビルドを始めた。小一時間書けてビルドが終わった後に、stack ghciを実行したが、どうやらstack setupしていなかったのでまずghciのビルド済みバイナリのダウンロードが走り、たまたまWiFi経由でダウンロード速度が遅かったので、これまた時間がかかった。
+</p>
+
+<p>
+なるほど、環境構築だけで一日が終わってしまった。やったこととしてはコマンドを数行叩くだけなのだが、GHC, Haskell Platform, StackといったHaskellの実行環境の歴史などを学ぶのにだいぶ時間を要した。
+</p>
+
+<p>
+この経験から私は、環境構築の解説は丁寧に行うべきだという教訓を得た。C++の入門書の執筆に参考になる経験が、まだHaskellを一行も書かないうちから得られた。
+</p>
+
+<p>
+さて、Haskellを学び始めるか。
+</p>
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
