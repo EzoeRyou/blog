@@ -164,7 +164,7 @@ break p xs@(x:xs')
            | p x        =  ([],xs)
            | otherwise  =  let (ys,zs) = break p xs' in (x:ys,zs)
 #endif
-<code></pre>
+</code></pre>
 
 <p>
 USE_REPORT_PRELUDEは、Haskellの仕様書であるHaskell Reportの定義どおりの実装だ。Haskell Reportの定義は効率ではなく正しさだけを目的としている。通常はUSE_REPORT_PRELUDEではない方が使われる。
