@@ -1,0 +1,228 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+Haskellでwordsを実装してみた
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/12/haskellwords.html">
+Haskellでwordsを実装してみた
+</a></h1>
+
+<p>
+Haskellを学び始めたが、いまだにまともなコードを書くことができないでいる。理由は簡単で、まだ標準入出力が扱えないからだ。
+</p>
+
+<p>
+標準入出力はUNIXでは極めて根本的な機能だ。標準入出力が扱えるようになればだいたいの処理はできると考えてよい。というのも、UNIXではパイプによって標準入出力の入力元と出力先を変えることができるからだ。パイプを使えば、ファイル操作やネットワーク操作をコードで表現する方法を知らなかったとしても、操作ができるようになる。
+</p>
+
+<p>
+ところが、Haskellでは標準入出力を扱えるようになるまでが遠い。別に書けないわけではない。今でもHaskellでHello,Worldぐらい書けるし、特定の処理がしたいのであれば似たような入出力処理をするコードをどこからか探してきて改変することで目的のコードを作り出すことはできる。そういう意味では、現時点でもHaskellである程度のコードは書けるだろう。しかし、それでは言語を真に理解したことにはならない。言語の仕様を理解し、他人の書いたコードの改変ではなく、自分でコードを無から書けてこそ、自由自在のプログラミングが可能になる。
+</p>
+
+<p>
+しかし、関数型言語であるHaskellでは入出力などという副作用を伴う処理には特別な配慮が必要らしく、いまだに標準入出力にたどり着いていない。
+</p>
+
+<p>
+しかし、今までに学んだHaskellの知識を使って自力で何かを実装してみたいので、今回はwordsを実装することにした。
+</p>
+
+<p>
+wordsは文字列を空白文字を区切り文字として分割した文字列のリストを返す。
+</p>
+
+<pre><code>&gt; words "aaa bbb ccc"
+["aaa","bbb","ccc"]
+</code></pre>
+
+<p>
+処理自体は簡単なはずなのだが、これをHaskellの流儀でやるのは割とだるい。アルゴリズム自体はすぐに思い浮かんだのだが、実際にコードを書くと、様々な問題に悩まされた。
+</p>
+
+<pre><code>takeWord s = takeWhile (not . isSpace) $ dropWhitespace s
+dropWhitespace s = dropWhile isSpace s
+
+words' [] = []
+words' s =
+    let
+        word = takeWord s
+        rest = drop (length word) $ dropWhitespace s
+    in
+        word:(words' rest) 
+</code></pre>
+
+<p>
+アルゴリズムとしては、文字列の先頭から連続する空白文字をdropし、空白文字が現れるまでtakeし、今回の処理した文字列分dropし、再帰する。
+</p>
+
+<p>
+これで使った関数も実装してみた。
+</p>
+
+<pre><code>takeWhile' _ [] = []
+takeWhile' f (x:xs) =
+    if f x
+    then x: takeWhile' f xs
+    else []
+
+dropWhile' _ [] = []
+dropWhile' f p@(x:xs) =
+    if f x
+    then dropWhile' f xs
+    else p
+
+drop' _ [] = []
+drop' n x | n &lt;= 0 =  x
+drop' n (_:xs) = drop' (n-1) xs
+
+length' [] = 0
+length' (x:xs) = 1 + length' xs
+
+not' True = False
+not' False = True
+</code></pre>
+
+<p>
+ちなみに、模範解答はghc/libraries/base/data/OldList.hsにある。
+</p>
+
+<pre><code>words s                 =  case dropWhile {-partain:Char.-}isSpace s of
+                                "" -&gt; []
+                                s' -&gt; w : words s''
+                                      where (w, s'') =
+                                             break {-partain:Char.-}isSpace s'
+</code></pre>
+
+<p>
+なるほどbreakは面白い仕組みだ。文字列の切り出しと文字列の先頭のdropを同時にやれるのでコードがきれいになる。早速実装してみよう。
+</p>
+
+<pre><code>break' _ [] = ( [],[] )
+break' f p@(x:xs) =
+    if f x
+    then ( [], p )
+    else let ( a, b ) = break' f xs
+         in ( x:a, b )
+</code></pre>
+
+<p>
+模範解答。
+</p>
+
+<pre><code>break                   :: (a -&gt; Bool) -&gt; [a] -&gt; ([a],[a])
+#if defined(USE_REPORT_PRELUDE)
+break p                 =  span (not . p)
+#else
+-- HBC version (stolen)
+break _ xs@[]           =  (xs, xs)
+break p xs@(x:xs')
+           | p x        =  ([],xs)
+           | otherwise  =  let (ys,zs) = break p xs' in (x:ys,zs)
+#endif
+<code></pre>
+
+<p>
+USE_REPORT_PRELUDEは、Haskellの仕様書であるHaskell Reportの定義どおりの実装だ。Haskell Reportの定義は効率ではなく正しさだけを目的としている。通常はUSE_REPORT_PRELUDEではない方が使われる。
+</p>
+
+<p>
+ところで、"break _ xs@[] = (xs,xs)"は、"break _ [] = ([],[])"と書くのと変わりがないと思うのだが、何か違いがあるのだろうか。
+</p>
+
+<p>
+さて、ここまで何の問題もなく実装できているように見えるが、実際は些細な間違いで何時間も悩んでいる。
+</p>
+
+<p>
+最初に書いたwords'は以下のような間違った結果を返した。
+</p>
+
+<pre><code>&gt; words' "aaa bbb  ccc"
+["aaa", "bbb", "b", "ccc", "cc"]
+</code></pre>
+
+<p>
+これはなぜかと言うと、処理した文字列を切り取る処理が以下のようになっていて、空白文字分を考慮していなかったからだ。
+</p>
+
+<pre><code>rest = drop (length word) s
+</code></pre>
+
+<p>
+しかし問題の原因を特定するのには苦労した。標準入出力が使えないので、最も原始的なprintfデバッグすらまだ使えないためだ。traceというものはあるが、問題はtraceの評価も実際に評価したときにしか行われず、現時点でHaskellのコードを評価する方法として、GHCiに食わせて表示させるということぐらいしか知らないため、traceの出力と本来の出力がごちゃまぜになって極めてわかりにくい。
+</p>
+
+<p>
+もう一つハマった落とし穴は、dropWhileを実装していたときだ。以下のように間違ったコードを書いてしまった。
+</p>
+
+<pre><code>dropWhile' _ [] = []
+dropWhile' f p@(x:xs) =
+    if f x
+    then dropWhile' xs
+    else p
+</code></pre>
+
+<p>
+間違っている場所がわかるだろうか。私はわからない。GHCのエラーメッセージは型が違うということは知らせてくれるが、具体的にどこのコードが期待している型が違うのかということは教えてくれない。GHCが指し示す問題のある行は、"dropWhile' f p@(x:xs) ="だ。しかし、問題は"then dropWhile' xs"にあるのだ。エラーメッセージは、dropWhile'の型は(t -> Bool) -> [t] -> [t]だが、[t] -> [t]として使おうとしてエラーになっていることを教えてくれる。そこまで分かっているのならば、[t] -> [t]としてdropWhile'を使おうとしている箇所を教えてくれたっていいだろう。技術的にできるはずなのに、なぜか教えてくれない。
+</p>
+
+<p>
+Haskellの実装であるGHCのエラーメッセージはあまりにも不親切すぎる。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
