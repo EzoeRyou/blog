@@ -1,0 +1,276 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+Haskellのエラーメッセージについて
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2017/12/haskell_26.html">
+Haskellのエラーメッセージについて
+</a></h1>
+
+<p>
+Haskellの実装であるGHCのエラーメッセージがわかりにくい。
+</p>
+
+<p>
+例えば以下のコードがあるとしよう。
+</p>
+
+<pre><code>f p as@(x:xs) =
+    if p x 
+    then f p xs
+    else as
+
+main = return ()
+</code></pre>
+
+<p>
+この関数fはdropWhileと名付けてもいい関数だ。この関数の型は( t -&gt; Bool ) -&gt; [t] -&gt; [t]だ。
+</p>
+
+<p>
+ところで、この関数をうっかり書き間違えてしまい、then f p xsとすべきところを、第一引数のpredicateを渡し忘れ、then f xsとしてしまった場合を考えよう。
+</p>
+
+<pre><code>f p as@(x:xs) =
+    if p x
+    then f xs
+    else as
+
+main = return ()
+</code></pre>
+
+<p>
+このコードをGHC 8.0.2でコンパイルすると以下のようなエラーメッセージが表示される。
+</p>
+
+<pre><code>
+[1 of 1] Compiling Main             ( prog.hs, prog.o )
+
+prog.hs:1:1: error:
+    • Couldn't match type ‘t -&gt; Bool’ with ‘[t]’
+      Expected type: [t] -&gt; [t]
+        Actual type: (t -&gt; Bool) -&gt; [t] -&gt; [t]
+    • Relevant bindings include f :: [t] -&gt; [t] (bound at prog.hs:2:1)
+</code></pre>
+
+<p>
+このエラーから読み取れる情報は、(t -&gt; Bool)型は[t]型にマッチできないということだ。f p xsとすべきところをf xsとしてしまったのだから当然の話だ。pは(t -&gt; Bool)でxsは[t]だ。
+</p>
+
+<p>
+だが、このエラーメッセージからはどこの箇所が悪かったのか全然わからない。
+</p>
+
+<p>
+しかし、このコードをGHC 7.10.3でコンパイルすると、以下のようなとてもわかり易いエラーメッセージが表示される。
+</p>
+
+<pre><code>prog.hs:3:10:
+    Couldn't match expected type ‘[t]’ with actual type ‘[t] -&gt; [t]’
+    Relevant bindings include
+      xs :: [t] (bound at prog.hs:1:11)
+      x :: t (bound at prog.hs:1:9)
+      as :: [t] (bound at prog.hs:1:5)
+      p :: t -&gt; Bool (bound at prog.hs:1:3)
+      f :: (t -&gt; Bool) -&gt; [t] -&gt; [t] (bound at prog.hs:1:1)
+    Probable cause: ‘f’ is applied to too few arguments
+    In the expression: f xs
+    In the expression: if p x then f xs else as
+
+prog.hs:3:12:
+    Couldn't match expected type ‘t -&gt; Bool’ with actual type ‘[t]’
+    Relevant bindings include
+      xs :: [t] (bound at prog.hs:1:11)
+      x :: t (bound at prog.hs:1:9)
+      as :: [t] (bound at prog.hs:1:5)
+      p :: t -&gt; Bool (bound at prog.hs:1:3)
+      f :: (t -&gt; Bool) -&gt; [t] -&gt; [t] (bound at prog.hs:1:1)
+    In the first argument of ‘f’, namely ‘xs’
+    In the expression: f xs
+</code></pre>
+
+<p>
+問題は3行目の10文字目と12文字目にあることがわかり、関連するbindingが一覧表示され、問題のある式とその式を含む式まで表示してくれる。これならわかりやすい。バージョンアップしてわかりにくくなるとはどういうことだ。
+</p>
+
+<p>
+GHC 8.2.1ではエラーメッセージが改良されたそうだ。果たして直っているだろうか。
+</p>
+
+<p>
+<a href="https://wandbox.org/permlink/leQ7uQaoN1eqBPLS">https://wandbox.org/permlink/leQ7uQaoN1eqBPLS</a>
+</p>
+
+<pre><code>prog.hs:1:1: error:
+    • Couldn't match type ‘t -&gt; Bool’ with ‘[t]’
+      Expected type: [t] -&gt; [t]
+        Actual type: (t -&gt; Bool) -&gt; [t] -&gt; [t]
+    • Relevant bindings include f :: [t] -&gt; [t] (bound at prog.hs:1:1)
+  |
+1 | f p as@(x:xs) =
+  | ^^^^^^^^^^^^^^^...
+</code></pre>
+
+<p>
+なるほど、Clangのプリティなエラーメッセージを真似ようという意思は感じられる。しかしその箇所は関数を宣言している箇所だ。関数の引数が間違っている箇所を指定してくれなければ意味がない。なぜGHC 7でできていたことがGHC 8でできなくなっているのだ。
+</p>
+
+<p>
+Wandboxで最新のHEADも試したが、この問題はまだ解決していなかった。
+</p>
+
+<p>
+さて、fの型を明示的に書くとエラーメッセージが変わるらしい。早速試してみよう。
+</p>
+
+<pre><code>f :: (t -&gt; Bool) -&gt; [t] -&gt; [t]
+f p as@(x:xs) =
+    if p x
+    then f xs
+    else as
+
+main = return ()
+</code></pre>
+
+<p>
+これをGHC 8.0.2でコンパイルすると以下のようなメッセージが表示される。
+</p>
+
+<p>
+<a href="https://wandbox.org/permlink/307bjIWpMGZ3jJhO">https://wandbox.org/permlink/307bjIWpMGZ3jJhO</a>
+</p>
+
+<pre><code>prog.hs:4:10: error:
+    • Couldn't match expected type ‘[t]’
+                  with actual type ‘[t0] -&gt; [t0]’
+    • Probable cause: ‘f’ is applied to too few arguments
+      In the expression: f xs
+      In the expression: if p x then f xs else as
+      In an equation for ‘f’: f p as@(x : xs) = if p x then f xs else as
+    • Relevant bindings include
+        xs :: [t] (bound at prog.hs:2:11)
+        x :: t (bound at prog.hs:2:9)
+        as :: [t] (bound at prog.hs:2:5)
+        p :: t -&gt; Bool (bound at prog.hs:2:3)
+        f :: (t -&gt; Bool) -&gt; [t] -&gt; [t] (bound at prog.hs:2:1)
+
+prog.hs:4:12: error:
+    • Couldn't match expected type ‘t0 -&gt; Bool’ with actual type ‘[t]’
+    • In the first argument of ‘f’, namely ‘xs’
+      In the expression: f xs
+      In the expression: if p x then f xs else as
+    • Relevant bindings include
+        xs :: [t] (bound at prog.hs:2:11)
+        x :: t (bound at prog.hs:2:9)
+        as :: [t] (bound at prog.hs:2:5)
+        p :: t -&gt; Bool (bound at prog.hs:2:3)
+        f :: (t -&gt; Bool) -&gt; [t] -&gt; [t] (bound at prog.hs:2:1)
+</code></pre>
+
+<p>
+ようやくGHC 7に戻ってきた。GHCはfの型を正しく推定できているのに、なぜ型tを明示的に書かなければ親切なエラーメッセージを出してくれないのだ。不親切にもほどがある。
+</p>
+
+<p>
+さて、ではエラーメッセージが親切になったというGHC 8.2.1ではどうか。
+</p>
+
+<p>
+<a href="https://wandbox.org/permlink/8j00LitIvUUuzDTM">https://wandbox.org/permlink/8j00LitIvUUuzDTM</a>
+</p>
+
+<pre><code>prog.hs:4:10: error:
+    • Couldn't match expected type ‘[t]’
+                  with actual type ‘[t0] -&gt; [t0]’
+    • Probable cause: ‘f’ is applied to too few arguments
+      In the expression: f xs
+      In the expression: if p x then f xs else as
+      In an equation for ‘f’: f p as@(x : xs) = if p x then f xs else as
+    • Relevant bindings include
+        xs :: [t] (bound at prog.hs:2:11)
+        x :: t (bound at prog.hs:2:9)
+        as :: [t] (bound at prog.hs:2:5)
+        p :: t -&gt; Bool (bound at prog.hs:2:3)
+        f :: (t -&gt; Bool) -&gt; [t] -&gt; [t] (bound at prog.hs:2:1)
+  |
+4 |     then f xs
+  |          ^^^^
+
+prog.hs:4:12: error:
+    • Couldn't match expected type ‘t0 -&gt; Bool’ with actual type ‘[t]’
+    • In the first argument of ‘f’, namely ‘xs’
+      In the expression: f xs
+      In the expression: if p x then f xs else as
+    • Relevant bindings include
+        xs :: [t] (bound at prog.hs:2:11)
+        x :: t (bound at prog.hs:2:9)
+        as :: [t] (bound at prog.hs:2:5)
+        p :: t -&gt; Bool (bound at prog.hs:2:3)
+        f :: (t -&gt; Bool) -&gt; [t] -&gt; [t] (bound at prog.hs:2:1)
+  |
+4 |     then f xs
+  |            ^^
+</code></pre>
+
+<p>
+なるほど、わかりやすくなっている。できればこれを型を明示せずともやってもらいたいものだ。
+</p>
+
+<p>
+この記事はめるぽんさんの運営するWandboxという大変便利な本物のWebサイトを活用して書いた。今年もめるぽんさんに野菜をスポンサーしにいかなければならない。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
