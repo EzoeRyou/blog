@@ -1,0 +1,282 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+第4回 ドワンゴからの挑戦状予選に参加してみた
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2018/01/4.html">
+第4回 ドワンゴからの挑戦状予選に参加してみた
+</a></h1>
+
+<p>
+<a href="http://dwango.co.jp/saiyo/dwacon2018/">第4回　ドワンゴからの挑戦状</a>
+</p>
+
+<p>
+第4回、ドワンゴからの挑戦状の予選が開催されたので参加してみた。
+</p>
+
+
+<p>
+<a href="https://dwacon2018-prelims.contest.atcoder.jp/tasks/dwacon2018_prelims_a">A - ニコニコ文字列判定</a>
+</p>
+
+<p>
+まずA問題。数字のみが使われた4文字の文字列sが入力として渡される。数字x, yが存在して、sがxyxyのとき"Yes"を、そうでなければ"No"を出力する。
+</p>
+
+<p>
+入力は必ず4文字で、数字のみなので、変な文字列が渡される心配をしなくてもよい。
+</p>
+
+<pre><code>#include &lt;iostream&gt;
+
+int main()
+{
+    std::string s ;
+    std::cin &gt;&gt; s ;
+
+    if ( s[0] == s[2] &amp;&amp; s[1] == s[3] )
+        std::cout &lt;&lt; "Yes" ;
+    else
+        std::cout &lt;&lt; "No" ;
+}
+</code></pre>
+
+<p>
+A問題は毎回とても簡単な傾向にある。私は最初の提出が、問題文をさっと見ただけでコードを書いてしまったので、"YES", "NO"を出力するようにしてしまい、間違えた。
+</p>
+
+<p>
+<a href="https://dwacon2018-prelims.contest.atcoder.jp/tasks/dwacon2018_prelims_b">B - 2525文字列分解</a>
+</p>
+
+<p>
+文字'2'と'5'からなる文字列sが入力として与えられる。その文字列を"25"の1回以上の繰り返しからなる2525文字列に分割する。文字を分割するときには、文字の相対的な順序を変えてはならない。分割できる最小数はいくつか。
+</p>
+
+<p>
+この問題はとても簡単に解決できる。
+</p>
+
+<p>
+文字列sから"25"を取り除く操作を繰り返して、空文字列になるまでの操作回数を数えた結果が答えだ。つまり何回s/25//gできるかを数えればよい。もし、文字列に対してs/25//gを適用しても文字列が変わらなかった場合、その文字列は2525文字列に分解できないので、-1を出力する。
+</p>
+
+<p>
+文字列から"25"を取り除いた結果の文字列は、もしまだ2525文字列が存在するのであれば、必ず”25"が出現する。なので文字列が空になるまで繰り返しs/25//gすればよい。
+</p>
+
+<p>
+実際のところ、この問題はbashとsedで解くことができる。sedのみで解くことはできるだろうか。どうやらsedは入力文字列を工夫すればチューリング完全であり、sedでチューリングマシンやテトリスを実装したと主張するWebサイトがあるが、詳しく読んでいないので真偽はわからない。
+</p>
+
+<p>
+<a href="http://www.catonmat.net/blog/proof-that-sed-is-turing-complete/">http://www.catonmat.net/blog/proof-that-sed-is-turing-complete/</a>
+</p>
+
+<p>
+さてコードに落としていこう。処理は簡単だ。入力の文字列にs/25//gを何回適用できるか数えるだけだ。ただし、空文字列ではないのに適用できなくなった場合、2525文字列に分割できないので-1となる。
+</p>
+
+<p>
+このような問題を解くときは、すでに問題を解き終えたと仮定すると書きやすい。
+</p>
+
+<p>
+まず、この問題を解く関数solveがすでに存在すると仮定する。この関数solveは文字列をstd::string &amp;型で与えると出力すべき数値をint型で返してくれるとする。引数に渡した文字列は書き換えられるものとする。すると、もうすでに我々は問題を解き終えたわけなので、入力を受け取って関数solveに渡して出力するだけのコードを書けばよいことになる。
+</p>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+int main()
+{
+    std::string s ;
+    std::cin &gt;&gt; s ;
+
+    std::cout &lt;&lt; solve( s ) ;
+}
+</code></pre>
+
+<p>
+これで入出力の部分は書いた。あとは関数solveを実装するだけだ。
+</p>
+
+<p>
+
+このような問題を解くときは、すでに問題を解き終えたと仮定すると書きやすい。
+</p>
+
+<p>
+まず、文字列に対してs/25//gを行う関数remove_nicoがすでに存在すると仮定する。この関数remove_nicoはstd::string &amp;型の引数を取り、s/25//gする。もしひとつ以上の"25"を置換したのであればtrueを、そうでなければfalseを返す。すると、我々はすでにs/25//gを実装し終えたわけなので、あとはこの関数remove_nicoを何回文字列に適用できるか数えればよいだけだ。ただし、空文字列ではないのにfalseを返した場合は-1だ。
+</p>
+
+<pre><code>int solve( std::string &amp; s )
+{
+    int count = 0 ;
+    while ( s.size() != 0 )
+    {
+        bool removed = remove_nico( s ) ;
+        if ( removed ) // 適用した
+            ++count ;
+        else // 適用できなかったので2525文字列ではない
+            return -1 ;
+    }
+    return count ;
+}
+</code></pre>
+
+<p>
+さて、残りは関数remove_nicoさえ実装すればよい。実装方法としては、単に文字列を先頭から自分自身にコピーしていき、"25"はコピーをスキップすればよい。
+</p>
+
+<pre><code>bool remove_nico( std::string &amp; s )
+{
+    auto dest = std::begin(s) ;
+    auto src = dest ;
+    auto end = std::end(s) ;
+
+    // 文字を自分自身にコピーする
+    while ( src != end )
+    {
+        // 文字列"25"ならばコピーしないことで除去
+        if ( *src == '2' &amp;&amp; *std::next(src) == '5' )
+        {
+            std::advance( src, 2 ) ;
+        }
+        else
+        { // コピー
+            *dest = *src ;
+            ++dest ;
+            ++src ;
+        }
+    }
+
+    // 一度も"25"を除去していなければfalseを返す
+    if ( dest == end )
+        return false ;
+
+    // 除去した"25"の数だけ文字列のサイズを減らす
+    auto shrink = std::distance( dest, end ) ;
+    s.resize( s.size() - shrink ) ;
+
+    return true ;
+}
+</code></pre>
+
+<p>
+しかしこういう処理を自前で書くのは面倒だ。s/25//gをしたいのであれば正規表現ライブラリを使えばいいのではないか。そう思う読者もいるだろう。実際、正規表現ライブラリはC++11で追加されている。問題は、この手の問題に正規表現ライブラリを使うというのは鶏を割くのに牛刀を用いるほど過剰であり、遅いということだ。そもそも正規表現ライブラリは柔軟なパターンマッチができるもので正規表現文字列からパターンマッチのためのデータ構造を構築する。そして、std::regex_replaceによる置換はin-placeでは行われない。今回の置換は削除なので、in-placeに処理できるが、汎用的なライブラリであるstd::regexにそれを望むことはできない。
+</p>
+
+<p>
+それでも書くとなると、以下のようになる。
+</p>
+
+<pre><code>bool remove_nico( std::string &amp; s )
+{
+    std::regex re("25") ;
+    std::string out ;
+    // s/25//g
+    auto end = std::regex_replace( std::back_inserter(out), std::begin(s), std::end(s), re, "" ) ;
+    // 置換しなかった
+    if ( s.size() == out.size() )
+        return false ;
+
+    s = out ;
+    return true ;
+}
+</code></pre>
+
+<p>
+ちなみに、手書きの"25"削除をatcoderに提出すると実行時間は最大のテストケースで5msぐらいだが、regex_replaceを使う実装を提出すると50msぐらいかかる。実に10倍も遅い。remove_nicoを手動でインライン展開して、reとoutをループの外に出して使いまわす付け焼き刃の最適化も試してみたが、実行時間は変わらなかった。その程度の最適化はコンパイラーがやっているらしい。
+</p>
+
+<p>
+とはいえ、10倍遅くても制限時間内だからいいといえばいい。B問題程度はさっさと解くためにこうしてもよいが、それならもっと簡単な言語を使ってもよいということだ。
+</p>
+
+<p>
+C問題以降は私には解けないのでもっと強い人の解説を参考にしてもらいたい。
+</p>
+
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+<p>
+ドワンゴからの挑戦状本選は2月3日。
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
