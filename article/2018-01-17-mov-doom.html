@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+今流行りの投機実行脆弱性の影響を一切受けないDOOM実装が公開される
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2018/01/doom.html">
+今流行りの投機実行脆弱性の影響を一切受けないDOOM実装が公開される
+</a></h1>
+
+<p>
+<a href="https://github.com/xoreaxeaxeax/movfuscator/tree/master/validation/doom">https://github.com/xoreaxeaxeax/movfuscator/tree/master/validation/doom</a>
+</p>
+
+<p>
+このDOOMは条件分岐を一切使用していない。したがって今流行りの投機実行の脆弱性であるMeltdownやSpectreによる脆弱性は存在しない。
+</p>
+
+<p>
+ちなみに、現代の性能のコンピューターで、1フレームの描画に7時間ほどかかるので、このDOOMで遊ぶには若干の忍耐力を要求される。しかし、脆弱性の完全な排除のためには若干のパフォーマンスの低下はやむを得ないところだろう。
+</p>
+
+<p>
+このDOOM実装はオリジナルのDOOMのCコードに若干の変更を施して、M/o/Vfuscatorでコンパイルしたものだ。
+</p>
+
+<p>
+<a href="https://github.com/xoreaxeaxeax/movfuscator">https://github.com/xoreaxeaxeax/movfuscator</a>
+</p>
+
+<p>
+M/o/Vfuscatorとは、IntelのMMUがチューリング完全であることを利用したmov命令のみを使うC言語コンパイラーだ。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
