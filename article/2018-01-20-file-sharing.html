@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+物理的に近くの相手とファイル共有する方法
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2018/01/blog-post.html">
+物理的に近くの相手とファイル共有する方法
+</a></h1>
+
+<p>
+以下のようなTweetを読んだ。
+</p>
+
+
+<blockquote class="twitter-tweet" data-lang="en"><p lang="ja" dir="ltr">ごめん言葉足らずだった。インターネットへの通信品質を信頼できないコミケ会場で、ビューワであるスマホやタブレット端末にPDFを送りつけたいんだ。  <a href="https://t.co/gzbcQKXkEN">https://t.co/gzbcQKXkEN</a></p>&mdash; ろ。まのふ (@kamiya344) <a href="https://twitter.com/kamiya344/status/954206914484645888?ref_src=twsrc%5Etfw">January 19, 2018</a></blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+<p>
+インターネットが普及してからもうかれこれ20年以上もたつが、未だにこの問題が解決できていないのは嘆かわしいことだ。なのでこの問題を解決してみよう。
+</p>
+
+<p>
+<img titile="Every time you email a file to yourself so you can pull it up on your friend's laptop, Tim Berners-Lee sheds a single tear." src="https://imgs.xkcd.com/comics/file_transfer.png"></img>
+</p>
+
+<p>
+ただし、今回の問題は、大量に人が集まるため無線通信が難しい状況で、物理的に近い場所にいる相手とのファイル共有だ。
+</p>
+
+<p>
+ファイルの転送自体は、前後にインターネット回線を確保してから行ってもいい場合は、どこかに暗号化したファイルを公開しておき、現場では復号鍵を配布すればいいだろう。
+</p>
+
+<p>
+しかし、その場で直ちにファイルを転送したい場合はどうするのか。この場合、物理媒体による受け渡しは客が大勢来た場合にスケールせずに非現実的だ。
+</p>
+
+<p>
+お互いBluetoothによる通信ができる状況であれば、Bluetoothによるファイル転送が使える。スマフォ端末やタブレット端末ならば、Bluetoothはほぼ確実にあるだろう。問題は、相手がBluetoothによるファイル転送に慣れていない場合、Bluetoothによるファイル転送の方法を説明する必要がある。これには相手の技術レベルにもよるが時間がかかるだろう。これもスケールしない。
+</p>
+
+<p>
+もし転送したいファイルが2953バイト以下であれば、QRコードが使える。QRコードはディスプレイに映してもよいし、紙に印刷してもよい。圧倒的にスケールする。ただし、相手の端末にはカメラとQRコードリーダーが必要だ。ほとんどのスマフォとタブレット端末ならQRコードには対応しているだろう。しかし、PDFファイルはまず間違いなく2953バイトではすまないだろう。
+</p>
+
+
+<p>
+やはり一番信頼できるのは有線LANだ。複数の客をさばくためにスイッチングハブを用意する。スマフォやタブレット端末にはEthernetポートがついていないことが多いが、USBポートが一つぐらいはあるだろうから、USBによるEthernetアダプターと各種USB変換ケーブルを用意しておけばよい。相手にIPアドレスを設定させる手間を省くためにDHCPサーバーも用意するとよい。家庭用のどんな格安ルーターでもDHCPサーバー機能はついているので難しくはない。
+</p>
+
+<p>
+肝心のファイルを転送する方法であるが、FTP, SMB, HTTPなどが使える。SMBならば家庭用ルーターの機能として提供されていることも多い。しかし、相手への説明のコストを考えると、おそらくHTTPを使うのが一番楽だろう。ただし、URLが"http://192.168.0.100/file.pdf"などではやや相手にとってわかりにくいかもしれない。これを解決するには方法が2つある。ひとつはmDNSを使う方法で、IPアドレスのかわりに、hostname.localと書くことができる。ただし、これは相手の端末がmDNSに対応していなければならない。普通は対応しているはずだ。もう一つは、大抵のルーターについている静的DNSレコードなどと呼ばれている機能を使い、特定のIPアドレスに対してそのルーターのLAN側だけで通用するドメイン名をつけてしまうことだ。これなら相手の端末が万一mDNSに対応していない場合でも使える。
+</p>
+
+<p>
+HTTPサーバーを用意する方法としては、転送したいファイルを置いたディレクトリで"python3 -m http.server"を実行するのが最も簡単だろうと思われる。
+</p>
+
+<p>
+ただしこの方法は準備する機材がやや多い。ルーター、スイッチングハブ、LANケーブル、USB-Ethernetアダプター、各種USB変換ケーブル、HTTPサーバーを実行するコンピューター、知識を持った人間が必要だ。最後の知識を持った人間が一番用意しにくい。本来ならば、この2018年には全員がコンピューターリテラシーを持ち、この程度のことはできてしかるべきなのだが、スマフォが人をバカにしてしまった。
+</p>
+
+
+<p>
+しかし、手のひらに乗るコンピューターでリアルタイム3DCGが描画でき、メモリ容量の単位がGBで数えられ、GB単位のストレージが数百円もせずに買えるこの2018年だというのに、なぜ身近の人間と物理的にファイルを転送するのにこんなに苦労しなければならないのだろう。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
