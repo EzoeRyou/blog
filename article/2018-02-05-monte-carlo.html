@@ -1,0 +1,248 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+Haskellで書いてみたらC++の１０倍遅かった
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2018/02/haskellc.html">
+Haskellで書いてみたらC++の１０倍遅かった
+</a></h1>
+
+<p>
+<a href="https://note.mu/issei_y/n/n882e9f77e8bd">エレガントな解法、エレファントな解法 〜モンテカルロ法を添えて〜</a>
+</p>
+
+<p>
+コインを100回投げたうちに、表もしくは裏が連続して10回でる確率をモンテカルロ法で計算する。
+</p>
+
+<p>
+なにはともかくC++で実装してみた。
+</p>
+
+<pre><code>template &lt; typename Random &gt;
+bool coin_toss( const unsigned int try_count, const unsigned int length, Random &amp; r )
+{
+    unsigned int count{} ;
+    int prev{} ;
+
+    std::uniform_int_distribution&lt;&gt; d( 0, 1 ) ;
+
+    for ( unsigned int i = 0 ; i != try_count ; ++i )
+    {
+        int result = d(r) ;
+        if ( result == prev )
+        {
+            ++count ;
+            if ( count == length )
+                return true ;
+        }
+        else
+        {
+            prev = result ;
+            count = 1 ;
+        }
+    }
+
+    return false ;
+}
+
+template &lt; typename Random &gt;
+double monte_carlo( unsigned int try_count, Random &amp; r )
+{
+    unsigned int count{} ;
+    for ( unsigned int i = 0 ; i != try_count ; ++i )
+    {
+        if ( coin_toss( 100, 10, r ) )
+            ++count ;
+    }
+
+    return double(count) / double(try_count) ;
+}
+
+int main()
+{
+    std::array&lt;unsigned int, sizeof(std::mt19937)/sizeof(unsigned int)&gt; c ; ;
+    std::generate( std::begin(c), std::end(c), std::random_device{} ) ;
+    std::seed_seq s( std::begin(c), std::end(c) ) ;
+    std::mt19937 engine(s) ;
+
+    for ( unsigned int i = 100 ; i != 1000000 ; i *= 10 )
+    {
+        auto r = engine ;
+        std::cout &lt;&lt; i &lt;&lt; "\t : " &lt;&lt; monte_carlo( i, r ) * 100.0 &lt;&lt; "%\n" ;
+    } 
+}
+</code></pre>
+
+<p>
+C++11から高度な乱数ライブラリが使えるようになったのだが、現在、実行時に適切に初期化する方法に面倒なボイラープレートコードが必要だ。実行時に乱数で初期化してくれる機能が現在提案されている。
+</p>
+
+<p>
+ところで、最近Haskellを学んでいるので、このコードをHaskellでも書いてみようと思った。
+</p>
+
+<p>
+まずは乱数だ。コインの表裏はBoolで表現するとして、Haskellらしく無限の乱数リストを生成しよう。
+</p>
+
+<pre><code>coin_seq :: (RandomGen g) =&gt; g -&gt; [Bool]
+coin_seq gen = randoms gen
+</code></pre>
+
+<p>
+あとはこれをtake 100して一回分の試行とする。1000回試行したければ、drop 100したのを再帰的にtake 100すればよい。しかし、もっといい方法がある。要素数100の[Bool]が入ったリスト、つまり[[Bool]]を無限に作ればいい。そのリストをtake 1000すれば1000回の試行分になる。
+</p>
+
+<pre><code>split_n :: Int -&gt; [a] -&gt; [[a]]
+split_n n seq = take n seq : split_n n (drop n seq)
+</code></pre>
+
+<p>
+さて、seq_n = take 100 $ split_n 100 (coin_seq gen)のようなリストseq_n :: [[Bool]]は作れた。あとは[Bool]に連続した要素がn個あるかどうかを調べるcoin_toss nと、それをリストのすべての要素に対して行うmonte_carloを書けばいいだけだ。
+</p>
+
+<p>
+coin_tossが結果をBoolで返すとすると、とりあえずseq_nにcoin_tossをmapしてTrueだけfilterして、その結果のリストの要素数を数えれば、成功した試行数がわかる。あとは試行数で割って確率を求めればいいだけだ。
+</p>
+
+<pre><code>monte_carlo :: Int -&gt; [Bool] -&gt; Double
+monte_carlo try_count seq = ((fromIntegral n) / (fromIntegral try_count)) * 100.0
+    where
+        seq_n = take try_count (split_n 100 seq)
+        n = length . filter id $ map (coin_toss 10) seq_n
+</code></pre>
+
+<p>
+coin_toss len seqはInt -> [Bool] -> Boolな関数で、seqの中にlen個の連続したTrueもしくはFalseがあるかどうかを数えればよい。
+</p>
+
+<p>
+いろいろ考えたが、まずgroup seqして連続した同じ要素を分割して[[Bool]]を作り、それぞれの[Bool]の要素数をいれたリスト[Int]をmapし、len以上の要素だけをfilterして、結果のリストに要素があればTrueを返す計算をすればいいのではないか。つまり、
+</p>
+
+<pre><code>has_contiguous_elems :: (Eq a) =&gt; Int -&gt; [a] -&gt; Bool 
+has_contiguous_elems len seq = not $ null $ filter (&gt;= len) $ map length (group seq)
+
+coin_toss :: Int -&gt; [Bool] -&gt; Bool
+coint_toss _ [] = 0
+coin_toss len seq = has_contiguous_elems len seq
+</code></pre>
+
+<p>
+となる。全体的にはこうだ。
+</p>
+
+<pre><code>import System.Random
+import Data.List
+
+coin_seq :: (RandomGen g) =&gt; g -&gt; [Bool]
+coin_seq gen = randoms gen
+
+split_n :: Int -&gt; [a] -&gt; [[a]]
+split_n n seq = take n seq : split_n n (drop n seq)
+
+has_contiguous_elems :: (Eq a) =&gt; Int -&gt; [a] -&gt; Bool 
+has_contiguous_elems len seq = not $ null $ filter (&gt;= len) $ map length (group seq)
+
+coin_toss :: Int -&gt; [Bool] -&gt; Bool
+coint_toss _ [] = 0
+coin_toss len seq = has_contiguous_elems len seq
+
+monte_carlo :: Int -&gt; [Bool] -&gt; Double
+monte_carlo try_count seq = ((fromIntegral n) / (fromIntegral try_count)) * 100.0
+    where
+        seq_n = take try_count (split_n 100 seq)
+        n = length . filter id $ map (coin_toss 10) seq_n
+
+main = do
+    gen &lt;- getStdGen
+    let s = coin_seq gen
+        in mapM (\n -&gt; putStrLn ((show n) ++ "\t : " ++ (show (monte_carlo n s)) ++ "%") )
+                [100, 1000, 10000, 100000] 
+</code></pre>
+
+<p>
+このコードは動いた。ただし、最適化オプションを使っても、C++の10倍遅かった。
+</p>
+
+<p>
+やはりlen個の連続した要素が存在するかどうかを調べるhas_contiguous_elemsが遅いのではないかと思い、これを再帰で実装することにした。
+</p>
+
+<pre><code>has_contiguous_elems' :: (Eq a) =&gt; Int -&gt; [a] -&gt; Bool 
+has_contiguous_elems' _ [] = False
+has_contiguous_elems' len (x:xs) =
+    if count &gt;= len
+        then True
+        else has_contiguous_elems' len $ dropWhile (== x) xs
+    where count =  1 + (length $ takeWhile (== x) xs)
+</code></pre>
+
+<p>
+この実装に差し替えたところ、実行速度はC++の9倍遅かった。
+</p>
+
+<p>
+すると、他の部分もリストからリストを生成するという記述をやめて、再帰で実装すればもう少し早くなるのだろうか。
+</p>
+
+<p>
+そして思うのは、同様のリストからリストを清々するような処理は、所詮リストのメモリーサイズがキャッシュに収まる程度なので、C++で書くとHaskellより早いのではないかとも思ったが、まだ試していない。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
