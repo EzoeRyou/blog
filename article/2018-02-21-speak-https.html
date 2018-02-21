@@ -1,0 +1,184 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+C++をプログラミング入門に使うならHTTPSぐらい喋れないと話にならんと言われたのでそういうライブラリを作った
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2018/02/chttps.html">
+C++をプログラミング入門に使うならHTTPSぐらい喋れないと話にならんと言われたのでそういうライブラリを作った
+</a></h1>
+
+<p>
+C++17の新機能を余すところなく解説した「江添亮の詳説C++17」は3月9日に発売される。今はC++によるプログラミングの入門書を書こうとしているが、同僚から、果たしてC++をプログラミング入門に用いるのは適切なのだろうかという疑問を提示された。私はC++はハードウェアに直接マッピング可能な低級機能からそれを隠匿する高級機能まで揃っている上に、継ぎ接ぎだらけの型システムは
+</p>
+
+<p>
+「21世紀の入門コード片という意味では https download くらい標準で喋って欲しさ」
+</p>
+
+<p>
+と言われた。なるほど、そういうのはsystem("wget -q https://example.com")すればいいのではないだろうか。
+</p>
+
+<p>
+「なるほど、しかしそれではファイル経由で扱うことになる。初心者ならstd::stringとかに入った状態で扱いたいはずだ」
+</p>
+
+<p>
+一理ある。そういうライブラリを実装すればいいのではないか。せっかくだからpopenを使って標準出力をパイプで受け取り、それをistreamにしてみよう。幸い、libstdc++にはstdio_filebufがあるのでFILE *からfilebufが作れる。
+</p>
+
+<p>
+というわけで以下のようなライブラリを作った。
+</p>
+
+<pre><code>int main()
+{
+    popen_istream ps("curl -s https://example.com") ;
+
+    std::string line ;
+
+    while (ps)
+    {
+        std::getline( ps, line ) ;
+        std::cout &lt;&lt; line &lt;&lt; '\n' ;
+    }
+}
+</code></pre>
+
+<p>
+とりあえず動く。
+</p>
+
+<p>
+「しかし、HTTPSをお話したい理由というのは、サーバーの提供するWeb APIを叩きたいためだ。そのためにはサーバーにPOSTでデータを送りつけられるとなおよい」
+</p>
+
+<p>
+wgetは標準入力からPOSTで送りつけるデータの入力に対応していないが、curlは対応している。なのでパイプで標準入力にデータを流し込み、標準出力をパイプで繋げばよいのではないか。
+</p>
+
+<p>
+popenは入出力双方向のパイプに対応していない。この理由は、デッドロックを起こしやすいためだ。結局、入出力のバッファリングがユーザースペースで行われている場合、実際にパイプに書き込まれるタイミングが想定と異なる場合があり、また多くの伝統的なコマンドも、標準入力をすべて読み込まないうちは出力を始めないような設計のものも多いためだ。
+</p>
+
+<p>
+なので、入出力を双方向にパイプするには古典的なpipeを使ってやる必要がある。iostreamはistreamとostreamで別々のfilebufを持てるためこのような入力先と出力先が違う場合にも対応できる。istreamとostreamが別々なので、ostreamにすべて書き込んだ時点でパイプを破棄することもできる。
+</p>
+
+<p>
+とここまで考えて思ったが、やはり標準に高級なネットワークライブラリがほしい。HTTPSをお話できたりブラウザー操作ができたりするようなライブラリだ。
+</p>
+
+<pre><code>class popen_filebuf
+{
+    FILE * fp ;
+    __gnu_cxx::stdio_filebuf&lt;char&gt; fb ;
+
+    static FILE * init_popen( std::string_view command,  )
+    {
+        std::string cmd( command ) ; // for null-terminated c_str()
+        FILE * result = popen( cmd.c_str(), "r" ) ;
+        if ( result == nullptr )
+            throw std::runtime_error("popen failed.") ;
+
+        return result ;
+    }
+
+protected :
+    auto get_filebuf_ptr() noexcept
+    {
+        return &amp;fb ;
+    }
+public :
+    popen_filebuf( std::string_view command )
+        :   fp( init_popen( command ) ),
+            fb( fp, std::ios_base::in )
+    { }
+
+    ~popen_filebuf()
+    {
+        std::fclose( fp ) ;
+    }
+
+} ;
+
+class popen_istream :
+    protected popen_filebuf,
+    public std::istream
+{
+public :
+    popen_istream( std::string_view command )
+        :   popen_filebuf( command ),
+            std::istream( get_filebuf_ptr() )
+    { }
+
+} ;
+
+
+
+std::string popen_reader( std::string_view command )
+{
+    popen_istream ps( command ) ;
+    
+    std::istreambuf_iterator&lt;char&gt; iter( ps.rdbuf() ), end ;
+    std::string buf( iter, end ) ;
+    return buf ;
+}
+</code></pre>
+
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
