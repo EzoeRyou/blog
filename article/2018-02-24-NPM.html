@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+NPM 5.7が重要なディレクトリの所有者を書き換える凄まじいバカをやらかす
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2018/02/npm-57.html">
+NPM 5.7が重要なディレクトリの所有者を書き換える凄まじいバカをやらかす
+</a></h1>
+
+<p>
+<a href="https://github.com/npm/npm/issues/19883">https://github.com/npm/npm/issues/19883</a>
+</p>
+
+<p>
+<a href="https://news.ycombinator.com/item?id=16435305">Do not use NPM 5.7 | Hacker News</a>
+</p>
+
+<p>
+NPM 5.7において、sudo npmを非rootユーザーから行うと、/etc/とか/usrとか/bootなどの極めて重要なディレクトリの所有者を、sudo npmを実行した非rootユーザーにchownして書き換えてしまうというとてつもないすさまじい不具合が報告されている。
+</p>
+
+<p>
+一体どうすればそんな間違いをしでかすというのか。
+</p>
+
+<p>
+<a href="https://github.com/npm/npm/commit/94227e15eeced836b3d7b3d2b5e5cc41d4959cff">https://github.com/npm/npm/commit/94227e15eeced836b3d7b3d2b5e5cc41d4959cff</a>
+</p>
+
+<p>
+どうもディレクトリを作成するときにパーミッションと所有者を適切に設定するという名目でmkdirをラップして実行時のユーザーでchownするcorrectMKdirを作ってmkdirを置き換えたようなのだが、そもそもsudoしたユーザーがroot権限を持つユーザーである保証はなく、そもそも/etcや/usrの所有者であるユーザーである保証もなく、本当にNPM開発者は本来とっくの昔に解決したはずの問題を、ぼくちんのかんがえたさいきょうのほうほうで引っ掻き回すことにかけては驚異的な才能を発揮するのに余念がない。これだから特定の言語専用のパッケージマネージャーというのは使うべきではないのだ。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
