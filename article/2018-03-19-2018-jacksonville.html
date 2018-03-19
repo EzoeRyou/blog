@@ -1,0 +1,319 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+2018 Jacksonville会議でC++のドラフト入りが決定した機能
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2018/03/2018-jacksonvillec.html">
+2018 Jacksonville会議でC++のドラフト入りが決定した機能
+</a></h1>
+
+<p>
+<a href="https://www.reddit.com/r/cpp/comments/854mu9/2018_jacksonville_iso_c_committee_reddit_trip/">2018 Jacksonville ISO C++ Committee Reddit Trip Report : cpp</a>
+</p>
+
+
+<p>
+なぜこのような情報をRedditで見なければならないのかという疑問はあるが、2018 Jacksonville会議の結果がRedditでまとめられている。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0840r1.html">P0840R1: Language support for empty objects</a>
+</p>
+
+<p>
+[[no_unique_address]]属性が追加された。この属性はクラスの非staticサブオブジェクトがユニークなアドレスを必要としないとコンパイラーに支持するものだ。これによって、コンパイラーはそのサブオブジェクトにメモリレイアウト上でスペースを割り当てる必要がなくなるので、Empty Base Optimizationができる。
+</p>
+
+<pre><code>struct A { } ;
+struct B { } ;
+struct C { } ;
+
+struct D
+{
+    [[no_unique_address]] A a ;
+    [[no_unique_address]] B b ;
+    [[no_unique_address]] C c ;
+} ;
+
+int main()
+{
+    // 1
+    std::cout &lt;&lt; sizeof(D) ;
+}
+</code></pre>
+
+<p>
+例えばtraitsのようなクラスのサブオブジェクトとして持っておくのに使える。
+</p>
+
+<pre><code>template&lt;typename Key, typename Value,
+         typename Hash, typename Pred, typename Allocator&gt;
+class hash_map {
+  [[no_unique_address]] Hash hasher;
+  [[no_unique_address]] Pred pred;
+  [[no_unique_address]] Allocator alloc;
+  Bucket *buckets;
+  // ...
+public:
+  // ...
+};
+</code></pre>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0634r2.html">P0634R2: Down with typename!</a>
+</p>
+
+<p>
+文脈上、型しか書けない場所に書かれたものは型であるとみなすことにより、依存名にtypenameを記述しなくてもすむように制限緩和する提案。
+</p>
+
+<p>
+依存名が型である場合はtypenameキーワードによって型であることを明示しなければならない。
+</p>
+
+<pre><code>
+// Tはこんな感じの型を想定
+struct example
+{
+    using type = int ;
+    static constexpr type value = 0 ; 
+} ;
+
+// 
+template &lt; typename T &gt;
+typename T::type f()
+{
+    typename T::type x = T::value ;
+    using type = typename T::type ;
+    std::vector&lt; typename T::type &gt; v 
+    return x ;
+}
+</code></pre>
+
+<p>
+このコードが以下の様に書けるようになる。
+</p>
+
+<pre><code>
+template &lt; typename T &gt;
+// typenameはいらない
+T::type f()
+{
+    // typenameが必要
+    typename T::type x = T::value ;
+    // typenameはいらない
+    using type = T::type ;
+    // typenameはいらない
+    std::vector&lt; T::type &gt; v 
+    return x ;
+}
+</code></pre>
+
+<p>
+書きやすくなった。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0479r4.html">P0479R4: Proposed wording for likely and unlikely attributes (Revision 4)</a>
+</p>
+
+<p>
+[[likely]]と[[unlikely]]の追加。この属性は文に書くことができる。この属性が書かれた文を含む実行パスの実行の期待度を示す。
+</p>
+
+<p>
+例えば以下のようなコードがあるとして、
+</p>
+
+<pre><code>
+while ( true )
+{
+    // まれにしか起こらないエラーのチェック
+    if ( check_rare_error_condition() ) {
+        // 分岐1
+        // エラーへの対処
+    } else {
+        // 分岐2
+        // 通常の処理
+    }
+}
+</code></pre>
+
+<p>
+このコードでは、エラーが起こることはまれであり、したがって分岐1が実行される可能性は低い。コンパイラーがその情報を事前に知っていれば、コード生成の際に役立てることができる。
+</p>
+
+<pre><code>
+    if ( check_rare_error_condition() )
+    {
+        [[unlikely]] ;
+        // エラーへの対処
+    }
+</code></pre>
+
+<p>
+この機能は大抵のコンパイラーが独自拡張として様々な文法ですでに実装している。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0754r1.pdf">[PDF] P0754R1: version</a>
+</p>
+
+<p>
+ヘッダーファイル&lt;version&gt;を追加。このヘッダーファイルは標準規格的には何も入っていない。実装依存のバージョン番号やリリース番号を示す定義済みマクロを提供するためのヘッダーファイルだ。
+</p>
+
+<p>
+多くのC++コンパイラーが独自の定義済みマクロでコンパイラーのバージョンその他の情報を提供している。問題は、そのような定義済みマクロは、コンパイラーマジックによって定義されるのでもなければ、なんらかの標準ライブラリのヘッダーファイルを読み込まないと定義されない。
+</p>
+
+<p>
+そこで、標準ライブラリの中でも特に軽量なヘッダーファイルである&lt;ciso646&gt;が慣習的に使われてきたが、今回、ciso646は実用的な機能を提供していないので廃止しようという議論が持ち上がった。そこで、このヘッダーファイル自体に意味はないが、コンパイラー独自の定義済みマクロのためだけに#includeしている既存のコードがたくさんあるという指摘が上がった。
+</p>
+
+<p>
+そのため、その用法をサポートするための最も軽量なヘッダーファイルである&lt;version&gt;が提案され、追加された。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0355r5.html">
+P0355R5: Extending &lt;chrono&gt; to Calendars and Time Zones
+</a>
+</p>
+
+<p>
+&lt;chrono&gt;にカレンダーライブラリの追加。
+</p>
+
+<pre><code>int main()
+{
+    auto date = 2017y/mar/18d ;
+    // "2018-03-18"
+    std::cout &lt;&lt; date ;
+}
+</code></pre>
+
+<p>
+カレンダー操作が型安全に行える。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0753r1.pdf">[PDF] P0753R1: placeholder</a>
+</p>
+
+<p>
+osyncstream用のバッファーフラッシュの動作を制御するマニピュレーターの追加。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0122r6.pdf">[PDF] P0122R6: placeholder</a>
+</p>
+
+<p>
+連続したストレージを所有しないまま配列として扱うspanライブラリの追加。提案段階ではarray_refとかarray_viewなども提案されていたが、最終的にspanになった。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/p0780r1.html">P0780R1: Pack expansion in lambda init-capture</a>
+</p>
+
+<p>
+ラムダ式の初期化キャプチャーでパック展開ができるようになった。これにより可変長テンプレートを使った関数テンプレートでラムダ式にパラメーターパックをそれぞれムーブキャプチャーすることができるようになった。
+</p>
+
+<pre><code>template &lt; typename ... Types  &gt;
+void f( Types ... args )
+{
+    [ args = std::move(args)... ](){} ;
+}
+</code></pre>
+
+<p>
+ドラフトの変更以外としては、simd&lt;T&gt;がParallerism TS v2に入ったり、Reflection TS v2, Library Fundamentals TS v3が発行されたりした。
+</p>
+
+<p>
+現在の観測を見てみると、モジュールがC++20に入るかは疑わしい。コンセプトとレンジのコアは入りそうだ。
+</p>
+
+<p>
+colony(歯抜けを許すvector)やflat_map(ソート済みvectorのバイナリサーチ)はC++20に入ってほしい。他には、fixed_capacity_vector(サイズ固定vector)やring_span(リングバッファー)
+</p>
+
+
+
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
