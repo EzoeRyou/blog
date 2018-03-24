@@ -1,0 +1,139 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+vectordash: 暗号通貨採掘している奴らに暗号通貨採掘よりは歩合のよい報酬を払ってGPGPU計算を購入するGPU版AirBnBみたいなサービス
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2018/03/vectordash-gpgpugpuairbnb.html">
+vectordash: 暗号通貨採掘している奴らに暗号通貨採掘よりは歩合のよい報酬を払ってGPGPU計算を購入するGPU版AirBnBみたいなサービス
+</a></h1>
+
+<p>
+<a href="https://www.reddit.com/r/gpumining/comments/86ofw2/rent_out_your_gpu_compute_to_ai_researchers_and/">Rent out your GPU compute to AI researchers and make ~2x more than mining the most profitable cryptocurrency. : gpumining</a>
+</p>
+
+<p>
+Deep Learningを研究しているある苦学生は、AWSやGoogle CloudのようなクラウドでGPGPU計算を提供している高い利用料に頭を悩ませていた。そこで、GeForce GTX 1080Tiを複数枚使ってEthereumを採掘している友人の存在に気が付き、交渉して、Ethereumを採掘するよりも歩合のよい報酬を支払い、機械学習に必要なGPGPU計算を請け負ってもらうことにした。その対価はEthereumを掘るよりは高いが、AWSやGoogle Cloudよりはよっぽど安い。
+</p>
+
+<p>
+望みのGPGPU計算を終えてめでたしめでたしの苦学生はふと思う。「まてよ、世の中の暗号通貨採掘しているやつは、AI研究者に計算力を売ったほうが歩合がいいんじゃないのか」と。
+</p>
+
+<p>
+そのような小規模なGPGPU計算力を売買するインフラは存在していなかったので、学生は自分で作り上げた。Vectordashだ。
+</p>
+
+<p>
+<a href="https://vectordash.com/">Vectordash: GPU instances for deep learning</a>
+</p>
+
+<p>
+仕組みとしてはGPGPU計算力の売り主のコンピューターで実行されるコンテナーに買い主がsshしてGPGPU計算をして対価を支払うというものだ。
+</p>
+
+<p>
+要するに、GPGPUのAirBnBみたいなものだ。
+</p>
+
+<p>
+面白い仕組みだ。暗号通貨の採掘に計算力を注ぎ込んでも暗号通貨を維持する以上の価値はない。しかしこの方法では、計算力を直接販売できるし、暗号通貨採掘の利益より高いのであれば、売り手も買い手もWin-Winではないか。AWSやGoogle Cloudより安いとあればなおのことよい。
+</p>
+
+<p>
+もちろん、すでに大勢の人間が指摘しているように、信頼という問題点がある。
+</p>
+
+<p>
+売り主は本当に本物の計算力を提供しているのだろうか。特にGPGPU計算を売るというのが難しい。売り主に悪意があれば、カーネルに手を加え、GeForce GTX 1080を複数枚用意していると見せかけ、実際には何も計算せず、ランダムな結果を返すことができてしまう。結果は信頼できない。
+</p>
+
+<p>
+たとえ売り主に悪意がないとしても、ハードウェアは故障する。コモディティハードウェアの信頼性は高くない。もしGPUが故障して間違った計算を行うが、見かけ上正常に動作しているように見える場合、結果は信頼できない。
+</p>
+
+<p>
+計算力の売り主が信頼できない状態で計算結果の信頼性を担保したい場合、複数の売り主に同一の決定的(deterministic)な計算を依頼し、結果が同一であるかどうかを比較することで信頼度を上げることができる。しかし、そうすると利用料は数倍になり、AWSやGoogle Cloudに対して安いという魅力がなくなる。それに、完全に決定的(deterministic)な計算だけを扱うのも難しい。
+</p>
+
+<p>
+買い主の悪意はどうだろうか。GPUはDMAできる。すると、買い主はDMAにより仮想化の檻を脱獄し、あまつさえルート権限を取得し、売り主のコンピューターをBOTネットワークの一部とするだろう。GPUに対するセキュアな仮想化技術はまだ発展途上だ。そして、セキュリティを担保するとパフォーマンスに影響を与えるだろう。
+</p>
+
+<p>
+個人が計算力を提供する分散コンピューティングというのは前例のない話ではない。たとえばSETI@homeは宇宙からの観測データを有志が計算力を提供することにより知的な宇宙人の存在を発見しようという目的をもった分散コンピューティングだ。Folding@homeはタンパク質の折りたたみ構造を有志が計算力を提供することによって様々な疾患の治療に役立てようというものだ。
+</p>
+
+<p>
+<a href="http://setiathome.ssl.berkeley.edu/">SETI@home</a>
+</p>
+
+<p>
+<a href="http://folding.stanford.edu/">Folding@home</a>
+</p>
+
+<p>
+これらの既存の分散コンピューティングは、計算内容の提供者は固定で、参加はボランティアによるもので、しかも参加者に短期的な金銭による対価が支払われることはない。そのため、悪意ある計算力の提供者の存在や、計算内容に悪意があるリスクは低いと考えられる。
+</p>
+
+<p>
+しかし、今回のvectordashとやらは、汎用的な計算力の売買を行うので、悪意の可能性は大いに考慮しなければならない。
+</p>
+
+<p>
+問題はあるものの、暗号通貨に計算力と電力を注ぎ込むよりは、よほど人類にとって有益な計算力市場が出来上がるのではないか。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
