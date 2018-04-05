@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+入門書の文章量が増える問題
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="8280  31208 639671">
+入門書の文章量が増える問題
+</a></h1>
+
+<p>
+C++17の参考書を書き終えた今、この世に必要なのはC++の入門書だ。そこでC++の入門書を苦しみながら書いているのだが、一つ問題がある。文章量が多いということだ。
+</p>
+
+<p>
+今書いているC++の入門書は、まだ本の序盤までしか書いていない。C++のソースコードのコンパイルと実行方法、ビルドシステム、そしてようやく条件分岐を半分ぐらい書いた。後は付録としてプリプロセッサーを解説した。その程度だ。
+</p>
+
+<p>
+しかし、wcで現行を単一のHTMLファイルに変換した結果を大雑把に計算すると、今書きかけのC++入門書が"2335   7876 178578"に対し、完成したC++17本が"8280  31208 639671"だ。まだ条件分岐までしか書いてないというのに少し分量が多くないだろうか。
+</p>
+
+<p>
+考えてみると、文章量が多くなるのも無理はない話だ。初心者の気持ちに寄り添って書いている結果、「整数と浮動小数点数を演算すると結果は浮動小数点数になる」と書けば済む程度のところを、
+</p>
+
+<ol>
+<li>整数と浮動小数点数を演算するとどうなるのだろうか？</li>
+<li>確かめてみよう。</li>
+<li>ソースコード</li>
+<li>実行結果</li>
+<li>なるほど、整数と浮動小数点数を演算すると浮動小数点数になることがわかる</li>
+</ol>
+
+<p>
+などという冗長な書き方をしているためだ。これでは文章量が増えるのも当然だ。
+</p>
+
+<p>
+しかし、冗長ではない書き方をするとなると、結果的にリファレンスマニュアルのような無味乾燥とした記述が続く。それで入門できる人間は、規格書とか私が昔書いたC++11/14コア言語を読めばC++を学べるはずだ。
+</p>
+
+<p>
+とはいえ、文章量が多いとそれだけ読むのに労力がかかり、ただでさえ人間の脳に負担を強いる全く新しいプログラミング言語の習得に、長文を読むという追加の負担を強いることになる。
+</p>
+
+<p>
+この問題をどうすればいいのだろう。Bjarne StroustrupのC++入門書があまりにも長大で鈍重で悪書の見本のような参考書であるとかつてあざ笑ったが、これは笑えない由々しき問題だ。このペースで書き続けると鈍器として凶器転用可能な重量を持つ入門書ができあがってしまう。
+</p>
+
+<div class="dwango-ad">
+<p>
+ドワンゴ広告
+</p>
+
+
+<p>
+ドワンゴは本物のC++プログラマーを募集しています。
+</p>
+
+<p>
+<a href="http://info.dwango.co.jp/recruit/">採用情報｜株式会社ドワンゴ</a>
+</p>
+
+<p>
+CC BY-ND 4.0: <a href="http://creativecommons.org/licenses/by-nd/4.0/deed.en_US">Creative Commons — Attribution-NoDerivatives 4.0 International — CC BY-ND 4.0</a>
+</p>
+
+</div>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
