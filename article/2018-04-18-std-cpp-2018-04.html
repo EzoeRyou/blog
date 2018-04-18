@@ -1,0 +1,346 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+2018-04でC++のドラフトに入った変更
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2018/04/2018-04c.html">
+2018-04でC++のドラフトに入った変更
+</a></h1>
+
+
+
+<p>
+C++のドラフトが更新されている。最新版はN4741だ。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/n4741.pdf">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/n4741.pdf</a>
+</p>
+
+<p>
+変更点はEditor's Reportに書いてある。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/n4740.html">N4740: N4740 Editors' Report -- Programming Languages -- C++</a>
+</p>
+
+<p>
+今回入った主要な変更は以下の通り。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0840r2.html">P0840R2: Language support for empty objects</a>
+</p>
+
+<p>
+[[no_unique_address]]属性の追加。
+</p>
+
+<p>
+この属性は、クラスが状態を持たずクラスを表現するためにストレージを割り当てなくてもよいことを意味する。
+</p>
+
+<p>
+クラスには、存在すること自体に意味があり、そのオブジェクトに特に意味はないクラスがある。
+</p>
+
+<pre><code>
+template&lt;typename Key, typename Value,
+         typename Hash, typename Pred, typename Allocator&gt;
+class hash_map {
+  Hash hasher;
+  Pred pred;
+  Allocator alloc;
+  // ...
+public:
+  // ...
+};
+</code></pre>
+
+
+<p>
+このようなコードで、HashやPredやAllocatorといったクラスが状態を持たないもののみを使用可能だと取り決めた場合、ストレージを割り当てる必要がない。しかし、このような基本クラスや非staticデータメンバーであっても、アドレス可能にするために最低でも1バイトはストレージを割り当てる必要がある。
+</p>
+
+<p>
+[[no_unique_address]]はこのようなストレージの確保を必要としない、アドレスを取る必要がない型に使うことで、不必要なストレージの割当を回避することができる。
+</p>
+
+<pre><code>
+template&lt;typename Key, typename Value,
+         typename Hash, typename Pred, typename Allocator&gt;
+class hash_map {
+  [[no_unique_address]] Hash hasher;
+  [[no_unique_address]] Pred pred;
+  [[no_unique_address]] Allocator alloc;
+  // ...
+public:
+  // ...
+};
+</code></pre>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0962r1.html">P0962R1: Relaxing the range-for loop customization point finding rules</a>
+</p>
+
+<p>
+range-based forはメンバー関数begin/endのいずれか片方を持っている場合は、ADLによるbegin/endの検索を行わない。しかし、たまたまクラスがbegin/endという名前の片方のメンバー関数だけを持っていた場合も、ADLによる検索が行われない。
+</p>
+
+<p>
+range-base forはbegin/end両方のメンバー関数を持つ場合のみADLによる検索を行わないようにする変更。
+</p>
+
+<p>
+当然の話だ。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0969r0.pdf">[PDF] P0969R0: Allow structured bindings to accessible members</a>
+</p>
+
+<p>
+クラスを構造化束縛する場合、メンバーはpublicでなければならないとされている。
+</p>
+
+<pre><code>
+class Three
+{
+    int a, b, c ;
+} ;
+
+void f()
+{
+    Three t{1,2,3} ;
+    auto [a,b,c] = t ; // エラー
+}
+</code></pre>
+
+<p>
+しかしこれはおかしな話だ。というのも、アクセス指定というのは使った文脈が重要だからだ。
+</p>
+
+<pre><code>
+class Three
+{
+    int a, b, c ;
+    friend void f() ;
+public :
+    Three( int a, int b, int c )
+        : a(a), b(b), c(c) { }
+} ;
+
+void f()
+{
+    Three t{1,2,3} ;
+    // エラー、friendなのに
+    auto [a,b,c] = t ; 
+}
+</code></pre>
+
+<p>
+構造化束縛でpublicなメンバーに限らず、アクセスできる場所ではアクセスできるようにする変更。
+</p>
+
+<p>
+当然すぎる。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0961r1.html">P0961R1: Relaxing the structured bindings customization point finding rules</a>
+</p>
+
+<p>
+構造化束縛でメンバー関数getが見つかったときに、テンプレートではない場合は、ADLで検索する機能。
+</p>
+
+<p>
+これも当然だ。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0634r3.html">P0634R3: Down with typename!</a>
+</p>
+
+<p>
+文脈上型であることが明らかな場所では依存名にtypenameを付けなくても良くする機能。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+using type = typename T::type ;
+</code></pre>
+
+<p>
+と書くかわりに、
+</p>
+
+<pre><code>template &lt; typename T &gt;
+using type = T::type ;
+</code></pre>
+
+<p>
+と書ける。他にも様々な文脈上型しか書けない場所でtypenameを省略できる。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0780r2.html">P0780R2: Pack expansion in lambda init-capture</a>
+</p>
+
+<p>
+ラムダ式の初期化キャプチャーの中でパック展開できる機能。
+</p>
+
+<p>
+たとえば、パラメーターパックをstd::moveしつつパック展開して初期化キャプチャーするには以下のように書ける。
+</p>
+
+<pre><code>template &lt; typename ... Types  &gt;
+void f( Types &amp; ... args )
+{
+    [ ... args = std::move(args) ]
+    (){ } ;
+}
+</code></pre>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0479r5.html">P0479R5: Proposed wording for likely and unlikely attributes (Revision 5)</a>
+</p>
+
+<p>
+分岐先の実行されやすさを指示できる[[likely]], [[unlikely]]属性の追加。
+</p>
+
+<p>
+ある分岐先が実行されやすい時、あるいは実行されにくいときがコンパイル時にわかっているときは、その情報をコンパイラーにヒントとして伝えることで、コンパイラーは実行されやすいコードをよりキャッシュに乗りやすいホットな領域に配置したり、コード生成を工夫したりといった最適化ができる。
+</p>
+
+<pre><code>
+// めったに起こらないエラーの確認
+if ( check_uncommon_error() )
+{
+    [[unlikely]] ;
+    // エラー時の処理
+}
+
+// 必ず成功するはずの初歩的なチェック
+if ( sanity_check() )
+{
+    [[likely] ;
+    // 通常の処理
+}
+</code></pre>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0905r1.html">P0905R1: Symmetry for spaceship</a>
+</p>
+
+<p>
+比較演算子としてoperator &lt;=&gt;が追加されたが、"a &lt;=&gt; b"が合法であるならば、"b &lt;=&gt; a"も合法であり、かつその結果も自然なものになるように規定する変更。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0754r2.pdf">[PDF] P0754R2: version</a>
+</p>
+
+<p>
+何もしないヘッダーファイル&lt;version&gt;の追加。このヘッダーファイルはコンパイラーによって定義される実装依存の定義済みマクロなどを定義ささせるのに使われる。そのような定義済みマクロを使うには、何らかの標準ヘッダーを#includeしなければならず、そのような軽量ヘッダーとして追加された。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0355r7.html">P0355R7: Extending <chrono> to Calendars and Time Zones</a>
+</p>
+
+<p>
+&lt;chrono&gt;にカレンダー機能を追加する。ユーザー定義リテラルによりコード中でも読みやすくなる。
+</p>
+
+<pre><code>int main()
+{
+    auto date = 2018y/April/18 ;
+
+    // 2018-04-18
+    std::cout &lt;&lt; date &lt;&lt; "\n" ;
+
+    // 2018-04-19
+    date += 1 ;
+    std::cout &lt;&lt; date &lt;&lt; "\n" ;
+    
+    // 2018-03-25
+    date -= 25 ;
+    std::cout &lt;&lt; date &lt;&lt; "\n" ;
+    
+}
+</code></pre>
+
+<p>
+日付処理が簡単にできるようになる。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0122r7.pdf">[PDF] P0122R7: span
+: bounds
+-
+safe views for sequences of 
+objects </a>
+</p>
+
+<p>
+spanライブラリの追加。これは連続したストレージ上の配列を扱うストレージを所有しないライブラリだ。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
