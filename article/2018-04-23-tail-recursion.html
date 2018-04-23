@@ -1,0 +1,146 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+C++入門書で再帰について解説しようとしたら思わぬ最適化できないコードに出くわした
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2018/04/c.html">
+C++入門書で再帰について解説しようとしたら思わぬ最適化できないコードに出くわした
+</a></h1>
+
+<p>
+C++入門書を書き始めて早数カ月、すでに文章量が「江添亮の詳説C++17」の半分近くに達しているが、まだようやくループを説明したところだ。
+</p>
+
+<p>
+ループの章を一通り書き終えて、ついでに再帰によってループを実現する方法について軽く触れて章を閉じようと、以下のようなコードを書いた。
+</p>
+
+<pre><code>void hello()
+{
+    std::cout &lt;&lt; "hello\n"s ;
+    hello() ;
+}
+</code></pre>
+
+<p>
+すると何故かsegmentation faultを起こすではないか。GCCでもClangでも同じ挙動になる。なぜC++コンパイラーはこの程度の末尾再帰を最適化できないのだろうか。
+</p>
+
+<p>
+不思議に思って以下のコードも試すと、こちらは問題なく末尾再帰の最適化が行われる。
+</p>
+
+<pre><code>void hello()
+{
+    std::cout &lt;&lt; "hello\n" ;
+    hello() ;
+}
+</code></pre>
+
+<p>
+違いは文字列だ。今回の入門書では、初心者に簡単にするために、文字列はすべてstd::stringを返すユーザー定義リテラルのoperator "" sを使っているのだ。これにより初心者は、
+</p>
+
+<pre><code>auto s = "hello"s ;
+s.size() ;
+</code></pre>
+
+<p>
+などと書ける。難しいことを一切考えなくてもよい。わたしの本が書き上がって出版されるまでにまだ1年はかかるだろうし、その頃にはC++17が普及している。C++17を使って初心者でも学びやすい記述をすることで、私のC++入門書は初心者にも優しい本になるだろう。そう考えていた矢先に何ということだ。
+</p>
+
+<p>
+どうもstd::stringがあると末尾再帰の最適化が行われないらしい。しかしおかしい。一時オブジェクトの寿命はリファレンスにより寿命延長されない場合はfull-expressionの中までのはずだ。したがってこのコードはまだ末尾再帰のはずだ。再帰呼び出し後に何かする必要は何もないはずだ。
+</p>
+
+<p>
+不思議に思って以下のコードを試してみたが、やはり末尾再帰の最適化はされていない。
+</p>
+
+<pre><code>void hello()
+{
+    {
+        std::string s = "hello\n" ;
+        std::cout &lt;&lt; s ;
+    }
+    hello() ;
+}
+</code></pre>
+
+<p>
+これなら一時オブジェクトでもないしブロックスコープを明示的に使っているし問題はないだろうと思ったが、なぜかコンパイラーは末尾再帰の最適化を諦めてしまう。
+</p>
+
+<p>
+では関数で包んでしまうというのはどうか。
+</p>
+
+<pre><code>void hello()
+{
+    []{ std::cout &lt;&lt; "hello\n"s ; }() ;
+    hello() ;
+}
+</code></pre>
+
+<p>
+これはうまくいった。関数で包んだ場合、コンパイラーは末尾再帰を最適化する。
+</p>
+
+<p>
+コンパイラーの気持ちはよくわからない。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
