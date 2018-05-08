@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+glibcのabortマニュアルの中絶方針ジョークについて
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2018/05/glibcabort.html">
+glibcのabortマニュアルの中絶方針ジョークについて
+</a></h1>
+
+<p>
+<a href="https://lwn.net/SubscriberLink/753646/a6ebb50040c5862c/">Who controls glibc? [LWN.net]</a>
+</p>
+
+<p>
+「glibcのabortのマニュアルにはabort(終了)とabortion(中絶)をかけた中絶ジョークがあり、これはマニュアルとして有益ではなくて混乱の元なので削除するというパッチが提出され、受け入れられたが、RMSの反対により差し戻された」
+</p>
+
+<p>
+これだけ読むとくだらない出来事のように思えるし、人によってはこのジョークの存在が好ましくないとか下品だと思うかもしれない。しかし、これは単に下品なジョークで片付けてよい問題ではない。実は音はもっと深いのだ。
+</p>
+
+<p>
+まず、ジョークの内容は中絶ジョークではなく、中絶方針ジョークなのだ。
+</p>
+
+<p>
+<a href="https://www.gnu.org/software/libc/manual/html_node/Aborting-a-Program.html">glibcのabortのマニュアル</a>には以下の記載がある。
+</p>
+
+<blockquote>
+<p>
+将来の変更警告：連邦検閲規制委員会に提案された方針によれば、この関数を呼び出すことができる可能性についての情報を我々が与えることが禁止されるかもしれない。我々はこれがプログラムを終了する適切な方法ではないと言わざるを得なくなるかもしれない。
+</p>
+</blockquote>
+
+<p>
+問題の方針とは、メキシコシティポリシーと呼ばれているアメリカ合衆国では歴史の深いものだ。
+</p>
+
+<p>
+<a href="https://en.wikipedia.org/wiki/Mexico_City_policy">Mexico City policy - Wikipedia</a>
+</p>
+
+<p>
+メキシコシティポリシーとはアメリカ合衆国政府の方針で外国籍のNGOがアメリカ政府から出資、健康補助、HIV補助、妊婦及び子供の補助を受ける場合「中絶の実施、並びに中絶を家族計画の方法として積極的に宣伝する」ことをしてはならない、というものだ。
+</p>
+
+<p>
+これはアメリカ合衆国で中絶の違憲判決が出ていなかった時代から続く方針だ。歴史的に右翼である共和党はこの方針を肯定し、左翼である民主党は否定している。アメリカ合衆国における右翼とはキリスト教原理主義者を指し中絶は違法であるとの立場を取る。左翼はリベラルであり中絶は合法であるとの立場を取る。
+</p>
+
+<p>
+メキシコシティポリシーの名前は1984年に共和党のロナルド・レーガン政権が名付けたものだ。これは1993年に民主党のビル・クリントン政権で撤回されたが、2001年に共和党のジョージ・W・ブッシュ政権で復活し、2009年に民主党のバラク・オバマ政権で撤回され、そして当然、2017年の共和党のドナルド・トランプ政権では復活した。
+</p>
+
+<p>
+ちなみに、ブッシュ政権のときにメキシコシティポリシーの違憲性を問う訴訟で、アメリカ政府が外国籍のNGOを補助するときに中絶への立場を考慮することは違憲ではないという判決が出ている。
+</p>
+
+<p>
+さて、話をglibcに戻そう。glibcというのはGNUであり自由ソフトウェア財団である。RMSが始めたGNUはその当初から左翼主義が全面的に出ており、ソフトウェア開発は政治活動だと考えている。その思想に基づけば、この20年前からマニュアルに存在する中絶方針ジョークは必要不可欠でありたやすく取り除いてはならないものである。
+</p>
+
+<p>
+今回はRMSが強権を発動し、ジョークは残った。
+</p>
+
+<p>
+この問題の背景事情を考えるに、私はこの中絶方針ジョークは残すべきである。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
