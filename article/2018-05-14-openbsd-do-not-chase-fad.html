@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+OpenBSD、1985年に追加されたIntelの最新の誇大広告された機能を使わないことにより脆弱性を華麗に回避
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.jp/2018/05/openbsd1985intel.html">
+OpenBSD、1985年に追加されたIntelの最新の誇大広告された機能を使わないことにより脆弱性を華麗に回避
+</a></h1>
+
+<p>
+<a href="https://news.ycombinator.com/item?id=17057534">“We didn't chase the fad of using every Intel CPU feature” | Hacker News</a>
+</p>
+
+<p>
+<a href="https://marc.info/?l=openbsd-misc&m=152600018515730&w=2">'Re: CVE-2018-8897' - MARC</a>
+</p>
+
+<p>
+前回の記事である<a href="https://ezoeryou.github.io/blog/article/2018-05-11-8086-ss-sp.html">Intelの古いマニュアルを誤読したために生じた脆弱性</a>では、IntelのCPUがスタック切り替えるためにss/spレジスターをアトミックに更新する汚いハックとして、ssレジスターが変更された直後の1命令は割り込みが遅延される古い仕様があるが、多くのOSはこの古い仕様を把握していなかったため、ssレジスターを変更した直後の1命令でカーネルモードに入り、かつハードウェアブレイクポイントが設定されたことにより割り込みを起こせば、カーネルモードに入った直後にカーネルのコードを1命令たりとも実行していない状況でカーネルモードとしてユーザーの割り込みが実行される脆弱性を引き起こしていた。
+</p>
+
+<p>
+さて、各OSが対応に追われるなか、セキュリティに万全の体制を取ることで定評のあるOpenBSDでは特に何事もなくのほほんとしているので、MLにこのことについて質問をするものがいた。
+</p>
+
+<blockquote>
+>Dare I ask what lead to OpenBSD not being affected.
+>
+>Sorry if it is a dumb question but since this hit FreeBSD as well I am
+>wondering
+>what OpenBSD did differently.
+>
+>Was this caught in an audit?
+>
+>I am just curious about causality that kept OpenBSD in the clear of this one
+>that made such headlines yesterday.
+
+<p>
+OpenBSDが影響を受けないという理由について教えてほしいんですけど？
+</p>
+
+<p>
+バカな質問ですみませんが、このFreeBSDもこの問題に引っかかっているのに、なぜOpenBSDは平気なのか不思議です。
+</p>
+
+<p>
+事前に把握してたんですか？
+</p>
+
+<p>
+昨日、一面記事になったような大ニュースになぜOpenBSDは引っかかっていなかったのか気になります。
+</p>
+</blockquote>
+
+<p>
+これに対するTheo De Raadtの返事。
+</p>
+
+<blockquote>
+<p>
+Intelの誇大広告まみれのCPU機能を全部追いかけるようなマネはしていないんでな。
+</p>
+<p>
+We didn't chase the fad of using every Intel cpu feature.
+</p>
+</blockquote>
+
+<p>
+強すぎる。
+</p>
+
+<p>
+この機能というのはi386から追加されたハードウェアブレイクポイント機能のことだ。なんとOpenBSDではユーザースペースからx86のハードウェアブレイクポイント機能の使用を許可していない。ではgdbのようなユーザースペースのデバッガーはどうやってブレイクポイントを実装しているのかと言うと、古き良きソフトウェア実装を用いている。ブレイクポイントを仕掛けたい部分のコードを割り込み命令(int 3とか)とか無効命令(ゼロ除算)で置き換えておき、例外割り込みをブレイクポイントを仕掛けたい場所で発生させることによる移植性の高いソフトウェア実装だ。
+</p>
+
+<p>
+ちなみに、IntelのCPUがハードウェアブレイクポイント機能を実装したのは1985年のi386にまで遡ることができる。
+</p>
+
+<p>
+結果として、OpenBSDは今回の主要なOSが軒並み影響を受けた問題に対して何の影響も受けていないので、結果的に正しかったと言えるが、いやしかし凄まじい。OpenBSDのセキュリティにかける情熱を過小評価していた。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
