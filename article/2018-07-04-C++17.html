@@ -1,0 +1,171 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+C++17をすでに現場で使っているというキャディ株式会社に話を聞いてきた
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2018/07/c17.html">
+C++17をすでに現場で使っているというキャディ株式会社に話を聞いてきた
+</a></h1>
+
+
+<p>
+CTOが「日本のC++のトップ人材の過半数が所属するイカれた会社にする」という宣言をした会社がある。なんとも壮大な話だ。C++プログラマーの業種は多岐にわたっているので、文字通りに考えると、そのような会社は自動車や旅客機の製造業であり、防衛庁の入札に参加する受注業者であり、OSや独自のプロセッサーを開発するためC++コンパイラー開発者も雇い、さらにはゲームもブラウザーも検索エンジンもクラウドホスティングもと挙げ続ければきりがないほど多方面に展開する大企業である。おそらくすでに名の知れた有名なIT系の大企業をほとんど買収すればそのような状態にはなるのではないかと思うが、金がいくらあっても足りない。
+</p>
+
+<p>
+それはともかく、すでに現場でC++17を使っているという。
+</p>
+
+<p>
+C++17は2017年に出たばかりの規格で、まだGCCもClangもコア言語はともかくライブラリーまでは完全に実装し終えてない状況だ。そのような状況で今C++17を使えるということは、最新の安定版のGCCやClangを本番環境で使える会社ということだ。果たして何をしているのか。
+</p>
+
+<p>
+というわけで、その会社、「キャディ株式会社」に話を聞きに行った。
+</p>
+
+<p>
+<a href="https://caddi.jp/">https://caddi.jp/: 板金加工なら【キャディ株式会社】―即日見積、5日納品、全国配送</a>
+</p>
+
+<p>
+Webサイトを見ると、板金加工をする会社だという。C++を使う理由がわからない。
+</p>
+
+<p>
+話を聞いてみるとこうだ。
+</p>
+
+<p>
+小規模な板金加工の受注生産というのは、小規模ないわゆる町工場が行っている。これまで板金加工をするには、町工場と直接交渉する必要があった。この顧客と町工場の間の交渉には、これまでほとんど技術革新がなかった。キャディはこの顧客と町工場の間に交渉に技術革新をもたらす、いわば仲介業か一次請けのような役割を果たす。
+</p>
+
+<p>
+顧客は加工したいモデルデータをキャディのWebサイトからアップロードする。キャディはモデルデータを処理し、加工に必要な費用を見積もって表示する。この見積もりは一瞬で行われる。顧客が発注するとキャディは提携先の町工場に加工を依頼し、完成品を顧客に引き渡す。
+</p>
+
+<p>
+顧客の送信したモデルデータから加工費用を一瞬で見積もるために、モデルデータの処理が必要だ。この処理にC++を使っている。
+</p>
+
+<p>
+なるほど、C++を使う理由はわかった。ではどうやってこの比較的早い段階にC++17を使うことができるのか。その理由は簡単だった。規模の小さい新興企業だからだ。
+</p>
+
+<p>
+現時点で従業員10人超、プログラマーが3人。そのような小規模な開発だからこそ可能になるのだろう。
+</p>
+
+<p>
+大企業であればプログラマーとは別に専門のインフラ部署があり、インフラ屋はプログラマーとは少し違う目標を持っている。システムの安定性だ。新しすぎるソフトウェアは問題を引き起こす可能性がある。既存のソフトウェアに問題があるとしても、既知のものであり十分に情報があるので対処可能であるが、新しいソフトウェアの新しい問題は情報も少なく対処も難しい。この結果、インフラ屋はソフトウェアのアップデートに対して保守的になる。特にGNU/Linuxであればとても重要なC++コンパイラーであるGCCにはとても慎重になる。なぜならばGCCは他のほとんどのソフトウェアをコンパイルする重要なソフトウェアなのだから、GCCに問題があればシステムの全てに問題があることになる。
+</p>
+
+<p>
+その結果、RHELのようなC++コンパイラーのアップデートが信じられないほどに保守的で時代遅れのディストロが使われる。
+</p>
+
+<p>
+プログラマーが数人ですべてをやるような場合、この問題はない。
+</p>
+
+<p>
+また、既存のコードが存在しないのも大きいのだろう。既存のコードが存在する場合、新しいコンパイラーによって不具合が修正され、その不具合に依存していたコードが壊れることがあるので、なかなかコンパイラーのバージョンを上げられない問題がある。
+</p>
+
+
+<p>
+C++17をすでに現場で使っている話を聞くと、なんと私が過去に最新のClangを使っていて遭遇した問題に、同じく遭遇していた。
+</p>
+
+<p>
+Clangは一時期、glibcのxlocale.hに依存していたことがある。これは非標準のglibcの独自ヘッダーでかなり昔からdeprecated扱いであり、最近削除された。
+</p>
+
+<p>
+ディストロのパッケージにある安定版のClangを使いたい場合、私は空のxlocale.hを用意していた。パッケージ管理されたClangのヘッダーファイルを手動で書き換えるよりマシだ。
+</p>
+
+<p>
+最新のClangでは修正されている。
+</p>
+
+<p>
+Clangはvirtualデストラクターのある基本クラスをvirtual private派生で間接的に持っていた場合、デストラクターのアクセス指定を正しく判断できないregressionがある。Clang 3.3までは正しい挙動だったのだが、3.4から壊れてしまった。
+</p>
+
+<p>
+<a href="https://bugs.llvm.org/show_bug.cgi?id=30916">30916 – If a class has indirect private virtual base with non-trivial public destructor, a class cannot access virtual base's destructor.</a>
+</p>
+
+<p>
+もう一年以上前にバグは報告してみたが、まだ修正されていないどころか何の反応もない。
+</p>
+
+<p>
+こうして考えてみると、最新のC++コンパイラーには不具合も多い。既存の膨大なコードを修正するコストはかなり高い。常に最新のC++コンパイラーを使うのも茨の道だ。しかし、古いコンパイラーを使うということはこれ以上に莫大な既知の規格違反の不具合に対処する不思議なコードを書かなければならなくなるわけで茨の道であることに変わりはない。
+</p>
+
+<p>
+ところで、このキャディ株式会社であるが、C++のプログラマーを随時募集しているらしい。応募方法はウェブサイトに記載されているメールアドレスに連絡してほしいとのことだ。
+</p>
+
+
+<p>
+<a href="https://caddi.jp/">https://caddi.jp/: 板金加工なら【キャディ株式会社】―即日見積、5日納品、全国配送</a>
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
