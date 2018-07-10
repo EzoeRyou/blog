@@ -1,0 +1,255 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+C++に提案されている静的例外
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2018/07/c.html">
+C++に提案されている静的例外
+</a></h1>
+
+<p>
+C++に静的例外が提案されている。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0709r1.pdf">[PDF] P0709R1: Zero-overhead deterministic exceptions: Throwing values</a>
+</p>
+
+<p>
+例外はそのパフォーマンスへの影響が懸念され、一部のC++プロジェクトではコンパイラーオプションによって例外自体が無効化されていた。
+</p>
+
+<p>
+これは由々しき事態だ。というのも、例外は標準C++の機能の一部であり、標準ライブラリは例外の存在を前提にして設計されている。例外が無効化されているということは、それはもはやC++ではない。C++風の別言語を使っていることになる。
+</p>
+
+<p>
+なぜ例外は忌避されるのか。例外のパフォーマンスが非決定的だからだ。例外の実装はスタックからの確保ではなくヒープからの動的なメモリ確保が必要で、例外のキャッチにはRTTIによる型情報の比較が必要だ。
+</p>
+
+<p>
+ifとgotoによるエラー処理のパフォーマンス特性は決定的に見積もることができるが、動的メモリ確保のパフォーマンス特性は決定的に見積もることができない。非決定的なパフォーマンス特性を持つ処理は、例えば数ミリ秒以内に必ず処理を終えなければならないような状況で使うことはできない。
+</p>
+
+<p>
+この提案では、従来の例外を動的例外とし、新たに静的例外を追加して、例外のパフォーマンスを決定的にする。
+</p>
+
+<p>
+まず、静的例外では例外としてthrowできる型が制約を受ける。特別に用意した何らかのstd::error型を投げる。このerror型は内部的には整数型で、デストラクターを実行する必要がなく、サイズは最大でもポインター2つ程度を想定している。標準はこのような型をrelocatableな型として規定する。
+</p>
+
+<p>
+この標準のerror型はstd::error_codeを拡張したようなクラスで、様々な一般的にエラーに用いられるカテゴリーわけされた整数を返すことができる。このerror型はC++の標準の例外型は数値で表現できるようになっているので、静的例外と動的例外は標準の範囲であれば相互に変換可能になっている。
+</p>
+
+<p>
+静的例外を扱う関数、静的例外関数を追加する。静的例外関数は静的例外指定によって明示的に指定する必要がある。提案では仮に、thorwsキーワードを用いる文法を提案している。
+</p>
+
+<pre><code>
+string f() throws
+{
+    if ( is_error() )
+        throw error::something ;
+    else
+        return "hoge"s ;
+}
+</code></pre>
+
+<p>
+静的例外関数はあたかもnoexcept(fase)が指定されたかのように振る舞う。したがってnothrow系のtraitsもそのように振る舞う。
+</p>
+
+<p>
+静的例外関数が例外を外に投げる場合、例外を従来のスタックアンワインディングを伴う例外の仕組みを使わず、戻り値で返す。つまり静的例外関数はunion { R ; E ; } + boolのような型を内部的に戻り値として返す。ようするにexpected&lt;T,E&gt;のような型と同等の機能を提供する型を返す。
+</p>
+
+<p>
+静的例外というのはerror型の値に変換できる値を投げるthrow式のことだ。それ以外のthrow式は動的例外となる。
+</p>
+
+<pre><code>// 静的例外
+throw error::foobar ;
+// 動的例外
+throw "error"s ;
+</code></pre>
+
+<p>
+静的例外関数のなかで静的例外がthrowされ、その関数のローカルに対応する例外ハンドラーがある場合、該当する例外ハンドラーにgotoでとんだものと同じ挙動をする。
+</p>
+
+<pre><code> string f() throws
+{
+    try {
+        // ローカルのcatchにgotoで飛ぶのと同じ
+        throw error::something ;
+    } catch ( error e )
+    {
+        // ここにgotoで飛ぶのと同じ
+    }
+}
+</code></pre>
+
+<p>
+静的例外関数のローカルに該当する例外ハンドラーがない場合、errorは戻り値として返される。そのため、上の関数は実際には、union { string ; error ; }という型とどちらのunionメンバーが有効かを示すbool値を返したものとみなされる。これは従来のreturnと同じ仕組みで実装できるので、パフォーマンス特性も決定的になる。
+</p>
+
+<p>
+静的例外関数が別の静的例外関数を呼び出し、静的例外によるerror型が返った場合は、その場で静的例外がthrowされたものとみなして処理する。
+</p>
+
+<pre><code>string f() throws 
+{
+    // 内部的にはerrorがreturnされる
+    throw error::something ;
+}
+
+string g() throws
+{
+    try { return f() ; }
+    catch( error e )
+    {
+        // ここにgotoで飛ぶ
+    }
+}
+</code></pre>
+
+<p>
+静的例外関数の中で従来の動的例外が投げられた場合、それが直接throw式で投げられたにせよ、呼び出した関数を通じて間接的に投げられたにせよ、直ちにその場でキャッチされ、適切な例外ハンドラーが選ばれる。
+</p>
+
+<pre><code>string f() ; // 非静的例外関数
+string g() throws ; // 静的例外関数
+
+string h() throw
+{
+    try {
+        auto a = f() ;
+        auto b = g() ;
+        return a + b ;
+    }
+    // 静的例外
+    catch( error e )
+    {
+    }
+    // 動的例外
+    // 従来の非決定的なパフォーマンス特性を持つ
+    catch( std::bad_alloc e )
+    {
+    }
+}
+</code></pre>
+
+<p>
+もし、静的例外関数から従来の動的例外が投げられ、関数の中に該当する例外ハンドラーがない場合、例外の型がerrorであれば静的例外としてreturnされ、それ以外であればstd::exception_ptrで束縛されてreturnされる。
+</p>
+
+<pre><code>string fail()
+{
+    throw "always error"s ;
+}
+
+string f() throws
+{
+    return fail() ;
+}
+</code></pre>
+
+<p>
+この関数fは、string型をstd::exception_ptrで束縛してreturnする。
+</p>
+
+<p>
+std::exception_ptrはC++11から追加された例外のオブジェクトを束縛できる機能だ。もう7年前の大昔に追加された機能なので読者は当然知っているはずだ。
+</p>
+
+<p>
+呼び出した静的例外関数がstd::exception_ptrをreturnした場合、その場でただちに例外オブジェクトが取り出され、例外処理が行われる。もし例外オブジェクトがerror型の場合は静的例外が、そうでない場合は動的例外として処理される。
+</p>
+
+<p>
+一部のC++の標準例外は、error型に変換される。例えばstd::bad_allocはerror型である(名前は仮のものだが)std::errc::ENOMEMに変換される。
+</p>
+
+<p>
+非静的例外関数が静的例外関数を呼び出して例外を受け取った場合、もしerrorに対応するstd::exception型(たとえばerrc::ENOMEMからstd::bad_alloc)があるならば型を変換して動的例外がthrowされる。std::exception_ptrの中身がerror型の場合は取り出してerror型がthrowされたものとして処理される。それ以外の例外は動的例外がthrowされる。
+</p>
+
+<pre><code>string f() throws
+{
+    // 動的メモリ確保に失敗するコード
+    // return std::errc::ENOMEM ; と同じ
+    string s( std::numeric_limits&lt;std::size_t&gt;::max(), 'x') ; 
+    return s ;
+}
+
+string g()
+{
+    // throw std::bad_alloc; と同じ
+    return f() ;
+}
+</code></pre>
+
+<p>
+この提案は従来の動的例外と組み合わせて使えるパフォーマンス特性が決定的な、つまりifとgotoを使うのと全く変わらないエラー処理を、例外の文法で実現する、静的例外を提案するものだ。これによりゼロオーバーヘッドの原則を満たした例外が扱えるようになる。
+</p>
+
+<p>
+興味深いので入ってほしい。例外はすべてのC++で有効化されるべきで
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
