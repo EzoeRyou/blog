@@ -1,0 +1,233 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+汎用エイリアス宣言の提案
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2018/07/c20.html">
+汎用エイリアス宣言の提案
+</a></h1>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0945r0.html">P0945R0: p0945r0: Generalizing alias declarations</a>
+</p>
+
+<p>
+提案に誤りが有りすぎる。
+</p>
+
+<p>
+C++のドラフトに入る見込みが高そうな提案に、汎用エイリアス宣言がある。
+</p>
+
+<p>
+C++では、名前に別名をつけることがよく行われている。
+</p>
+
+<p>
+型はtypedef指定子やエイリアス宣言によって別名を付けられる。
+</p>
+
+<pre><code>typedef int type ;
+using type = int ;
+</code></pre>
+
+<p>
+関数は転送関数を書くことにより、実質別名を付けられる。
+</p>
+
+<pre><code>int f( int x ) ;
+
+int g( int x )
+{
+    return f(x) ;
+}
+</code></pre>
+
+<p>
+ただし、値は完璧に転送できないし、関数のアドレスも異なるものになってしまう。
+</p>
+
+<p>
+変数はリファレンスで別名を付けられる。
+</p>
+
+<pre><code>int x = 0 ;
+int &amp; y = x ;
+</code></pre>
+
+<p>
+非staticデータメンバーはストレージを消費せずに別名をつけることができない
+</p>
+
+<p>
+enumeratorはconstexpr inline変数によって別名を付けられる。
+</p>
+
+<pre><code>enum { value } ;
+
+constexpr inline auto flag = value ;
+</code></pre>
+
+<p>
+ただしinline変数は名前空間スコープでしか使えない。
+</p>
+
+<p>
+名前空間は名前空間エイリアスにより別名を付けられる。
+</p>
+
+<pre><code>namespace a { }
+
+namespace b = a ;
+</code></pre>
+
+<p>
+型テンプレートはエイリアステンプレートで別名を定義できるが、デフォルトテンプレートパラメーターまで再現しなければならない。
+</p>
+
+<pre><code>template &lt; typename T, typename Allocator = std::allocator&lt;T&gt; &gt;
+using vec = std::vector&lt;T, Allocator&gt; ;
+</code></pre>
+
+<p>
+ただし、この別名は別のテンプレートとして解釈されてしまう。
+</p>
+
+<p>
+コンセプトは別のコンセプトを定義すれば別名を付けられる。
+</p>
+
+<pre><code>template &lt; typename T &gt;
+concept newConcept = oldConcept&lt;T&gt; ;
+</code></pre>
+
+<p>
+名前の種類によって別名を宣言する文法が異なるし、単なる別名以上の意味を持つものもある。
+</p>
+
+<p>
+この提案では、別名の宣言をエイリアス宣言に集約する。
+</p>
+
+<pre><code>
+using alias_name = name ;
+</code></pre>
+
+
+<p>
+型は今までどおりだが、その他
+</p>
+
+<pre><code> 型、今までどおり
+using type = int ;
+
+// 関数
+int f(int) ;
+using g = f ;
+
+// 変数
+int x = 0 ;
+using y = x ;
+
+// 非staticデータメンバー
+template &lt; typename Type, typename Value &gt;
+struct map_node : std::pair&lt;Type, Value&gt;
+{
+    using std::pair&lt;Type, Value&gt;::pair ;
+
+    using key = first ;
+    using value = second ;
+} ;
+
+[]{
+    map_node&lt; int, std::string&gt; n( 123, "123") ;
+    n.key ;
+    n.value ;
+} ;
+
+// enum
+
+enum { value } ;
+
+using flag = value ;
+
+// 名前空間
+
+namespace a ;
+using b = a ;
+
+
+// 型テンプレート
+
+using vec = std::vector ;
+
+vec&lt;int&gt; v ;
+
+// コンセプト
+
+using newConcept = oldConcept ;
+</code></pre>
+
+
+
+<p>
+だいぶすっきりする。とくに非staticデータメンバーがよい。
+</p>
+
+
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
