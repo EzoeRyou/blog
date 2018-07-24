@@ -1,0 +1,210 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+しないでマイクロソフトのスタイルガイドライン準拠の翻訳
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2018/07/blog-post.html">
+しないでマイクロソフトのスタイルガイドライン準拠の翻訳
+</a></h1>
+
+<p>
+マイクロソフトは将来的に買収する見込みのGitHubで.NETのドキュメントを公開している。
+</p>
+
+<p>
+<a href="https://github.com/dotnet/docs.ja-jp">https://github.com/dotnet/docs.ja-jp</a>
+</p>
+
+<p>
+その中にある変数名の命名規則に関するスタイルガイドラインについて書かれたドキュメントの文章がおかしい。
+</p>
+
+<p>
+<a href="https://github.com/dotnet/docs.ja-jp/blob/live/docs/standard/design-guidelines/names-of-type-members.md">https://github.com/dotnet/docs.ja-jp/blob/live/docs/standard/design-guidelines/names-of-type-members.md</a>
+</p>
+
+<blockquote>
+<p>
+しないで動詞または動詞句は、メソッドの名前を指定します。
+</p>
+
+<p>
+しないで名詞、名詞句、または形容詞を使用してプロパティの名前を付けます。
+</p>
+
+<p>
+しないで次の例のように、"Get"メソッドの名前に一致するプロパティがあります。
+</p>
+
+<p>
+しないで後に"List"または"Collection"単数形の語句を使用する代わりに、コレクション内の項目を記述する複数形の語句でコレクションのプロパティの名前を付けます
+</p>
+
+</blockquote>
+
+
+<p>
+日本語として極めて不自然な文章になっていて意味がわからない。
+</p>
+
+<p>
+原文は英語で書かれている。
+</p>
+
+<p>
+<a href="https://github.com/dotnet/docs/blob/master/docs/standard/design-guidelines/names-of-type-members.md">https://github.com/dotnet/docs/blob/master/docs/standard/design-guidelines/names-of-type-members.md</a>
+</p>
+
+<p>
+原文を確認するとようやく意味がわかる。
+</p>
+
+<blockquote>
+<p>
+DO give methods names that are verbs or verb phrases.
+</p>
+
+<p>
+DO name properties using a noun, noun phrase, or adjective.
+</p>
+
+<p>
+DO NOT have properties that match the name of "Get" methods as in the following example:
+</p>
+
+<p>
+DO name collection properties with a plural phrase describing the items in the collection instead of using a singular phrase followed by "List" or "Collection."
+</p>
+</blockquote>
+
+<p>
+なるほど、"DO"を間違えて「しないで」と訳してしまったのだな。"DO NOT"も「しないで」と訳されている。翻訳する上で間違えて機械的に置換でもしたのだろう。原文の文章の形をなるべく維持したまま日本語に訳すならば、"DO"を「正：」、"DO NOT"を「誤：」とでもすればいいのだろう。ただ、その場合"DO NOT"を使った文中で代替案も示してしまっているのが問題なので、これはできれば原文自体を「すべきこと」と「すべきでないこと」に分割すべきだろう。
+</p>
+
+<p>
+そして間違いが20日にissueで指摘された。
+</p>
+
+<p>
+<a href="https://github.com/dotnet/docs.ja-jp/issues/118">https://github.com/dotnet/docs.ja-jp/issues/118</a>
+</p>
+
+<p>
+そして土日を挟んで今日、マイクロソフトから正式に回答があった。
+</p>
+
+<blockquote>
+<p>
+<a href="https://github.com/dotnet/docs.ja-jp/issues/118#issuecomment-407202477">https://github.com/dotnet/docs.ja-jp/issues/118#issuecomment-407202477</a>
+</p>
+
+<p>
+こんにちは、@megascus
+</p>
+
+<p>
+言語に関するフィードバックをお寄せいただきありがとうございました。
+</p>
+<p>
+お寄せいただいたフィードバックの内容を Microsoft の言語チームで検証いたしましたところ、残念ながら、マイクロソフトのスタイルガイドラインに従わない という理由で、承認基準に完全には適合していないという結果になりました。
+</p>
+<p>
+記事の品質向上にご協力いただき誠にありがとうございました。引き続きお客様からの貴重なフィードバックをお待ちしています。
+</p>
+<p>
+敬具
+</p>
+<p>
+Microsoft DOCS International Team
+</p>
+</blockquote>
+
+<p>
+そしてissueはclosedされた。
+</p>
+
+<p>
+ん？　である。問題は日本語の翻訳にあるのであってソースコードのスタイルガイドラインとは何の関係もない。上記の日本語を読解できるだけの日本語能力があるならば容易に気がつくはずで、まるでBOTによってなされたような回答だ。
+</p>
+
+<p>
+その結果、マイクロソフト用語では"DO"は「しないで」を意味するのだとか、マイクロソフト社内では"DO"と"DO NOT"は同じ意味を持つのだとか、Google翻訳のほうがよっぽどマシな翻訳をしてくれるとか、ユーモラスなコメントが並ぶことになった。
+</p>
+
+<p>
+マイクロソフト用語を使うと以下のようになる。
+</p>
+
+<p>
+DO fix the document which has a translation error.
+</p>
+<p>
+しないで誤訳を含むドキュメントの修正
+</p>
+
+<p>
+DO translate with MS style guideline conformance.
+</p>
+
+<p>
+しないでMSスタイルガイドライン準拠の翻訳
+</p>
+
+<p>
+押すなよ、絶対押すなよ(押せ)、というダチョウ倶楽部メソッドを久しぶりに思い出してしまった。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
