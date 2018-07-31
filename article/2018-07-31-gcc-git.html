@@ -1,0 +1,191 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+GCCのgit移行が難航中
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2018/07/gccgit.html">
+GCCのgit移行が難航中
+</a></h1>
+
+<p>
+GCCはgitへの移行を計画しているが、GCCの既存のsubversionレポジトリをgitレポジトリに変換する作業が難航している。
+</p>
+
+<p>
+GCCの移行作業を検証しているのは他ならぬEric S. Raymond(ESR)だ。
+</p>
+
+<p>
+ESRお手製の変換ツール、reposurgeonはsubversionからgitへの変換ができる。
+</p>
+
+<p>
+<a href="http://www.catb.org/esr/reposurgeon/">Resource page for reposurgeon 3.44</a>
+</p>
+
+<p>
+しかしGCCは30年もの歴史を持ち、そのsubversionレポジトリも複雑だ。
+</p>
+
+<p>
+ESRはGCCのためにreposurgeonのバグを潰し、勢い変換しようと試みたが、意外な障害に出くわした。メモリ不足だ。
+</p>
+
+<p>
+<a href="https://www.phoronix.com/scan.php?page=news_item&px=GCC-Git-Conversion-RAM">GCC's Conversion To Git Is Being Held Up By RAM, a.k.a. Crazy DDR4 Prices - Phoronix</a>
+</p>
+
+<p>
+ESRの所有する64GBのメモリを詰んだマシンではメモリ不足で処理できない。そしてDDR4メモリの値段は高騰している。GCCのビルドサーバーに128GBのメモリを詰んだものがあるからそれを使わせてくれとか、reposurgeonをPythonからGoに移植すればメモリ消費量は減らせる可能性があるが移植は困難を極めるとか、ESRに投げ銭してメモリを買わせようなどと議論をしていたのが7月はじめ。
+</p>
+
+<p>
+さて、今はメモリ以外の問題に出くわしている。
+</p>
+
+<p>
+<a href="https://www.phoronix.com/scan.php?page=news_item&px=GCC-Git-Complexities">GCC's Conversion To Git Is Still Turning Out To Be A Massive Headache - Phoronix</a>
+</p>
+
+<p>
+どうもGCCの膨大で複雑な歴史を正しくgitで表現する方法について議論の余地がある他、変換結果が壊れることもある。問題を解決したいが、変換自体がとても遅いため、デバッグが困難だという。
+</p>
+
+<blockquote>
+
+<p>
+<a href="https://gcc.gnu.org/ml/gcc/2018-07/msg00322.html">https://gcc.gnu.org/ml/gcc/2018-07/msg00322.html</a>
+</p>
+
+<p>
+トンネル出口の明かりが見えたと思ったら対抗列車が突っ込んできやがった。
+</p>
+<p>
+もう変換はほぼほぼ終わりだと思っていたのに。俺はtrunkとブランチすべてがクリーンに変換されるのを確認したのに。捨ててもいいことに同意した失敗ブランチただ一つを除いては。
+</p>
+
+<p>
+後残っているのはexecute-permission propagationとかmid-branch deleteをどうするかという問題だけで、前者はすでに解決済みだし、後者も解決に取り掛かっている。最終的には年末には、たぶん8月とか9月には、完了できるはずだったのに。
+</p>
+
+<p>
+そしたらこのザマよ。俺の最新の変換がtrunkで間違った結果を出しやがった。これは実際ヤバイ問題で、GCCレポジトリがあまりにも巨大すぎるので調査するのに時間がかかりすぎる。SVNダンプファイルをreposurgeonで読み込むだけで4.5時間かかるし、フル変換に9時間はかかる。レポジトリは俺が最適化を考えるのと同じぐらい早く増大しているぜ。
+</p>
+
+<p>
+しかも悪いことに、クリーンな変換ができるコミットまで戻っても失敗する。たぶん俺がへんてこなブランチコピーの対処を実装した結果こうなってるんだと思う。
+</p>
+
+<p>
+パーティーに遅れてやってきた奴のために説明してやると、Subversionのダンプファイルの処理シーケンスの解釈は単純で検証も楽だ。ブランチコピー操作を除いてはな。ブランチコピーが他の操作に及ぼす影響だけはマジで闇が深い。
+</p>
+
+<p>
+Subversionのコードが何をすべきかっていう正しいセマンティクスは存在するわけだが、古のSubversion開発者が理解していたことは、今や失われている。ダンプフォーマットはまともにドキュメント化されていない。今の不完全なドキュメントが存在する理由は、他でもない俺が解析したからだ。でも俺のドキュメントも疑問だらけだし、その疑問にはSubversion開発者も回答できないできる。
+</p>
+
+<p>
+なのでレポジトリを変換する際にブランチコピーに関連した謎の挙動に出くわすのはよくあることだ。普通、おれは問題のコミットをbisectして、
+</p>
+
+<ol>
+<li>ダンプを問題が再現する最小のセグメントに切り取る</li>
+<li>content blobsをsource commitを識別できるunique small cookiesに置換する処理を行って結果が正しいことを検証</li>
+<li>topological reduceしブランチコピーもプロパティ変更でもない無価値なコミットを除去し、結果が正しいことを検証</li>
+<li>手動で不必要なブランチをreposurgeonで削除</li>
+</ol>
+
+<p>
+いつもなら、俺は今頃、問題を再現できる割と小さめのレポジトリ(今までで200コミットを超えたことはない)を作ってる。デバッグレベルを上げて変換を観察し、何が起こっているのかを観察する。そして問題を修正し、問題を再現する最小例は新たなテストケースになるって寸法だ。
+</p>
+
+<p>
+これによって、ダンプファイル解析を着実に改善していき、Subversionのコードがやっていることをより忠実にエミュレートしていく。簡単な仕事ではないが、エッジケースを埋めていくほど楽になる。今まではこれでうまくいってきた。
+</p>
+
+<p>
+GCCレポジトリのサイズでは、この戦略がうまくいかない。軽く計算するだけで、bisect一回で最短でも18日かかる。現実的には一ヶ月近くかかるだろう。
+</p>
+
+<p>
+つまり、現状ではゲームオーバーで負けたってことだ。GCCレポジトリはでかすぎる上に変すぎる。
+</p>
+
+<p>
+この問題を現実的に解決するには、俺のツールはすっげー速くなる必要がある。だいたい桁違いに早くないといかん。
+</p>
+
+<p>
+ハードウェア性能を上げるのは無理だ。シングルプロセスを1.3GHz以上にあげたコンピューターはこの世に存在しないし、問題は並列化できない。
+</p>
+
+<p>
+ソフトウェアの変更でうまく行く可能性はある。俺はreposurgeonをPythonからGoに移植するということについて考えている。repocutterで実験してみたところ、{Python版の40倍高速化した。reposurgeonではそんなに高速化するとは思えないが、問題を現実的に解決できるぐらいには高速化できるだろうと踏んでいる。40倍の半分だったとしても、9時間のテストランが13分になるわけだから。
+</p>
+
+<p>
+この計画の問題点は、GOに移植するのは困難を極めるってことだ。めっちゃむずい。どのくらい時間がかかるかわからんが数カ月単位でかかる。
+</p>
+
+<p>
+GCCはどのくらい辛抱強く待つのか決める必要があるな。現状だと、今のソースツリーの状態をそのままgitにしていちからはじめるほうがマシかもしれん。歴史は記録だけに留めるとして。
+</p>
+
+</blockquote>
+
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
