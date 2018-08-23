@@ -1,0 +1,165 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+Steam Playで不自由なWindows用ゲームをGNU/Linux上で実行するにはPython 2が必要
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2018/08/steam-playwindowsgnulinuxpython-2.html">
+Steam Playで不自由なWindows用ゲームをGNU/Linux上で実行するにはPython 2が必要
+</a></h1>
+
+<p>
+Steam Playが発表されたので、早速使ってみた。
+</p>
+
+<p>
+Steam PlayというのはWineからforkしたValveのProtonを使ったGNU/LinuxでWindows用ゲームを実行する機能だ。なぜWineをforkしているかというと、ProtonではWineにまだ入っていない変更を使っているからだ。例えばDirectXをVulkanで実装したdxvkや、同期処理をユーザースペースで行うValveが開発したWineに対するパッチesyncを使っている。
+</p>
+
+<p>
+<a href="https://github.com/ValveSoftware/Proton">https://github.com/ValveSoftware/Proton</a>
+</p>
+
+<p>
+Steam Playを使うには、まずSteamクライアントのSettings→Account→Beta participationからSteamクライアントBetaを使う設定であるSteam Beta Updateに切り替え、Steamクライアントをアップデートする。
+</p>
+
+<p>
+すると設定にSettings→Steam Playが追加されているのでこれを有効にする。Valveが検証したゲーム以外のすべてのゲームでSteam Playを有効にするには、その設定項目のEnable Steam Play for all titlesを有効にする。これでGNU/LinuxのSteam クライアントでもWindows用ゲームがインストール、実行できるようになる。
+</p>
+
+<p>
+ここまではSteamクライアントで必要な変更だ。GNU/Linux側でも必要な用意がある。Steam PlayにはVulkanに対応したかなり最新のグラフィックスタックが必要になる。
+</p>
+
+<p>
+詳しい内容は
+</p>
+
+<p>
+<a href="https://github.com/ValveSoftware/Proton/blob/proton_3.7/PREREQS.md">https://github.com/ValveSoftware/Proton/blob/proton_3.7/PREREQS.md</a>
+</p>
+
+<p>
+に書いてある。
+</p>
+
+<p>
+NvidiaのGPUを使っている場合は、不自由なバイナリブロブドライバーを396.51以上のバージョンにしなければならない。Ubnuntu 18.04のドライバーはLatest Long Lived Branchである390を使っているので、最新のバージョンをインストールしなければならない。
+</p>
+
+<pre><code>sudo add-apt-repository ppa:graphics-drivers/ppa
+sudo apt install nvidia-driver-396
+</code></pre>
+
+<p>
+AMDとIntelのGPUを使っている場合は、最近のMesaとLLVMをインストールしなければならない。
+</p>
+
+<pre><code>sudo add-apt-repository ppa:paulo-miguel-dias/mesa
+sudo apt dist-upgrade
+sudo apt install mesa-vulkan-drivers mesa-vulkan-drivers:i386
+</code></pre>
+
+
+<p>
+AMDでVRゲームを実行する場合は、以下のパッケージが必要だ。
+</p>
+
+<pre><code>sudo add-apt-repository ppa:kisak/steamvr4pk
+sudo apt dist-upgrade
+sudo apt install linux-generic-steamvr-18.04
+</code></pre>
+
+<p>
+現在、IntelのGPUによるVRゲームはサポートしていないそうだ。
+</p>
+
+<p>
+DirectX 11を使ったゲームを実行するには、NVIDIA 396.51以上、もしくはMesa 18.1.xが最低でも必要だ。LLVM 7も推奨されている。
+</p>
+
+<p>
+OpenCLを使ったゲーム(DOOM 2016, Google Earth VR)を実行するには、Mesa 18.2.x以上が最低でも必要になる。
+</p>
+
+<p>
+一部のディストロでは1プロセスあたりのfd limitが低いので、これを変更しなければならない。4096は1990年台には妥当な値ではあったかもしれないが、この2018年には少なすぎる。DebianとUbuntuでは上限が引き上げられているので問題はないそうだ。
+</p>
+
+<p>
+そして最後にとても重要なソフトウェアをインストールする。Python 2だ。
+</p>
+
+<pre><code>sudo apt install python-minimal
+</code></pre>
+
+<p>
+こともあろうかこの2018年にProtonとgit submoduleしているffmpegがpython 2に依存している。
+</p>
+
+<p>
+これでSteam Playを使う用意が整った。いくつかのWindows用の不自由なゲームを実行してみたが、いずれもよく動いている。
+</p>
+
+<p>
+GNU/Linuxにおけるゲームは卵が先か鶏が先かという問題に直面していた。ゲーム開発者はGNU/Linuxゲーマーの需要がわからないのでGNU/Linux用のゲームを出さず、GNU/Linuxユーザーは対応しているゲームが少ないので仕方がなくWindowsかWineを使うので、結果として潜在的なGNU/LinuxゲーマーはWindowsゲーマーとしてカウントされてしまう。するとゲーム開発者はGNU/Linuxゲーマーの需要がわからないというデッドロック問題だ。
+</p>
+
+<p>
+Steam Playによるゲームの実行は、GNU/Linuxユーザーとしてカウントされ、ゲーム開発者に通知されるしSteamの統計にも出る。これにより我々GNU/Linuxゲーマーの時代が訪れる。Microsoftの不自由で不便で非効率的なWindowsは最後の砦であったゲーム環境としても滅ぶのだ。未来は明るい。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
