@@ -1,0 +1,149 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+ポータブルオーディオプレイヤーは二極化している
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2018/09/blog-post.html">
+ポータブルオーディオプレイヤーは二極化している
+</a></h1>
+
+<p>
+今のポータブルオーディオプレイヤーは二極化している。格安のゴミみたいな製品と、オーディオフィリ向けのクソみたいな製品があり、その中間がない。
+</p>
+
+<p>
+最近、減量のためにジョギングを再開した。ジョギングは一回あたり1時間ほど行うのだが、これが思いの外ヒマだ。この時間を有意義に使いたい。走っている最中にできることは音を聞くぐらいなものだ。音楽に興味はないが英語の朗読を聞くのは有意義なことのように思われる。例えば筆者はまだシェイクスピアのハムレットを読んだことがない。ハムレットを読むには時間がかかるが、ジョギング一回あたりの1時間を使えば、何度か走るだけでシェイクスピアを通して聞くことができる。
+</p>
+
+<p>
+そこで早速、ジョージ・オーウェルの1984やシェイクスピアのハムレットを朗読した自由な録音をダウンロードした。
+</p>
+
+<p>
+<a href="https://librivox.org/hamlet-by-william-shakespeare/">LibriVox</a>
+</p>
+
+<p>
+元々が低音質なソースであるのだから、それほど高級な製品はいらない。そこで、アマゾンでよく購入されていた適当な格安ポータブルオーディオプレイヤーであるAGPTEK A01Tと、格安BluetoothイヤホンであるSoundPeats Q30を購入した。
+</p>
+
+<p>
+さっそくハムレット朗読のmp3ファイルをコピーするが、なぜか再生の順序がファイル名の文字列順にソートされない。どうやら、FAT32のファイルのディレクトリーエントリーの順番で再生されるようだ。そこで仕方なく、以下のようにして問題を解決した。
+</p>
+
+<pre><code>ls | while read file ; do mv $file path-to-mp3-storage/$file
+</code></pre>
+
+<p>
+いざ聞いてみると、今度は片耳にしか音が聞こえてこない。どうやらこの格安ポータブルオーディオプレイヤーは、モノラルmp3ファイルに対して片耳しか出力しないようだ。残念ながらモノラルmp3ファイルを再エンコードなしでステレオにすることはできないので、以下のようにして無駄にステレオにした。
+</p>
+
+<pre><code>ls | while read file ;&lt; /dev/null do ffmpeg -i $file -ac 2 -b:a 320k path-to-mp3-storage/$file
+</code></pre>
+
+<p>
+当初動かずに困惑したが、ffmpegが標準入力を食べてしまうことが原因だった。
+</p>
+
+<p>
+そしてGNU Parallelを使ったほうがよかったことに実行した後に気がついた。
+</p>
+
+
+<p>
+mp3のエンコード速度はそれほどパフォーマンスを重視していない私のラップトップでも175倍速だった。たしか私がmp3プレイヤーを使っていた15年ほど前はせいぜい20倍速に満たない程度だった気がするのだが、いい時代になったものだ。私の一つ上の世代は、mp3をリアルタイムデコードするためにCPUをオーバークロックしたと聞く。
+</p>
+
+<p>
+本の朗読を聞くために買ったのだからあまり期待はしていなかったものの、この格安ポータブルオーディオプレイヤーはあまりにもひどい品質だ。おまけに、文字コードの対応もひどい。どうやらいまだにUCSに対応していないらしく、本体の言語設定をした文字に引きづられる。例えば言語をEnglishに設定するとASCII以外が文字化けし、日本語に設定するとシフトJIS外の文字が文字化けするようだ。これは解せない。ファイルシステムであるFAT32はファイル名をUCS-2で管理しているのだから、文字化けを起こすのはわざわざ何かとてもバカなことをしているとしか思えない。
+</p>
+
+<p>
+不思議なことに、このポータブルオーディオプレイヤーにはFMラジオとかテキストリーダーとか万歩計とか録音とか動画再生などの様々な機能がありながら、ファイル名によるソート機能すらない。
+</p>
+
+<p>
+ではもっとマシなポータブルオーディオプレイヤーはないものか。実は今ポータブルオーディオプレイヤーは二極化しているのだ。
+</p>
+
+
+<p>
+ひとつには私が買ったような数千円で変えるクソのような格安の粗悪品。もう一つには、最低数万円から数十万円もするようなオーディオフィリ向けのバカのような高級品だ。中間層の市場はスマフォが完全に支配してしまったため、ポータブルオーディオプレイヤーは格安と高級品に二極化してしまったのだ。
+</p>
+
+<p>
+では高級なポータブルオーディオプレイヤーとはどのようなものだろうか。安いものでも数万円から、高いものになると30万円ぐらいする。30万円だ。嘘ではない。本当だ。曰くハイレゾ、曰く超高性能DAC、曰くUSB Audio/DACに両方とも対応。厳選された高性能で高品質なキャパシタ、コイル、メッキなどなど。
+</p>
+
+<p>
+ちょっとまってもらいたい。人間の可聴域は若者でもせいぜい20kHz程度であり、だからこそせいぜい40KHzのサンプリング周波数で20kHzまでの音を再現できるようにしているのだ。ハイレゾに意味はない。USB Audioに対応しているのはともかくとして、なぜUSB DACとして使える必要があるのだ。そして高級なキャパシタやコイルに至っては完全にオーディオフィリの領域だ。
+</p>
+
+<p>
+5000円ぐらいでまともなUIを備えたポータブルオーディオプレイヤーはないものか。そもそも格安プレイヤーにすらいらない機能が多すぎる。必要なのはファイル名によるソート、シークバー、Bluetoothだ。自由にプログラミングできればなおよい。
+</p>
+
+<p>
+という愚痴を漏らしていると、物好きな同僚がRaspberry Pi Zero WHを進めてきた。初代Raspberry PiのSoCを使い、WiFiとBluetoothが搭載された低電力なボードだ。Raspberry Piはその普及によって圧倒的に自由なソフトウェアスタックを得た。その性能はmp3やoggのリアルタイムデコードを難なくこなせるであろうし、Bluetoothも使える。しかも値段も2千円程度。確かに理想的なポータブルオーディオプレイヤーのように思える。
+</p>
+
+<p>
+問題はUIをどうするかだ。タッチパネル付きのディスプレイをつけるのが一番いいように思える。考えてみよう。
+</p>
+
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
