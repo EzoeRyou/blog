@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+DNAの読み取りについてプログラマーが誤解していること
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2018/09/dna.html">
+DNAの読み取りについてプログラマーが誤解していること
+</a></h1>
+
+<p>
+世の中にはDNAの読み取りを使った技術が実用されすぎている。DNAを使った生物の共通祖先の判定、人間の出アフリカ以降の移動の推定、特定の病気にかかりやすい遺伝子を持つかの判定、親子鑑定、刑事裁判におけるDNA鑑定などなど。
+</p>
+
+<p>
+あまりにもDNAの読み取りを使った技術が実用化されすぎているため、世間ではDNAの読み取りは簡単なものだと考えている。プログラマーとて例外ではない。
+</p>
+
+<p>
+大抵のプログラマーはヒトDNAの読み取りを以下のように考えている。
+</p>
+
+<p>
+「一本の長い磁気テープを先頭から末尾までシーケンシャルにリードする」
+</p>
+
+<p>
+より現実的に例えると以下のようになる。
+</p>
+
+<ul>
+<li>長さ30kmの長大な磁気テープをだいたい長さ1cmのテープ片に切断する</li>
+<li>上記1cmのテープ片を数百本複製する</li>
+<li>上記複製した数百本の1cmテープ片をマイクロメートル単位のテープ片にズタズタに切り裂いて混ぜ合わせる</li>
+<li>上記混ぜ合わせたマイクロメートル単位のテープ集合からランダムでテープ片を手当たりしだいに読み込み、組み合わせパズルを解いて元の1cmの磁気テープ分の正しいデータ配列を決定する</li>
+<li>残りの29.999999kmのテープについても同様に1cmづつ処理する</li>
+</ul>
+
+<p>
+マイクロメートル単位のテープ片をランダムに読み取って組み合わせパズルを解き、元の1cmのテープ分のデータ配列を決定するのはソフトウェアにより実装されている。読者はそのようなパズルを解くプログラムをバグなしで実装できるだろうか。
+</p>
+
+<p>
+ただし、より例え話を現実に近づけると、1cmのテープ片をマイクロ単位のテープ片に切り裂くのはランダムではない。この1cmのテープ辺には数百-2ビットから数千-2ビット程度のデータが記録されている。テープをマイクロメートル単位に切り裂くカッターは、テープの末尾の2ビットの値がn回目に出現したmであるときに切断するという条件付きカッターだ。これにより、00, 01, 10, 11のいずれかの2ビット値の1回目の出現、2回めの出現、3回目の出現といった単位でテープをカットできる。
+</p>
+
+<p>
+マイクロメートル単位のテープ辺を読むリーダーはあまり融通が聞かない。すでに読んだテープ辺と同一内容のテープ編を何度も読み込むことになるし、同一内容のテープ辺は同じ回数読み込まれるわけではない。読み込みエラーが発生して任意の2ビットが別の値になってしまうかもしれない。なのでできるだけ何度も読み込み、まれにしか現れない異端データを読み取りエラーと判断して除外する処理も必要だ。
+</p>
+
+<p>
+これを考えると、プログラマーとしての私は、DNA読み取りを使う技術が信頼できなくなってしまう。私のDNAを読み取った結果、特定の病気になりやすい遺伝子が含まれているとか、ある人物と親子関係にあるとか、犯行現場に残されていたDNAと一致したなどと言われても、その結果は信頼することができない。なぜならばDNAを読み取るという処理が極めて大雑把で信頼できない確率的な統計処理だからだ。
+</p>
+
+<p>
+現実のDNA読み取りはどうしているかと言うと、30億塩基配列ほどあるヒトDNAを、数百塩基から数千塩基のサイズに分割し、たまたま高温に耐える都合のいい細菌から得たDNA複製酵素と一緒に容器の中に放り込み、定期的に温度を上げ下げする装置を使い、ポリメラーゼ連鎖反応を起こしてDNA片を複製する。そして特定の塩基配列に対してのみ反応してDNAを切断する酵素を使い、n回目に4種類ある塩基(アデニン、グアニン、シトシン、チミン)の特定の一種類が現れたDNAをそこで切断させる。そうやって切断されたDNA片を片っ端から読み込み、組み合わせパズルを解く。
+</p>
+
+<p>
+実際、アメリカではDNA鑑定の結果が証拠として信頼できないとして、DNA鑑定に使われたソフトウェアを検証するために開示請求がなされたこともある。
+</p>
+
+<p>
+せめてプログラマーだけでもDNA読み取りの正しい理解をしてほしいものだ。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
