@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+中国の悪意あるハードウェアの細工を見破る方法
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2018/10/blog-post.html">
+中国の悪意あるハードウェアの細工を見破る方法
+</a></h1>
+
+<p>
+中国で生産されているハードウェアに悪意あるチップが取り付けられておりAppleやAmazonが被害にあっているとする報道があり、真偽について議論がある。
+</p>
+
+<p>
+これに関連して、Hacker Newsで興味深いコメントが寄せられていた。
+</p>
+
+<blockquote>
+<p><a href="https://news.ycombinator.com/item?id=18138699">I have worked in card payment industry. We would be getting products from China ... | Hacker News</a>
+</p>
+
+<p>
+俺はカード支払い業界で働いている。中国から送られてくる製品にクレジットカード情報を送信する装置が取り付けられていることがある。これは国家による攻撃ではない。装置は生産ラインの途中で取り付けられている。大抵は賄賂を受け取った従業員によるものだ。装置が組み立てられた後は、改造防止の機能が動くので、改造を検知させずに装置を分解するのは不可能だ。
+</p>
+
+<p>
+この問題が発覚してから、我々は製品の重さを計測することにした。我々も製品を分解することはできないからだ。分解したならば改造検知により装置は動かなくなる。
+</p>
+
+<p>
+攻撃者は重さの計測に気がついたので、製品内部の必須ではないプラスチックを引っぺがして装置を追加することによって増加した重さの調整をしてくるようになった。
+</p>
+
+<p>
+結局、我々は特別な土台を使い製品の角運動量(訳注：慣性モーメントか)を計測するようになった。とても高価な装置で角運動量を計測する。俺が作った土台を使って2つの角度から角運動量を計測している。2つの製品の角運動量がどの角度からでも一致するならば製品は同一というわけだ。すべての角度から角運動量を計測できないが、今のところ破られていない。
+</p>
+
+</blockquote>
+
+<p>
+角運動量ではなく慣性モーメントだろうという用語の甘さや、慣性モーメントは3軸を使って全角度を測定できるのではというツッコミが入っているが、この話自体はよくあるものらしい。
+</p>
+
+<p>
+なんでそんな製造段階で悪意ある細工が混入した製品を送ってくるところと取引を続けるんだというコメントに対し、この製品を製造しているのは今や中国をおいて他にないとか、中国の商習慣では信頼を前提としない契約による取引に応じてくれないとか、中国と取引するには製品の欠陥は自前で発見できなければならない、発見できないのはマヌケな顧客であり欠陥品で十分だとみなされる、などの中国のお国柄を指摘するコメントが続いている。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
