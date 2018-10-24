@@ -13,6 +13,7 @@ then
 fi
 
 title="$(sed '6q;d' $1)"
+echo $title | xsel -i
 
 filename="$1"
 filename=${filename/draft/$(date -I)}
