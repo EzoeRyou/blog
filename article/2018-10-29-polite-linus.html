@@ -1,0 +1,201 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+帰ってきたきれいなリーナス・トーバルズ、無作法な開発者をたしなめる
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2018/10/blog-post_29.html">
+帰ってきたきれいなリーナス・トーバルズ、無作法な開発者をたしなめる
+</a></h1>
+
+<p>
+<a href="https://www.phoronix.com/scan.php?page=news_item&px=Linus-Torvalds-New-Politeness">Linus Torvalds Shows His New Polite Side While Pointing Out Bad Kernel Code - Phoronix</a>
+</p>
+
+<p>
+人の心の読み方を学んで復帰したリーナス・トーバルズは、さっそく無作法なプルリクエストをたしなめている。その文章は大文字センテンスも4文字言葉も使っていない優しいものに変わっている。
+</p>
+
+
+<p>
+問題はプルリクエストはBigBenゲームコントローラーに対するドライバーの追加で、このドライバーはデフォルトで有効にされていた。これはLinuxカーネルの慣習にそぐわないものだ。新しく追加された名前もきいたこともないようなデバイス用のドライバーが、いきなりカーネルでデフォルトで有効にはされないものだ。新参者のドライバー開発者は、大抵自分のドライバーはとても重要で、自分の所有しているデバイスは全員所有しているのでデフォルトで有効にするのは当然だと傲慢にも考えている。このような既存の慣習に従わない傲慢な態度は、通常、リーナス・トーバルズによって発見され次第、罵詈雑言を持って鼻っ柱を叩き折り、厳しくしつけられる。
+</p>
+
+<p>
+それがなんと以下のように穏やかなメールになっている。
+</p>
+
+<blockquote>
+<p>
+新しいポッと出のドライバーがデフォルトで有効にされることは「ない」。そのデバイスが聞いたことのないような名前の場合は「特に」ありえない。
+</p>
+
+<p>
+にもかかわらず、このマージ期間で新しく追加された「BigBenインタラクティブ」ドライバーとやらはまさにそういうことをしている。
+</p>
+
+<p>
+そういうことはするな。
+</p>
+
+<p>
+分かってる分かってる。開発者は全員、自分のドライバーはとても特別で魔法のように重要なので、当然デフォルトで有効にされるべきだと考えているものだ。だが違う。何千ものドライバーがあるなかで、ポッと出の新しいドライバーが、一部の開発者が特別だと思っているという理由だけで、デフォルト有効にされることはない。
+</p>
+
+<p>
+そういうわけで、コミット256a90ed9e46 ("HID: hid-bigbenff: driver for BigBen Interactive PS3OFMINIPAD gamepad")の
+</p>
+
+<p>
+default !EXPERT
+</p>
+
+<p>
+は完全に間違いだ。プリーズこういうことはしないでくれ。
+</p>
+
+<p>
+リーナス
+</p>
+
+</blockquote>
+
+<p>
+比較のために、去年の11月に似たような問題をたしなめたリーナスのメールを見てみよう。
+</p>
+
+<blockquote>
+<p>
+テメーは新しいドライバーを追加してデフォルトonにしただと。
+</p>
+
+<p>
+(大文字)コイツァゼッテーに受け付けらんねーッ。
+</p>
+
+<p>
+何でこの俺が直々にマージ期間のたびに毎回言わなくちゃなんねーんだよ。だがもっかい言ってやるぞ。
+</p>
+
+<p>
+開発者として、テメーは自分のドライバーとか機能が超絶最高に重要なものだと思ってて、しかもテメーは対応するデバイスも持っているわけだ。
+</p>
+
+<p>
+(大文字)だがそんなのァ誰も気にししちゃいねぇんだよ。
+</p>
+
+<p>
+これ読んで泣きベソでもかいとけ。オメーのハードウェアが超絶に普及してない限り、全員の設定でデフォルトでデフォルト化されているべきじゃねぇ。
+</p>
+
+<p>
+(一部単語が大文字)このブランチで追加されたすべての"defult"の行は間違ってる。
+</p>
+
+<p>
+こういうことはやめろ。みんなの期待を裏切る行為だぜ。俺が"make oldconfig"したとき、ポッと出の新しいハードウェアドライバーが有効にされてほしくはない。
+</p>
+
+</blockquote>
+
+<p>
+もう一つリーナスの忍耐力を試すイベントがあった。リーナス様の環境がKernel oopsをお出しになったのだ。
+</p>
+
+<blockquote>
+<p>
+俺のラップトップが今のgitツリーでカーネルページフォルトを出した。今の所怪しいコミットは
+</p>
+
+<p>
+9ee3e06610fd ("HID: i2c-hid: override HID descriptors for certain devices") 
+</p>
+
+<p>
+これだが、そう思った理由は単に今回のマージ期間でこの辺をいじってるコミットがこれしかないからだ。
+</p>
+
+<p>
+oopsは以下の通り
+</p>
+
+<p>
+（省略）
+</p>
+
+<p>
+だから俺は新しいi2c_hid_get_dmi_hid_report_desc_override()のコードを疑ってるわけだ。
+</p>
+
+<p>
+思うに問題はi2c_hid_dmi_desc_override_table[]がNULLエントリーで終端されていないことなので、今からテストする。
+</p>
+
+<p>
+この問題はすごく悲しい。これはつまりこのコードは文字通り誰にもテストされてないってことで、誰もこのリストにエントリーを入れてないってことだ。
+</p>
+
+</blockquote>
+
+<p>
+ちなみに以前、リーナスがパッチを適用したカーネルをブートするだけで確実にカーネルoopsを発動させるような初歩的なミスを発見した場合は、<a href="https://www.phoronix.com/scan.php?page=news_item&px=Njc5Mg">大文字で「テストされてないクソ」となじり</a>、罵詈雑言あふれるメールが飛ぶものだ。
+</p>
+
+</article>
+
+<p>
+きれいなリーナスは持続可能だろうか。
+</p>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
