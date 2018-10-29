@@ -60,4 +60,5 @@ fi
 
 sed -i '50a'"$entry" index.html 
 mv "$1" "$filename"
-
+git add "$filename"
+git commit -am "$title"
