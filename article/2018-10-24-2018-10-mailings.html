@@ -1,0 +1,724 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+C++標準化委員会の10月の興味深い文書
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2018/10/c10.html">
+C++標準化委員会の10月の興味深い文書
+</a></h1>
+
+<p>
+2018-10のC++標準化委員会の文書集が公開されていたので、興味深い新機能の提案に限って紹介する。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1315r0.html">secure_val</a>
+</h3>
+
+<p>
+セキュリティ上の理由でメモリの内容を破棄したい場合、コンパイラーの最適化によって意図通りのコードが吐かれないことがある。
+</p>
+
+<pre><code>
+void decrypt()
+{
+    char password[64] ;
+    // パスワードを取得
+    get_password(password) ;
+
+    // 複合処理
+ 
+    // パスワードをメモリから破棄
+    std::memset( buffer, 0, 64 ) ;
+}
+</code></pre>
+
+<p>
+このコードでは最適化の結果memsetが省略されるかもしれない。なぜなら、bufferはmemsetの後に使われていないから、memset自体が不要だとコンパイラーは判断できるからだ。
+</p>
+
+<p>
+そのために、最適化によって消えずに値を消去できるライブラリを提供する。
+</p>
+
+<pre><code>
+void secure_clear( void * data, size_t size ) noexcept ;
+template &lt; typename T &gt;
+void secure_clear( T &amp; object ) noexcept ;
+</code></pre>
+
+<p>
+この提案はさらに、secure_val&lt;T&gt;クラスを提案してる。secure_valはT型を保持するクラスで、デストラクターはT型をセキュアに破棄する。T型の値にアクセスする方法は関数オブジェクトを指定するもので、コピーを許さない。
+</p>
+
+<pre><code>
+void decrypt()
+{
+    std::secure_val&lt;char [64]&gt; val ;
+
+    val.access([]( auto &amp; data )
+    {
+        get_password( data ) ;
+    } ) ;
+
+    // 複合処理
+
+    // valのデストラクターがセキュアにメモリ上の値を廃棄
+}
+</code></pre>
+
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1314r0.html">unique_val</a>
+</h3>
+
+<p>
+secure_valに似ているunique_val。これはT型をコピーせずにムーブするクラスだ。
+</p>
+
+<p>
+ムーブしたあとのT型はデフォルト初期化された値になる。
+</p>
+
+<p>
+ポインターやシステムリソースへのハンドルを扱うのに使える。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1300r0.pdf">Remember the FORTRAN - p1300r0.pdf</a>
+</h3>
+
+<p>
+C++に現在提案されているモジュールの実験的な実装はFORTRANが30年間解決できなかったパフォーマンス上の課題を抱えていると警鐘を鳴らす文書。
+</p>
+
+<p>
+GCCのモジュール実装では、モジュールのソースファイルをコンパイルして.nsmファイルを作成しその後そのモジュールをimportするソースファイルをコンパイルすると、該当する.nsmファイルを使う。
+</p>
+
+<p>
+FORTRAN-90はモジュール機能を備えており、これは今のC++のモジュールと原理的に同じ機能を同じ実装で提供している。つまりFORTRANは30年前からモジュール機能がある。
+</p>
+
+<p>
+あるモジュールをimportするソースファイルをコンパイルするためには、事前に依存するモジュールをコンパイルしなければならない。モジュールは別のモジュールをimportできる。つまりモジュールをコンパイルするには事前に依存する別のモジュールをすべてコンパイルしなければならない。
+</p>
+
+<p>
+これはビルドシステムととても相性が悪い。ビルドシステムが複数のソースファイルからなるプログラムをビルドするとき、モジュールの依存関係を把握してDAGを構築し、適切な順序でモジュールをコンパイルしなければならないということだ。つまりビルドシステムはC++ソースファイルを解釈する必要がある。
+</p>
+
+<p>
+IntelのFORTRANコンパイラーのマニュアルは「プログラムが依存するモジュールのファイルは事前に生成しておけ」という。Intelという超巨大で世界的な大企業ですら、莫大な利用料を支払う顧客に対して、「依存してるモジュールは事前に全部コンパイルしとけよ」ぐらいの助言しか与えられていないのだ。
+</p>
+
+<p>
+著名なGNU Fortran開発者ですら、Fortranのプログラムをビルドするときは、「Makeを成功するまで十分な回数実行する」と言っている。
+</p>
+
+<p>
+モジュールを正しくコンパイルするにはモジュールの依存関係の解析が必要で、そのためにはソースファイルの解釈が必要になる。Makeやninjaのような汎用的なビルドシステムにC++を解釈する機能をつけることは現実的ではないので、C++コンパイラーが依存関係を解決する機能を提供するようになるだろう。
+</p>
+
+<p>
+ところで、Windowsはプログラムを起動するパフォーマンスが極めて悪い。1ソースファイルごとにC++コンパイラーを1回起動して依存関係を解決するような実装はWindowsではパフォーマンスが悪い。
+</p>
+
+<p>
+不自由で低能なWindowsはプロセスの作成もスレッドの作成も遅いし、ましてやファイルの作成に至っては、i7でNVMeのSSDを積む高性能なコンピューター上で動くWindows 10がRaspberry PiとSDカード構成のRaspbianにすらパフォーマンスで負けるという信じられないほどの低能を誇っている。
+</p>
+
+<p>
+<a href="http://www.bitsnbites.eu/benchmarking-os-primitives/">Benchmarking OS primitives – Bits'n'Bites</a>
+</p>
+
+<p>
+そして、ソースファイルの一部だけを変更した後の部分的なビルドですら、モジュールの依存関係が変わるかもしれないので依存関係の解決が必要だ。
+</p>
+
+<p>
+モジュールはビルド時間を削減するべきであって、ビルド時間を増やすのは本末転倒だ。
+</p>
+
+<p>
+FORTRANが30年かかっても解決できていない問題は解決できそうにない。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1283r0.html">P1283R0: Sharing is Caring</a>
+</h3>
+
+<p>
+Linuxのshared libraryやWindowsのDLLのためにエンティティをexportする属性、sharedの追加の提案。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1282r0.html">P1282R0: Ceci N’est Pas Une Pipe: Adding a workflow operator to C++</a>
+</h3>
+
+<p>
+新しいワークフロー演算子として&lt;|と|&gt;を追加する提案。
+</p>
+
+<pre><code>
+// 右から左
+a &lt;| b ;
+// 左から右
+a |&gt; b ;
+</code></pre>
+
+<p>
+C++20にはレンジやExecutorやコルーチンやモナドが提案されているがこれらの提案は右から左、もしくは左から右といった処理の流れを記述する。例えば以下は1から始まる整数列を生成し、奇数だけをフィルターした整数列にし、その先頭から5個だけを取り出した整数列にするレンジのコードだ。
+</p>
+
+<pre><code>
+iota(1) | filter(odd) | take(5) ;
+</code></pre>
+
+<p>
+これは処理の流れがわかりにくい。すでにoperator &gt;&gt;はあるが、これは演算子の評価順序の関係で使えない。operator &gt;&gt;=なら使えるがこれは汚い。
+</p>
+
+<p>
+そこでオーバーロード可能なワークフロー演算子を追加する。
+</p>
+
+<pre><code>
+iota(1) |&gt; filter(odd) |&gt; take(5) ;
+</code></pre>
+
+<p>
+これはほしい。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1281r0.html">P1281R0: Feature Presentation</a>
+</h3>
+
+<p>
+本当の条件付きコンパイル機能の提案。
+</p>
+
+<p>
+constexpr ifは条件付きコンパイルではなく、条件付きテンプレート実体化抑制機能だ。そのために意味上エラーとなるコードを書くことができない。
+</p>
+
+<p>
+この提案では、条件付きコンパイル機能を提供する属性により、文法上正しいが、意味上エラーとなるコードを書けるようにする。
+</p>
+
+<pre><code>
+[[ feature("key")]] 
+</code></pre>
+
+<p>
+[[feature()]]はキーとなる文字列を受け取る。このキー文字列が宣言されていないか、ブロックリストに入っている場合は、その属性がある宣言とその中身がASTから取り除かれる。
+</p>
+
+<p>
+利用例は以下の通り。
+</p>
+
+<pre><code>
+struct [[feature("vulkan")]] Device {
+  [[feature("glsl-to-spirv")]]
+  static Shader compile(std::filesystem::path filename);
+  static Shader load (std::filesystem::path spirv_file);
+};
+
+struct [[feature("direct-x")]] Device {
+  [[feature("hlsl-to-spirv")]]
+  static Shader compile (std::filesystem::path filename);
+  static Shader load (std::filesystem::path spirv_file);
+};
+</code></pre>
+
+<p>
+いまグラフィックAPI用のライブラリを書きたいとする。このライブラリはVulkanとDirectXを両方サポートする。ただしコンパイル時の環境では、VulkanかDirectXのどちらかしか提供されていない。上のようなコードで、"vulkan"か"direct-x"のどちらかのキー文字列だけを宣言することで、2つのDeviceクラスの実装のうち、どちらか片方だけを有効にできる。無効な属性のクラスはまるごとASTから取り除かれる。
+</p>
+
+<p>
+さらにこのライブラリはシェーダー言語であるGLSLやHSSLからSPIR-Vへの変換機能を提供するが、条件次第ではこの機能を提供しないことも選択できる。
+</p>
+
+<p>
+文法上妥当である必要があるので、比較的穏当な条件付きコンパイルだ。#ifdefはいずれ廃止したいものだ。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1280r0.html">P1280R0: Integer Width Literals</a>
+</h3>
+
+<p>
+ビット長を指定した整数型intN_tとuintN_tに対するユーザー定義リテラルとして、operator "" iNとoperator "" uNを追加する提案。
+</p>
+
+<pre><code>
+using namespace::literals ;
+
+auto a = 0i16 ; // std::int16_t
+auto b = 0i32 ; // std::int32_t
+
+auto c = 0u8 ; // std::uint8_t
+auto d = 0u64 ; // std::uint64_t
+</code></pre>
+
+<p>
+便利だ。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1279r0.html">P1279R0: std::breakpoint</a>
+</h3>
+
+<p>
+プログラムからブレイクポイントを設定できるライブラリstd::breakpointの提案。
+</p>
+
+<pre><code>
+using namespace std::literals ;
+
+int main()
+{
+    std::breakpoint() ;
+    std::cout &lt;&lt; "hello"sv ;
+    std::breakpoint() ;
+    std::cout &lt;&lt; "world"sv ;
+    std::breakpoint() ; 
+}
+</code></pre>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1278r0.html">P1278R0: offsetof For the Modern Era</a>
+</h3>
+
+<p>
+std::offsetofの提案。offsetofはマクロでstandard layout classにしか使えない。std::offsetofはstd::bit_castで実装できるが、std::bit_castはconstexprではない。std::offsetofはconstexprになるべきだが、議論が必要だ。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1277r0.html">P1277R0: Subscripts On Parade</a>
+</h3>
+
+<p>
+operator []で複数の引数を取れるようにする提案。
+</p>
+
+<pre><code>
+struct S
+{
+    int &amp; operator [] ( int a, int b, int c ) ;
+} ;
+
+int main()
+{
+    S s ;
+    s[1,2,3] = 1 ;
+}
+</code></pre>
+
+<p>
+多次元配列ライブラリが提案中だが、多次元配列へのアクセスをできるだけ直感的に書けるようにしたい。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1276r0.html">P1276R0: Void Main</a>
+</h3>
+
+<p>
+void mainを認める提案。すでにmain関数は空のreturn文を認めていて、その場合は0を返したものとみなされる。ならばvoid mainも認めてよいはずだ。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1275r0.html">P1275R0: Desert Sessions: Improving hostile environment interactions</a>
+</h3>
+
+<p>
+C++にプログラムの引数の参照と、環境変数を参照、変更できるライブラリを追加する提案。C++風にイテレーターでアクセスできる。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1274r0.html">P1274R0: Bang For The Buck</a>
+</h3>
+
+<p>
+識別子としてダラーサイン($)を認める提案。さらに、識別子の最後に限り驚嘆符(!)と疑問符を(?)を認める。
+</p>
+
+<p>
+これにより"set!"や"empty?"のような関数名も使えるようになる。
+</p>
+
+<p>
+$は静的リフレクションのキーワードreflexprの代わりに使えるようにすべきだという声もあるが、著者は識別子として使えるようにしたほうが有益だと主張している。
+</p>
+
+<p>
+私としては$はreflexprの代わりに使いたい。jQueryのように・・・というと縁起が悪いが。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1260r0.pdf">Pattern Matching - p1260r0.pdf</a>
+</h3>
+
+<p>
+パターンマッチの提案。文法は比較的穏健。
+</p>
+
+<p>
+整数の例
+</p>
+
+<pre><code>
+// Before
+witch (x) {
+    case 0: std::cout &lt;&lt; "got zero";
+    case 1: std::cout &lt;&lt; "got one";
+    default: std::cout &lt;&lt; "don't care";
+}
+
+// After
+inspect (x) {
+    0: std::cout &lt;&lt; "got zero";
+    1: std::cout &lt;&lt; "got one";
+    _: std::cout &lt;&lt; "don't care";
+}
+</code></pre>
+
+<p>
+文字列の例
+</p>
+
+<pre><code>
+// Before
+if (s == "foo") {
+    std::cout &lt;&lt; "got foo";
+} else if (s == "bar") {
+    std::cout &lt;&lt; "got bar";
+} else {
+    std::cout &lt;&lt; "don't care";
+}
+
+// After
+inspect (s) {
+    "foo": std::cout &lt;&lt; "got foo";
+    "bar": std::cout &lt;&lt; "got bar";
+    _: std::cout &lt;&lt; "don't care";
+}
+</code></pre>
+
+<p>
+tupleの例
+</p>
+
+<pre><code>
+// Before
+auto&amp;&amp; [x, y] = p;
+if (x == 0 &amp;&amp; y == 0) {
+    std::cout &lt;&lt; "on origin";
+} else if (x == 0) {
+    std::cout &lt;&lt; "on y-axis";
+} else if (y == 0) {
+    std::cout &lt;&lt; "on x-axis";
+} else {
+    std::cout &lt;&lt; x &lt;&lt;','&lt;&lt; y;
+}
+
+// After
+inspect (p) {
+    [0, 0]: std::cout &lt;&lt; "on origin";
+    [0, y]: std::cout &lt;&lt; "on y-axis";
+    [x, 0]: std::cout &lt;&lt; "on x-axis";
+    [x, y]: std::cout &lt;&lt; x &lt;&lt;','&lt;&lt; y;
+}
+</code></pre>
+
+<p>
+他にもvariantの例、ポリモーフィック型の例、式を評価する例がある。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1308r0.html">pattern_matching</a>
+</h3>
+
+<p>
+別のパターンマッチの提案。こちらはどの関数型言語からやってきたんだというぐらい既存のC++にそぐわない異質な文法になっている。
+</p>
+
+<p>
+enumの例
+</p>
+
+<pre><code>
+enum color { red, yellow, green, blue };
+
+// Before
+const Vec3 opengl_color = [&amp;c] {
+  switch(c) {
+    case red:
+      return Vec3(1.0, 0.0, 0.0);
+      break;
+    case yellow:
+      return Vec3(1.0, 1.0, 0.0);
+      break;
+    case green:
+      return Vec3(0.0, 1.0, 0.0);
+      break;
+    case blue:
+      return Vec3(0.0, 0.0, 1.0);
+      break;
+    default:
+      std::abort();
+  }();
+
+// After
+const Vec3 opengl_color =
+  inspect(c) {
+    red    =&gt; Vec3(1.0, 0.0, 0.0)
+    yellow =&gt; Vec3(1.0, 1.0, 0.0)
+    green  =&gt; Vec3(0.0, 1.0, 0.0)
+    blue   =&gt; Vec3(0.0, 0.0, 1.0)
+  };
+</code></pre>
+
+<p>
+あまりにもC++として異質すぎる。
+</p>
+
+<p>
+クラスに対するパターンマッチの例
+</p>
+
+<pre><code>
+struct player {
+  std::string name;
+  int hitpoints;
+  int lives;
+};
+
+// Before
+oid takeDamage(player &amp;p) {
+  if(p.hitpoints == 0 &amp;&amp; p.lives == 0)
+    gameOver();
+  else if(p.hitpoints == 0) {
+    p.hitpoints = 10;
+    p.lives--;
+  }
+  else if(p.hitpoints &lt;= 3) {
+    p.hitpoints--;
+    messageAlmostDead();
+  }
+  else {
+    p.hitpoints--;
+  }
+}
+
+// After
+void takeDamage(player &amp;p) {
+  inspect(p) {
+    [hitpoints:   0, lives:0]   =&gt; gameOver();
+    [hitpoints:hp@0, lives:l]   =&gt; hp=10, l--;
+    [hitpoints:hp] if (hp &lt;= 3) =&gt; { hp--; messageAlmostDead(); }
+    [hitpoints:hp] =&gt; hp--;
+  }
+}
+</code></pre>
+
+<p>
+あまりに既存のC++の文法とは違いすぎる。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1235r0.pdf">p1235r0.pdf</a>
+</h3>
+
+<p>
+implicit constexprの提案。
+</p>
+
+<p>
+constexpr関数の制約は今後ますます減っていき、コンパイル時定数式にしたい処理は今後ますます増えていく。
+</p>
+
+<p>
+C++17ではlambda式のoperator ()は暗黙にconstexprだ。この結果、以下の同じように見えるコードの挙動が異なる。
+
+<pre><code>
+int f( int x ) { return x ; }
+auto g = [](int x ) { return x ; }
+
+// OK
+constexpr int a = f(0) ;
+// Error
+constexpr int b = g(0) ; 
+</code></pre>
+
+<p>
+そこですべての関数を暗黙にconstexprにしてしまおうというのがこの提案だ。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1178r0.html#_header_compile_synopsis">C++ Compile</a>
+</h3>
+
+<p>
+C++のコンパイル方法を標準化しようという提案。C++の教育SGが提唱されたり、パッケージシステムも議論される中、必要な提案ではあると思うが、果たして受け入れられるだろうか。
+</p>
+
+<p>
+この提案では、コンパイラーのオプション指定は+で指定する。長いオプションは++で指定する。
+</p>
+
+<pre><code>cpp hello.cpp ++output=hello
+</code></pre>
+
+<p>
+まず&lt;compile&gt;ヘッダーにコンパイラーを呼び出すライブラリが追加される。
+</p>
+
+<pre><code>
+namespace std
+{
+  int compile(int, char * *) noexcept;
+  int compile(vector&lt;string&gt;) noexcept;
+}
+</code></pre>
+
+<p>
+一つ一つの文字列がargumentとして処理される。+で始まらないargumentはソースファイル名だ。
+</p>
+
+<p>
++で始まるのはコンパイル時のオプションで、例えばヘルプメッセージの出力、出力ファイル名、デバッグといったC++コンパイラーによくあるオプションを定義している。
+</p>
+
+<p>
+コンパイル方法を標準化することによって、教育や提案中のパッケージシステムで使いやすくなる。
+</p>
+
+<p>
+ファイルシステムライブラリも標準C++にある今、C++ライブラリとしてのビルドシステムという不思議な概念が浮かんだ。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1177r0.pdf">p1177r0.pdf</a>
+</h3>
+
+<p>
+パッケージシステムの全容の提案、コンパイラーAPI、ビルドシステムAPI、パッケージ依存解決API、パッケージ検索APIによって構成される。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1214r0.html">P1214R0: Pointer to Member Functions and Member Objects are just Callables!</a>
+</h3>
+
+<p>
+メンバーへのポインターをINVOKEのように振る舞わせる提案。
+</p>
+
+<pre><code>
+struct Foo
+{
+    int data ;
+    int func( int x ) { return x ; }
+} ;
+
+int main()
+{
+    int (Foo::*data_ptr) = &amp;Foo::data ;
+    int (Foo::*func_ptr)(int) = &amp;Foo::func ;
+    Foo obj ;
+
+    // Before
+    obj.*data_ptr = 123 ;
+    (obj.*func_ptr)(123) ;
+
+    // After
+    data_ptr(obj) = 123 ;
+    func_ptr(obj, 123) ;
+}
+</code></pre>
+
+<p>
+ジェネリックコードで大量の特殊化を書く必要がなくなる。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1227r0.html">p1227R0: Signed size() functions</a>
+</h3>
+
+<p>
+符号付き整数を返すsize関数としてssizeの提案。
+</p>
+
+<pre><code>std::vector&lt;int&gt; v ;
+for ( int i = 0 ; i &lt; v.size() - 1 ; ++i )
+{ }
+</code></pre>
+
+<p>
+このコードは"0u-1"を実行してしまうので意図通り動かない。ssizeがあれば、"v.ssize() - 1"と書ける。
+</p>
+
+<h3>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1108r1.html">P1108R1: web_view</a>
+</h3>
+
+<p>
+画期的に使いやすいグラフィックライブラリ、webviewの提案の改定案。変更点としては議論が追加されている。これはHTMLとCSSをブラウザーで表示し、JavaScriptを注入できる極めて簡単なライブラリだ。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
