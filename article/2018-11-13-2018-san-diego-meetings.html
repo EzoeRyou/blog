@@ -1,0 +1,429 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+C++標準化委員会の2018サンディエゴ会議の結果
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2018/11/c2018.html">
+C++標準化委員会の2018サンディエゴ会議の結果
+</a></h1>
+
+<p>
+<a href="https://www.reddit.com/r/cpp/comments/9vwvbz/2018_san_diego_iso_c_committee_trip_report_ranges/">2018 San Diego ISO C++ Committee Trip Report (Ranges v1 TS for C++20; consensus on modules design; new Language and Library Evolution Incubators) : cpp</a>
+</p>
+
+<p>
+2018年サンディエゴ会議のトリップリポートが公開されている。今回も大きく変わった。
+</p>
+
+<h2>
+<a href="https://wg21.link/P0896">Range</a>
+</h2>
+
+<p>
+Rangeが入った。Rangeは膨大なのでここでは解説しない。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1141r1.html">Yet another approach for constrained declarations</a>
+</h2>
+
+<p>
+autoと書くべきところをCocept autoと書けるようになった。
+</p>
+
+<pre><code>
+template &lt;auto N &gt;
+auto f( auto x )
+{
+    auto y = x ;
+}
+</code></pre>
+
+<p>
+というコードを、
+</p>
+
+<pre><code>
+template &lt; Concept auto N &gt;
+Concept auto f( Concept auto x )
+{
+    Concept auto y = x ;
+}
+</code></pre>
+
+<p>
+と書ける。
+</p>
+
+<p>
+関数の戻り値の型と変数宣言の場合はautoを省略できる。
+</p>
+
+<pre><code>
+template &lt; Concept auto N &gt;
+Concept f( Concept auto x )
+{
+    Concept y = x ;
+}
+</code></pre>
+
+<p>
+こんなところがまだ変わるようでは、まだまだC++20参考書は書けそうにない。書いたそばから変わっていく。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1073r2.html">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1073r2.html</a>
+</h2>
+
+<p>
+必ずコンパイル時に評価されるconsteval関数が追加された。
+</p>
+
+<pre><code>consteval int f( int x )
+{
+    return x+1 ;
+}
+</code></pre>
+
+<p>
+constexpr関数は実行時評価でよい場合は評価を実行時に遅延させてもよいという規定がある。consteval関数は必ずコンパイル時に評価される。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0595r1.html">std::is_constant_evaluated</a>
+</h2>
+
+<p>
+コンパイル時評価されているときにtrueを返すstd::is_constant_evaluatedを追加する。
+</p>
+
+<pre><code>
+constexpr double power(double b, int x) {
+  if (std::is_constant_evaluated() &amp;&amp; x &gt;= 0) {
+    // A constant-evaluation context: Use a
+    // constexpr-friendly algorithm.
+    double r = 1.0, p = b;
+    unsigned u = (unsigned)x;
+    while (u != 0) {
+      if (u &amp; 1) r *= p;
+      u /= 2;
+      p *= p;
+    }
+    return r;
+  } else {
+    // Let the code generator figure it out.
+    return std::pow(b, (double)x);
+  }
+}
+</code></pre>
+
+<p>
+これにより、constexpr関数の中にコンパイル時処理と実行時処理を同時に書くことができるようになる。
+</p>
+
+<p>
+少し異質なライブラリで、コンパイラーマジックでサポートされるので、ヘッダーファイルに依存せず使うことが可能となっている。
+</p>
+
+<h2>
+<a href="http://wiki.edg.com/pub/Wg21sandiego2018/StrawPolls/p1330r0.pdf">[C++標準化委員でなければ読めない] p1330r0.pdf</a>
+</h2>
+
+<p>
+unionの有効なメンバーを切り替える処理をコンパイル時定数にする。std::stringやstd::optionalをconstexpr化するのに必要。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1002r0.pdf">p1002r0.pdf</a>
+</h2>
+
+<p>
+try, catchをコンパイル時処理では無視する。コンパイル時定数への対応ではない。標準ライブラリの多くをconstexpr化するのに必要。将来的に例外をコンパイル時定数に対応する可能性を閉ざすものではない。
+</p>
+
+<h2>
+<a href="http://wiki.edg.com/pub/Wg21sandiego2018/EvolutionWorkingGroup/P1327R0.html">Allowing dynamic_cast, polymorphic typeid in Constant Expressions</a>
+</h2>
+
+<p>
+dynamic_castとtypeidをコンパイル時定数にする変更。すでにコンパイル時にvirtual関数を使えるようになっているため、制限する理由がなくなった。C++20ではC++コンパイラーはコンパイル時に確保されたオブジェクトの型を把握して適切にディスパッチする必要がある。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1006r1.pdf">p1006r1.pdf</a>
+</h2>
+
+<p>
+std::pointer_traitsをconstexprに対応させる変更。std::vectorをconstexprにするために必要。
+</p>
+
+<p>
+今回はまだ入らなかったが、動的メモリ確保も次回あたりにコンパイル時定数になる予定だ。つまりコンパイル時に動的メモリ確保ができるようになる上、その他の例外やらvirtual関数やらunionやらといった処理もすべてコンパイル時定数になるので、std::stringやstd::vectorがそのままconstexprに対応することになる。C++20ではほとんどの処理がコンパイル時定数になる。これは静的リフレクションを入れるために必要な変更だ。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1032r1.html">Misc constexpr bits</a>
+</h2>
+
+<p>
+標準ライブラリのconstexprにできる部分を積極的にconstexprにしていく変更。
+</p>
+
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0668r4.html">P0668R4: Revising the C++ memory model</a>
+</h2>
+
+<p>
+C++のメモリーモデルの変更。一部のアーキテクチャのとても弱い保証に対応した。一部のアーキテクチャー、PowerやNVIDIAのGPUとARMは、memory_order_seq_cstに対応しつつrelease/aquireに対応できない。memory_order_seq_cstの存在を許すaquire/releaseを実装するためには、よりペナルティの高い強めのフェンスを挿入しなければならない。しかしそのような理論的な問題のためだけに強いフェンスを使いたくはない。そのために、memory_order_seq_cstには対応しない弱いatomic型を追加する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1236r0.html">P1236R0: Alternative Wording for P0907R4 Signed Integers are Two's Complement</a>
+</h2>
+
+<p>
+符号付き整数型の値の表現は2の補数であることがC++の規格で保証する変更。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0482r5.html">char8_t: A type for UTF-8 characters and strings (Revision 5)</a>
+</h2>
+
+<p>
+UTF-8文字リテラル、UTF-8文字列リテラルの文字の型を表現するchar8_tを追加する提案。私が9年前にC++0xのときに提案したところ、「でもchatは生のバイト列を表現するのに適切な型だからー」と寝ぼけた主張で却下されたにもかかわらず、後になって「やっぱchar8_tにしとけばよかったなぁ」となったので変更された。私には愚痴を言う権利がある。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1094r1.html">Nested Inline Namespaces</a>
+</h2>
+
+<p>
+インライン名前空間をネストで書けるようにする。
+</p>
+
+<pre><code>
+namespace lib::container {
+    inline namespace v1 {
+        namespace node {
+        }
+    }
+}
+
+
+namespace lib::container {
+    inline namespace v2 {
+        namespace node {
+        }
+    }
+}
+</code></pre>
+
+<p>
+のように中間のinline名前空間を書く際にはC++17に追加されたネストされた名前空間で書けなかったが、
+</p>
+
+<pre><code>
+namespace lib::container::inline v1::node {
+}
+
+namespace lib::container inline v2::node {
+}
+</code></pre>
+
+<p>
+のように書けるようにする。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1289r0.pdf">p1289r0.pdf</a>
+</h2>
+
+<p>
+contractの中ではアクセス指定を無視する変更。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1007r2.pdf">p1007r2.pdf</a>
+</h2>
+
+<p>
+std::assume_aligned&lt;N&gt;(ptr)の追加。ポインターptrの指すアドレスがNでアラインされていることをコンパイラーにヒントとして与える
+</p>
+
+<pre><code>
+// intの配列から合計をSIMD演算で計算する関数
+int sum_ints( int * ptr, std::size_t n )
+{
+    std::assume_aligned( ptr, alignof(int) ) ;    
+    // アライメント要求のあるSIMD演算で合計を計算
+    return 
+}
+</code></pre>
+
+<p>
+実際に指定したアライメントになっていることを保証するのはユーザーの仕事だ。std::assume_alignedはアライメントが保証されていると仮定してよいとコンパイラーにヒントを与えることによって、コンパイラーがSIMD演算のようなコード生成を行うときに、アライメント調整用のコードを生成せずに住むようにする。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1085r2.md">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1085r2.md</a>
+</h2>
+
+<p>
+spanからoperator ==を取り除く変更。spanをregularにするために必要な変更。
+</p>
+
+<p>
+STLの作者Alexander StepanovはC++では型はRegularであるとが重要だと力説した。型がRegularでない場合、もたらす利便性よりも混乱のほうが大きくなる。
+</p>
+
+
+<p>
+コピーコンストラクターとコピー代入演算子は、オブジェクトの「値」をコピーする。
+</p>
+
+<p>
+operator ==やoperator &lt;はオブジェクトの「値」を比較する。
+</p>
+
+<p>
+型がRegularであるためには、コピーと比較は同じ「値」を比較しなければならない。コピーと比較で「値」の定義が異なっている場合、混乱の元だ。
+</p>
+
+<p>
+さて、spanはどうなっているか。spanのコピーはshallowだ。つまり、ポインターとそのサイズがコピーされる。一方、spanのoperator ==はdeepだ。つまり、ポインターの参照する先のストレージが比較される。
+</p>
+
+<p>
+spanをRegularにするためには、spanのoperator ==を廃止する。
+</p>
+
+<h2>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1020r0.html">Smart pointer creation with default initialization</a>
+</h2>
+
+<p>
+make_unique_default_init&lt;T&gt;/make_shared_default_init&lt;T&gt;を追加する。これはデフォルト初期化されたunique_ptr&lt;T&gt;/shared_ptr&lt;T&gt;を返す。
+</p>
+
+<p>
+size_t型の引数nを取るものもあり、こちらはunique_ptr&lt;T[]&gt;/shared_ptr&lt;T[]&gt;を返す。
+</p>
+
+<pre><code>
+// デフォルト初期化されたint型の値の
+// std::unique_ptr&lt;T&gt;
+auto p = std::make_unique_default_init&lt;int&gt;() ;
+// それぞれデフォルト初期化されたint型の値で要素数が5の
+// std::unique_ptr&lt;T[]&gt;
+auto a = std::make_unique_default_init&lt;int&gt;(5) ;
+</code></pre>
+
+
+<p>
+C++標準化委員会では、特定の分野について議論するStudy Groupが設置されるが、今回、新しいStudy Groupとして、SG19 Machine LearningとSG20 Educationが追加された。SG19は名前だけみると機械学習についてで、SG20は前から作ると宣言されていた教育に関するSGだ。
+</p>
+
+<p>
+C++を発展させるEvolution Working Groupでは以下のような興味深い議論があった。
+</p>
+
+<p>
+モジュールの中でmain関数を定義できる提案と、プログラムにデータを埋め込むstd::embed提案はより深い議論とフィードバックが必要だとされた。
+</p>
+
+<p>
+void main提案は却下された。
+</p>
+
+<p>
+興味深いのは、operator []の中の operator , の利用をdeprecatedにしようという決定だ。
+</p>
+
+<pre><code>
+int a[5] ;
+a[1,2] ; // a[2]と同じ
+</code></pre>
+
+<p>
+このコードがdeprecated扱いになる。operator []の中のカンマは、多次元配列を実装するための何らかの新しい機能として予約される。
+</p>
+
+<p>
+short float提案についてコンセンサスは得られなかった。
+</p>
+
+<p>
+std::colonyはもっと作業が必要だとされた。
+</p>
+
+<p>
+設計的には賛同できるのでC++20に追加する方向で進めるライブラリとして、テキストフォーマット(std::format)、スタックトレースライブラリがある。
+</p>
+
+<p>
+SG13 Graphics Study Groupではオーディオに関する興味もあるらしい。またweb_viewに対するさらなる作業を推奨する雰囲気だ。
+</p>
+
+<p>
+今後の予定としては、2019年春のKona会議でFeature freezeをし、2019年夏のドイツのCologne会議でCommittee Draftの文面を完成させる。つまり来年の半ばにはC++20の概要は決定するわけだ。
+</p>
+
+<p>
+モジュールはおそらくC++23以降に延期される。コルーチンやExecutorも延期される。ネットワークライブラリはおそらくC++26以降になるだろう。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
