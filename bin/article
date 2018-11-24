@@ -27,4 +27,4 @@ then
     sed -i "s/placeholder-title/""$title""/g" "$filename"
 fi
 
-nvim -f "$filename"
+vim -f "$filename"
