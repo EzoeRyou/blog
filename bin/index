@@ -61,4 +61,4 @@ sed -i '50a'"$entry" index.html
 mv "$1" "$filename"
 git add "$filename"
 git commit -am "$title"
-echo "$tile" "https://ezoeryou.github.io/blog/$filename" | xsel -b
+echo "$title" "https://ezoeryou.github.io/blog/$filename" | xsel -b
