@@ -1,0 +1,196 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+Linus Torvalds様、ユーザースペースの互換性を壊した開発者に強い態度をお示しになる
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2018/12/linus-torvalds.html">
+Linus Torvalds様、ユーザースペースの互換性を壊した開発者に強い態度をお示しになる
+</a></h1>
+
+
+
+<p>
+Linuxカーネル4.18から、userns mountに対して暗黙にSB_I_NODEVを設定するようになったために、既存のsystemdのnspawn実装が壊れた。
+</p>
+
+<p>
+以下が問題のパッチだ。
+</p>
+
+<p>
+<a href="https://github.com/torvalds/linux/commit/55956b59df336f6738da916dbb520b6e37df9fbd">https://github.com/torvalds/linux/commit/55956b59df336f6738da916dbb520b6e37df9fbd</a>
+</p>
+
+<p>
+Linuxカーネルにおいては、ユーザースペースの挙動は変えないという強い下位互換保障がある。以前のバージョンのカーネルで動いていたユーザースペースのコードが新しいバージョンのカーネルで動かなくなった場合、それは理由が何であれ新しいバージョンのカーネルのバグであるとみなされる。たとえそれが、ドキュメント化していない明示的に保証されているわけではない昔のカーネルの暗黙の挙動であれ、その挙動に依存している既存のユーザースペースのコードがあるのであれば、その挙動を壊すのはカーネルのバグであって、ユーザースペースのバグではない。
+</p>
+
+<p>
+このパッチを書いたEric W. Biedermanは、そもそもドキュメント化されていない挙動であるのでこれはカーネルのバグではなくてユーザースペースのバグであると主張した。
+</p>
+
+<p>
+このようなユーザースペースに悪影響を与える下位互換性を破壊する変更をして、しかも悪びれないLinuxカーネル開発者は、従来ならばLinus Torvalds直々に大文字かつFから始まる4文字言葉で罵倒されるのが常であった。
+</p>
+
+<p>
+しかし、最近Linusは改心し、人の気持ちを勉強し、
+</p>
+
+<p>
+<a href="https://cpplover.blogspot.com/2018/09/linus.html">本の虫: Linus、今までの行いを謝罪し一時的にカーネルメンテナーの立場を退いて人の気持ちを勉強してくると発言</a>
+</p>
+
+<p>
+その結果、人を叱るときにも以前のような罵倒はしなくなった。
+</p>
+
+<p>
+<a href="https://cpplover.blogspot.com/2018/10/blog-post_29.html">本の虫: 帰ってきたきれいなリーナス・トーバルズ、無作法な開発者をたしなめる</a>
+</p>
+
+<p>
+さて、今回のLinusはどうであろうか。
+</p>
+
+<blockquote>
+<p>
+<a href="https://lkml.org/lkml/2018/12/22/221">LKML: Linus Torvalds: Re: [BREAKAGE] Since 4.18, kernel sets SB_I_NODEV implicitly on userns mounts, breaking systemd-nspawn</a>
+</p>
+
+<p>
+エリック、これは到底受け入れられんぞ。
+</p>
+
+<p>
+On Sat, Dec 22, 2018 at 12:58 PM Gabriel C &lt;nix.or.die@gmail.com&gt; wrote:
+</p>
+
+<p>
+&gt;<br>
+&gt; これに関心がある人をCCに追加しておいた。
+</p>
+
+<p>
+サンクス
+</p>
+
+<p>
+&gt; &gt; この問題についてlkmlに送られたメール<br>
+&gt; &gt;<br>
+&gt; &gt; https://lkml.org/lkml/2018/7/5/742<br>
+&gt; &gt;<br>
+&gt; &gt; これもリンクしておく。最後を引用<br>
+&gt; &gt;<br>
+&gt; &gt; そもそもデバイスノードへのmknodがデバイスノードをオープンできる保障なんてどこにもない。<br>
+&gt; &gt; リグレを起こしたアプリケーションはそもそも元から壊れていたものだ。<br>
+&gt; &gt; 俺らカーネルがバグ互換を維持しないというわけでもないが、俺らはバグ互換なバグについて明白にドキュメント化すべきだ。
+</p>
+
+<p>
+ああ、こいつは完全にゴミだ。
+</p>
+
+<p>
+俺達カーネルの世界ではな、明白なルールってものがあるんだよ。もし何かが既存の仕組みを壊したら、それはアプリケーションが壊れたのでは(以下大文字)絶対にない。
+</p>
+
+
+<p>
+カーネルが壊れているのだ。
+</p>
+
+<p>
+ここにグレイエリアってものは一切ない。エリック、お前の行動は一線を越えた。そして俺らは明らかに6月にまで遡れるリグレッションを抱えていて、しかもお前の正しくない態度のせいで俺にまでその存在が報告されてこなかった。
+</p>
+
+
+<p>
+エリック、俺はこれを1000%明白にしておくがな、ユーザースペースにバグはない。もしそれが動いていたのであれば、ユーザースペースは明白に正しいことをしている。お前が何度もユーザースペースのバグだと主張した事実は深刻な信頼の毀損だ。お前はこの問題について(以下大文字)知っていたはずだ。
+</p>
+
+<p>
+いやマジで。言い訳になることはなにもねぇぞ。
+</p>
+
+
+<p>
+このコミットは俺のツリーからrevertしておいた。そして、俺はお前がこの問題を根本的に理解して飲み込むのが明らかになるまでお前からのプルリクは一切受け付けない。
+</p>
+
+<p>
+なんでこの問題が俺にまで報告が上がってくるのにこんなに時間がかかったんだ？
+</p>
+
+<p>
+リーナス
+</p>
+</blockquote>
+
+
+<p>
+まず一見して罵倒語を使っていないのがわかる。にわかに母親を強姦した者呼ばわりすることもないし、男性器を吸引しろと迫ることもない。
+</p>
+
+<p>
+そして最後のセリフがよい。かつてのリーナスは、このようなLinuxカーネル開発のルールを破ったものに対し、「なんでこの俺がいまさらこんな初歩的な問題についていちいち注意してやらなければならないのだ」と書いたものだった。これは典型的なコミュニケーションロスを招きやすい上司の言動である。このような人間にたいしては問題の報告を躊躇してしまう。今回のメールでは、「なんで自分への問題報告がこんなに遅れたのか」と書いている。これは自分への報告が遅れたことに起こっているのであって、怒りの矛先が違う。
+</p>
+
+<p>
+Linusは明らかに変わった。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
