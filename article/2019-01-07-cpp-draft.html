@@ -385,7 +385,7 @@ Learn You a Haskell for Great Good
     auto s = std::to_string(n) ;
     decltype(n) sum = 0 ;
     for ( auto digit : s )
-        sum += digit ;
+        sum += digit - `0` ;
     return sum == 40 ;
 } ;
 
