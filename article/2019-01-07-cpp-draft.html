@@ -1,0 +1,430 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+2018-11のC++ドラフトの主要な変更
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2019/01/2018-11c.html">
+2018-11のC++ドラフトの主要な変更
+</a></h1>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/n4792.html">N4792</a>
+</p>
+
+<p>
+C++20のドラフトが更新された。今回も強めの変更が入っている。
+</p>
+
+<p>
+まずconstexprが大幅に強化された。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1002r1.pdf">p1002r1.pdf</a>
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1327r1.html">Allowing dynamic_cast, polymorphic typeid in Constant Expressions</a>
+</p>
+
+
+<p>
+C++20での最終的な目標は、std::vectorやstd::stringをconstexpr対応させることだ。そのために従来ならば実行時処理であった様々な機能がconstexprに対応している。今回の変更では、try/catchブロックやdynamic_cast/typeidがconstexprに対応した。また、unionの有効なメンバーの変更もconstexprに対応した。
+</p>
+
+<p>
+try/catchブロックはコンパイル時評価される場合、単に無視される。
+</p>
+
+<p>
+dyanmic_cast/typeidは本当にconstexprに対応する。すでにvirtual関数呼び出しがconstexprに対応していることを考えるとこれは当然だ。結果的に、コンパイル時に動的ポリモルフィズムが可能になるということだ。
+</p>
+
+<p>
+最終的な目標は、new/deleteをconstexpr対応させることだ。そうすれば、std::vectorやstd::stringは、なにもせずともそのままconstexpr対応する。今年中に入る見込みだ。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0595r2.html">std::is_constant_evaluated</a>
+</p>
+
+<p>
+また、constexpr関数がコンパイル時に評価されているかどうかを確かめるstd::is_constant_evaluated()関数が追加された。これによって、constexprが本当にコンパイル時に評価されている場合に条件分岐できるようになった。
+</p>
+
+<pre><code>constexpr int const_sqrt( double d )
+{
+    if constexpr( std::is_constant_evaluated() )
+    {
+        // コンパイル時評価
+        // 定数式にできるsqrt実装
+    }
+    else
+    {
+        // 実行時評価
+        // 実行時に効率のいいsqrt実装
+    }
+}
+</code></pre>
+
+<p>
+constexpr関数はコンパイル時にも実行時にも評価される。
+</p>
+
+<pre><code>
+constexpr int f( int x ) { return x ; }
+
+int main()
+{
+    int x = f(0) ; // コンパイル時評価
+    f(x) ; // 実行時評価
+}
+</code></pre>
+
+<p>
+しかし、本当にコンパイル時にだけ評価されてほしい関数を書きたい。このために、consteval関数が追加された。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1073r3.html">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1073r3.html</a>
+</p>
+
+<p>
+consteval関数はコンパイル時にしか評価されない。実行時評価しようとするとill-formedになる。
+</p>
+
+<pre><code>
+constexpr int f( int x ) { return x ; }
+
+int main()
+{
+    // OK、コンパイル時評価
+    int x = f(0) ; 
+    // ill-formed、実行時評価が必要
+    f(x) ;
+}
+</code></pre>
+
+<p>
+これにより本当にコンパイル時にしか評価されない関数を書ける。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0907r4.html">P0907R4: Signed Integers are Two’s Complement</a>
+</p>
+
+<p>
+C++20では、符号付き整数型は2の補数で表現されることが保証された。もはや2の補数表現を用いていないアーキテクチャは実質死滅したので、これは正しい変更だ。これまではatomicに限り2の補数表現が保証されていたが、すべての符号付き整数型が2の補数表現である現実的な規格になった。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0482r6.html">char8_t: A type for UTF-8 characters and strings (Revision 6)</a>
+</p>
+
+<p>
+UTF-8文字型のchar8_tが入った。理想的な変更が行われた。
+</p>
+
+<p>
+char8_tは基本型である。UTF-8文字と文字列はchar型からchar8_t型に変更される。暗黙の型変換は存在しない。ユーザー定義リテラルにchar8_t版が追加される。
+</p>
+
+<p>
+標準ライブラリもchar8_tに対応する。std::basic_stringのchar8_tに対するtypedef名として、std::u8stringが追加される。その他のライブラリもchar8_tとstd::u8stringの存在を前提としたC++11の時点で汝あるべき姿に戻る。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1141r2.html">Yet another approach for constrained declarations</a>
+</p>
+
+<p>
+コンセプト名をプレイスホルダー名(auto/decltype(auto))が使える文脈ならばどこでも使えるようにする。
+</p>
+
+<pre><code>void f(Sortable auto x);
+Sortable auto f();     
+Sortable auto x = f();  
+template &lt;Sortable auto N&gt; void f();
+</code></pre>
+
+<p>
+これをすべて組み合わせると以下のように書ける。
+</p>
+
+<pre><code>template &lt;Sortable auto N&gt; Sortable auto f(Sortable auto x)
+{
+    Sortable auto y = init;
+}
+</code></pre>
+
+<p>
+非制約版は以下のようになる。
+</p>
+
+<pre><code>template &lt;auto N&gt; auto f(auto x)
+{
+    auto y = init;
+}
+</code></pre>
+
+<p>
+なぜこのように書きたいかというと、変数や戻り値の型推定の場合にも型制約は書きたいためだ。
+</p>
+
+<pre><code>
+// 具体的な型は知らないが
+// Sortable制約を満たしているべき
+Sortable auto x = f() ;
+</code></pre>
+
+<p>
+そのためにコンセプト名による制約を書けるようにした。
+</p>
+
+<p>
+decltype(auto)も使える。
+</p>
+
+<pre><code>auto f() -&gt; Sortable decltype(auto)
+{
+    return g() ;
+}
+</code></pre>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1094r2.html">Nested Inline Namespaces</a>
+</p>
+
+<p>
+C++17ではネストされたnamespaceが簡単に書けるようになった。
+</p>
+
+<pre><code>// C++14まで
+namespace A {
+    namespace B {
+        namespace C {
+        }
+    }
+}
+
+// C++17
+namespace A::B::C {
+}
+</code></pre>
+
+<p>
+ただし、これはinline namespaceに対応していない。そのため、C++17をもってしても以下のように無骨に書かなければならない。
+</p>
+
+<pre><code>namespace A {
+    inline namespace B {
+        namespace C {
+        }
+    }
+}
+</code></pre>
+
+<p>
+C++20ではnested namespaceがinline namespaceに対応した。
+</p>
+
+<pre><code>namespace A::inline B::C {
+}
+</code></pre>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0896r4.pdf">Merge the Ranges TS - p0896r4.pdf</a>
+</p>
+
+<p>
+とうとうOne Range提案がドラフト入りした。One Range提案はRange TSから派生したRange提案で、J.R.R.Tolkienの指輪物語へのポップカルチャーリファレンスだ。その冒頭は以下のように始まっている。
+</p>
+
+
+<blockquote>
+<p>
+みっつの提案は空の下なるViewらのために<br>
+ななつの提案は岩の館のライブラリ拡張ワーキンググループに<br>
+ここのつの提案は死ぬべき定めのRange TSに<br>
+ひとつの提案は暗黒の玉座のライブラリワーキンググループのために<br>
+標準のいますジュネーブの地に
+</p>
+
+<p>
+ひとつの提案はすべてをrange::mergeし、ひとつの提案はすべてをrange::findし<br>
+ひとつの提案はすべてをまとめ、namespace rangesの元に束縛する<br>?
+標準のいますジュネーブの地に
+</p>
+</blockquote>
+
+<p>
+Rangeはとても便利だ。例えばvectorの中身を逆順にたどりたいとする。もちろんRange-based forは使いたい。
+</p>
+
+<pre><code>std::vector&lt;int&gt; v ;
+for ( auto &amp; e : v | reverse )
+    ... ;
+</code></pre>
+
+<p>
+問題はここで終わらない。vectorの中身を逆順にたどりたいついでに、値が100以下の要素だけたどりたい。
+</p>
+
+
+<pre><code>for ( auto &amp;amp; e : v
+    | reverse
+    | filter( []( auto &amp; e ){ return e &lt; 100 ; } )
+)
+    ... ;
+</code></pre>
+
+<p>
+問題はまだまだ終わらない。上の要素を5個だけ処理したい。
+</p>
+
+<pre><code>for ( auto &amp; e : v
+        | reverse
+        | filter( []( auto &amp; e ){ return e &lt; 100 ; } )
+        | take(5)
+)
+    ... ;
+</code></pre>
+
+<p>
+にわかに0から99までのインデックスループがしたくなった。
+</p>
+
+<pre><code>for ( auto i : iota(0, 100) )
+    ... ;
+</code></pre>
+
+<p>
+奇数だけ処理したくなった。
+</p>
+
+
+<pre><code>
+auto odd = []( auto n ) { reutrn n %2 == 1 ; } ;
+for ( auto i : iota(1) | filter( odd ) )
+    ... ;
+</code></pre>
+
+<p>
+最初の100個の奇数だけ処理したくなった。
+</p>
+
+<pre><code>
+auto odd = []( auto n ) { reutrn n %2 == 1 ; } ;
+for ( auto i : iota(1) | filter( odd ) | take(100) )
+    ... ;
+</code></pre>
+
+<p>
+これでC++20プログラマーはHaskellに近づくことができる。
+</p>
+
+<blockquote>
+<p>
+あなたが道端を歩いていたところ、急に老婆が近寄ってきて言った。 
+</p>
+
+<p>
+「すまんがお若いの、各桁の合計が40に等しい最初の自然数はなんじゃろうか」
+</p>
+
+<p>
+Learn You a Haskell for Great Good
+</p>
+</blockquote>
+
+<pre><code>auto rule = [](auto n) {
+    auto s = std::to_string(n) ;
+    decltype(n) sum = 0 ;
+    for ( auto digit : s )
+        sum += digit ;
+    return sum == 40 ;
+} ;
+
+std::cout &lt;&lt; *begin( iota(1) | filter( rule ) ) ;
+</code></pre>
+
+<p>
+空白で区切られた単語をstd::vectorに格納したくなった。
+</p>
+
+<pre><code>std::string sentence = "quick brown fox" ;
+std::vector&lt;std::string&gt; words ;
+std::copy( sentence | split( ' ' ), std::back_inserter( words ) ) ;
+// vは{"quick", "brown", "fox"}
+</code></pre>
+
+<p>
+区切った単語の各文字を雑に処理したくなった。
+</p>
+
+<pre><code>for ( char c : words | join )
+    std::cout &lt;&lt; c ;
+// 出力は"quickbrownfox"
+</code></pre>
+
+<p>
+あとはC++にモナドが入るのを待つだけだ。
+</p>
+
+<p>
+C++20はコンセプトとレンジのおかげで圧倒的に使いやすくなる。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
