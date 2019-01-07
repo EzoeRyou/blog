@@ -348,7 +348,7 @@ for ( auto &amp; e : v | reverse )
 
 
 <pre><code>
-auto odd = []( auto n ) { reutrn n %2 == 1 ; } ;
+auto odd = []( auto n ) { return n %2 == 1 ; } ;
 for ( auto i : iota(1) | filter( odd ) )
     ... ;
 </code></pre>
@@ -358,7 +358,7 @@ for ( auto i : iota(1) | filter( odd ) )
 </p>
 
 <pre><code>
-auto odd = []( auto n ) { reutrn n %2 == 1 ; } ;
+auto odd = []( auto n ) { return n %2 == 1 ; } ;
 for ( auto i : iota(1) | filter( odd ) | take(100) )
     ... ;
 </code></pre>
