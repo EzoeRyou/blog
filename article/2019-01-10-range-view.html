@@ -1,0 +1,480 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+The overview of C++20 Range view
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="http://cpplover.blogspot.jp/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+ブログ: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2019/01/the-overview-of-c20-range-view.html">
+The overview of C++20 Range view
+</a></h1>
+
+<p>
+The latest C++ draft as of this writing incorporated One Range proposal.
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/n4791.pdf">http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/n4791.pdf</a>
+</p>
+
+<p>
+So what is the Range anyway? A C++ Standard Comittee member, Eric Nibeler, summrised it well. 
+</p>
+
+<p>
+<a href="http://ericniebler.com/author/eric_niebler/">Eric Niebler – Eric Niebler</a>
+</p>
+
+<p>
+Actually, he summrised it too well to the point that his code is almost unreadable to average C++ programmers. It's practically useless. So this article serve as the quick tutorial for the Range view.
+</p>
+
+<p>
+The Range is a beefed up Iterator. Just like the Iterator was modeled after the pointer, the Range was modeled after the pair of iterators [begin, end).
+</p>
+
+<p>
+The immediate benefit of the Range is so that you can now pass the container object directly to your favorite algorithm and it just works. Because the Containers satisfy the concept of Range.
+</p>
+
+<pre><code>std::vector v = {1,2,3,4,5} ;
+std::for_each( v,
+[]( auto x )
+{ std::cout &lt;&lt; x ; }
+) ;
+</code></pre>
+
+
+<p>
+Or, as its name suggests, Range-based for.
+</p>
+
+<pre><code>for ( auto x : v )
+    std::cout &lt;&lt; x ;
+</code></pre>
+
+<p>
+"But Range-based for existed from C++11! It was already there!" You might say. Well C++11's Range-based for didn't have the power it was originally intended. Because the Concept didn't make it to the C++11. Those good-for-nothing standard commitee members couldn't agreed on whether the concept map shall be implicitly generated or not. The same bunch of idiots who can't accept char8_t until C++20, blubbing: "but char is the suitable type for representing the contagious raw bytes" blah blah blah.
+</p>
+
+<p>
+Now the Concept is there, we can finally emblace the full power of Range-based for.
+</p>
+
+<p>
+The Range library has the View. A View is a range adaptor. Views behaves like a range, so it is a range. Sort of.
+</p>
+
+<p>
+Now suppose we want to iterate over the above vector, but backwards.
+</p>
+
+<p>
+C++17 Range-based for is useless for this very very simple task. We have to fallback to the C++98 era reverse iterator.
+</p>
+
+<pre><code>std::for_each( rbegin(v), rend(v),
+    []( auto i )
+    {
+        std::cout &lt;&lt; i ;
+    } ) ;
+</code></pre>
+
+<p>
+At least, we have lambda expression. But it doesn't save much of the ugliness.
+</p>
+
+<p>
+In C++20, you can simply use reverse_view.
+</p>
+
+<pre><code>for ( auto i : v | reverse )
+    std::cout &lt;&lt; i ;
+</code></pre>
+
+<p>
+Yes. That's it. This very simple, and actually readable code prints "54321". Don't worry. There is absolutely no performance penalty at all! C++ is better than Haskell.
+</p>
+
+<p>
+Now, suppose that, you want to iterate over 1 to n. The n is a runtime value. Creating a vector object is inefficient.
+</p>
+
+<pre><code>std::vector&lt;int&gt; v ;
+int n ;
+std::cin &gt;&gt; n ;
+for ( int i = 1 ; i != n+1 ; ++i ) 
+    v.push_back(i) ;
+</code></pre>
+
+<p>
+Fortunately, C++20 has iota_view. iota(a, b) create a range of integers incrementing in range \(a \leq; n &lt; b\) .
+</p>
+
+<pre><code>int n = 10 ;
+for ( auto i : iota( 1, n ) | reverse )
+    std::cout &lt;&lt; i ;
+</code></pre>
+
+<p>
+Now, this code prints "987654321".
+</p>
+
+<p>
+There are a lot of numbers. We want to get rid of the even numbers so that we only deal with odd numbers. We can use filter_view.
+</p>
+
+<pre><code>for ( auto i : iota(1, 10)
+    | filter( [](auto x){ return x % 2 == 1 ; }
+)
+    std::cout &lt;&lt; i ;
+</code></pre>
+
+<p>
+It prints "13579".
+</p>
+
+<p>
+filter(rule) drop elements x where function rule(x) returns false.
+</p>
+
+<p>
+Now let's suppose that we have a function is_prime(n) which returns true if n is probably a prime number. I don't go into details how we can implement is_prime. If you want to know, search for Miller–Rabin.
+</p>
+
+<p>
+This code prints all the prime between number 1-1000.
+</p>
+
+<pre><code>for ( auto i : iota(1, 1001)
+    | filter( is_prime )
+)
+    std::cout &lt;&lt; i &lt;&lt; ', ' ;
+</code></pre>
+
+<p>
+This works. But what if you want the first 10 prime numbers? We can use take_view. take(n) takes n elements from the range.
+</p>
+
+<pre><code>for ( auto i : iota(1)
+    | filter( is_prime )
+    | take ( 10 )
+)
+    std::cout &lt;&lt; i &lt;&lt; ', ' ;
+</code></pre>
+
+<p>
+It prints "2, 3, 5, 7, 11, 13, 17, 19, 23, 29, "
+</p>
+
+<p>
+You may notice that above code pass only one argument to iota_view. iota(n) create a range start from n and increment indefinitely. That means if you wrote like this: 
+</p>
+
+<pre><code>for ( auto i : iota(1) )
+    std::cout &lt;&lt; i &lt;&lt; '\n' ;
+</code></pre>
+
+<p>
+It prints numbers until it overflows and still continues printing overflowed numbers. It's a inifinite loop. It never stops.
+</p>
+
+<p>
+take_view can stop the execution such inifinte loop because it only take n elements from the previous range.
+</p>
+
+<pre><code>for ( auto i : iota(1) | take(10) )
+    std::cout &lt;&lt; i '\n' ;
+</code></pre>
+
+<p>
+This code prints 1 to 10 and stop the loop.
+</p>
+
+<p>
+We can use iota_view to write index loop. Suppose we want to iterate integer from 0 to 100. Traditionally, we write like this.
+</p>
+
+<pre><code>for ( int i = 0 ; i != 101 ; ++i )
+    ... ;
+</code></pre>
+
+<p>
+This works. But frankly, I don't want to write this code. I have to manually initialize a variable, check for loop terminating  condition, and increment the variable, all by my hands. What  I want is to iterate over integer of range a to b. You see, I can achieve this by just specify a and b. You can achieve that with iota(a, b+1).
+</p>
+
+<pre><code>for ( auto i : iota( 1, 101 ) )
+    std::cout &lt;&lt; i ;
+</code></pre>
+
+<p>
+Speaking of index loop, have you ever heard of the FizzBuzz problem? It goes like this "Print natural numbers 1 to 100. But for numbers multiple of 3, print Fizz instead of that number. For multiples of 5, print Buzz instead. For both multiple of 3 and 5, print FizzBuzz."
+</p>
+
+<p>
+We have already written the index loop of 1 to 100. Let's write a function fizzbuzz(n) which take number n and return a string it should print to.
+</p>
+
+<pre><code>auto fizzbuzz = []( auto n ) -&gt; std::string
+{
+    if ( n % 15 == 0 )
+        return "FizzBuzz" ;
+    else if ( n % 3 == 0 )
+        return "Fizz" ;
+    else if ( n % 5 = 0 )
+        return "Buzz" ;
+    else
+        return std::to_string(n) ;
+}
+</code></pre>
+
+<p>
+Now we wrote function fizzbuzz, we can use transform_view to transform the each elements in the range to corresponding string it should print to.
+</p>
+
+<pre><code>for ( auto msg : iota( 1, 101 )
+    | transform( fizzbuzz )
+)
+    std::cout &lt;&lt; msg &lt;&lt; '\n' ; 
+</code></pre>
+
+<p>
+Isn't this fantastic?
+</p>
+
+<p>
+Finally, you can combine as many views as you like. You can iota it, filter it, transform it, take it, then reverse it.
+</p>
+
+<pre><code>for ( auto i : iota(1)
+    | filter(filter_rule)
+    | transform(transfrom_rule)
+    | take(n)
+    | reverse
+)
+    std::cout &lt;&lt; i '\n' ;
+</code></pre>
+
+<p>
+You can add even more views after reverse if you really want.
+</p>
+
+<p>
+All the standard library's view can be use either as piping the function object
+</p>
+
+<pre><code>for ( auto n : iota(1, 100) | fileter(rule) | reverse )
+    std::cout &lt;&lt; n ;
+</code></pre>
+
+<p>
+or using as _view class.
+</p>
+
+<pre><code>iota_view i( 1, 100 ) ;
+filter_view f( i, rule ) ;
+reverse_view r( f ) ;
+
+for ( auto n : r )
+    std::cout &lt;&lt; n ;
+</code></pre>
+
+<p>
+Both code do the same things. Basically, "A | B(args)" means a view object of "B_view( A, args )". 
+</p>
+
+<p>
+There are other views such as split_view which split the range to range of range separated by a specific value.
+</p>
+
+<pre><code>auto str = "quick brown fox" ;
+std::vector&lt; std::string &gt; words ;
+for ( auto word : str | split(' ') )
+    words.emplace_back( begin(word), end(word) ) ;
+</code></pre>
+
+<p>
+after execution, words is {"quick", "brown", "fox"}
+</p>
+
+<p>
+or join_view which flatten range of range to range.
+</p>
+
+<pre><code>std::string flat ;
+for ( auto c : words | join )
+    flat.push_back(c) ;
+</code></pre>
+
+<p>
+flat is "quickbrownfox".
+</p>
+
+
+<p>
+All the example code assumes we use following using declarations.
+</p>
+
+<pre><code>using namespace std::ranges ;
+using namespace std::ranges::view ;
+</code></pre>
+
+<p>
+So how do we write a view? Well, that's rather difficult if you want to write a standard library quality view. But let's try.
+</p>
+
+<p>
+Let's write a drop_view which dropss n elements from the range.
+</p>
+
+<pre><code>for ( auto i : iota(0, 10) | drop(5) )
+    std::cout &lt;&lt; i ;
+</code></pre>
+
+<p>
+This code prints "56789".
+</p>
+
+<p>
+Here is the implementation.
+</p>
+
+<pre><code>template &lt; InputRange V &gt;
+    requres View&lt;V&gt;
+class drop_view : public view_interface&lt; dropVieww&lt;V&gt; &gt;
+{
+    V base_ = V() ;
+    iterator_t&lt;V&gt; iter = begin(base_) ;
+    iter_difference_t&lt;iterator_t&lt;V&gt;&gt; count_ ;
+public :
+    drop_view() = default ;
+    constexpr drop_view( V base, iter_difference_t&lt;iterator_t&lt;V&gt;&gt; count )
+        : base_(base), iter( std::next( begin(base_), count ), count_(count)
+    { }
+
+    template &lt; ViewableRange R &gt;
+        requires Constructible&lt; R, all_view&lt;R&gt; &gt;
+    constexpr drop_view( R &amp;&amp; base, iter_difference_t&lt;iterator_t&lt;V&gt;&gt; count )
+        : base_(std::forward&lt;R&gt;(base)), iter( std::next( begin(base_), count ), count_(count)
+    { }
+
+    constexpr V base() const
+    { return base_ ; }
+
+    constexpr auto begin()
+    { return iter ; }
+    constexpr auto begin() const
+    { return iter ; }
+
+    constexpr auto end()
+    { return end(base_) ; }
+    constexpor auto end() const
+    { return end(base_) ; }
+
+    constexpr auto size()
+        requires SizedRange&lt;V&gt;
+    { return size(base_) - count_ ; }
+    
+    constexpr auto size() const
+        requires SizedRange&lt;const V&gt;
+    { return size(base_) - count_ ; }
+
+    template &lt; Range R &gt;
+    drop_view( R &amp;&amp;, iter_difference_t&lt;iterator_t&lt;V&gt;&gt; )
+        -&gt; drop_view&lt; all_view&lt;R&gt; &gt; ;
+} ;
+
+
+// I'm not 100% sure this is the correct way to implement range adaptor object.
+// If my interpretation of the draft is correct, it should be.
+
+struct drop_range_adaptor_closure_object
+{
+    std::size_t count ;
+    drop_range_adaptor_closure_object( std::size_t count )
+        : count(count)
+    { }
+    template &lt; ViewableRange R &gt;
+    constexpr auto operator( R &amp;&amp; r )
+    {
+        return drop_view( std::forward&lt;R&gt;(r), count ) ;
+    }
+} ;
+struct drop_range_adaptor_object
+{
+    template &lt; ViewableRange R &gt;
+    constexpr auto operator () ( R &amp;&amp; r, iter_difference_t&lt;iterator_t&lt;R&gt;&gt; count )
+    {
+        return drop_view( std::forward&lt;R&gt;(r), count ) ;
+    }
+
+    constexpr auto operator () ( std::size_t count )
+    {
+        return drop_range_adaptor_closure_object( count ) ;
+    }
+
+} drop ;
+
+template &lt; ViewableRange R &gt;
+constexpr auto operator | ( R &amp;&amp; r, drop_range_adaptor_closure_object a )
+{
+    return a(std::forward&lt;R&gt;(r)) ;
+}
+</code></pre>
+
+<p>
+Phew, that's Eric Niebler-level of boilarplate-ness. I think we need to wait the metaclass to eliminate the boilarplate code. Hopefully, we can have a metaclass within another decade.
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
