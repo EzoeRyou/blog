@@ -80,7 +80,7 @@ The immediate benefit of the Range is the ability to pass a container object dir
 </p>
 
 <pre><code>std::vector v = {1,2,3,4,5} ;
-std::for_each( v,
+std::ranges::for_each( v,
 []( auto x )
 { std::cout &lt;&lt; x ; }
 ) ;
