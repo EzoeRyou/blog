@@ -104,7 +104,7 @@ Now that the Concepts are there, we can finally embrace the full power of Range-
 </p>
 
 <p>
-The Range library has a View. A View is a range adaptor. A View behaves like a Range, so it is a Range. Sort of. 
+The Range library has a View. A View is a range adaptor. A View is a Range plus extra constraints(some additional members etc). 
 </p>
 
 <p>
@@ -150,7 +150,7 @@ for ( int i = 1 ; i != n+1 ; ++i )
 </code></pre>
 
 <p>
-Fortunately, C++20 has a iota_view. iota(a, b) creates a range of integers in the interval \(a \leq; n &lt; b\) .
+Fortunately, C++20 has a iota_view. iota(a, b) creates a range of integers in the interval \(a \leq n &lt; b\) .
 </p>
 
 <pre><code>int n = 10 ;
