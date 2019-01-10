@@ -52,7 +52,7 @@ The overview of C++20 Range view
 </a></h1>
 
 <p>
-The latest C++ draft as of this writing incorporated One Range proposal.
+The latest C++ draft at the time of writing incorporated The One Ranges Proposal. 
 </p>
 
 <p>
@@ -60,7 +60,7 @@ The latest C++ draft as of this writing incorporated One Range proposal.
 </p>
 
 <p>
-So what is the Range anyway? A C++ Standard Comittee member, Eric Nibeler, summrised it well. 
+So what is a Range, anyway? The C++ Standard Comittee member, Eric Niebler, summarised it well in this article: 
 </p>
 
 <p>
@@ -68,15 +68,15 @@ So what is the Range anyway? A C++ Standard Comittee member, Eric Nibeler, summr
 </p>
 
 <p>
-Actually, he summrised it too well to the point that his code is almost unreadable to average C++ programmers. It's practically useless. So this article serve as the quick tutorial for the Range view.
+Actually, he summarised it all too well to the point that his code became almost unreadable to an average C++ programmer. One might say, it's practically useless. So this article serves as a quick tutorial for the Range view. 
 </p>
 
 <p>
-The Range is a beefed up Iterator. Just like the Iterator was modeled after the pointer, the Range was modeled after the pair of iterators [begin, end).
+Range is a beefed up Iterator. Just like the Iterator was modeled after a pointer, the Range was modeled after a pair of iterators [begin, end). 
 </p>
 
 <p>
-The immediate benefit of the Range is so that you can now pass the container object directly to your favorite algorithm and it just works. Because the Containers satisfy the concept of Range.
+The immediate benefit of the Range is the ability to pass a container object directly to your favorite algorithm and it just works. This is because the Containers satisfy the concept of Range. 
 </p>
 
 <pre><code>std::vector v = {1,2,3,4,5} ;
@@ -96,23 +96,23 @@ Or, as its name suggests, Range-based for.
 </code></pre>
 
 <p>
-"But Range-based for existed from C++11! It was already there!" You might say. Well C++11's Range-based for didn't have the power it was originally intended. Because the Concept didn't make it to the C++11. Those good-for-nothing standard commitee members couldn't agreed on whether the concept map shall be implicitly generated or not. The same bunch of idiots who can't accept char8_t until C++20, blubbing: "but char is the suitable type for representing the contagious raw bytes" blah blah blah.
+"But Range-based for has existed since C++11! It was already there!" You might say. Well the C++11's Range-based for didn't have the originally intended power. This is because the Concepts didn't make it into the C++11. Those good-for-nothing standard commitee members couldn't agree on whether The Concept map shall be implicitly generated or not. The same bunch of idiots who couldn't accept char8_t until C++20, blubbing: "but char is the suitable type for representing contiguous raw bytes" blah blah blah. 
 </p>
 
 <p>
-Now the Concept is there, we can finally emblace the full power of Range-based for.
+Now that the Concepts are there, we can finally embrace the full power of Range-based for. 
 </p>
 
 <p>
-The Range library has the View. A View is a range adaptor. Views behaves like a range, so it is a range. Sort of.
+The Range library has a View. A View is a range adaptor. A View behaves like a Range, so it is a Range. Sort of. 
 </p>
 
 <p>
-Now suppose we want to iterate over the above vector, but backwards.
+Suppose we would like to iterate over the aforementioned vector, but backwards. 
 </p>
 
 <p>
-C++17 Range-based for is useless for this very very simple task. We have to fallback to the C++98 era reverse iterator.
+The C++17 Range-based for is rather useless for this very very simple task. We have to fallback to the C++98 era reverse iterator.
 </p>
 
 <pre><code>std::for_each( rbegin(v), rend(v),
@@ -123,7 +123,7 @@ C++17 Range-based for is useless for this very very simple task. We have to fall
 </code></pre>
 
 <p>
-At least, we have lambda expression. But it doesn't save much of the ugliness.
+Although we have a lambda expression, it doesn't save much of the ugliness. 
 </p>
 
 <p>
@@ -135,11 +135,11 @@ In C++20, you can simply use reverse_view.
 </code></pre>
 
 <p>
-Yes. That's it. This very simple, and actually readable code prints "54321". Don't worry. There is absolutely no performance penalty at all! C++ is better than Haskell.
+Yes. That's it. This very simple, and actually readable code prints "54321". Don't worry. There is absolutely no performance penalty, at all! In this regard, C++ is better than Haskell. 
 </p>
 
 <p>
-Now, suppose that, you want to iterate over 1 to n. The n is a runtime value. Creating a vector object is inefficient.
+Now, suppose that you would like to iterate over 1 to n. The n is a runtime value, so creating a vector object is rather inefficient. 
 </p>
 
 <pre><code>std::vector&lt;int&gt; v ;
@@ -150,7 +150,7 @@ for ( int i = 1 ; i != n+1 ; ++i )
 </code></pre>
 
 <p>
-Fortunately, C++20 has iota_view. iota(a, b) create a range of integers incrementing in range \(a \leq; n &lt; b\) .
+Fortunately, C++20 has a iota_view. iota(a, b) creates a range of integers in the interval \(a \leq; n &lt; b\) .
 </p>
 
 <pre><code>int n = 10 ;
@@ -163,7 +163,7 @@ Now, this code prints "987654321".
 </p>
 
 <p>
-There are a lot of numbers. We want to get rid of the even numbers so that we only deal with odd numbers. We can use filter_view.
+There are a certainly a lot of numbers. Assume, we would like to get rid of the even numbers so that we only deal with odd numbers. We can use filter_view for that. 
 </p>
 
 <pre><code>for ( auto i : iota(1, 10)
@@ -173,19 +173,19 @@ There are a lot of numbers. We want to get rid of the even numbers so that we on
 </code></pre>
 
 <p>
-It prints "13579".
+This prints "13579". 
 </p>
 
 <p>
-filter(rule) drop elements x where function rule(x) returns false.
+filter(rule) drops elements x whenever the function rule(x) returns false. 
 </p>
 
 <p>
-Now let's suppose that we have a function is_prime(n) which returns true if n is probably a prime number. I don't go into details how we can implement is_prime. If you want to know, search for Miller–Rabin.
+Now let's suppose that we have a function is_prime(n) which returns true if n is a prime number. I won't go into details on how we can implement is_prime. If you wish to know, search for the Miller–Rabin test. 
 </p>
 
 <p>
-This code prints all the prime between number 1-1000.
+This code prints all the prime numbers between 1 and 1000. 
 </p>
 
 <pre><code>for ( auto i : iota(1, 1001)
@@ -195,7 +195,7 @@ This code prints all the prime between number 1-1000.
 </code></pre>
 
 <p>
-This works. But what if you want the first 10 prime numbers? We can use take_view. take(n) takes n elements from the range.
+This works. But what if you only want the first 10 prime numbers? We can use take_view for that. take(n) takes n elements from the range. 
 </p>
 
 <pre><code>for ( auto i : iota(1)
@@ -206,11 +206,11 @@ This works. But what if you want the first 10 prime numbers? We can use take_vie
 </code></pre>
 
 <p>
-It prints "2, 3, 5, 7, 11, 13, 17, 19, 23, 29, "
+This prints "2, 3, 5, 7, 11, 13, 17, 19, 23, 29, ".
 </p>
 
 <p>
-You may notice that above code pass only one argument to iota_view. iota(n) create a range start from n and increment indefinitely. That means if you wrote like this: 
+You may have noticed that the code above passes only one argument to iota_view. iota(n) creates a range starting from n and incrementing it indefinitely. That means that if you write a code like this,
 </p>
 
 <pre><code>for ( auto i : iota(1) )
@@ -218,23 +218,23 @@ You may notice that above code pass only one argument to iota_view. iota(n) crea
 </code></pre>
 
 <p>
-It prints numbers until it overflows and still continues printing overflowed numbers. It's a inifinite loop. It never stops.
+it would print numbers until it overflows and even continues printing overflowed numbers. It's an infinite loop. It never stops. 
 </p>
 
 <p>
-take_view can stop the execution such inifinte loop because it only take n elements from the previous range.
+take_view can stop the execution of such infinite loops by taking n elements from the corresponding range. 
 </p>
 
 <pre><code>for ( auto i : iota(1) | take(10) )
-    std::cout &lt;&lt; i '\n' ;
+    std::cout &lt;&lt; i &lt;&lt; '\n' ;
 </code></pre>
 
 <p>
-This code prints 1 to 10 and stop the loop.
+This code prints 1 to 10 and stops the loop. 
 </p>
 
 <p>
-We can use iota_view to write index loop. Suppose we want to iterate integer from 0 to 100. Traditionally, we write like this.
+We can use iota_view to write an index loop. Suppose that we would like to iterate over integers from 0 to 100. Traditionally, we would write something like this: 
 </p>
 
 <pre><code>for ( int i = 0 ; i != 101 ; ++i )
@@ -242,7 +242,7 @@ We can use iota_view to write index loop. Suppose we want to iterate integer fro
 </code></pre>
 
 <p>
-This works. But frankly, I don't want to write this code. I have to manually initialize a variable, check for loop terminating  condition, and increment the variable, all by my hands. What  I want is to iterate over integer of range a to b. You see, I can achieve this by just specify a and b. You can achieve that with iota(a, b+1).
+This works. But frankly, I don't want to write the kind of code where I have to manually initialize a variable, check for the loop terminating condition, and increment the variable, all by myself. What I really want is to iterate over an integer range from a to b. You see, I can achieve this just by specifying a and b. You can achieve this with iota(a, b+1). 
 </p>
 
 <pre><code>for ( auto i : iota( 1, 101 ) )
@@ -250,11 +250,11 @@ This works. But frankly, I don't want to write this code. I have to manually ini
 </code></pre>
 
 <p>
-Speaking of index loop, have you ever heard of the FizzBuzz problem? It goes like this "Print natural numbers 1 to 100. But for numbers multiple of 3, print Fizz instead of that number. For multiples of 5, print Buzz instead. For both multiple of 3 and 5, print FizzBuzz."
+Speaking of an index loop, have you ever heard of the FizzBuzz problem? It goes like this: "Print natural numbers 1 to 100. But for numbers that are multiples of 3, print Fizz instead of that number. For multiples of 5, print Buzz instead. For numbers that are multiples of both 3 and 5, print FizzBuzz." 
 </p>
 
 <p>
-We have already written the index loop of 1 to 100. Let's write a function fizzbuzz(n) which take number n and return a string it should print to.
+We have already seen how to write an index loop from 1 to 100. Let's write a function fizzbuzz(n) which takes a number n and returns a string it should print to. 
 </p>
 
 <pre><code>auto fizzbuzz = []( auto n ) -&gt; std::string
@@ -271,7 +271,7 @@ We have already written the index loop of 1 to 100. Let's write a function fizzb
 </code></pre>
 
 <p>
-Now we wrote function fizzbuzz, we can use transform_view to transform the each elements in the range to corresponding string it should print to.
+Now that we have written the function fizzbuzz, we can use transform_view to transform each element in the range into a corresponding string it should print to. 
 </p>
 
 <pre><code>for ( auto msg : iota( 1, 101 )
@@ -294,15 +294,15 @@ Finally, you can combine as many views as you like. You can iota it, filter it, 
     | take(n)
     | reverse
 )
-    std::cout &lt;&lt; i '\n' ;
+    std::cout &lt;&lt; i &lt;&lt; '\n' ;
 </code></pre>
 
 <p>
-You can add even more views after reverse if you really want.
+You can add even more views after the reversal if you really want. 
 </p>
 
 <p>
-All the standard library's view can be use either as piping the function object
+All the standard library's views can be used either through piping function objects 
 </p>
 
 <pre><code>for ( auto n : iota(1, 100) | fileter(rule) | reverse )
@@ -310,7 +310,7 @@ All the standard library's view can be use either as piping the function object
 </code></pre>
 
 <p>
-or using as _view class.
+or as a _view class. 
 </p>
 
 <pre><code>iota_view i( 1, 100 ) ;
@@ -322,11 +322,11 @@ for ( auto n : r )
 </code></pre>
 
 <p>
-Both code do the same things. Basically, "A | B(args)" means a view object of "B_view( A, args )". 
+Both codes do the same thing. Basically, "A | B(args)" corresponds to a view object of "B_view( A, args )". 
 </p>
 
 <p>
-There are other views such as split_view which split the range to range of range separated by a specific value.
+There are other views such as split_view which splits the range into a range of a range separated by a specific value.
 </p>
 
 <pre><code>auto str = "quick brown fox" ;
@@ -336,11 +336,11 @@ for ( auto word : str | split(' ') )
 </code></pre>
 
 <p>
-after execution, words is {"quick", "brown", "fox"}
+After the execution, the words become {"quick", "brown", "fox"} 
 </p>
 
 <p>
-or join_view which flatten range of range to range.
+Another example is join_view which flattens a range of a range to a range. 
 </p>
 
 <pre><code>std::string flat ;
@@ -349,12 +349,12 @@ for ( auto c : words | join )
 </code></pre>
 
 <p>
-flat is "quickbrownfox".
+The flattened result is "quickbrownfox". 
 </p>
 
 
 <p>
-All the example code assumes we use following using declarations.
+All the example code above assumes that we use the following using declarations. 
 </p>
 
 <pre><code>using namespace std::ranges ;
@@ -366,7 +366,7 @@ So how do we write a view? Well, that's rather difficult if you want to write a 
 </p>
 
 <p>
-Let's write a drop_view which dropss n elements from the range.
+Let's write a drop_view which drops n elements from a range. 
 </p>
 
 <pre><code>for ( auto i : iota(0, 10) | drop(5) )
@@ -465,7 +465,7 @@ constexpr auto operator | ( R &amp;&amp; r, drop_range_adaptor_closure_object a 
 </code></pre>
 
 <p>
-Phew, that's Eric Niebler-level of boilarplate-ness. I think we need to wait the metaclass to eliminate the boilarplate code. Hopefully, we can have a metaclass within another decade.
+Phew, that's Eric Niebler-level of boilerplateness. I think we need to wait for the metaclass to eliminate the boilerplate code. Hopefully, we can have the metaclass within another decade. 
 </p>
 
 
