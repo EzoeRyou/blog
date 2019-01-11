@@ -167,7 +167,7 @@ There are a certainly a lot of numbers. Assume, we would like to get rid of the 
 </p>
 
 <pre><code>for ( auto i : iota(1, 10)
-    | filter( [](auto x){ return x % 2 == 1 ; }
+    | filter( [](auto x){ return x % 2 == 1 ; } )
 )
     std::cout &lt;&lt; i ;
 </code></pre>
