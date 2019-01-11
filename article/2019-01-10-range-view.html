@@ -391,13 +391,13 @@ class drop_view : public view_interface&lt; dropVieww&lt;V&gt; &gt;
 public :
     drop_view() = default ;
     constexpr drop_view( V base, iter_difference_t&lt;iterator_t&lt;V&gt;&gt; count )
-        : base_(base), iter( std::next( begin(base_), count ), count_(count)
+        : base_(base), iter( std::next( begin(base_), count ) ), count_(count)
     { }
 
     template &lt; ViewableRange R &gt;
         requires Constructible&lt; R, all_view&lt;R&gt; &gt;
     constexpr drop_view( R &amp;&amp; base, iter_difference_t&lt;iterator_t&lt;V&gt;&gt; count )
-        : base_(std::forward&lt;R&gt;(base)), iter( std::next( begin(base_), count ), count_(count)
+        : base_(std::forward&lt;R&gt;(base)), iter( std::next( begin(base_), count ) ), count_(count)
     { }
 
     constexpr V base() const
