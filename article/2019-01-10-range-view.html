@@ -167,7 +167,7 @@ There are a certainly a lot of numbers. Assume, we would like to get rid of the 
 </p>
 
 <pre><code>for ( auto i : iota(1, 10)
-    | filter( [](auto x){ return x % 2 == 1 ; }
+    | filter( [](auto x){ return x % 2 == 1 ; } )
 )
     std::cout &lt;&lt; i ;
 </code></pre>
@@ -305,7 +305,7 @@ You can add even more views after the reversal if you really want.
 All the standard library's views can be used either through piping function objects 
 </p>
 
-<pre><code>for ( auto n : iota(1, 100) | fileter(rule) | reverse )
+<pre><code>for ( auto n : iota(1, 100) | filter(rule) | reverse )
     std::cout &lt;&lt; n ;
 </code></pre>
 
@@ -391,13 +391,13 @@ class drop_view : public view_interface&lt; dropVieww&lt;V&gt; &gt;
 public :
     drop_view() = default ;
     constexpr drop_view( V base, iter_difference_t&lt;iterator_t&lt;V&gt;&gt; count )
-        : base_(base), iter( std::next( begin(base_), count ), count_(count)
+        : base_(base), iter( std::next( begin(base_), count ) ), count_(count)
     { }
 
     template &lt; ViewableRange R &gt;
         requires Constructible&lt; R, all_view&lt;R&gt; &gt;
     constexpr drop_view( R &amp;&amp; base, iter_difference_t&lt;iterator_t&lt;V&gt;&gt; count )
-        : base_(std::forward&lt;R&gt;(base)), iter( std::next( begin(base_), count ), count_(count)
+        : base_(std::forward&lt;R&gt;(base)), iter( std::next( begin(base_), count ) ), count_(count)
     { }
 
     constexpr V base() const
@@ -410,7 +410,7 @@ public :
 
     constexpr auto end()
     { return end(base_) ; }
-    constexpor auto end() const
+    constexpr auto end() const
     { return end(base_) ; }
 
     constexpr auto size()
