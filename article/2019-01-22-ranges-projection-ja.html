@@ -1,0 +1,275 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+C++20のRangeライブラリの強力な機能、プロジェクション
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2019/01/c20range.html">
+C++20のRangeライブラリの強力な機能、プロジェクション
+</a></h1>
+
+<p>
+English version is available at: <a href="https://ezoeryou.github.io/blog/article/2019-01-22-ranges-projection.html">Projection, a powerful feature in C++20 Ranges library</a>
+</p>
+
+<p>
+C++20のRangesライブラリにはプロジェクションという強力な機能が追加された。
+</p>
+
+<p>
+例えば、人間を表現するクラスがあったとして、
+</p>
+
+<pre><code>struct Person
+{
+    std::string name ;
+    std::string address ;
+    int age ;
+    int hegiht ;
+    int weight ;
+} ;
+</code></pre>
+
+<p>
+そのvectorであるpersonsがあるとして、
+</p>
+
+<pre><code>std::vector&lt;Person&gt; persons ;
+</code></pre>
+
+<p>
+このpersonsを特定のデータメンバーでソートしたいとする。
+</p>
+
+<p>
+これは比較関数を自分で書くことで可能になる。
+</p>
+
+<pre><code>std::sort( persons, []( auto &amp; a, auto &amp; b ) { return a.age &lt; b.age ; } ) ;
+</code></pre>
+
+<p>
+しかしこんなコードは書きたくない。ボイラープレートにもほどがあるし、コンパイラーは間違えてもエラーも警告も出してくれない。例えば、
+</p>
+
+<pre><code>// 比較演算子を間違えている
+std::sort( persons, []( auto &amp; a, auto &amp; b ) { return a.age &gt; b.age ; } ) ;
+</code></pre>
+
+<p>
+あるいは、
+</p>
+
+<pre><code>// 2つの引数を比較していない
+// コンパイラーは警告すらしてくれない
+std::sort( persons, []( auto &amp; a, auto &amp; b ) { return a.age &lt; a.age ; } ) ;
+</code></pre>
+
+<p>
+さらには、
+</p>
+
+
+<pre><code>// 比較するメンバーを間違えている
+// 型が同じなのでコンパイラーは警告してくれない。
+std::sort( persons, []( auto &amp; a, auto &amp; b ) { return a.age &lt; b.height ; } ) ;
+</code></pre>
+
+<p>
+C++コンパイラーは上記のコードにエラーも警告も出さない。コードは完璧に合法で間違っていないからだ。コンパイラーはプログラマーの不文律の意図を推測してくれたりはしない。最近流行りの機械学習2.0とやらでも人間様の不文律の意図を判定しようなどということはできないだろう。たぶん。
+</p>
+
+<p>
+C++20のレンジライブラリを使えばこの問題はプロジェクションという機能で解決できる。単にranges::lessとデータメンバーへのポインターを渡すと動く。
+</p>
+
+<pre><code>std::ranges::sort( persons, std::ranges::less, &amp;Person::age ) ;
+</code></pre>
+
+<p>
+なぜ動くのか。プロジェクションなしのranges::sortはだいたい以下のようになっている
+</p>
+
+<pre><code>auto sort = []( auto &amp;&amp; range, auto comp )
+{
+    // ...
+    // i, j はイテレーター
+    // 2つの要素を比較する
+    if ( comp( *i, *j ) )
+    // ...
+} ;
+</code></pre>
+
+<p>
+ranges::sortにはプロジェクションという追加の引数がある。
+</p>
+
+<pre><code>auto sort = []( auto &amp;&amp; range, auto comp, auto proj ) ...
+</code></pre>
+
+<p>
+これは以下のように動く。
+</p>
+
+<pre><code>auto sort = []( auto &amp;&amp; range, auto comp, auto proj )
+{
+    // ...
+    if ( comp( std::invoke( proj, *i), std::invoke( proj, *j ) ) )
+    // ...
+}
+</code></pre>
+
+<p>
+std::invokeというのは野暮ったい関数呼び出しだ。std::invoke( f, args... )は、fが関数の場合、f( args ... )と同じだ。そういう意味では、上記のコードは以下と等しい。
+</p>
+
+<pre><code>if ( comp( proj(*i), proj(*j) ) )
+</code></pre>
+
+<p>
+もし、fがデータメンバーへのポインターであり、args... が引数1つでクラス型のオブジェクトの場合、std::invoke( f, a )はa.*fに等しい。
+</p>
+
+<pre><code>if ( comp( (*i).*proj, (*j).*proj ) )
+</code></pre>
+
+<p>
+この場合で、i, jのvalue_typeがPersonで、projが&amp;Person::ageの場合、以下のようになるわけだ。
+</p>
+
+<pre><code>if ( comp ( i-&gt;age, j-&gt;age ) )
+</code></pre>
+
+<p>
+なので動く。
+</p>
+
+<p>
+std::invokeを使っているので、引数を取らないメンバー関数へのポインターを渡しても動く。
+</p>
+
+<pre><code>class Person
+{
+    int age ;
+public :
+    int get_age() const noexcept { return age ; } ;
+} ;
+
+int main()
+{
+    std::vector&lt;Person&gt; persons ;
+    std::ranges::sort( persons, std::ranges::less, &amp;Person::get_age ) ;
+}
+</code></pre>
+
+<p>
+普通に関数オブジェクトをプロジェクションとして渡すこともできる。
+</p>
+
+<pre><code>std::ranges::sort( persons, std::ranages::less, []( auto &amp;&amp; n ) { return n.age ; } ) ;
+</code></pre>
+
+<p>
+このコードは少々長ったらしいが、C++17時代の古臭いコードよりはマシだ。というのもプロジェクション関数は1つの引数をどのようにプロジェクトするか、ということにしか責任を負わないので、上で上げたような些細なバグを引き起こすことはない。
+</p>
+
+<p>
+他にはどのようなアルゴリズムがプロジェクションをサポートしているのか。だいたいのユーザーからの関数オブジェクトを取るアルゴリズムはプロジェクション関数オブジェクトを最後の引数に取る。
+</p>
+
+<pre><code>
+all_of( range, pred, proj ) ;
+for_each( range, function, proj ) ;
+</code></pre>
+
+<p>
+ところで、std::ranges::transformもプロジェクションをサポートしている。
+</p>
+
+<pre><code>std::vector&lt;bool&gt; out ;
+std::ranges::transform( persons, back_inserter( out )
+    , []( auto age ) { return age &lt; 40 ; }
+    , &amp;Person::age ) ;
+</code></pre>
+
+<p>
+このコードはpersonsからPersonの値をそれぞれ取り、データメンバーのageにプロジェクトし、条件付きでboolにトランスフォームし、vectorのoutにpush_backしている。
+</p>
+
+<p>
+transformが受け取る関数オブジェクトはプロジェクションと同じなので、これは冗長のように思われるが、transformもプロジェクションをサポートすることで一貫性があるのと、トランスフォーム関数とプロジェクション関数をわざわざユーザー側で合成しなくてもすむようになる。
+</p>
+
+<p>
+ところでtransfromといえば、std::ranges::view::transform_viewも関数オブジェクトはstd::invoke経由で呼んでいる。これはプロジェクションというわけではないが、プロジェクションと同じように動く。
+</p>
+
+<pre><code>for ( auto age : persons | transform( &amp;Person::age ) )
+    std::cout &lt;&lt; age &lt;&lt; '\n' ; 
+</code></pre>
+
+<p>
+This code take a range(persons), then apply transform_view which is just a pointer to a data member. Since transform_view call function by std::invoke, it just works. and variable auto age take each age value of Person object inside the range.
+このコードはレンジとしてpresonsを取り、データメンバーへのポインターを渡したtransfrom_viewを適用する。transform_viewはstd::invokeを使っているのでこれは動く。変数auto ageにはレンジ内のPersonの値それぞれのageが入る。
+</p>
+
+<p>
+この記事はP1252提案が入ることを前提にしている。
+</p>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1252r0.pdf">Merge the Ranges TS - p1252r0.pdf</a>
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
