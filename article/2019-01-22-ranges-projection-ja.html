@@ -252,7 +252,6 @@ transformが受け取る関数オブジェクトはプロジェクションと�
 </code></pre>
 
 <p>
-This code take a range(persons), then apply transform_view which is just a pointer to a data member. Since transform_view call function by std::invoke, it just works. and variable auto age take each age value of Person object inside the range.
 このコードはレンジとしてpresonsを取り、データメンバーへのポインターを渡したtransfrom_viewを適用する。transform_viewはstd::invokeを使っているのでこれは動く。変数auto ageにはレンジ内のPersonの値それぞれのageが入る。
 </p>
 
