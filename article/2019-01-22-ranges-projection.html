@@ -1,0 +1,264 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+Projection, a powerful feature in C++20 Ranges library
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2019/01/projection-powerful-feature-in-c20.html">
+Projection, a powerful feature in C++20 Ranges library
+</a></h1>
+
+<p>
+I'm Ryou Ezoe. Today, I'm going to write about the projection, a powerful feature in C++20 Ranges library.
+</p>
+
+<p>
+Suppose, you have a class that represents a person:
+</p>
+
+<pre><code>struct Person
+{
+    std::string name ;
+    std::string address ;
+    int age ;
+    int hegiht ;
+    int weight ;
+} ;
+</code></pre>
+
+<p>
+And a vector of persons.
+</p>
+
+<pre><code>std::vector&lt;Person&gt; persons ;
+</code></pre>
+
+<p>
+Naturally, you want to sort persons by a specific data member.
+</p>
+
+<p>
+How can we do that? You can write your own compare function.
+</p>
+
+<pre><code>std::sort( persons, []( auto &amp; a, auto &amp; b ) { return a.age &lt; b.age ; } ) ;
+</code></pre>
+
+<p>
+I don't want to write this. Not just for itslong boilerplate code, but the compiler can't catch the obvious bugs like this.
+</p>
+
+<pre><code>// using a wrong comparison operator 
+std::sort( persons, []( auto &amp; a, auto &amp; b ) { return a.age &gt; b.age ; } ) ;
+</code></pre>
+
+<p>
+Or this.
+</p>
+
+<pre><code>// It doens't compare the two parameters.
+// Compiler don't warn it because it's perfectly well-formed code.
+std::sort( persons, []( auto &amp; a, auto &amp; b ) { return a.age &lt; a.age ; } ) ;
+</code></pre>
+
+<p>
+Or this.
+</p>
+
+
+<pre><code>// comparing wrong data members.
+// the types are same so compiler don't warn it.
+std::sort( persons, []( auto &amp; a, auto &amp; b ) { return a.age &lt; b.height ; } ) ;
+</code></pre>
+
+<p>
+The C++ compiler cannot warn these codes because it's perfectly well-formed code. The compiler can't guess the programmer's unwritten intention and the last time I checked, nobody seriously researched on using trending machine learning 2.0 based solution which can guess the unwritten intention.
+</p>
+
+<p>
+The C++20 Ranges got you covered on this problem with the projection. You can simply pass the ranges::less and a pointer to the data member as arguments and it just works.
+</p>
+
+<pre><code>std::ranges::sort( persons, std::ranges::less, &amp;Person::age ) ;
+</code></pre>
+
+<p>
+Why does it work? the ranges::sort without projection works like this.
+</p>
+
+<pre><code>auto sort = []( auto &amp;&amp; range, auto comp )
+{
+    // ...
+    // i, j are iteretors
+    // compare two elements for ordering
+    if ( comp( *i, *j ) )
+    // ...
+} ;
+</code></pre>
+
+<p>
+But ranges::sort has a extra parameter for projection. 
+</p>
+
+<pre><code>auto sort = []( auto &amp;&amp; range, auto comp, auto proj ) ...
+</code></pre>
+
+<p>
+And it works like this.
+</p>
+
+<pre><code>auto sort = []( auto &amp;&amp; range, auto comp, auto proj )
+{
+    // ...
+    if ( comp( std::invoke( proj, *i), std::invoke( proj, *j ) ) )
+    // ...
+}
+</code></pre>
+
+<p>
+std::invoke is an ugly version of function call. std::invoke( f, args.. ) is equivalent to f( args ... ) if the f is function. In that sense, above code is equivalent of 
+</p>
+
+<pre><code>if ( comp( proj(*i), proj(*j) ) )
+</code></pre>
+
+<p>
+But if the f is a pointer to a data member, and args... has exactly one argument which is a object of class type, std::invoke( f, a ) is equivalent to a.*f ;
+</p>
+
+<pre><code>if ( comp( (*i).*proj, (*j).*proj ) )
+</code></pre>
+
+<p>
+So if the iterator i, j's value_type to Person, and proj is &amp;Person::age, that is our case, it works like this.
+</p>
+
+<pre><code>if ( comp ( i-&gt;age, j-&gt;age ) )
+</code></pre>
+
+<p>
+Thus it just works.
+</p>
+
+<p>
+Since it use std::invoke, you can also pass the pointer to member fucntion which takes no argument and it just works.
+</p>
+
+<pre><code>class Person
+{
+    int age ;
+public :
+    int get_age() const noexcept { return age ; } ;
+} ;
+
+int main()
+{
+    std::vector&lt;Person&gt; persons ;
+    std::ranges::sort( persons, std::ranges::less, &amp;Person::get_age ) ;
+}
+</code></pre>
+
+<p>
+You can also pass function object too.
+</p>
+
+<pre><code>std::ranges::sort( persons, std::ranages::less, []( auto &amp;&amp; n ) { return n.age ; } ) ;
+</code></pre>
+
+<p>
+This code looks like boilerplate too you. But it's actually better than C++17 era code. Because projection function only deal with one parameter and how to project that parameter. You don't need to write the rest of boilerplate code so you are immune from above typical problems.
+</p>
+
+<p>
+So, what other algorithms support the projection? Well, most of them. Those which take a function object from user also take the projection function object in the last parameter.
+</p>
+
+<pre><code>
+all_of( range, pred, proj ) ;
+for_each( range, function, proj ) ;
+</code></pre>
+
+<p>
+It's also interesting that std::ranges::transform also support the projection.
+</p>
+
+<pre><code>std::vector&lt;bool&gt; out ;
+std::ranges::transform( persons, back_inserter( out )
+    , []( auto age ) { return age &lt; 40 ; }
+    , &amp;Person::age ) ;
+</code></pre>
+
+<p>
+This code take each Person value from persons, project it to it's data member age, then transform it to bool with certain condittion, and push_back it to the out vector.
+</p>
+
+<p>
+Since transfrom's user supplied function object is essentially same with projection, this feels odd. But it's good for consistency and you don't need to precombine the function object and projection by yourself.
+</p>
+
+<p>
+Speaking of transform, std::ranges::view::transform_view call function with std::invoke too. Although this isn't a projection in strictly speaking, but it works like a projection.
+</p>
+
+<pre><code>for ( auto age : persons | transform( &amp;Person::age ) )
+    std::cout &lt;&lt; age &lt;&lt; '\n' ; 
+</code></pre>
+
+<p>
+This code take a range(persons), then apply transform_view which is just a pointer to a data member. Since transform_view call function by std::invoke, it just works. and variable auto age take each age value of Person object inside the range.
+</p>
+
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
