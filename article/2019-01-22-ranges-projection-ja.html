@@ -126,14 +126,14 @@ C++コンパイラーは上記のコードにエラーも警告も出さない�
 C++20のレンジライブラリを使えばこの問題はプロジェクションという機能で解決できる。単にranges::lessとデータメンバーへのポインターを渡すと動く。
 </p>
 
-<pre><code>std::ranges::sort( persons, std::ranges::less{}, &amp;Person::age ) ;
+<pre><code>std::ranges::sort( persons, {}, &amp;Person::age ) ;
 </code></pre>
 
 <p>
 なぜ動くのか。プロジェクションなしのranges::sortはだいたい以下のようになっている
 </p>
 
-<pre><code>auto sort = []( auto &amp;&amp; range, auto comp )
+<pre><code>auto sort = []( auto &amp;&amp; range, auto comp = std::ranges::less{} )
 {
     // ...
     // i, j はイテレーター
@@ -147,14 +147,14 @@ C++20のレンジライブラリを使えばこの問題はプロジェクショ
 ranges::sortにはプロジェクションという追加の引数がある。
 </p>
 
-<pre><code>auto sort = []( auto &amp;&amp; range, auto comp, auto proj ) ...
+<pre><code>auto sort = []( auto &amp;&amp; range, auto comp = std::ranges::less{}, auto proj = std::identity{} ) ...
 </code></pre>
 
 <p>
 これは以下のように動く。
 </p>
 
-<pre><code>auto sort = []( auto &amp;&amp; range, auto comp, auto proj )
+<pre><code>auto sort = []( auto &amp;&amp; range, auto comp = std::ranges::less{}, auto proj = std::identity{} )
 {
     // ...
     if ( comp( std::invoke( proj, *i), std::invoke( proj, *j ) ) )
@@ -209,7 +209,7 @@ int main()
 普通に関数オブジェクトをプロジェクションとして渡すこともできる。
 </p>
 
-<pre><code>std::ranges::sort( persons, std::ranages::less{}, []( auto &amp;&amp; n ) { return n.age ; } ) ;
+<pre><code>std::ranges::sort( persons, {}, []( auto &amp;&amp; n ) { return n.age ; } ) ;
 </code></pre>
 
 <p>
@@ -252,7 +252,7 @@ transformが受け取る関数オブジェクトはプロジェクションと�
 </code></pre>
 
 <p>
-このコードはレンジとしてpresonsを取り、データメンバーへのポインターを渡したtransfrom_viewを適用する。transform_viewはstd::invokeを使っているのでこれは動く。変数auto ageにはレンジ内のPersonの値それぞれのageが入る。
+このコードはレンジとしてpersonsを取り、データメンバーへのポインターを渡したtransfrom_viewを適用する。transform_viewはstd::invokeを使っているのでこれは動く。変数auto ageにはレンジ内のPersonの値それぞれのageが入る。
 </p>
 
 <p>
