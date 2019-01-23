@@ -69,7 +69,7 @@ Suppose, you have a class that represents a person:
     std::string name ;
     std::string address ;
     int age ;
-    int hegiht ;
+    int height ;
     int weight ;
 } ;
 </code></pre>
@@ -104,7 +104,7 @@ std::sort( persons, []( auto &amp; a, auto &amp; b ) { return a.age &gt; b.age ;
 Or this.
 </p>
 
-<pre><code>// It doens't compare the two parameters.
+<pre><code>// It doesn't compare the two parameters.
 // Compiler don't warn it because it's perfectly well-formed code.
 std::sort( persons, []( auto &amp; a, auto &amp; b ) { return a.age &lt; a.age ; } ) ;
 </code></pre>
@@ -137,7 +137,7 @@ Why does it work? the ranges::sort without projection works like this.
 <pre><code>auto sort = []( auto &amp;&amp; range, auto comp )
 {
     // ...
-    // i, j are iteretors
+    // i, j are iterators
     // compare two elements for ordering
     if ( comp( *i, *j ) )
     // ...
@@ -189,14 +189,14 @@ Thus it just works.
 </p>
 
 <p>
-Since it use std::invoke, you can also pass the pointer to member fucntion which takes no argument and it just works.
+Since it use std::invoke, you can also pass the pointer to member function which takes no argument and it just works.
 </p>
 
 <pre><code>class Person
 {
     int age ;
 public :
-    int get_age() const noexcept { return age ; } ;
+    int get_age() const noexcept { return age ; }
 } ;
 
 int main()
@@ -210,7 +210,7 @@ int main()
 You can also pass function object too.
 </p>
 
-<pre><code>std::ranges::sort( persons, std::ranages::less, []( auto &amp;&amp; n ) { return n.age ; } ) ;
+<pre><code>std::ranges::sort( persons, std::ranges::less, []( auto &amp;&amp; n ) { return n.age ; } ) ;
 </code></pre>
 
 <p>
@@ -237,11 +237,11 @@ std::ranges::transform( persons, back_inserter( out )
 </code></pre>
 
 <p>
-This code take each Person value from persons, project it to it's data member age, then transform it to bool with certain condittion, and push_back it to the out vector.
+This code take each Person value from persons, project it to it's data member age, then transform it to bool with certain condition, and push_back it to the out vector.
 </p>
 
 <p>
-Since transfrom's user supplied function object is essentially same with projection, this feels odd. But it's good for consistency and you don't need to precombine the function object and projection by yourself.
+Since transform's user supplied function object is essentially same with projection, this feels odd. But it's good for consistency and you don't need to precombine the function object and projection by yourself.
 </p>
 
 <p>
@@ -257,7 +257,7 @@ This code take a range(persons), then apply transform_view which is just a point
 </p>
 
 <p>
-Above article assumes that P1252 will be acccepted.
+Above article assumes that P1252 will be accepted.
 </p>
 
 <p>
