@@ -126,7 +126,7 @@ C++コンパイラーは上記のコードにエラーも警告も出さない�
 C++20のレンジライブラリを使えばこの問題はプロジェクションという機能で解決できる。単にranges::lessとデータメンバーへのポインターを渡すと動く。
 </p>
 
-<pre><code>std::ranges::sort( persons, std::ranges::less, &amp;Person::age ) ;
+<pre><code>std::ranges::sort( persons, std::ranges::less{}, &amp;Person::age ) ;
 </code></pre>
 
 <p>
@@ -201,7 +201,7 @@ public :
 int main()
 {
     std::vector&lt;Person&gt; persons ;
-    std::ranges::sort( persons, std::ranges::less, &amp;Person::get_age ) ;
+    std::ranges::sort( persons, std::ranges::less{}, &amp;Person::get_age ) ;
 }
 </code></pre>
 
@@ -209,7 +209,7 @@ int main()
 普通に関数オブジェクトをプロジェクションとして渡すこともできる。
 </p>
 
-<pre><code>std::ranges::sort( persons, std::ranages::less, []( auto &amp;&amp; n ) { return n.age ; } ) ;
+<pre><code>std::ranges::sort( persons, std::ranages::less{}, []( auto &amp;&amp; n ) { return n.age ; } ) ;
 </code></pre>
 
 <p>

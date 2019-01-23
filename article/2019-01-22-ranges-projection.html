@@ -127,7 +127,7 @@ The C++ compiler cannot warn these codes because it's perfectly well-formed code
 The C++20 Ranges got you covered on this problem with the projection. You can simply pass the ranges::less and a pointer to the data member as arguments and it just works.
 </p>
 
-<pre><code>std::ranges::sort( persons, std::ranges::less, &amp;Person::age ) ;
+<pre><code>std::ranges::sort( persons, std::ranges::less{}, &amp;Person::age ) ;
 </code></pre>
 
 <p>
@@ -202,7 +202,7 @@ public :
 int main()
 {
     std::vector&lt;Person&gt; persons ;
-    std::ranges::sort( persons, std::ranges::less, &amp;Person::get_age ) ;
+    std::ranges::sort( persons, std::ranges::less{}, &amp;Person::get_age ) ;
 }
 </code></pre>
 
@@ -210,7 +210,7 @@ int main()
 You can also pass function object too.
 </p>
 
-<pre><code>std::ranges::sort( persons, std::ranges::less, []( auto &amp;&amp; n ) { return n.age ; } ) ;
+<pre><code>std::ranges::sort( persons, std::ranges::less{}, []( auto &amp;&amp; n ) { return n.age ; } ) ;
 </code></pre>
 
 <p>
