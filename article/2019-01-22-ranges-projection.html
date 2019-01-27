@@ -155,7 +155,7 @@ But ranges::sort has a extra parameter for projection.
 And it works like this.
 </p>
 
-<pre><code>auto sort = []( auto &amp;&amp; range, auto comp std::ranges::less{} , auto proj = std::identity{} )
+<pre><code>auto sort = []( auto &amp;&amp; range, auto comp = std::ranges::less{} , auto proj = std::identity{} )
 {
     // ...
     if ( comp( std::invoke( proj, *i), std::invoke( proj, *j ) ) )
