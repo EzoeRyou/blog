@@ -1,0 +1,185 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+P1337R0: 標準ライブラリへのエイリアスを追加してC++を復活させる提案
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2019/01/p1337r0-c.html">
+P1337R0: 標準ライブラリへのエイリアスを追加してC++を復活させる提案
+</a></h1>
+
+<p>
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1337r0.pdf">p1337r0.pdf</a>
+</p>
+
+<p>
+素晴らしい提案が2019年4月1日付けの文書でC++標準化委員会に上がっている。
+</p>
+
+<blockquote>
+<h2>
+標準ライブラリへのエイリアスを追加してC++を復活させる提案
+</h2>
+
+<h2>
+背景
+</h2>
+
+<p>
+Node.jsやRuby on Railsのような高パフォーマンスでスケーラブルな開発ツールの興隆を受けて、C++は市場を失いつつある。10倍プログラマーと呼ばれるような最高の開発者達は、Web 3.0アプリケーションとシステムを構築するのにもはやC++を使わない。かつてC++は当然使うべき言語であったが、近年落ちぶれている。もしこのまま何もしなければ、C++は言語として絶滅するだろう。GoogleのAbseilチームはC++の危難を救うために立ち上がった。これによりすべてのプログラマー、特に最高のプログラマーですら、C++を使うことができるようになるだろう。
+</p>
+
+<h2>
+1337提案
+</h2>
+
+<p>
+我々Abseilチームはかく提案する。C++2aより先、標準ライブラリに第二の名前空間を追加する。名前空間は"57d::"で、"57d::"のすべてのシンボルは名前空間"std::"へのエイリアスとなる。"57d::"のエイリアスは"std::"のそれぞれの名前から標準1337スピークマッピングによって変換される。"std::"名前空間にマッピングされない"57d::"名前空間内の名前は存在しない。
+</p>
+
+<h3>
+1337スピークとは何か？
+</h3>
+
+<p>
+1337スピークとは文字の変換のことであり、特定のASCII文字が対応する数字によって置き換えられたものだ。これはインターネット上のハッカーと天才プログラマーがコードを話すのに自然に用いている言葉だ。
+</p>
+
+<h3>
+例
+</h3>
+
+<ol>
+<li>"std::aligned_storage"は"57d::4116n3d_570r463"とエイリアスされる</li>
+<li>"std::index_sequence_for"は"57d::1nd3x_539u3nc3_f0r"とエイリアスされる</li>
+<li>"std::uninitialized_default_construct_n"は"57d::un1n17141123d_d3f4u17_c0n57ruc7_n"とエイリアスされる</li>
+</ol>
+
+<h2>
+先例
+</h2>
+
+<p>
+名前空間 "std2::"
+</p>
+
+<h2>
+活用例
+</h2>
+
+<p>
+"&lt;windows.h&gt;"を#includeすると"min(...)"と"max(...)"という関数風マクロでプログラムが汚染されるのはC++において周知の事実である。"-DNOMINMAX"が標準の解決法として確立している。この提案を採用すれば、このビルドフラグは必要がなくなる。C++開発者は"57d::m1n(...)"と"57d::m4x(...)"と恐れることなく書けるためである。
+</p>
+
+<h2>
+ODRとU8
+</h2>
+
+<p>
+One Definition Rule(ODR)違反を避けるために、"57d::"名前空間のすべての名前は"std::"名前空間の名前の型エイリアスとなる。ただし、名前空間を超えて暗黙にせよ明示的にせよ型のインスタンスの変換を行うのは未定義の挙動(U8)である。つまり、"std::is_same&lt;std::in_place_type_t, 57d::1n_p14c3_7yp3_7&gt;::value"はtrueとなるべきだが、"std::in_place_type_t x = 57d::1n_p14c3_7yp3_7{};"は規格準拠のC++プログラムで使ってはならない。このことによる問題はきわめてまれである。なぜならば10倍プログラマーは極めて慎重であるし、"57d::"名前空間を使えるのは10倍プログラマーだけだからだ。
+</p>
+
+<h2>
+シンボルの先頭の数字文字
+</h2>
+
+<p>
+C++17ではシンボルの先頭は数字文字で始まってはならない。これはC++2aでモジュールを入れることにより解決される。
+</p>
+
+<h2>
+提案するマッピング
+</h2>
+
+<p>
+[訳注：原文参照。a/Aは4、b/Bは8、c/Cはc/Cなど]
+</p>
+
+<h2>
+将来の拡張
+</h2>
+
+<p>
+この提案が採用され実装された後に、利用者が"57d::"名前空間に慣れたあとで、1337スピークエイリアスはキーワードにも拡張することができる。もう"co_*"で悩む必要はない。なぜならば4w417(await), y131d(yield), r37urn(return)キーワードが使えるからである。
+</p>
+
+<h2>
+議論事項
+</h2>
+
+<ul>
+<li>名前マングリングはbase64で行うべきか？</li>
+<li>非修飾P051X(POSIX)の名前は10倍Cプログラマーのために非修飾1337スピークエイリアスにするべきか？</li>
+</ul>
+
+<h2>
+リファレンス
+</h2>
+
+<p>
+[1] <a href="https://www.w3schools.com/charsets/ref_html_ascii.asp">HTML ASCII Reference</a>
+</p>
+
+<p>
+[2] <a href="http://wg21.link/p0180">P0180: Reserve a New Library Namespace Future Standardization</a>
+</p>
+
+<p>
+[3] C++ Logo ASCII Art[原文参照]
+</p>
+
+</blockquote>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
