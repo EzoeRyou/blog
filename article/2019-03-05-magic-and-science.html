@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+兵庫県警は魔法と科学の区別がつかない：JavaScriptプログラムによる補導が間違っている件について
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2019/03/javascript.html">
+兵庫県警は魔法と科学の区別がつかない：JavaScriptプログラムによる補導が間違っている件について
+</a></h1>
+
+
+<blockquote>
+<p>
+<a href="https://www3.nhk.or.jp/lnews/kobe/20190304/2020003239.html">不正プログラム書き込み疑い補導｜NHK 兵庫県のニュース</a>
+</p>
+
+<p>
+クリックすると同じ画面が表示され、消えなくなる不正なプログラムのアドレスをインターネットの掲示板に書き込んだとして、１３歳の女子中学生が兵庫県警に補導されました。
+</p>
+</blockquote>
+
+<p>
+兵庫県警は魔法と科学の区別がついていない。そのようなJavaScriptプログラムには何の問題もなく、問題はそれを閲覧したユーザー側のブラウザーにある。
+</p>
+
+<p>
+「クリックすると同じ画面が表示され、消えなくなる不正なプログラム」というのがどのように実装されていたかは知らないが、最も簡単で原始的なものは、アラートを繰り返し表示し続けるプログラムだ。
+</p>
+
+<pre><code>while (true) alert("Hello") ;
+</code></pre>
+
+<p>
+このプログラムを実行すると、アラートが繰り返し表示され続ける。ところで、このプログラムを実行しているのは閲覧者のコンピューターとブラウザーだ。このプログラムを提供したものの責任ではない。このプログラムを実行する時、閲覧者は上の文字列を受け取る。それだけだ。その文字列をどうするかは閲覧者の責任だ。閲覧者のブラウザーは上記の文字列を解釈して、あらかじめ定められた規則に従い処理を行う。つまりプログラムを実行するのは閲覧者の責任であって提供者の責任ではない。なぜならば提供者は単なる文字列を提供しているだけなのだから。それを予め定められた規則に従って解釈して実行するのは閲覧者のコンピューターとそしてブラウザーの責任だ。
+</p>
+
+<p>
+ブラウザーはJavaScriptを極めて安全な方法で実行する。Coinhiveもそうだが、WebブラウザーがJavaScriptプログラムを実行するにあたって問題は一切ない。もし問題があるとするならば、それはブラウザーの不具合かハードウェアの不具合だ。Webブラウザーは任意のJavaScriptプログラムを安全に実行できるように実装されている。上のプログラムにしたって、古典的すぎるのでブラウザーはとっくの昔に対処している。
+</p>
+
+<p>
+もし、上のプログラムが問題を起こすとしたならば、それはブラウザーがハードウェアの不具合であって、提供者の責任ではない。コンピューターは魔法ではないのだ。
+</p>
+
+<p>
+したがって、兵庫県警は魔法と科学の区別がついていない。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
