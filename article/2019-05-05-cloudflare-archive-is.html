@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+CloudflareのDNSからArchive.isが解決できない問題について
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2019/05/cloudflarednsarchiveis.html">
+CloudflareのDNSからArchive.isが解決できない問題について
+</a></h1>
+
+<p>
+<a href="https://news.ycombinator.com/item?id=19828317">Tell HN: Archive.is inaccessible via Cloudflare DNS (1.1.1.1) | Hacker News</a>
+</p>
+
+<p>
+あの有名な1.1.1.1であるCloudflareのDNSから、Archive.isが解決できない。なぜかCloudflareはローカルホストを返す。というHacker News上での質問について、Cloudflareの創業者の一人であるMatthew Princeが回答している。
+</p>
+
+<blockquote>
+<p>
+<a href="https://news.ycombinator.com/item?id=19828702">We don’t block archive.is or *any other domain* via 1.1.1.1. Doing so, we believ... | Hacker News</a>
+</p>
+
+<p>
+1.1.1.1ではarchive.isも含むすべてのドメインを検閲していない。検閲は我々がサービスを立ち上げたときにユーザーに約束したDNSの正当性とプライバシーとセキュリティを損なう。
+</p>
+
+
+<p>
+archive.isの権威DNSサーバーは我々のクエリーに対し、1.1.1.1に対して間違った結果を返す。私はClouldflare側での修正を担当部署に提案したが、そのような変更も、我々がサービス立ち上げ時にユーザーに約束したDNSの正当性とプライバシーとセキュリティを損なうものであると、正しく、指摘された。
+</p>
+
+<p>
+archive.isのオーナーの説明では、間違った結果を返すのは、我々がEDNSサブネット情報を渡さないからであるという。この情報は名前解決を要求するユーザーのIP情報をリークし、それによって、ユーザーのプライバシーが犠牲になる。我々がより一層のDNSトラフィックの暗号化を推し進めるにあたってこれは問題になる。というのも、リソルバーから権威DNSへの通信はたいてい平分だからだ。国家の諜報機関がEDNSサブネット情報を監視して個人を特定している状況が現実に起こっている。この現状が1.1.1.1のプライバシーとセキュリティポリシーの理由にもなっている。
+</p>
+
+
+
+<p>
+EDNS IPサブセットはDNSベースのロードバランスをするサービスに、地理情報に応じたレスポンスを返すのに使われている。しかし、1.1.1.1はCloudflareの現在180都市に展開している全ネットワークで提供している。Cloudflareは、Cloudlfareがクエリーする場所の地理情報を渡している。これにより、Cloudflareよりも密度の低いネットワークであれば、適切なDNS結果を返すことができるだろう。archive.isのような小規模な運営であれば、EDNS IPサブネットの代わりにCloudflare PoPを使っても、地理ロードバランスが妨げられることはない
+</p>
+
+
+
+<p>
+Cloudflareよりも密度を持つネットワークやISPであるごく一部(例えば、Netflix, Facebook, Google/YouTube)については、EDNS IPサブネットに変わる、プライバシーとセキュリティーを損なうことなく地理情報に応じた対応ができる機能を協力して策定中である。これらの議論はまだ進行中だ。archive.isがこの枠組みで提案があるのであれば、我々は考慮する。
+</p>
+</blockquote>
+
+<p>
+なるほど。ユーザーの地理に応じてDNSロードバランスで最適なIPアドレスを返す場合、EDNSサブネット情報を使うが、これは、ユーザーの位置情報(EDNSサブネット情報)が、ユーザーの利用するDNSサーバー(この場合Cloudflare)から権威サーバー(archive.is)に渡ってしまう。Cloudflareは大規模に世界各地にDNSサーバーを設置し、ユーザーのEDNSサブネット情報は渡さず、CloudflareのDNSサーバーの位置情報を渡す。これによってユーザーの具体的な位置ではなく、CloudflareのDNSのサーバー単位の位置情報になるので、ユーザーのプライバシーがやや保たれる。
+</p>
+
+<p>
+興味深い。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
