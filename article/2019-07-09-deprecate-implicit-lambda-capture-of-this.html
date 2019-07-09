@@ -1,0 +1,181 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+C++20 Deprecate implicit lambda capture of this
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2019/07/c20-deprecate-implicit-lambda-capture.html">
+C++2- Deprecate implicit lambda capture of this
+</a></h1>
+
+
+<p>
+C++20 deprecated the implicit lambda capture of this. What does it mean and how can we keep up with the change?
+</p>
+
+<p>
+As of now, you probably don't need to do anything. Because it's just the deprecation, not the removal. But in the future, it will eventually be removed so be prepared.
+</p>
+
+<p>
+So what is "implicit lambda capture of this" anyway? The following code relies on that behavior.
+</p>
+
+<pre><code>struct S
+{
+    int x ;
+    void f()
+    {
+        // C++17: Well-formed
+        // C++20: Deprecated.
+        [=]{ std::cout &lt;&lt; x ; }
+    }
+} ;
+</code></pre>
+
+<p>
+So above code use the variable x. this name x is a data member of class S. So "x" in this context means "this-&gt;x". Above code works because lambda capture implicitly capture this pointer. That's why we can use "x" inside the lambda expression.
+</p>
+
+<p>
+You may not realize it but this "x" is not captured by copy. In fact, "x" is not captured at all. What lambda capture instead is this pointer. So we can use "x" via the this pointer. So "x" is effectively captured by reference. We can change the value of x.
+</p>
+
+<pre><code>
+void f()
+[
+    auto change_x = [=]( auto value ) { x = value ; } ;
+    change_x(123) ;
+}
+</code></pre>
+
+
+<p>
+This behavior breaks novice's assumption that lambda capture clause "[=]" means capture by value. People may write code like this:
+</p>
+
+<pre><code>struct S
+{
+    int x ;
+    auto get_closure()
+    {
+        return [=]{ return x ; } ;
+    }
+} ;
+
+int main()
+{
+    std::function&lt;int()&gt; f ;
+    {
+        S s{123} ;
+        f = s.get_closure() ;
+        // s's lifetime ends here
+    }
+    int result = f() ;
+}
+</code></pre>
+
+<p>
+Assuming that it's safe because of captured by value and get caught by Undefined Behavior.
+</p>
+
+<p>
+C++17 partially fixed this by introducing the  explicit capture of this.
+</p>
+
+<pre><code>
+struct S
+{
+    int x ;
+    void f()
+    {
+        // capture this pointer by value, x is reference
+        [this]{ x ; } ;
+        // catpure *this by value, x means x is value
+        [*this] { x ; } ;
+    }
+} ;
+</code></pre>
+
+<p>
+"[*this]" copy the this pointer which means x is accessed through this pointer. "[*this}" copy the *this, that is the value of class object S. Since it copy the class object, x is copied too.
+</p>
+
+<p>
+C++17 retained the implicit capture of this.
+</p>
+
+
+<p>
+In C++20, it is decided that the standard deprecate the implicit capture of this via [=].
+</p>
+
+<pre><code>
+struct S
+{
+    int x ;
+    void f()
+    {
+        // C++17: well-formed, it means [=, this]
+        // C++20: deprecated, it still means [=, this]
+        // C++??: if removed, ill-formed.
+        [=] { x ; } ;
+    }
+} ;
+</code></pre>
+
+<p>
+The behavior of "[&amp;]" doesn't change. It still implicitly capture this pointer by value. So the data members are effectively captured by reference. There should be no confusion on this.
+</p>
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
