@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+標準C++規格が3年おきに制定される理由
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2019/07/c3.html">
+標準C++規格が3年おきに制定される理由
+</a></h1>
+
+<p>
+現在、C++の標準規格は3年おきに制定されている。このスケジュールはC++14から厳しく守られていて、C++20は2020年に制定される予定だ。
+</p>
+
+<p>
+なぜなのかを議長のHerb Sutterが解説している。
+</p>
+
+<p>
+<a href="https://herbsutter.com/2019/07/13/draft-faq-why-does-the-c-standard-ship-every-three-years/">Draft FAQ: Why does the C++ standard ship every three years? – Sutter’s Mill</a>
+</p>
+
+<p>
+まず現状認識として、C++の標準規格は3年おきに制定される。ドラフトにバグがあるので遅らせるべきではないのか。ダメだ。そのために2年間の機能追加と1年間の機能フリーズとバグ修正の期間が儲けられている。
+</p>
+
+<p>
+しかし、ある「機能」はあと数回の会議を経たならば完全に合意できて入れられる状態になっている。この「機能」のためにC++20を少しだけ遅らせられないのか？　ダメだ。期限までにC++20に入れられない「機能」はC++23に回される。
+</p>
+
+<p>
+このスケジュールは厳しすぎる。なぜ3年という固定の期間で物事が進むようになったのか。なぜならば、プロジェクト管理をする方法は2つしかない。長年の経験により、この方法が別の方法よりマシだとわかったからだ。
+</p>
+
+<p>
+プロジェクト管理をする2つの方法とはなにか？　完成品をリリースするタイミングを決定する方法で、2つある。一つは機能に合わせること。もう一つは期間に合わせること。どちらか一つしか選ぶことはできず、一報を選んだならば他方を選ぶことはできない。
+</p>
+
+<p>
+リリースを機能に合わせる場合、機能が完成しなければリリースできない。そのため、リリース期間を決めることはできない。結果としてリリース期間が際限なく遅延する。
+</p>
+
+<p>
+リリースを期間に合わせる場合、期間に間に合わなかった機能は今回のリリースには含まれない。
+</p>
+
+<p>
+リリースを機能に合わせる場合というのは、C++98とC++11だった。C++98規格は本来1994年までに制定されるはずだった。Bjarne Stroustrupは1994年までに制定できなければ失敗だとまで言った。結果、1998年になった。C++11は200x年までに制定されるはずだった。結果として2009年にすら2年間に合わなかった。
+</p>
+
+
+<p>
+ある機能が、あと数ヶ月で完成するという時、それは数ヶ月で完成しないし1年でも完成しない。にもかかわらず、あと数ヶ月で完成するからという言い訳でリリースを延々と引き伸ばすと、当初の予定より大幅にリリースが遅れてしまう。
+</p>
+
+<p>
+C++の規格制定が遅れると、C++コンパイラーの実装も遅れる。C++コンパイラーベンダーとしては、せっかく実装した機能が、規格の変更によって変わってしまうということを考えると、まだ変更されているうちはわざわざ労力を費やして積極的に実装する理由がない。規格を制定することでようやく実装にかかることができる。
+</p>
+
+<p>
+C++98とC++11でこのような失敗をしたのは、我々は経験不足だったからだ。経験を得た我々は、プロジェクト管理に厳格な期間を定めることによって、スケジュール通りに規格を制定するようになった。3年の期間に間に合わなかった機能は次回以降の規格に回す。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
