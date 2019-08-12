@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+P++: 静的型付けをめざすPHP
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2019/08/p-php.html">
+P++: 静的型付けをめざすPHP
+</a></h1>
+
+<p>
+<a href="https://wiki.php.net/pplusplus/faq">PHP: pplusplus:faq</a>
+</p>
+
+<p>
+PHP 8から、PHPは「PHP」と「P++」という2つの言語を提供するようになる。P++はPHPとの下位互換性を削りながら除々にPHPを静的型付け言語にする試みだ。
+</p>
+
+<p>
+PHP開発者の中には2つの流派がある。PHPの源流であり現在の形である動的型付け言語としてのPHPを良しとする流派と、PHPをより強い静的型付け言語へと発展させたい流派だ。良い悪いの問題ではない。どちらの流派も正当な理由がある。しかし、ゆるふわな動的型付け言語とガチガチの静的片付け言語は同じ一つの言語として同居できない。
+</p>
+
+<p>
+そこで、コードネームP++として、PHPを静的型付け言語に発展させる新しい言語の開発が提案された。P++はforkではなく、PHPと同じコードベースを共有する。PHP 8のバイナリはPHPとP++を同時に実装する。言語の切り替えは何らかの宣言によって指定する。
+</p>
+
+<p>
+P++はPHPの厳格な下位互換性を諦め、少しずつ下位互換性を切り捨てつつ、PHPを静的片付け言語にしていく。
+</p>
+
+<p>
+これはPerl 5/6やPython 2/3という過去の失敗に学んだのだろう。
+</p>
+
+<p>
+PHPとP++は同じコードベースであり、ほとんどのコードは共有するので、PHPの開発リソースが2倍必要になることはない。
+</p>
+
+<p>
+PHP 7.4をLTSにしてPHP 8から介護感性を切り捨てるのは良いアイディアではない。言語を分断させてしまう。Python 2/3がすでに犯した失敗だ。
+</p>
+
+<p>
+PHP 8はPHPとP++を含むので、PHP 8をインストールするとP++もついてくる。同じコードベースでPHPとP++を共存させることもできる。
+</p>
+
+<p>
+PHPの開発が止まるわけではない。ただし静的型付け機能はPHPには入らずP++に入る。PHPは下位互換性を重視する。
+</p>
+
+<p>
+Hackとはどう違うのか。Hackは一企業による開発であり、コミュニティの意見によって設計されなかった。またHackは流通や知名度の問題で難がある。P++はPHPと共存するので、PHP 8をインストールしたならばもれなくP++もついてくる。
+</p>
+
+<p>
+PHPに静的型付けは必要か？　現在、PHPを仕事で使っているプログラマーの中には、本来ならば静的型付け言語を好むが、仕事なのでPHPを使っている人もいる。PHPが静的型付けを提供する意義はある。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
