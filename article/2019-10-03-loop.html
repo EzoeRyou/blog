@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+また初心者にプログラミングを教える機会があった
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2019/10/blog-post.html">
+また初心者にプログラミングを教える機会があった
+</a></h1>
+
+<p>
+プログラミングでわからないところがあるので教えてほしいと以下のようなことを聞かれた。
+</p>
+
+<p>
+こういうJavaScriptの関数がある。
+</p>
+
+<pre><code>// valuesは配列
+// elementはvaluesの要素型の値
+// 配列valuesに値elementと等しい要素があるならばそのインデックスを返す。
+// それ以外の場合、-1を返す
+function find_index( values, element )
+{
+    for ( let i = 0 ; i !== values.length ; ++i )
+    {
+        if ( values[i] === element )
+            return i ;
+    }
+    return -1 ;
+}
+</code></pre>
+
+<p>
+質問は、「なぜreturn -1にelseはいらないのか」というものであった。
+</p>
+
+<p>
+似たような問題に、<a href="https://cpplover.blogspot.com/2018/05/blog-post_29.html">昔遭遇した気がする</a>が、別人だ。
+</p>
+
+<p>
+まずここにelseを書くべき文法はJavaScriptに存在しない。if文で何らかの条件を切り分ける必要もない。なぜならば、return -1が評価されるとき、すでにforループを抜けているわけで、その場合要素が見つからなかったということだ。逆に、要素が見つかったのであれば、すでに上のreturn iが評価されているので、すでに処理は関数の呼び出し元に戻っており、return -1は評価されることがない。
+</p>
+
+<p>
+ただ、このような机上の説明を繰り返しても理解ができない様子であったので、さらにデバッガーでステップ実行してみせるなどして説明した。
+</p>
+
+<p>
+この問題は、逐次実行という概念と、逐次実行がfor文やif文やreturn文によって変わるということ、そしてプログラミングにおける関数の理解が必要だ。しかし、筆者はこのような概念の理解に苦労した覚えはないし、周りの職業プログラマーに聞いても、やはり苦労した覚えはないという。
+</p>
+
+<p>
+しかし不思議だ。質問者は数学の素養があり、数学における関数なら理解しているはずだ。聞けば再帰も理解しているという。それならと以下のように再帰で書いてみた。
+</p>
+
+<pre><code>
+function find_index( values, element )
+{
+    function solve( i )
+    {
+        if ( i === values.length )
+            return -1 ;
+
+        if ( values[i] === element )
+            return i ;
+
+        return solve( i + 1 ) ;
+    }
+    return solve(0) ;
+}
+</code></pre>
+
+<p>
+これを何の説明もせずに見せたところ、「これはとても良くわかる。なんでみんなこう書いてくれないのか」とのことであった。質問者はJavaScriptの初歩の初歩しか学んでおらず、このようなコードは見たことがないはずだ。しかしわかりやすいと言う。再帰は正しく理解できていることが確認できた。
+</p>
+
+<p>
+質問者にはHaskellのような純粋関数型の言語のほうが向いているのかもしれない。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
