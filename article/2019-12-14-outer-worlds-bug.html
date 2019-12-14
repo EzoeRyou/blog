@@ -1,0 +1,146 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+Outer Worldsでコンパニオンが死んでいないのに死亡したと認識されるバグ
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2019/12/outer-worlds.html">
+Outer Worldsでコンパニオンが死んでいないのに死亡したと認識されるバグ
+</a></h1>
+
+<blockquote>
+<p>
+<a href="https://twitter.com/_taylorswope/status/1205252714680045568">https://twitter.com/_taylorswope/status/1205252714680045568</a>
+</p>
+
+<p>
+今日、#TheOuterWorldsのパッチ1.2をリリースした。これには「ゲームがコンパニオンを死んだとみなす」バグの修正も含まれている。このバグは俺のキャリアで最も長い時間を費やしたデバッグ作業となった。
+</p>
+
+<p>
+このバグの概要は、一部のプレイヤーで、コンパニオンクエストが失敗とクエストログにでる。その理由はコンパニオンが死んだからだ。しかし字祭にはコンパニオンは死んでいないにもかかわらずだ。
+</p>
+
+<p>
+これは解せないもので、というのも超新星モードでもなければ、コンパニオンは死なないからだ。
+</p>
+
+<p>
+リリース前に1度か2度だけこの問題が発生したが、QAチームは再現できなかったので、その原因を特定することはできなかった。
+</p>
+
+<p>
+原因の特定が困難だった理由は、どこで問題が発生しているかわからなかったことだ。問題が発現したすべての例で、10時間以内に問題が起こったのでクエストが壊れたらしい、ぐらいしかわからなかった。
+</p>
+
+<p>
+この問題の調査にはすべてのスクリプトとコードで、コンパニオンが死亡すると認識する場所を洗い出す必要があった。
+</p>
+
+<p>
+論理的に考えて問題の原因箇所となりうる唯一のスクリプトが実行される状況は、コンパニオンのヘルスがゼロになったときだ。銭湯が終わるまで待ち、復活させる。それ以外の場合に、本当に死んだとマークする。
+</p>
+
+<p>
+ゲーム中、コンパニオンが存在するがアクティブなパーティには加入していない常用というのは、船の中だけだ。問題は、コンパニオンが船の中にいるときは、ダメージを受けないはずなのだ。
+</p>
+
+<p>
+「ダメージを受けない」というのは「死なない」という意味ではない。攻撃によってダメージを受けないが、他の要素ではダメージを受ける。そのうちの一つは、とても高い距離から落下するというものだ。
+</p>
+
+<p>
+問題は、船の中には落下死できる場所はない。そこで、今度はなぜコンパニオンがそんな高い場所に移動するのかということを突き止めなければならなかった。
+</p>
+
+<p>
+大量の仮説を考えた。「もしかしたらファストトラベルで他のマップに移動したとき時に位置データが維持されているのではないか」とか「もしかしたら2人のコンパニオンが衝突した時に物理演算によって上方向に加速したのではないか」
+</p>
+
+<p>
+個人的にお気に入りの仮説は、「コンパニオンがランダムイベントで牛がスポーンする場所に立っていて宇宙に打ち上げられるのではないか」
+だ。仮説が否定されたときはちょっと落ち込んだものだ</p>
+
+<p>
+そしてゲームがリリースされたが、たまたま発生した本来起こりえない不具合だったという希望は打ち砕かれた。世界中のプレイヤーがコンパニオンクエストが失敗したぞと報告し始めたからだ。
+</p>
+<p>
+最終的に、ユーザーのレビューの中にあった何気ないコメントに、コンパニオンが虚空を登っているという変なバグを見たというものがあり、このコメントによって問題箇所の特定ができた。
+</p>
+
+<p>
+開発上、NPCが周りとインタラクトするシステムは、「家具」とよばれている。これは文字通り椅子に座ると言った家具であることもあるが、端末使用とか壁に寄りかかるといった動作もすべてそうだ。
+</p>
+
+<p>
+家具システムの奥深いところに、プレイヤーが会話中は、すべてのNPCに新しい家具インタラクションを無効化するコードがあった。
+</p>
+
+<p>
+問題は、ハシゴの使用は2つの異なる家具インタラクションになっていた。一つはハシゴに取り付いて登る動作、もう一つは登るのを辞めてハシゴから降りる動作だ。
+</p>
+
+<p>
+そのため、誰かがハシゴを登り始め、停止する前にプレイヤーが会話に入った場合、ハシゴから降りることができず・・・まあ、その・・・
+</p>
+</blockquote>
+
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">So, if someone started climbing a ladder and the player entered a conversation before they stopped, they wouldn&#39;t be able to exit the ladder, and, well…. (18/18) <a href="https://t.co/xcduTy4d12">pic.twitter.com/xcduTy4d12</a></p>&mdash; Taylor Swope (@_taylorswope) <a href="https://twitter.com/_taylorswope/status/1205252973611237376?ref_src=twsrc%5Etfw">December 12, 2019</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script> 
+
+
+<p>
+なかなか笑えるバグだ。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
