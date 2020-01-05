@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+Arch Linuxがパッケージ圧縮をxzからzstdに変更
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2020/01/arch-linuxxzzstd.html">
+Arch Linuxがパッケージ圧縮フォーマットをxzからzstdに変更
+</a></h1>
+
+<p>
+<a href="https://www.archlinux.org/news/now-using-zstandard-instead-of-xz-for-package-compression/">Arch Linux - News: Now using Zstandard instead of xz for package compression</a>
+</p>
+
+<p>
+Arch Linuxがパッケージの圧縮に使うフォーマットをxzからzstdに変更した。
+</p>
+
+<p>
+Archでは圧縮レベル20を使うことにより、xzにくらべて0.8%サイズが増加するが、デコード速度が1300%向上するという。
+</p>
+
+<p>
+CanonicalによるUbuntuは2018年にzstdに移行するテストをしていて、その結果による、圧縮レベル19を使うことにより6%のサイズ増加だったということだ。
+</p>
+
+<p>
+zstdとはFacebookのYann Colletが2016年に発表した圧縮フォーマットとそのリファレンス実装のことだ。軽く調べてみたところ、メモリ使用量が多く並列実行に力を入れている設計と実装のようで、現代のコンピューター向けという感じがする。
+</p>
+
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
