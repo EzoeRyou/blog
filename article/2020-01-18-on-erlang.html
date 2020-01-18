@@ -1,0 +1,153 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+Erlangについて思うところ
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2020/01/erlang.html">
+Erlangについて思うところ
+</a></h1>
+
+<p>
+職場の今までいた部署が潰れてしまったので、新しい部署で仕事のためにErlangを学んでいる。基礎的な文法については学び終わったので、現時点でのErlangについての雑感を書いておこうと思う。
+</p>
+
+<p>
+Erlangは多数派のプログラミング言語とはだいぶ違う文法を持っている。終端記号がドットであることもそうだが、比較演算子もだいぶ違っている。多くの言語が!=を使うなか、Erlangは/=を使っている。Less than or equal toが=&lt;であるのも多数派とは異なっている。ただし、Greater than or equal toは&gt;=だ。一貫性がない。
+</p>
+
+<p>
+終端文字はドットだが、関数の中には一つの式しか書くことができない。式はカンマで区切ることができるので、以下のようになる。
+</p>
+
+<pre><code>func() -&gt;
+    expr1 , % カンマ
+    expr2 , % カンマ
+    expr3 . % ドット
+</code></pre>
+
+<p>
+このような文法はリファクタリングの時に問題になる。というのも、例えば関数の戻り値をexpr3の評価結果に依存した別のものにしたくなったとき、
+</p>
+
+<pre><code>func() -&gt;
+    expr1 , % カンマ
+    expr2 , % カンマ
+    expr3 . % エラー
+    expr4 .
+</code></pre>
+
+<p>
+うっかりドットをカンマに修正するのを忘れるとエラーになる。
+</p>
+
+<p>
+そもそも関数の文法も問題だ。関数は同名の関数群をセミコロンで区切って一度に定義する文法になっている。
+</p>
+
+<pre><code>Name( P1 ) when ... -&gt;
+    expr ;
+Name( P1 ) when ... -&gt;
+    expr ;
+Name( P1 ) when ... -&gt;
+    expr . 
+</code></pre>
+
+<p>
+関数群の最後はドットで終端するが、途中の関数はすべてセミコロンで区切る。これは関数を定義する順番を変えたときに、手でセミコロンとドットを修正しなければならない。
+</p>
+
+<pre><code>Name( P1 ) when ... -&gt;
+    expr ;
+Name( P1 ) when ... -&gt;
+    expr . % エラー、リファクタリング中の修正漏れ
+Name( P1 ) when ... -&gt;
+    expr ; 
+</code></pre>
+
+<p>
+変数が再束縛できないのもコードを汚くする。というのは、結局現実のコードでは式を評価した結果を元に更に計算を行い、その結果を束縛し、途中の結果については参照しないコードがある。
+</p>
+
+<pre><code>
+R1 = expr1 ,
+R2 = Do_something(R1) ,
+R3 = Do_something2(R2) .
+</code></pre>
+
+<p>
+もちろん、途中の評価結果を変数に束縛する必要はないのだが、あまりにも式が長い場合は可読性のために途中でわかりやすい名前をつけたくなる。しかし、変数の再束縛が許されていないために、変数名に意味のある単語を使わない文化圏の怠惰な数学者がよく使うX'や、gitを使えないバカがよく使う2020-01-18プロジェクト企画書(最新)(第二項)(承認待ち).zipのようなひどい変数名を作り散らかす原因になる。
+</p>
+
+<p>
+他にもガードにBIFしか使えないとか型がないとか型がないとか特に型がないとかいろいろといいたいことはあるし、ErlangはHaskellの爪の垢を煎じて飲んでほしいのだが、汎用プログラミング言語としてみたErlangは貧弱で、主要なプログラミング言語とは違う文法を採用し、しかも融通がきかない不自然な文法で、まことにつまらない言語だ。まるでGOやJavaのような言語と言える。
+</p>
+
+<p>
+ただ、言語としてはそれほど難しい概念もないので、習得は容易だろう。
+</p>
+
+<p>
+ただし、あらゆる点で言語としておそまつな点が目につく。最初はクソ言語と思っていたが、途中からこれはBrainfuckと同じエソテリック言語の仲間だと思えてきた。
+</p>
+
+<p>
+そして基礎的な文法を一通り学び終えた今では、ついにあるひとつの結論に達した。Erlangは分散コンピューティング用のDSLなのだ。SQLとかシェルスクリプトと同じであって、汎用プログラミング言語として考えるからクソ言語だと思うのであって、特定の分野専門のDSLだと考えれば悪い言語ではない。汎用プログラミング言語として考えたとき、SQLやシェルスクリプトはいかにもクソ言語というしかない。しかし、SQLやシェルスクリプトの価値はそこにあるのではない。Erlangも同様に、たまたま汎用プログラミング言語としての機能を備えてしまっただけで、本来は単なるDSLであり、ツールでしかない。1980年台にネットワーク越しのリモートコンピューター群をあたかも一つのコンピューターを扱っているかのように扱えるようなツールを実現したという点で価値がある。
+</p>
+
+<p>
+さて、Erlangの基礎的な文法は一通り理解したのだが、まだこれでErlangの習得が終わったわけではない。これからErlangのプロセスやメッセージパッシングなどを学ばなければならない。まだもう少し時間がかかりそうだ。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
