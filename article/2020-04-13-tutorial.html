@@ -1,0 +1,406 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+Erlang, Cowboy, Rebar3によるHello World HTTPサーバーのチュートリアル
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2020/04/erlang-cowboy-rebar3hello-world-http.html">
+Erlang, Cowboy, Rebar3によるHello World HTTPサーバーのチュートリアル
+</a></h1>
+
+<p>
+本記事では、Erlang, Cowboy, Rebar3によるHello worldを出力するHTTPサーバーの実装方法を解説する。
+</p>
+
+<p>
+目的は、このプログラムを実行中に、以下のような挙動になることだ。
+</p>
+
+
+<pre><code>$ curl "htttp://localhost:8080/"
+hello,world</code></pre>
+
+<p>
+ErlangもCowboyもRebar3も、情報が極めて少ない。しかも公式ドキュメントすら間違っている。公式ドキュメントすら間違っているのには理由があり、実際の実装とドキュメントに差がでているのだ。Erlangは変化の少ない言語ではあるが、それでもOTP17からmapが追加されたりと言語的に少し変わっているし、mapの追加により、cowboyも以前ならproplistsを使っていた部分でmapを使うようになり、しかも2.0でAPIかなり破壊的な変更が入り、2.5からはモジュールの構成も少し変わってしまった。Rebar3は本当にひどい。名前が示すように、すでに破壊的な変更を2回経ている。そして技術的負債の塊だ。
+</p>
+
+<p>
+この記事で解説する程度の知識を得るのに私は公式ドキュメントと何ヶ月も格闘するはめになった。公式ドキュメントですらこうなのだから、非公式なドキュメントは本当に参考にならない。ここに書いてあることは2020年の時点では正しいが、来年はわからない。
+</p>
+
+<h2>
+準備
+</h2>
+
+<p>
+Erlang実装とRebar3が必要だ。CowboyについてはRebar3がダウンロードしてくれるので考えなくてよい。
+</p>
+
+<p>
+Debian系のディストロでErlangをインストールする。
+</p>
+
+<pre><code>$ apt install erlang</code></pre>
+
+<p>
+GNU/Linuxでrebar3をインストールする最も信頼できる方法は、自前でビルドすることだろう。
+</p>
+
+<pre><code>$ git clone https://github.com/erlang/rebar3.git
+$ cd rebar3
+$ ./bootstrap
+</code></pre>
+
+<p>
+これで"rebar3"というファイルができるので、このファイルをPATHの通ったディレクトリにコピーするかシンボリックリンクをはればよい。
+</p>
+
+<pre><code>ln -s rebar3 /usr/local/bin</code></pre>
+
+<p>
+これで準備が完了した。
+</p>
+
+<h2>
+プロジェクト作成
+</h2>
+
+<p>
+まずrebar3を使ってプロジェクトを作成する。名前を"hello_server"としよう。
+</p>
+
+<pre><code>$ rebar3 new release hello_server
+$ cd hello_server</code></pre>
+
+<p>
+このコマンドで"hello_server"というディレクトリが作成される。その中にはテンプレート生成されたファイルがいくつかある。重要なものだけ説明する。
+</p>
+
+<p>
+"hello_server/rebar.config"は設定ファイルで、cowboyの依存を追加するために編集する。
+</p>
+
+<p>
+"hello_server/apps"ディレクトリにはアプリケーションが配置される。rebar3のreleaseプロジェクトはumbrella projectと呼ばれていて、複数のアプリケーションを持つことができる。
+</p>
+
+<p>
+"hello_server/apps/hello_server"はrebar3がテンプレートから生成したアプリケーションだ。このディレクトリ内には"src"ディレクトリがあり、3つのファイルが作成されている。"hello_server_app.erl", "hello_server_sup.erl", "hello_server.app.src"だ。
+</p>
+
+<p>
+"hello_server_app.erl"はapplication behaviourを実装するソースファイルだ。
+</p>
+
+<p>
+"hello_server_sup.erl"はsupervisor behaviourを実装する。今回は編集しない。
+</p>
+
+<p>
+"hello_server.app.src"はapplication resource fileを生成するためのソースファイルだ。Erlang VMをどのように実行するかということを設定するためのファイルだ。rebar3はこのファイルから実際のapplication resource fileを生成する。このファイルも編集する。
+</p>
+
+<h2>
+Cowboyを依存に追加
+</h2>
+
+<p>
+Cowboyを依存に追加してrebar3にダウンロードしてもらう。そのために"hello_server/rebar.config"を編集する。
+</p>
+
+<pre><code>$ vim rebar.config</code></pre>
+
+<p>
+最初の数行は以下のようになっている。
+</p>
+
+<pre><code>[erl_opts, [debug_info]}.
+{deps, []}.
+
+[relx, [{release, {hello_server, "0.1.0"},
+...
+</code></pre>
+
+<p>
+今回編集するのは2行目、つまり"{deps,[]}."という部分だ。このlistのなかに依存を記述していく。記述のフォーマットは様々だが、すべて"{ package_name, ...}"という形のtupleになっている。このチュートリアルではパッケージをhex.pmからダウンロードしてくるので、フォーマットは"{ package_name, "version number"}"になる。本チュートリアルを執筆時点で、最新の安定版のcowboyのバージョンは2.7.0だ。
+</p>
+
+<pre><code>
+{deps, [
+    {cowboy, "2.7.0"}
+]}.
+</code></pre>
+
+<p>
+rebar3は依存ライブラリが必要になった時に自動的にダウンロードするが、今回は正しく記述できていることを確認するために明示的にダウンロードしてみよう。
+</p>
+
+<pre><code>$ rebar3 upgrade</code></pre>
+
+<p>
+次に、アプリケーションリソースファイルを編集して、cowboyを先にスタートさせるようにする。今実装しているアプリケーションはcowboyを使っているので、cowboyを先にスタートさせておかなければならない。その設定方法として、"hello_server.app.src"を編集する。
+</p>
+
+<pre><code>$ vim apps/hello_server/src/hello_server.app.src</code></pre>
+
+<p>
+このファイルの中身を抜粋すると以下のようになっている。
+</p>
+
+<pre><code>
+{application, hello_server,
+  [...
+  {applications
+    [kernel,
+     stdlib
+    ]},
+  ...
+  ]}.
+</code></pre>
+
+<p>
+applicationsのtagged tupleの中のlistに"cowboy"を追加する。
+</p>
+
+
+<pre><code>{application, hello_server,
+  [...
+  {applications
+    [kernel,
+     stdlib,    % カンマを忘れないこと
+     cowboy     % この行を追加
+    ]},
+  ...
+  ]}.
+</code></pre>
+
+<p>
+これはErlangのlistなのでカンマを忘れないようにすること。
+</p>
+
+<h2>
+HTTPサーバーの始動
+</h2>
+
+<p>
+容易が全て整ったので、HTTPサーバーを開始する。まず"apps/hello_server/src/hello_server_app.erl"を編集する。
+</p>
+
+<pre><code>vim apps/hello_server/src/hello_server_app.erl</code></pre>
+
+<p>
+このソースコードはrebar3によって生成されたapplication behaviourを実装するためのモジュールだ。start/2を変更して、HTTPサーバーを開始する。
+</p>
+
+
+<pre><code>start(_StartType, _StartArgs) -&gt;
+    hello_server_sup:start_link().
+</code></pre>
+
+<p>
+HTTPサーバーを開始してコネクションをlistenするには、まずcowboy用語でルートと呼ばれているものを設定する。これは特定のリモートホストやパスをcowboy_handlerに関連付けるための設定だ。ルートを設定するにはcowboy_router:compile/1を使う。この関数は引数としてcowoy_router:routes()型を取る。型は"[{Host, Pathlist}]"となっている。PathList型を展開すると、"[{Host, [{Path, Handler, InitialState}]}"となる。
+</p>
+
+<pre><code>start(_StartType, _StartArgs) -&gt;
+    Dispatch = cowboy_router:compile([
+        { Host, [{Path, Handler, InitialState}]}
+    ]),
+    hello_server_sup:start_link().
+</code></pre>
+
+<p>
+ホストとして'_'を指定すると、任意のホストからのコネクションを受けつける。ホストを制限したい場合、例えばlocalhostからの接続しか受け付けたくない場合は、&lt;&lt;"localhost"&gt;&gt;を指定する。
+</p>
+
+<p>
+今回の場合、Pathは&lt;&lt;"/"&gt;&gt;だ。今回は"http://localhost/aa/bb/cc"のようなPathは受け付けないのでこれでいい。
+</p>
+
+<p>
+Handlerにはhello_handlerというatomを指定する。これは後でcowboy_handler behaviourを実装するモジュールとして実装する。
+</p>
+
+<p>
+特に状態は持たないので、InitialStateは空のlistを使う。
+</p>
+
+<p>
+すべてまとめると、以下のようなコードになる。
+</p>
+
+
+<pre><code>start(_StartType, _StartArgs) -&gt;
+    Dispatch = cowboy_router:compile([
+        { &lt;&lt;"localhost"&gt;&gt;, [{&lt;&lt;"/"&gt;&gt;, hello_handler, [] }]
+    ]),
+    hello_server_sup:start_link().
+</code></pre>
+
+<p>
+ルートが準備できたので、HTTPリスナーを開始する。ここでは素のHTTPを使うので、cowboy:start_cear/3を使う。引数はstart_claer( Name, TransportOpts, ProtocolOpts )だ。
+</p>
+
+<p>
+NameはこのHTTPリスナーを識別するための名前で、ErlangのTermであればなんでもよい。通常はatomが使われる。ここでは"hello_listener"を使う。
+</p>
+
+<p>
+TransportOptsには様々なオプションがあるが、このチュートリアルではlistenするポートを指定するだけだ。今回はHTTPサーバーのポートはは通常80だが、今回は8080を使うので、"{{port, 8080}}"となる。
+</p>
+
+<p>
+ProtocolOptsでは先程設定したrouteを指定する。ProtocolOptsの型はmapで、envというキーがあり、値はdispatch型だ。ここに先程束縛したDispatch変数を指定する。
+</p>
+
+<p>
+成功した場合、start_clear/2は{ok, pid}を返す。okのtagged tupleに束縛することで失敗時のことはapplication behaviourにまかせよう。
+</p>
+
+
+<pre><code>start(_StartType, _StartArgs) -&gt;
+    Dispatch = cowboy_router:compile([
+        { &lt;&lt;"localhost"&gt;&gt;, [{&lt;&lt;"/"&gt;&gt;, hello_handler, []}] }
+    ]),
+    {ok, _} = cowboy:start_clear(
+        ello_listener,
+        [{port, 8080}],
+        #{env =&gt; #{dispatch =&gt; Dispatch}}
+    ),
+    hello_server_sup:start_link().
+</code></pre>
+
+<p>
+接続の処理
+</p>
+
+<p>
+HTTP listenerの用意が出来たので、やってきた接続要求を処理していく。そのためにはさきほどのhello_handlerを実装しなければならない。これはcowboy_handler behaviourとして実装する。まず新しいソースファイルを作成する。
+</p>
+
+
+<pre><code>$ vim apps/hello_server/src/hello_handler.erl</code></pre>
+
+<p>
+まず基本的なところを埋めていこう。
+</p>
+
+
+<pre><code>-module(hello_handler).
+-behaviour(cowboy_handler).
+-export([init/2]).
+
+init( Req, State ) -&gt;
+    {ok, Req, State}.
+</code></pre>
+
+<p>
+Reqはリクエストとレスポンスを保持している。Stateは好きに使える状態だが今回は使わないので空のlistとする。
+</p>
+
+<p>
+やるべきことは、HTTPステータスコードとして200を返し、ヘッダーのcontent-typeとしてはtext/plainを指定し、コンテンツは"hello,world"とするだけだ。これにはcowboy_req:reply/4を使う。引数の型は"reply(Status, Headers, Body, Req)"だ。
+</p>
+
+<p>
+StatusはHTTPステータスコードで型はnon_reg_integer()もしくはbinary()だ。今回は200を指定する。
+</p>
+
+<p>
+HeaderはHTTP headerをmap()で指定する。今回は"content-type"を"text/plain"にする。
+</p>
+
+<p>
+Bodyには&lt;&lt;"hello,world"&gt;&gt;を指定する。
+</p>
+
+<p>
+Reqは現在のReqオブジェクトだ。
+</p>
+
+<p>
+replyは新しいReqオブジェクトを返す。これ以降Reqオブジェクトを使う際には、この新しいReqオブジェクトを使わなければならない。
+</p>
+
+<p>
+init/2のコードは以下のようになる。
+</p>
+
+<pre><code>init( Req, State ) -&gt;
+    Req_1 = cowboy_req:reply(
+        200,
+        #{&lt;&lt;"content-type"&gt;&gt; =&gt; &lt;&lt;"text/plain"&gt;&gt;},
+        &lt;&lt;"hello,world"&gt;&gt;,
+        Req
+    ),
+    {ok, Req, State}.
+</code></pre>
+
+<p>
+プログラムの実行
+</p>
+
+<pre><code>$ rebar shell</code></pre>
+
+<p>
+確認しよう。
+</p>
+
+<pre><code>$ curl "http://localhost:8080/"
+hello,world</code></pre>
+
+<p>
+次はErlangのエラー処理について書こうと思う。Erlangのエラー処理はその場で処理を中断して無視していい場合は簡単だが、エラーに明示的な対処が必要だととたんに面倒になる。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
