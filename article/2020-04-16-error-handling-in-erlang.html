@@ -1,0 +1,372 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+Error handling in Erlang
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2020/04/error-handling-in-erlang.html">
+Error handling in Erlang
+</a></h1>
+
+<p>
+Last time, I wrote about how to write a hello world HTTP server by using Erlang, Cowboy and Rebar3.
+</p>
+
+<p>
+<a href="https://ezoeryou.github.io/blog/article/2020-04-07-tutorial.html">Walkthrough of hello world HTTP server with Erlang, Cowboy, and Rebar3</a>
+</p>
+
+<p>
+Today, I'm going to write about the error handling in Erlang.
+</p>
+
+<p>
+The error handling in Erlang is easy if we can ignore the error. That is, we don't expect the error. In the event of unlikely failure, we immediately abandon any computation we were doing and start over. The OTP and other famous frameworks were written by following Erlang culture of error handling so it will handle it well.  If, on the ohter hand, the errors are expected to happen, so we have to explicitly deal with it. Erlang is suddenly reared its ugly head.
+</p>
+
+<p>
+How a function notify it's caller the failure? In other languages, like Haskell, there is a Maybe type which may or may not contains the value. Erlang is not staticaly strong typed language so the Erlang version of the Maybe is tagged tuple. We return ok or {ok, State} upon success and we return any other value otherwise. It may be {error, Reason}, empty list [],  or simply an atom like error, false, undefined whatever.
+</p>
+
+<p>
+The user of such functions must match the returned value with ok tagged tuple, 
+</p>
+
+<pre><code>do_something( State ) -&gt;
+    {ok, State_1} = f( State ),
+    do_normal_things.
+</code></pre>
+
+<p>
+If the function f return anything other than {ok, any()}, match failed and throw an exception of error:{badmatch, V}. So hopefully, the higher framework catch these exceptions and restart the process.
+</p>
+
+<p>
+But what if the caller want to deal with the error? We have to use the patter match for the conditional execution. It can be done by case expression or function.
+</p>
+
+<p>
+case expression:
+</p>
+
+<pre><code>do_something( State ) -&gt;
+    case f( State ) of
+        { ok, State_1 } -&gt; do_normal_things ;
+        { error, Reason } -&gt; do_error_handling
+    end.
+</code></pre>
+
+<p>
+function :
+</p>
+
+<pre><code>do_something( State ) -&gt;
+    do_something_1( f( State ) ) .
+
+do_something_1( { ok, State } ) -&gt; do_normal_things ;
+do_something_1( {error, Reason} ) -&gt; do_error_handling .
+</code></pre>
+
+<p>
+Whichever you use, it became quite verbose and boilar-plate.
+</p>
+
+<p>
+Erlang has exception like many other langauges. But I feel some oddities on Erlang's exception and that is the concept of class.
+</p>
+
+<p>
+The Erlang has three class of exception: error, exit, and throw. These are thrown by calling function error/1,2, exit/1, and throw/1 respectively.
+</p>
+
+<p>
+If you don't care about exception, you need to do nothing. But if you care, that is, you want to run some code on the condition of exception, things get verbose.
+</p>
+
+<p>
+Let's suppose that previous function f/1 return { ok, State } on success, but throw some exceptions otherwise and you want to deal with it because you expect it to happen. You can use try expression or catch expression
+</p>
+
+<p>
+try expression is strightforward, if you ignore the awkward Erlang grammer that is.
+</p>
+
+<pre><code>try Exprs
+    catch Class1:Pattern1 -&gt; Body1 ;
+    catch Class2:Pattern2 -&gt; Body2
+end
+</code></pre>
+
+<p>
+The class is either error, exit, or throw, pattern may vary. If you were to catch the exception thrown by error class's badmatch(1 = 2), it looks like this.
+</p>
+
+<pre><code>try 1 = 2
+    catch error:{ badmatch, V } -&gt; its_bad_man
+end
+</code></pre>
+
+<p>
+Now, how to do_normal_thing and do_error_handling depending on the presense of exception? try expression can have of section and it will be evaluated only on no exception in Exprs.
+</p>
+
+<pre><code>try f( State ) of
+    { ok, State_1 } -&gt; do_normal_thing ;
+catch
+    throw:something_went_bad -&gt; do_error_handling
+end
+</code></pre>
+
+<p>
+Now how to deal with the situation where the error will be reported in either by value or exception? Use try expression's of section to pattern match the error value.
+</p>
+
+
+<pre><code>try f( State ) of
+    { ok, State_1 } -&gt; do_normal_thing ;
+    { error, Reason } -&gt; do_error_handling
+catch
+    throw:something_went_bad -&gt; do_error_handling
+end
+</code></pre>
+
+<p>
+There is another way to deal with the exception. The catch expression.
+</p>
+
+<pre><code>catch Exprs</code></pre>
+
+<p>
+catch expression evaluate Exprs and return its value on no exception. In case of exception, the value will be either
+</p>
+
+<blockquote>
+<p>
+For exceptions of class error, that is, run-time errors, {'EXIT',{Reason,Stack}} is returned.
+</p>
+<p>
+For exceptions of class exit, that is, the code called exit(Term), {'EXIT',Term} is returned.
+</p>
+<p>
+For exceptions of class throw, that is the code called throw(Term), Term is returned.
+</p>
+
+<p>
+<a href="https://erlang.org/doc/reference_manual/expressions.html#catch-and-throw">Erlang -- Expressions</a>
+</p>
+</blockquote>
+
+<p>
+If it's by throw({error, Reason}), the code will be clean.
+</p>
+
+<pre><code>case catch Exprs of
+    { ok, Value } -&gt; do_normal_thing ;
+    { error, Reason } -&gt; do_error_handling
+end
+</code></pre>
+
+<p>
+But if it's error class, the code is too ulgy to read.
+</p>
+
+<pre><code>case catch 1 = 2 of
+    { 'EXIT', { {badmatch, _} }, _ } -&gt; do_error_handling
+end
+</code></pre>
+
+<p>
+Perhaps, error and exit class were not meant to be handled by catch expression, but some library use these even for the predictable situations. like list_to_integer, binary_to_integer. My guess is to keep the backward compatibility.
+</p>
+
+<p>
+Putting it all togather, it's very verbose to handle errors in Erlang.
+</p>
+
+<p>
+Let's quickly borrow a code from the hello world HTTP server I explained in the previous article. <a href="https://ezoeryou.github.io/blog/article/2020-04-07-tutorial.html">Walkthrough of hello world HTTP server with Erlang, Cowboy, and Rebar3</a>
+</p>
+
+<p>
+Instead of returning the hello world, we're going to return the sum of two query parameter a, b.
+</p>
+
+<pre><code>$ curl "http://localhost:8080/?a=1&amp;b=2"
+3
+$ curl "http://localhost:8080/?a=1&amp;b=-100"
+-99
+</code></pre>
+
+<p>
+All we need to do is modify the cowboy_handler. The simplest code that assume no error will be like this.
+</p>
+
+<pre><code>init( Req, State ) -&gt;
+    P = cowboy_req:parse_qs(Req),
+    { _, A } = lists:keyfind(&lt;&lt;"a"&gt;&gt;, 1, P ),
+    { _, B } = lists:keyfind(&lt;&lt;"b"&gt;&gt;, 1, P ),
+    Sum = integer_to_binary( binary_to_integer(A) + binary_to_integer(B) ),
+    Req_1 = cowboy_req:reply( 200,
+        #{&lt;&lt;"content-type"&gt;&gt; =&gt; &lt;&lt;"text/plain"&gt;&gt;},
+        Sum, Req ),
+    {ok, Req_1, State ).
+</code></pre>
+
+<p>
+Well, it's not bad. But I want to deal the the error.
+</p>
+
+<p>
+Suppose, the users forget the query parameters.
+</p>
+
+<pre><code>
+$ curl "http://localhost:8080/"
+$ curl "http://localhost:8080/?a=1"
+$ curl "http://localhost:8080/?b=1"
+</code></pre>
+
+<p>
+If this happend, our code failed the pattern match because lists:keyfind returns false.
+</p>
+
+<pre><code>
+{ _, A } = false,
+</code></pre>
+
+<p>
+In such cases, I want to reply with the helpful error messages like this.
+</p>
+
+
+<pre><code>
+$ curl "http://localhost:8080/"
+Error: missing query parameter a, b.
+$ curl "http://localhost:8080/?a=1"
+Error: missing query parameter b.
+$ curl "http://localhost:8080/?b=1"
+Error: missing query parameter a.
+</code></pre>
+
+<p>
+We can do condional branching with either case expression or function pattern match.
+</p>
+
+<p>
+Another type of error is although the query paramters are present, it has a string that cannot be parsed as an integer.
+</p>
+
+<pre><code>
+$ curl "http://localhost:8080/?a=abc&amp;b=123"
+</code></pre>
+
+<p>
+I would like to reply with helpful error messages in this case too.
+</p>
+
+<p>
+After consdering the various code, I come up with this code. It's too verbose and ugly but I think alternatives are worse.
+</p>
+
+<pre><code>init( Req, State ) -&gt;
+    P = cowboy_req:parse_qs(Req),
+    A = lists:keyfind( &lt;&lt;"a"&gt;&gt;, 1, P ),
+    B = lists:keyfind( &lt;&lt;"b"&gt;, 1, P ),
+    { Http_status_code, Answer } = process( A, B ),
+
+    Req_1 = cowboy_req:reply( Http_status_code,
+        #{&amp;lt;&amp;lt;"content-type"&amp;gt;&amp;gt; =&amp;gt; &amp;lt;&amp;lt;"text/plain"&amp;gt;&amp;gt;},
+        Answer, Req ),
+    { ok, Req_1, State }.
+</code></pre>
+
+<p>
+process/2 is set of function that ultimately returns { integer(), iodata() }. Here is the verbose code.
+</p>
+
+<pre><code>%% for missing query parameters.
+process( false, false )     -&gt; { 400, &lt;&lt;"Error: missing query parameter a, b.\n"&gt;&gt; } ;
+process( false, _ )         -&gt; { 400, &lt;&lt;"Error: missing query parameter a.\n"&gt;&gt; } ;
+process( _, false )         -&gt; { 400, &lt;&lt;"Error: missing query parameter b.\n"&gt;&gt; } ;
+%% for invalid query parameters
+process( badarg, bardarg)   -&gt; { 400, &lt;&lt;"Error: invalid query parameter a, b.\n"&gt;&gt; } ;
+process( badarg, _ )        -&gt; { 400, &lt;&lt;"Error: invalid query parameter a.\n"&gt;&gt; } ;
+process( _, bardarg)        -&gt; { 400, &lt;&lt;"Error: invalid query parameter b.\n"&gt;&gt; } ;
+% lists:keyfind succeeded.
+process( { _, A }, { _, B } ) -&gt;
+    process(
+        try binary_to_integer( A ) catch error:badarg -&gt; badarg end,
+        try binary_to_integer( B ) catch error:badarg -&gt; badarg end
+    ) ;
+% no invalid query parameter. return the result.
+process( A, B ) -&gt;
+    { 200, { integer_to_binary( A + B ), &lt;&lt;"\n"&gt;&gt; } } .
+</code></pre>
+
+<p>
+The -spec attribute for this process/2 is abomination.
+</p>
+
+<pre><code>-spec process(
+    { bitstring(), bitstring() } | false | badarg | integer(),
+    { bitstring(), bitstring() } | false | badarg | integer()
+)  -&gt; { integer(), iodata() }.
+</code></pre>
+
+<p>
+Well, at least, I understand the error handling of Erlang.
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
