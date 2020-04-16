@@ -1,0 +1,108 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+検出不可能なゲームのチートが発表、今後のオンラインゲームのデザインはこのチートを前提に設計しなければならない
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2020/04/blog-post.html">
+検出不可能なゲームのチートが発表、今後のオンラインゲームのデザインはこのチートを前提に設計しなければならない
+</a></h1>
+
+<p>
+PCILeechというソフトウェアスタックがある。
+</p>
+
+<p>
+<a href="https://github.com/ufrisk/pcileech">ufrisk/pcileech: Direct Memory Access (DMA) Attack Software</a>
+</p>
+
+<p>
+これはPICeデバイスを使ってターゲットコンピューターのメモリをDMAで読み取るためのPCIeデバイスのFPGAの実装とその操作のための一連のソフトウェア群だ。
+</p>
+
+<p>
+原理は簡単だ。ターゲットコンピューターのPCIeスロットにつないだPCIeデバイスからDMAをするだけ。これによりターゲットコンピューターのメモリ領域を読み取ることができる上、ターゲットコンピューターからは検出不可能だ。なぜならばDMAはCPUを介さずに行われる上、ターゲットコンピューターにカーネルスペース/ユーザースペースともに追加のコード実行を必要としないからだ。
+</p>
+
+<p>
+PCILeechを作って作られたゲームのチートに、CSL:GOのチートがある。これはマップ上のどこにプレイヤーがいるかを表示するチートだ。
+</p>
+
+<p>
+<a href="https://github.com/EngineOwningSoftware/pcileech-webradar/blob/master/readme.md">pcileech-webradar/readme.md at master · EngineOwningSoftware/pcileech-webradar</a>
+</p>
+
+<p>
+原理上、このチートはターゲットコンピューターからは検出不可能だ。したがっていかなるDRMであろうとも役に立たない。難読化をして多少チートの開発を嫌がらせすることはできるかもしれないが、所詮その程度だ。もはやゲームにおいてメモリは常に読まれるものと考えなければならない。
+</p>
+
+<p>
+このチートに抗うのは無意味だ。したがってこれからのオンラインゲームはローカル環境でのメモリが読まれることを前提に設計しなければならない。CS:GOのようなオンラインFPSゲームでは、全プレイヤーの位置は公開すべきだろう。すなわちこのようなチートの意味をなくすのだ。オンラインポーカーのようなゲームでは、ローカルに秘密情報を保持しない実装にしなければならない。秘密情報については中央の権威サーバーのみが処理するか、メンタルポーカーのアルゴリズムを使う。オンラインFPSも中央の権威サーバーによる実装もできるが、それはGoogle Stadiaのような入力をサーバーに送信して映像をストリーミング再生するだけのような実装になるだろう。
+</p>
+
+<p>
+この仕組みを使ってメモリに書き込む場合は検出可能だろう。というのも連続していない任意箇所のメモリに対してアトミックに書き込むことはできないので、ゲーム状態を重複して複数のメモリ箇所に保持したり常時チェックサム計算などの対策で、メモリ改変を検出できるはずだ。
+</p>
+
+<p>
+また、自分のプログラムが全メモリアクセスを専有している場合は、メモリ帯域を常時使い切ることにより、メモリ帯域に変化が生じればそれはDMAアクセスが行われたと考えていいだろう。問題はPCILeech以外の各種デバイスかもしれず、またIntel MEやAMD PSPのような邪悪で不自由なバイナリブロブのファームウェアによるものかもしれないので、切り分けができない。そして全メモリアクセスを専有する状態ではもはやPCゲームは実装できない。
+</p>
+
+
+<p>
+世の中から無意味で邪悪で人道上の罪であるDRMは滅ぼさなければならない。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
