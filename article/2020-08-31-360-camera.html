@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+360度カメラの残念な現状
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2020/08/360.html">
+360度カメラの残念な現状
+</a></h1>
+
+<p>
+冬のスノーボードのために動画撮影用のカメラを買おうと思っている。今の所、GoProの次のモデルが発表されたら買うのを検討しようかと思っているのだが、360度カメラという選択肢も出てきた。しかし調べたところ、360度カメラの現状はあまりよろしくない。
+</p>
+
+<p>
+360度カメラではカメラを中心に全周囲を撮影できる。これによって追い撮りするときに撮影対象を収めそこねたという問題を回避できるし、自分も周囲も同時に撮影できる。私の目的は思い出を記録しておくことだから、360度カメラはとてもいい選択肢のように思える。
+</p>
+
+<p>
+360度カメラは2つ以上のレンズを使って撮影した複数の映像をつなぎ合わせることで実現されている。一般的な製品では半球レンズを2つ使って2つの動画を撮影してつなぎ合わせている。
+</p>
+
+<p>
+撮影した生の映像は、半球レンズによって著しく歪んだ2つの動画にすぎない。このままでは見るに耐えないので、視点を固定し、その視点に合わせた現実的な狭い視野を模した動画の一部のみを再生することになる。そのための処理として、製品ごとに異なる独自のプロプライエタリなソフトウェアが必要になる。
+</p>
+
+<p>
+まずstitchingを行う。撮影した複数の動画は境目となる部分を単に重ねただけでは継ぎ目が明らかになってしまう。撮影部分がオーバーラップしたり、撮影方向の違いによって当たる光の関係で映像の色温度が変わってくる。これをごまかすために、オーバーラップ部分を認識したり、継ぎ目をぼかしたり、色温度を調整したりといった処理が必要になる。複数の独立したカメラを使って手動で360度動画を作るならこれはすべて手動でやらなければならない。360度カメラのようにあらかじめカメラ特性が分かっているのであれば自動化も可能になる。そのためのソフトウェアはカメラベンダーが提供するプロプライエタリなソフトウェアとなる。GoPro MAXではstitchingはカメラ内で撮影時に行われる。
+</p>
+
+<p>
+次にprojectionが必要になる。我々の視野は360度ではない。そのため視聴環境に合わせて動画を変形させなければならない。視聴環境が平面ディスプレイせよ、VRディスプレイにせよ、必要だ。この処理も事前にカメラ特性がわかっていれば自動化できるが、そのためのソフトウェアもカメラベンダーが提供するプロプライエタリなものになる。
+</p>
+
+<p>
+360度動画に必要なものは規格化であるように思われる。stitchingはカメラ内で行えるが、projectionは処理量的にカメラ内ではやりにくい。その方法もまだ発展段階にあり混沌としている。projectionを規格化することによってカメラベンダーごとのプロプライエタリなソフトウェアの必要をなくしてほしい。
+</p>
+
+<p>
+なぜこれを問題視しているかと言うと、プロプライエタリなソフトウェアが10年後に動作する保証はどこにもないからだ。しかも360度動画のprojection処理はGPUを使うのでなおさらだ。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
