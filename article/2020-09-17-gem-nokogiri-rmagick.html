@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+gem installでnokogiriとrmagickが失敗する場合
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2020/09/gem-installnokogirirmagick.html">
+gem installでnokogiriとrmagickが失敗する場合
+</a></h1>
+
+<p>
+なぜ失敗するかというと、nokogiriとrmagickはシステムに特定のソフトウェアやライブラリが入っていることに依存しているからだ。依存しているソフトウェアやライブラリをPATHの通った場所に用意してやらなければビルドができない。
+</p>
+
+<p>
+nokogiriで問題になるのは主にlibxml2だ。nokogiriは独自のパッチをあてたlibxml2をビルドして使う。libxml2のビルドに必要になるソフトウェアとライブラリがある。
+</p>
+
+<p>
+具体的な方法は公式ドキュメントに情報がある。
+</p>
+
+<p>
+<a href="https://nokogiri.org/tutorials/installing_nokogiri.html">Installing Nokogiri - Nokogiri</a>
+</p>
+
+<p>
+特に入っていない可能性が高いのはzlibとliblzmaだ。Debian系ならば以下のようにパッケージをインストールする必要がある。
+</p>
+
+<pre><code>
+apt install build-essential patch ruby-dev zlib1g-dev liblzma-dev
+</code></pre>
+
+<p>
+rmagicはImageMagickのRuby bindingだが、システムにImageMagickがインストールされていなければならない。またインスールされているヘッダーファイルやオブジェクトファイルを発見するためにpkg-configも必要だ。
+</p>
+
+<p>
+<a href="https://github.com/rmagick/rmagick#prerequisites">GitHub - rmagick/rmagick: Ruby bindings for ImageMagick</a>
+</p>
+
+<p>
+Debian系では以下のように依存パッケージをインストールする
+</p>
+
+<pre><code>
+apt install build-essential pkg-config libmagicwand-dev
+</code></pre>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
