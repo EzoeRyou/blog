@@ -1,0 +1,167 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+macOSのM1とx86-64におけるベンチマーク比較の考察
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="https://cpplover.blogspot.com/2020/11/macosm1x86-64.html">
+macOSのM1とx86-64におけるベンチマーク比較の考察
+</a></h1>
+
+<p>
+世間ではAppleの新しい製品に使われるARM64 CPUであるM1の話題でもちきりだ。ただし、日本語を話す記者というのは極めて非科学的かつ無能であり、M1の現物を手にしても、末端のソフトウェアを動かして、体感で早いだの遅いだのと語るだけだ。そういう感想は居酒屋で酒を片手に漏らすべきであって、報道と呼ぶべきシロモノではない。
+</p>
+
+<p>
+と思っていたら、Phoronixがやってくれた。M1とi7で動くmacOSでベンチマークをしている。
+</p>
+
+<p>
+これを考察すると、M1のMac Miniは、一世代前のi7のMac Miniに比べて、メモリ性能とI/O性能が高く、演算性能は低いようだ。このことを考えると、M1の性能特性としては、動画のエンコードやソフトウェアレイトレーシングをするには不向きだが、その他の作業は遜色ないだろう。
+</p>
+
+<p>
+問題は、仮想化とRosettaを組み合わせることができないという点だ。x86-64のユーザースペースのdockerイメージをM1 macOSで実行するには、かなり大掛かりな独自の実装が必要になるだろうし、結局本番環境はGNU/Linux x86-64なので、開発者受けはよくないだろう。ただし、サーバーがARMを採用するのが一般的なれば話はまた変わってくるかもしれない。ただし、その場合もサーバーOSの首位はGNU/Linuxで揺るぎないだろうから、macOSは使いづらく、開発者はGNU/LinuxかWindows WSLを選ぶだろう。ARM64 macOSの上で動く仮想化の上で動くGNU/Linux ARM64という選択肢はあるかもしれない。
+</p>
+
+<p>
+<a href="https://www.phoronix.com/scan.php?page=article&item=apple-mac-m1&num=1">Apple M1 ARM Performance With A 2020 Mac Mini Review - Phoronix</a>
+</p>
+
+<p>
+M1で動くmacOSでソフトウェアを実行するには、ARM64ネイティブコードを動かす方法と、x86-64バイナリをRosettaという変換レイヤーを通してリアルタイムにARM64に変換して実行する方法がある。すでにある体感による報道では、Rosettaはi7よりも早いという。本当だろうか。早速ベンチマーク結果を見ていこう。
+</p>
+
+
+<p>
+<a href="https://www.phoronix.com/scan.php?page=article&item=apple-mac-m1&num=2">Apple M1 ARM Performance With A 2020 Mac Mini Review - Phoronix</a>
+</p>
+
+<p>
+分子動力学シミュレーションのNANDでは一世代前のi7のMac Miniと比べて変換が走っているとは思えないスコアを出す。一世代前のi7を搭載したmac Miniよりスコアが高い。ただしDNAの多重整列をするMAFFTのRosetta経由のスコアは低い。ネイティブのスコアはi7を超える。
+</p>
+
+<p>
+WebPによる画像圧縮やLibRawによる画像ポストプロセッシングのスコアはi7とRosettaで遜色がない。
+</p>
+
+<p>
+Zstdによる圧縮はなぜかResettaがぶっちぎりで圧倒的スコアを叩き出している。どういうことだろう。Zstdの圧縮処理は軽いので、これは演算能力ではなくメモリ帯域をベンチマークしているのではないだろうか。つまり一世代前のi7 Mac MiniよりM1 Mac Miniのほうがメモリ性能がよいのだ。
+</p>
+
+<p>
+<a href="https://www.phoronix.com/scan.php?page=article&item=apple-mac-m1&num=3">Apple M1 ARM Performance With A 2020 Mac Mini Review - Phoronix</a>
+</p>
+
+<p>
+Intelによってx86-64用に最適化されているOSRayによるレイトレーシングや画像ノイズ除去ではRosettaは振るわない。他のレイトレーシングソフトウェアのパフォーマンスを見ても、Rosettaはi7を超えているようには見えない。変換レイヤーを経由しているにしては実用的な性能ではある。
+</p>
+
+<p>
+SQLiteやgitをみてみると、Rosettaはi7を大きく上回るパフォーマンスを出し、M1ネイティブだと更に素晴らしいパフォーマンスを叩き出す。これはI/O性能に律速される処理だから、I/O性能が一世代前のMac Miniに比べて高いのだろう。
+</p>
+
+
+
+<p>
+<a href="https://www.phoronix.com/scan.php?page=article&item=apple-mac-m1&num=4">Apple M1 ARM Performance With A 2020 Mac Mini Review - Phoronix</a>
+</p>
+
+<p>
+PyBenchやPHPBenchといった割と複合的なベンチマークスコアではM1はi7と遜色ないパフォーマンス、Rosettaは変換するにしてはよくやっているので実用的なパフォーマンス
+</p>
+
+<p>
+KvazaarによるH.265の動画エンコードはM1がi7に圧倒的に負けている。純粋な演算性能はi7に劣るようだ。
+</p>
+
+<p>
+<a href="https://www.phoronix.com/scan.php?page=article&item=apple-mac-m1&num=5">Apple M1 ARM Performance With A 2020 Mac Mini Review - Phoronix</a>
+</p>
+
+<p>
+Java 2D Benchmark、Rosettaが強い。SeleniumをFirefoxで計測、M1が強い。
+</p>
+
+<p>
+<a href="https://www.phoronix.com/scan.php?page=article&item=apple-mac-m1&num=6">Apple M1 ARM Performance With A 2020 Mac Mini Review - Phoronix</a>
+</p>
+
+<p>
+Basis UniversalはGPU用のテクスチャ圧縮をするソフトウェアだ。このスコアはメモリ帯域に律速されると思われるが、M1が圧倒的に早い。
+</p>
+
+<p>
+Botanは暗号処理のライブラリだ。M1によるネイティブ実行はできないが、Rosettaはなかなか速い。7zipやxzではM1が速い。
+</p>
+
+<p>
+Fhourstonesはconnect-4というボードゲームの配置情報を計算するベンチマークで、おそらく演算自体は単純でメモリ性能に律速される処理だと思われる。M1が速い
+</p>
+
+<p>
+FLACによる音声の可逆圧縮エンコードは、M1ネイティブがRosettaに負けている。FLACの実装がARM64に最適化されていないものと思われる。
+</p>
+
+<p>
+<a href="https://www.phoronix.com/scan.php?page=article&item=apple-mac-m1&num=7">Apple M1 ARM Performance With A 2020 Mac Mini Review - Phoronix</a>
+</p>
+
+<p>
+GraphicMagickのベンチマークはM1が速い。DBやサーバー環境などを模したベンチマークでもM1やRosettaが優秀な結果を出している。
+</p>
+
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
