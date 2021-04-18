@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+kworker/kacpidのCPU使用率が高い問題に対処した
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1><a href="url">
+kworker/kacpidのCPU使用率が高い問題に対処した
+</a></h1>
+
+<p>
+自宅内で持ち運んでカジュアルに使うための軽量な2-in-1タブレットの調子が最近おかしい。特に付属のキーボードを取り付けると挙動がおかしくなる。不思議に思ってtopを見ると、ibus-daemonとgnome-shellのCPU使用率を異様に高かった。
+</p>
+
+<p>
+そこでとりあえずibus-daemonを止めてみることにした。
+</p>
+
+<pre><code>$ ibus exit
+</code></pre>
+
+<p>
+すると今度はkworker/kacpidというプロセスのCPU使用率が高いことが分かった。これを止めることはできない。調べるとこれはACPIの割り込みを処理しているらしく、ハードウェアの不具合かなにかで割り込みがやたらと起こっている可能性がある。早速割り込みを調べてみよう。
+</p>
+
+<pre><code>$ rgrep enabled /sys/firmware/acpi/interrupts/
+/sys/firmware/acpi/interrupts/ff_pwr_btn:       0  EN     enabled      unmasked
+/sys/firmware/acpi/interrupts/gpe66:      14  EN     enabled      unmasked
+/sys/firmware/acpi/interrupts/gpe62:       0  EN     enabled      unmasked
+/sys/firmware/acpi/interrupts/gpe50:    3457  EN     enabled      unmasked
+/sys/firmware/acpi/interrupts/gpe09:  979302  EN     enabled      unmasked  
+/sys/firmware/acpi/interrupts/ff_gbl_lock:       0  EN     enabled      unmasked
+/sys/firmware/acpi/interrupts/gpe6F:       0  EN     enabled      unmasked
+/sys/firmware/acpi/interrupts/gpe6D:     130  EN     enabled      unmasked
+/sys/firmware/acpi/interrupts/gpe61:       2  EN     enabled      unmasked
+</code></pre>
+
+<p>
+これをみると、私の環境ではgpe09の割り込みが明らかに多いことが分かる。この割り込みをマスクすると問題は収まった。
+</p>
+
+<pre><code>$ sudo bash
+# echo mask &gt; /sys/firmware/acpi/interrupts/gpe09
+</code></pre>
+
+<p>
+しかしこれではリブートすると元に戻ってしまうので、crontab -eした上で
+</p>
+
+<pre><code>@reboot echo &gt; /sys/firmware/acpi/interrupts/gpe09
+</code></pre>
+
+<p>
+このように記述した。
+</p>
+
+<p>
+そしてすっかり忘れていたibus-daemonを起動した。
+</p>
+
+<pre><code>$ ibus-daemon -d -x
+</code></pre>
+
+<p>
+ただ、根本的な問題としておそらくハードウェア障害だと思うので、そろそろ新しい2-in-1ラップトップを買わなければならない。今使っているのはEve-Vというなかなかハイスペックな2-in-1タブレットだが、流石に3年前の製品なのでそろそろ古い。しかし、2-in-1タブレットでここまでのスペックを持っている製品はない。。Eve-Vの後継機がもうすぐ出るらしいので、それを買おうかと思っている。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
