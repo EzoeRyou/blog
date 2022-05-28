@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+金持ちの研究所から出てきた機械学習の論文なんてゴミだ
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1>
+金持ちの研究所から出てきた機械学習の論文なんてゴミだ
+</h1>
+
+<p>
+<a href="https://www.reddit.com/r/MachineLearning/comments/uyratt/d_i_dont_really_trust_papers_out_of_top_labs/">[D] I don't really trust papers out of "Top Labs" anymore : MachineLearning</a>
+</p>
+
+<blockquote>
+<p>
+あのさ。書いてある数字は事実だろうし実際書いてある研究はやったんだと思うよ。そこんとこは認めてやるよ。でもそれだけだ。例えば最近の"An Evolutionary Approach to Dynamic Introduction of Tasks in Large-scale Multitask Learning Systems"（巨大マルチタスク学習システムに対するタスクの動的追加における進化的アプローチ、著者Andrea Gesmundo, Jeff Dean、GoogleのAI部署所属）って論文だがな。この18ページの論文は超複雑で進化的なマルチタスク学習アルゴリズムについて書いてあって興味深いし、実際問題を解決してるさ。でも二点ツッコミどころがある。
+</p>
+
+<p>
+ツッコミその一、奴らが主張する成功指数とやらはCIFAR-10に対して99.43。SotAの99.40。ミジンコみたいな改善率じゃねーか。
+</p>
+
+<p>
+ツッコミその二、奴らの論文の最後んとこにあるグラフに、この最終結果をトレーニングするために使ったTPUコア時が書かれてるんだが、それがなんと合計17810コア時。お前がGoogleで働いていないとしよう。お前が3.22米ドル/時(409円/時)のオンデマンド価格でその計算力を買ったとしたら、このモデルをトレーニングするコストは57348米ドル（728万円）だ。
+</p>
+
+<p>
+言ってしまえばだな。十分な計算力を十分に汎用的な遺伝的アルゴリズムにつぎ込んだらお望みの精度ぐらい出せらぁ。この論文を読んで、「遺伝的アルゴリズムでマルチタスク学習をそれぞれの新しい追加タスクの学習優先度を以前のタスクから学習した既存のモデルからの差分変更から推定して」って部分はだな、もうちょっとわかりやすく言い換えてやると、「（この論文著者でGoogle社員の）Jeff Deanは4人家族を5年ぐらい養えるほどのカネをつぎ込んでCIFAR-10の精度を0.03%向上させました」ってこったな。
+</p>
+
+<p>
+OpenAIが特にこの手のバカをやらかしているが、今やみんな同じことをしてやがる。クソほどバカでかい計算力をチリ程度の新規性あるアイディアに注ぎ込んだら、既存の問題と既存のデータと既存のベンチマークで、先行者よりごく僅かにいい数字が出せましたってんで嬉々として研究成果として履歴書に書くって寸法だろおめでてーな。お前の研究成果、本当に意味あるのか？　だって(俺はお前ほどカネがないから)検証できないんだぜ。使い物にならん。
+</p>
+
+<p>
+お前ら機械学習業界はこれを放置していていいのか？　ひと握りの巨大企業らとたまに大学とかがチンポよろしく俺の計算力はでっかいしコキ捨てるほどあるぜ、でもお前らの計算力チンポは小せぇから実験すらできねぇだろざまあみろとほくそ笑んでいるんだぜ。この問題に対処する新しい論文誌が必要だろ。実験を単一のコンシューマーグレードのGPUで8時間以内に再現できる論文しか掲載しない論文誌が。
+</p>
+</blockquote>
+
+<p>
+まあ、実際728万円あれば人間を一人雇って機械学習以上の精度で仕事をさせることができるわけだ。カネに物言わせて莫大な計算力をぶん回せば雑なニューラルネットワークでもそこそこの結果は出せるわけで、そんなものを成果として誇っている研究者ばかりの業界は果たして科学なのだろうか。
+</p>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
