@@ -1,0 +1,183 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+C99のVLAは関数の本体が空でもコードが書ける
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1>
+C99のVLAは関数の本体が空でもコードが書ける
+</h1>
+
+<p>
+<a href="https://lemon.rip/w/c99-vla-tricks/">https://lemon.rip/w/c99-vla-tricks/</a>
+</p>
+
+<p>
+C99のVLAはだいぶ狂っている。
+</p>
+
+<p>
+C99のVLA(Varriable Array Length)は実行時にサイズが決定される配列だ。VLAは関数の引数にも使える。
+</p>
+
+<pre><code>void f( int n, int a[n] )
+{
+    int b[n] ;
+    // sizeof(int *)
+    int A = sizeof(a) ;
+    // sizeof(int) * n
+    int B = sizeof
+}
+</code></pre>
+
+
+<p>
+配列型の引数は通常のルールにしたがってポインター型になるのだが、VLAの配列内の要素数については、実行時に計算される。ところで、VLAの配列の要素数には任意の式を書ける。
+</p>
+
+<pre><code>void f( int a, int b, int c[a+b] ) {}
+void g( int x, int b[abs(x)] ) {}
+void h( int a[getchar()] ) { }
+</code></pre>
+
+<p>
+こうなると次にどういうコードが書かれるかはお察しの通りだ。
+</p>
+
+<pre><code>int main( int argc, char * argv[ printf("Hello,World")] ) { }
+</code></pre>
+
+<p>
+ところでC言語にはカンマ演算子がある。
+</p>
+
+<pre><code>int main( int argc, char * argv[(
+    printf("Enter a character:"),
+    getchar(),
+    printf("bye"),
+    1
+)]){}
+</code></pre>
+
+<p>
+条件分岐は条件式で実現できる。
+</p>
+
+<pre><code>void f(int n) {
+    if (n &lt; 0)
+        printf("negative!");
+    else if (n &gt; 0)
+        printf("positive!");
+    else
+        printf("zero!");
+}
+</code></pre>
+
+<p>
+というコードは、
+</p>
+
+<pre></code>void f(int n, char _[(
+    (n &lt; 0) ?
+        printf("negative!")
+    : (n &gt; 0) ?
+        printf("positive!")
+    :
+        printf("zero!")
+    , 1
+)]) {}
+</code></pre>
+
+<p>
+と書ける。
+</p>
+
+<p>
+戻り値を返すことはポインター型の引数で表現できる。
+</p>
+
+<pre><code>void fswapf(float *a, float *b) {
+    float tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+</code></pre>
+
+<p>
+配列の要素数のなかに書けるのは式なのでfor文やwhile文を書くことはできない。しかし関数の再帰呼出しはできるのでループも表現できる。
+</p>
+
+<pre><code>/* the forward declaration is necessary */
+static void sum_aux(float *out, float *v, size_t n, char *);
+static void sum_aux(float *out, float *v, size_t n, char _[(
+    (n &gt; 0) ? (
+        *out += *v,
+        sum_aux(out, v + 1, n - 1, ""),
+        1
+    ) : 1
+)]) {}
+
+void sum(float *out, float *v, size_t n, char _[(
+    *out = 0.0f,
+    sum_aux(out, v, n, ""),
+    1
+)]) {}
+</code></pre>
+
+
+<p>
+VLAは狂っている。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
