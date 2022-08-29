@@ -1,0 +1,920 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+依存地獄の解決
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1>
+依存地獄の解決
+</h1>
+
+
+<p>
+新しいブログ記事が読みたいといういう声が聞こえてきたので、久しぶりにブログを書く。最近仕事で依存地獄の解決をしているので、その方法を書いてみる。
+</p>
+
+
+<p>
+現代のソフトウェアは様々なライブラリに依存するものだ。ソフトウェアAがライブラリBに依存する場合を考える。
+</p>
+
+
+<svg width="62pt" height="116pt"
+ viewBox="0.00 0.00 62.00 116.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 112)">
+<title>%3</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-112 58,-112 58,4 -4,4"/>
+<!-- A -->
+<g id="node1" class="node">
+<title>A</title>
+<ellipse fill="none" stroke="black" cx="27" cy="-90" rx="27" ry="18"/>
+<text text-anchor="middle" x="27" y="-86.3" font-family="Times,serif" font-size="14.00">A</text>
+</g>
+<!-- B -->
+<g id="node2" class="node">
+<title>B</title>
+<ellipse fill="none" stroke="black" cx="27" cy="-18" rx="27" ry="18"/>
+<text text-anchor="middle" x="27" y="-14.3" font-family="Times,serif" font-size="14.00">B</text>
+</g>
+<!-- A&#45;&gt;B -->
+<g id="edge1" class="edge">
+<title>A&#45;&gt;B</title>
+<path fill="none" stroke="black" d="M27,-71.7C27,-63.98 27,-54.71 27,-46.11"/>
+<polygon fill="black" stroke="black" points="30.5,-46.1 27,-36.1 23.5,-46.1 30.5,-46.1"/>
+</g>
+</g>
+</svg>
+
+<p>
+ソフトウェアAとライブラリBはそれぞれ別のgitレポジトリで管理されている。依存はパッケージマネージャーで管理されていて、レポジトリの中に設定ファイルがある。レポジトリAの中にはレポジトリBに依存する設定ファイルがある。npm, cargo, pip, rebar3といったパッケージマネージャーを考えるといい。
+</p>
+
+<p>
+もちろんライブラリBも別のライブラリC, Dに依存している。
+</p>
+
+
+<svg width="134pt" height="188pt"
+ viewBox="0.00 0.00 134.00 188.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 184)">
+<title>%3</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-184 130,-184 130,4 -4,4"/>
+<!-- A -->
+<g id="node1" class="node">
+<title>A</title>
+<ellipse fill="none" stroke="black" cx="63" cy="-162" rx="27" ry="18"/>
+<text text-anchor="middle" x="63" y="-158.3" font-family="Times,serif" font-size="14.00">A</text>
+</g>
+<!-- B -->
+<g id="node2" class="node">
+<title>B</title>
+<ellipse fill="none" stroke="black" cx="63" cy="-90" rx="27" ry="18"/>
+<text text-anchor="middle" x="63" y="-86.3" font-family="Times,serif" font-size="14.00">B</text>
+</g>
+<!-- A&#45;&gt;B -->
+<g id="edge1" class="edge">
+<title>A&#45;&gt;B</title>
+<path fill="none" stroke="black" d="M63,-143.7C63,-135.98 63,-126.71 63,-118.11"/>
+<polygon fill="black" stroke="black" points="66.5,-118.1 63,-108.1 59.5,-118.1 66.5,-118.1"/>
+</g>
+<!-- C -->
+<g id="node3" class="node">
+<title>C</title>
+<ellipse fill="none" stroke="black" cx="27" cy="-18" rx="27" ry="18"/>
+<text text-anchor="middle" x="27" y="-14.3" font-family="Times,serif" font-size="14.00">C</text>
+</g>
+<!-- B&#45;&gt;C -->
+<g id="edge2" class="edge">
+<title>B&#45;&gt;C</title>
+<path fill="none" stroke="black" d="M54.65,-72.76C50.29,-64.28 44.85,-53.71 39.96,-44.2"/>
+<polygon fill="black" stroke="black" points="42.99,-42.44 35.3,-35.15 36.77,-45.64 42.99,-42.44"/>
+</g>
+<!-- D -->
+<g id="node4" class="node">
+<title>D</title>
+<ellipse fill="none" stroke="black" cx="99" cy="-18" rx="27" ry="18"/>
+<text text-anchor="middle" x="99" y="-14.3" font-family="Times,serif" font-size="14.00">D</text>
+</g>
+<!-- B&#45;&gt;D -->
+<g id="edge3" class="edge">
+<title>B&#45;&gt;D</title>
+<path fill="none" stroke="black" d="M71.35,-72.76C75.71,-64.28 81.15,-53.71 86.04,-44.2"/>
+<polygon fill="black" stroke="black" points="89.23,-45.64 90.7,-35.15 83.01,-42.44 89.23,-45.64"/>
+</g>
+</g>
+</svg>
+
+
+<p>
+この場合、AはC, Dに間接的に依存していることになる。
+</p>
+
+<p>
+実はさらにFというライブラリがあり、これはA, B, Dが依存している。
+</p>
+
+<svg width="199pt" height="260pt"
+ viewBox="0.00 0.00 199.00 260.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 256)">
+<title>%3</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-256 195,-256 195,4 -4,4"/>
+<!-- A -->
+<g id="node1" class="node">
+<title>A</title>
+<ellipse fill="none" stroke="black" cx="164" cy="-234" rx="27" ry="18"/>
+<text text-anchor="middle" x="164" y="-230.3" font-family="Times,serif" font-size="14.00">A</text>
+</g>
+<!-- B -->
+<g id="node2" class="node">
+<title>B</title>
+<ellipse fill="none" stroke="black" cx="118" cy="-162" rx="27" ry="18"/>
+<text text-anchor="middle" x="118" y="-158.3" font-family="Times,serif" font-size="14.00">B</text>
+</g>
+<!-- A&#45;&gt;B -->
+<g id="edge1" class="edge">
+<title>A&#45;&gt;B</title>
+<path fill="none" stroke="black" d="M153.56,-217.12C147.8,-208.34 140.52,-197.26 134.04,-187.42"/>
+<polygon fill="black" stroke="black" points="136.81,-185.26 128.4,-178.82 130.96,-189.1 136.81,-185.26"/>
+</g>
+<!-- F -->
+<g id="node5" class="node">
+<title>F</title>
+<ellipse fill="none" stroke="black" cx="154" cy="-18" rx="27" ry="18"/>
+<text text-anchor="middle" x="154" y="-14.3" font-family="Times,serif" font-size="14.00">F</text>
+</g>
+<!-- A&#45;&gt;F -->
+<g id="edge4" class="edge">
+<title>A&#45;&gt;F</title>
+<path fill="none" stroke="black" d="M163.2,-215.85C161.47,-178.83 157.37,-91.18 155.28,-46.39"/>
+<polygon fill="black" stroke="black" points="158.77,-46.06 154.81,-36.23 151.78,-46.38 158.77,-46.06"/>
+</g>
+<!-- C -->
+<g id="node3" class="node">
+<title>C</title>
+<ellipse fill="none" stroke="black" cx="27" cy="-90" rx="27" ry="18"/>
+<text text-anchor="middle" x="27" y="-86.3" font-family="Times,serif" font-size="14.00">C</text>
+</g>
+<!-- B&#45;&gt;C -->
+<g id="edge2" class="edge">
+<title>B&#45;&gt;C</title>
+<path fill="none" stroke="black" d="M100.88,-147.83C87.16,-137.27 67.69,-122.3 52.18,-110.37"/>
+<polygon fill="black" stroke="black" points="54.1,-107.43 44.04,-104.11 49.83,-112.98 54.1,-107.43"/>
+</g>
+<!-- D -->
+<g id="node4" class="node">
+<title>D</title>
+<ellipse fill="none" stroke="black" cx="99" cy="-90" rx="27" ry="18"/>
+<text text-anchor="middle" x="99" y="-86.3" font-family="Times,serif" font-size="14.00">D</text>
+</g>
+<!-- B&#45;&gt;D -->
+<g id="edge3" class="edge">
+<title>B&#45;&gt;D</title>
+<path fill="none" stroke="black" d="M113.4,-144.05C111.25,-136.14 108.65,-126.54 106.24,-117.69"/>
+<polygon fill="black" stroke="black" points="109.55,-116.52 103.56,-107.79 102.8,-118.36 109.55,-116.52"/>
+</g>
+<!-- B&#45;&gt;F -->
+<g id="edge5" class="edge">
+<title>B&#45;&gt;F</title>
+<path fill="none" stroke="black" d="M123.79,-144.42C127.3,-134.03 131.72,-120.33 135,-108 140.46,-87.52 145.41,-64.06 148.89,-46.37"/>
+<polygon fill="black" stroke="black" points="152.4,-46.66 150.86,-36.18 145.53,-45.34 152.4,-46.66"/>
+</g>
+<!-- D&#45;&gt;F -->
+<g id="edge6" class="edge">
+<title>D&#45;&gt;F</title>
+<path fill="none" stroke="black" d="M110.93,-73.81C118.21,-64.55 127.66,-52.52 135.85,-42.09"/>
+<polygon fill="black" stroke="black" points="138.66,-44.18 142.09,-34.16 133.16,-39.86 138.66,-44.18"/>
+</g>
+</g>
+</svg>
+
+<p>
+どんどん複雑になってきた。
+</p>
+
+<p>
+ソフトウェアは不具合を修正したり新機能を追加したりする。そのため、同じレポジトリであれば同じというわけではない。今使っているパッケージマネージャーは、gitのハッシュ値やタグ、ブランチを指定することができる。master HEADを常に参照していると、互換性を壊す変更が入ったときに対応する暇がなくビルド不可能になる。そこで依存はgit tagで特定のコミットを指定している。レポジトリとそのバージョンを簡易的にAnで表してみよう。
+</p>
+
+
+<svg width="199pt" height="260pt"
+ viewBox="0.00 0.00 199.00 260.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 256)">
+<title>%3</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-256 195,-256 195,4 -4,4"/>
+<!-- A1 -->
+<g id="node1" class="node">
+<title>A1</title>
+<ellipse fill="none" stroke="black" cx="164" cy="-234" rx="27" ry="18"/>
+<text text-anchor="middle" x="164" y="-230.3" font-family="Times,serif" font-size="14.00">A1</text>
+</g>
+<!-- B1 -->
+<g id="node2" class="node">
+<title>B1</title>
+<ellipse fill="none" stroke="black" cx="118" cy="-162" rx="27" ry="18"/>
+<text text-anchor="middle" x="118" y="-158.3" font-family="Times,serif" font-size="14.00">B1</text>
+</g>
+<!-- A1&#45;&gt;B1 -->
+<g id="edge1" class="edge">
+<title>A1&#45;&gt;B1</title>
+<path fill="none" stroke="black" d="M153.56,-217.12C147.8,-208.34 140.52,-197.26 134.04,-187.42"/>
+<polygon fill="black" stroke="black" points="136.81,-185.26 128.4,-178.82 130.96,-189.1 136.81,-185.26"/>
+</g>
+<!-- F1 -->
+<g id="node5" class="node">
+<title>F1</title>
+<ellipse fill="none" stroke="black" cx="154" cy="-18" rx="27" ry="18"/>
+<text text-anchor="middle" x="154" y="-14.3" font-family="Times,serif" font-size="14.00">F1</text>
+</g>
+<!-- A1&#45;&gt;F1 -->
+<g id="edge4" class="edge">
+<title>A1&#45;&gt;F1</title>
+<path fill="none" stroke="black" d="M163.2,-215.85C161.47,-178.83 157.37,-91.18 155.28,-46.39"/>
+<polygon fill="black" stroke="black" points="158.77,-46.06 154.81,-36.23 151.78,-46.38 158.77,-46.06"/>
+</g>
+<!-- C1 -->
+<g id="node3" class="node">
+<title>C1</title>
+<ellipse fill="none" stroke="black" cx="27" cy="-90" rx="27" ry="18"/>
+<text text-anchor="middle" x="27" y="-86.3" font-family="Times,serif" font-size="14.00">C1</text>
+</g>
+<!-- B1&#45;&gt;C1 -->
+<g id="edge2" class="edge">
+<title>B1&#45;&gt;C1</title>
+<path fill="none" stroke="black" d="M100.88,-147.83C87.16,-137.27 67.69,-122.3 52.18,-110.37"/>
+<polygon fill="black" stroke="black" points="54.1,-107.43 44.04,-104.11 49.83,-112.98 54.1,-107.43"/>
+</g>
+<!-- D1 -->
+<g id="node4" class="node">
+<title>D1</title>
+<ellipse fill="none" stroke="black" cx="99" cy="-90" rx="27" ry="18"/>
+<text text-anchor="middle" x="99" y="-86.3" font-family="Times,serif" font-size="14.00">D1</text>
+</g>
+<!-- B1&#45;&gt;D1 -->
+<g id="edge3" class="edge">
+<title>B1&#45;&gt;D1</title>
+<path fill="none" stroke="black" d="M113.4,-144.05C111.25,-136.14 108.65,-126.54 106.24,-117.69"/>
+<polygon fill="black" stroke="black" points="109.55,-116.52 103.56,-107.79 102.8,-118.36 109.55,-116.52"/>
+</g>
+<!-- B1&#45;&gt;F1 -->
+<g id="edge5" class="edge">
+<title>B1&#45;&gt;F1</title>
+<path fill="none" stroke="black" d="M123.79,-144.42C127.3,-134.03 131.72,-120.33 135,-108 140.46,-87.52 145.41,-64.06 148.89,-46.37"/>
+<polygon fill="black" stroke="black" points="152.4,-46.66 150.86,-36.18 145.53,-45.34 152.4,-46.66"/>
+</g>
+<!-- D1&#45;&gt;F1 -->
+<g id="edge6" class="edge">
+<title>D1&#45;&gt;F1</title>
+<path fill="none" stroke="black" d="M110.93,-73.81C118.21,-64.55 127.66,-52.52 135.85,-42.09"/>
+<polygon fill="black" stroke="black" points="138.66,-44.18 142.09,-34.16 133.16,-39.86 138.66,-44.18"/>
+</g>
+</g>
+</svg>
+
+<p>
+今、レポジトリB1を変更してB2を作り出した。新しいB2を使うには、A1の設定ファイルに記述されている依存を変更しなければならない。設定ファイルを変更するということは、レポジトリAにも新しいコミットが行われ、A2が作られる。
+</p>
+
+
+<svg width="199pt" height="260pt"
+ viewBox="0.00 0.00 199.00 260.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 256)">
+<title>%3</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-256 195,-256 195,4 -4,4"/>
+<!-- A2 -->
+<g id="node1" class="node">
+<title>A2</title>
+<ellipse fill="none" stroke="black" cx="164" cy="-234" rx="27" ry="18"/>
+<text text-anchor="middle" x="164" y="-230.3" font-family="Times,serif" font-size="14.00">A2</text>
+</g>
+<!-- B2 -->
+<g id="node2" class="node">
+<title>B2</title>
+<ellipse fill="none" stroke="black" cx="118" cy="-162" rx="27" ry="18"/>
+<text text-anchor="middle" x="118" y="-158.3" font-family="Times,serif" font-size="14.00">B2</text>
+</g>
+<!-- A2&#45;&gt;B2 -->
+<g id="edge1" class="edge">
+<title>A2&#45;&gt;B2</title>
+<path fill="none" stroke="black" d="M153.56,-217.12C147.8,-208.34 140.52,-197.26 134.04,-187.42"/>
+<polygon fill="black" stroke="black" points="136.81,-185.26 128.4,-178.82 130.96,-189.1 136.81,-185.26"/>
+</g>
+<!-- F1 -->
+<g id="node5" class="node">
+<title>F1</title>
+<ellipse fill="none" stroke="black" cx="154" cy="-18" rx="27" ry="18"/>
+<text text-anchor="middle" x="154" y="-14.3" font-family="Times,serif" font-size="14.00">F1</text>
+</g>
+<!-- A2&#45;&gt;F1 -->
+<g id="edge4" class="edge">
+<title>A2&#45;&gt;F1</title>
+<path fill="none" stroke="black" d="M163.2,-215.85C161.47,-178.83 157.37,-91.18 155.28,-46.39"/>
+<polygon fill="black" stroke="black" points="158.77,-46.06 154.81,-36.23 151.78,-46.38 158.77,-46.06"/>
+</g>
+<!-- C1 -->
+<g id="node3" class="node">
+<title>C1</title>
+<ellipse fill="none" stroke="black" cx="27" cy="-90" rx="27" ry="18"/>
+<text text-anchor="middle" x="27" y="-86.3" font-family="Times,serif" font-size="14.00">C1</text>
+</g>
+<!-- B2&#45;&gt;C1 -->
+<g id="edge2" class="edge">
+<title>B2&#45;&gt;C1</title>
+<path fill="none" stroke="black" d="M100.88,-147.83C87.16,-137.27 67.69,-122.3 52.18,-110.37"/>
+<polygon fill="black" stroke="black" points="54.1,-107.43 44.04,-104.11 49.83,-112.98 54.1,-107.43"/>
+</g>
+<!-- D1 -->
+<g id="node4" class="node">
+<title>D1</title>
+<ellipse fill="none" stroke="black" cx="99" cy="-90" rx="27" ry="18"/>
+<text text-anchor="middle" x="99" y="-86.3" font-family="Times,serif" font-size="14.00">D1</text>
+</g>
+<!-- B2&#45;&gt;D1 -->
+<g id="edge3" class="edge">
+<title>B2&#45;&gt;D1</title>
+<path fill="none" stroke="black" d="M113.4,-144.05C111.25,-136.14 108.65,-126.54 106.24,-117.69"/>
+<polygon fill="black" stroke="black" points="109.55,-116.52 103.56,-107.79 102.8,-118.36 109.55,-116.52"/>
+</g>
+<!-- B2&#45;&gt;F1 -->
+<g id="edge5" class="edge">
+<title>B2&#45;&gt;F1</title>
+<path fill="none" stroke="black" d="M123.79,-144.42C127.3,-134.03 131.72,-120.33 135,-108 140.46,-87.52 145.41,-64.06 148.89,-46.37"/>
+<polygon fill="black" stroke="black" points="152.4,-46.66 150.86,-36.18 145.53,-45.34 152.4,-46.66"/>
+</g>
+<!-- D1&#45;&gt;F1 -->
+<g id="edge6" class="edge">
+<title>D1&#45;&gt;F1</title>
+<path fill="none" stroke="black" d="M110.93,-73.81C118.21,-64.55 127.66,-52.52 135.85,-42.09"/>
+<polygon fill="black" stroke="black" points="138.66,-44.18 142.09,-34.16 133.16,-39.86 138.66,-44.18"/>
+</g>
+</g>
+</svg>
+
+<p>
+C1を変更してC2を作り出した。この場合、まずB2のCに対する依存を変更してB3を作る。
+</p>
+
+
+
+<svg width="304pt" height="260pt"
+ viewBox="0.00 0.00 304.28 260.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 256)">
+<title>%3</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-256 300.28,-256 300.28,4 -4,4"/>
+<!-- A2 -->
+<g id="node1" class="node">
+<title>A2</title>
+<ellipse fill="none" stroke="black" cx="35.28" cy="-234" rx="27" ry="18"/>
+<text text-anchor="middle" x="35.28" y="-230.3" font-family="Times,serif" font-size="14.00">A2</text>
+</g>
+<!-- B2 -->
+<g id="node2" class="node">
+<title>B2</title>
+<ellipse fill="none" stroke="black" cx="76.28" cy="-162" rx="27" ry="18"/>
+<text text-anchor="middle" x="76.28" y="-158.3" font-family="Times,serif" font-size="14.00">B2</text>
+</g>
+<!-- A2&#45;&gt;B2 -->
+<g id="edge1" class="edge">
+<title>A2&#45;&gt;B2</title>
+<path fill="none" stroke="black" d="M44.79,-216.76C49.81,-208.19 56.07,-197.49 61.69,-187.9"/>
+<polygon fill="black" stroke="black" points="64.79,-189.55 66.82,-179.15 58.75,-186.01 64.79,-189.55"/>
+</g>
+<!-- F1 -->
+<g id="node5" class="node">
+<title>F1</title>
+<ellipse fill="none" stroke="black" cx="131.28" cy="-18" rx="27" ry="18"/>
+<text text-anchor="middle" x="131.28" y="-14.3" font-family="Times,serif" font-size="14.00">F1</text>
+</g>
+<!-- A2&#45;&gt;F1 -->
+<g id="edge4" class="edge">
+<title>A2&#45;&gt;F1</title>
+<path fill="none" stroke="black" d="M26.56,-216.85C11.22,-186.01 -16.3,-117.71 13.28,-72 31.18,-44.33 67.34,-30.97 94.93,-24.6"/>
+<polygon fill="black" stroke="black" points="95.96,-27.96 105.03,-22.49 94.53,-21.11 95.96,-27.96"/>
+</g>
+<!-- C1 -->
+<g id="node3" class="node">
+<title>C1</title>
+<ellipse fill="none" stroke="black" cx="49.28" cy="-90" rx="27" ry="18"/>
+<text text-anchor="middle" x="49.28" y="-86.3" font-family="Times,serif" font-size="14.00">C1</text>
+</g>
+<!-- B2&#45;&gt;C1 -->
+<g id="edge2" class="edge">
+<title>B2&#45;&gt;C1</title>
+<path fill="none" stroke="black" d="M69.88,-144.41C66.76,-136.34 62.94,-126.43 59.44,-117.35"/>
+<polygon fill="black" stroke="black" points="62.68,-116.03 55.82,-107.96 56.15,-118.55 62.68,-116.03"/>
+</g>
+<!-- D1 -->
+<g id="node4" class="node">
+<title>D1</title>
+<ellipse fill="none" stroke="black" cx="159.28" cy="-90" rx="27" ry="18"/>
+<text text-anchor="middle" x="159.28" y="-86.3" font-family="Times,serif" font-size="14.00">D1</text>
+</g>
+<!-- B2&#45;&gt;D1 -->
+<g id="edge3" class="edge">
+<title>B2&#45;&gt;D1</title>
+<path fill="none" stroke="black" d="M92.68,-147.17C104.92,-136.85 121.83,-122.58 135.55,-111.01"/>
+<polygon fill="black" stroke="black" points="137.81,-113.69 143.2,-104.56 133.3,-108.33 137.81,-113.69"/>
+</g>
+<!-- B2&#45;&gt;F1 -->
+<g id="edge5" class="edge">
+<title>B2&#45;&gt;F1</title>
+<path fill="none" stroke="black" d="M82.69,-144.43C92.12,-120.09 109.82,-74.4 121.05,-45.4"/>
+<polygon fill="black" stroke="black" points="124.38,-46.49 124.73,-35.9 117.86,-43.96 124.38,-46.49"/>
+</g>
+<!-- D1&#45;&gt;F1 -->
+<g id="edge6" class="edge">
+<title>D1&#45;&gt;F1</title>
+<path fill="none" stroke="black" d="M152.64,-72.41C149.36,-64.22 145.33,-54.14 141.66,-44.95"/>
+<polygon fill="black" stroke="black" points="144.83,-43.45 137.87,-35.47 138.33,-46.05 144.83,-43.45"/>
+</g>
+<!-- B3 -->
+<g id="node6" class="node">
+<title>B3</title>
+<ellipse fill="none" stroke="black" cx="214.28" cy="-162" rx="27" ry="18"/>
+<text text-anchor="middle" x="214.28" y="-158.3" font-family="Times,serif" font-size="14.00">B3</text>
+</g>
+<!-- B3&#45;&gt;D1 -->
+<g id="edge8" class="edge">
+<title>B3&#45;&gt;D1</title>
+<path fill="none" stroke="black" d="M202.34,-145.81C195.06,-136.55 185.62,-124.52 177.42,-114.09"/>
+<polygon fill="black" stroke="black" points="180.12,-111.86 171.19,-106.16 174.62,-116.18 180.12,-111.86"/>
+</g>
+<!-- B3&#45;&gt;F1 -->
+<g id="edge9" class="edge">
+<title>B3&#45;&gt;F1</title>
+<path fill="none" stroke="black" d="M213.9,-143.71C212.78,-124.82 208.79,-94.3 195.28,-72 186.53,-57.56 172.41,-45.25 159.66,-36.14"/>
+<polygon fill="black" stroke="black" points="161.37,-33.07 151.13,-30.35 157.44,-38.86 161.37,-33.07"/>
+</g>
+<!-- C2 -->
+<g id="node7" class="node">
+<title>C2</title>
+<ellipse fill="none" stroke="black" cx="269.28" cy="-90" rx="27" ry="18"/>
+<text text-anchor="middle" x="269.28" y="-86.3" font-family="Times,serif" font-size="14.00">C2</text>
+</g>
+<!-- B3&#45;&gt;C2 -->
+<g id="edge7" class="edge">
+<title>B3&#45;&gt;C2</title>
+<path fill="none" stroke="black" d="M226.21,-145.81C233.49,-136.55 242.94,-124.52 251.13,-114.09"/>
+<polygon fill="black" stroke="black" points="253.94,-116.18 257.37,-106.16 248.44,-111.86 253.94,-116.18"/>
+</g>
+</g>
+</svg>
+
+<p>
+その後、B3に依存するA3を作る。
+</p>
+
+
+<svg width="303pt" height="260pt"
+ viewBox="0.00 0.00 302.76 260.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 256)">
+<title>%3</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-256 298.76,-256 298.76,4 -4,4"/>
+<!-- A2 -->
+<g id="node1" class="node">
+<title>A2</title>
+<ellipse fill="none" stroke="black" cx="47.76" cy="-234" rx="27" ry="18"/>
+<text text-anchor="middle" x="47.76" y="-230.3" font-family="Times,serif" font-size="14.00">A2</text>
+</g>
+<!-- B2 -->
+<g id="node2" class="node">
+<title>B2</title>
+<ellipse fill="none" stroke="black" cx="75.76" cy="-162" rx="27" ry="18"/>
+<text text-anchor="middle" x="75.76" y="-158.3" font-family="Times,serif" font-size="14.00">B2</text>
+</g>
+<!-- A2&#45;&gt;B2 -->
+<g id="edge1" class="edge">
+<title>A2&#45;&gt;B2</title>
+<path fill="none" stroke="black" d="M54.4,-216.41C57.68,-208.22 61.71,-198.14 65.38,-188.95"/>
+<polygon fill="black" stroke="black" points="68.71,-190.05 69.18,-179.47 62.21,-187.45 68.71,-190.05"/>
+</g>
+<!-- F1 -->
+<g id="node5" class="node">
+<title>F1</title>
+<ellipse fill="none" stroke="black" cx="129.76" cy="-18" rx="27" ry="18"/>
+<text text-anchor="middle" x="129.76" y="-14.3" font-family="Times,serif" font-size="14.00">F1</text>
+</g>
+<!-- A2&#45;&gt;F1 -->
+<g id="edge4" class="edge">
+<title>A2&#45;&gt;F1</title>
+<path fill="none" stroke="black" d="M36.84,-216.98C17.45,-186.35 -18.27,-118.41 11.76,-72 29.67,-44.33 65.82,-30.97 93.42,-24.6"/>
+<polygon fill="black" stroke="black" points="94.45,-27.96 103.52,-22.49 93.02,-21.11 94.45,-27.96"/>
+</g>
+<!-- C1 -->
+<g id="node3" class="node">
+<title>C1</title>
+<ellipse fill="none" stroke="black" cx="47.76" cy="-90" rx="27" ry="18"/>
+<text text-anchor="middle" x="47.76" y="-86.3" font-family="Times,serif" font-size="14.00">C1</text>
+</g>
+<!-- B2&#45;&gt;C1 -->
+<g id="edge2" class="edge">
+<title>B2&#45;&gt;C1</title>
+<path fill="none" stroke="black" d="M69.13,-144.41C65.85,-136.22 61.82,-126.14 58.15,-116.95"/>
+<polygon fill="black" stroke="black" points="61.32,-115.45 54.35,-107.47 54.82,-118.05 61.32,-115.45"/>
+</g>
+<!-- D1 -->
+<g id="node4" class="node">
+<title>D1</title>
+<ellipse fill="none" stroke="black" cx="157.76" cy="-90" rx="27" ry="18"/>
+<text text-anchor="middle" x="157.76" y="-86.3" font-family="Times,serif" font-size="14.00">D1</text>
+</g>
+<!-- B2&#45;&gt;D1 -->
+<g id="edge3" class="edge">
+<title>B2&#45;&gt;D1</title>
+<path fill="none" stroke="black" d="M91.97,-147.17C103.95,-136.94 120.46,-122.85 133.94,-111.34"/>
+<polygon fill="black" stroke="black" points="136.54,-113.72 141.88,-104.56 132,-108.39 136.54,-113.72"/>
+</g>
+<!-- B2&#45;&gt;F1 -->
+<g id="edge5" class="edge">
+<title>B2&#45;&gt;F1</title>
+<path fill="none" stroke="black" d="M82.06,-144.43C91.32,-120.09 108.7,-74.4 119.72,-45.4"/>
+<polygon fill="black" stroke="black" points="123.05,-46.49 123.34,-35.9 116.51,-44 123.05,-46.49"/>
+</g>
+<!-- D1&#45;&gt;F1 -->
+<g id="edge6" class="edge">
+<title>D1&#45;&gt;F1</title>
+<path fill="none" stroke="black" d="M151.13,-72.41C147.85,-64.22 143.82,-54.14 140.15,-44.95"/>
+<polygon fill="black" stroke="black" points="143.32,-43.45 136.35,-35.47 136.82,-46.05 143.32,-43.45"/>
+</g>
+<!-- B3 -->
+<g id="node6" class="node">
+<title>B3</title>
+<ellipse fill="none" stroke="black" cx="212.76" cy="-162" rx="27" ry="18"/>
+<text text-anchor="middle" x="212.76" y="-158.3" font-family="Times,serif" font-size="14.00">B3</text>
+</g>
+<!-- B3&#45;&gt;D1 -->
+<g id="edge8" class="edge">
+<title>B3&#45;&gt;D1</title>
+<path fill="none" stroke="black" d="M200.83,-145.81C193.55,-136.55 184.1,-124.52 175.91,-114.09"/>
+<polygon fill="black" stroke="black" points="178.61,-111.86 169.68,-106.16 173.1,-116.18 178.61,-111.86"/>
+</g>
+<!-- B3&#45;&gt;F1 -->
+<g id="edge9" class="edge">
+<title>B3&#45;&gt;F1</title>
+<path fill="none" stroke="black" d="M212.39,-143.71C211.26,-124.82 207.27,-94.3 193.76,-72 185.02,-57.56 170.9,-45.25 158.14,-36.14"/>
+<polygon fill="black" stroke="black" points="159.86,-33.07 149.61,-30.35 155.93,-38.86 159.86,-33.07"/>
+</g>
+<!-- C2 -->
+<g id="node7" class="node">
+<title>C2</title>
+<ellipse fill="none" stroke="black" cx="267.76" cy="-90" rx="27" ry="18"/>
+<text text-anchor="middle" x="267.76" y="-86.3" font-family="Times,serif" font-size="14.00">C2</text>
+</g>
+<!-- B3&#45;&gt;C2 -->
+<g id="edge7" class="edge">
+<title>B3&#45;&gt;C2</title>
+<path fill="none" stroke="black" d="M224.7,-145.81C231.98,-136.55 241.43,-124.52 249.62,-114.09"/>
+<polygon fill="black" stroke="black" points="252.43,-116.18 255.85,-106.16 246.92,-111.86 252.43,-116.18"/>
+</g>
+<!-- A3 -->
+<g id="node8" class="node">
+<title>A3</title>
+<ellipse fill="none" stroke="black" cx="212.76" cy="-234" rx="27" ry="18"/>
+<text text-anchor="middle" x="212.76" y="-230.3" font-family="Times,serif" font-size="14.00">A3</text>
+</g>
+<!-- A3&#45;&gt;B3 -->
+<g id="edge10" class="edge">
+<title>A3&#45;&gt;B3</title>
+<path fill="none" stroke="black" d="M212.76,-215.7C212.76,-207.98 212.76,-198.71 212.76,-190.11"/>
+<polygon fill="black" stroke="black" points="216.26,-190.1 212.76,-180.1 209.26,-190.1 216.26,-190.1"/>
+</g>
+</g>
+</svg>
+
+<p>
+A2, B2, C1はもう使わないのでグラフから削除しよう。
+</p>
+
+
+<svg width="163pt" height="260pt"
+ viewBox="0.00 0.00 162.58 260.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 256)">
+<title>%3</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-256 158.58,-256 158.58,4 -4,4"/>
+<!-- A3 -->
+<g id="node1" class="node">
+<title>A3</title>
+<ellipse fill="none" stroke="black" cx="105.04" cy="-234" rx="27" ry="18"/>
+<text text-anchor="middle" x="105.04" y="-230.3" font-family="Times,serif" font-size="14.00">A3</text>
+</g>
+<!-- B3 -->
+<g id="node2" class="node">
+<title>B3</title>
+<ellipse fill="none" stroke="black" cx="78.04" cy="-162" rx="27" ry="18"/>
+<text text-anchor="middle" x="78.04" y="-158.3" font-family="Times,serif" font-size="14.00">B3</text>
+</g>
+<!-- A3&#45;&gt;B3 -->
+<g id="edge1" class="edge">
+<title>A3&#45;&gt;B3</title>
+<path fill="none" stroke="black" d="M98.64,-216.41C95.52,-208.34 91.7,-198.43 88.2,-189.35"/>
+<polygon fill="black" stroke="black" points="91.44,-188.03 84.58,-179.96 84.91,-190.55 91.44,-188.03"/>
+</g>
+<!-- F1 -->
+<g id="node3" class="node">
+<title>F1</title>
+<ellipse fill="none" stroke="black" cx="114.04" cy="-18" rx="27" ry="18"/>
+<text text-anchor="middle" x="114.04" y="-14.3" font-family="Times,serif" font-size="14.00">F1</text>
+</g>
+<!-- A3&#45;&gt;F1 -->
+<g id="edge2" class="edge">
+<title>A3&#45;&gt;F1</title>
+<path fill="none" stroke="black" d="M115.42,-217.38C133.26,-188.53 166.33,-124.98 150.04,-72 146.75,-61.31 140.5,-50.85 134.11,-42.08"/>
+<polygon fill="black" stroke="black" points="136.68,-39.69 127.79,-33.93 131.15,-43.98 136.68,-39.69"/>
+</g>
+<!-- B3&#45;&gt;F1 -->
+<g id="edge5" class="edge">
+<title>B3&#45;&gt;F1</title>
+<path fill="none" stroke="black" d="M55.94,-151.61C38.85,-143.01 16.4,-128.5 6.04,-108 -1.18,-93.72 -2.43,-85.58 6.04,-72 21.76,-46.76 53.41,-33.2 78.39,-26.14"/>
+<polygon fill="black" stroke="black" points="79.48,-29.47 88.28,-23.57 77.73,-22.7 79.48,-29.47"/>
+</g>
+<!-- C2 -->
+<g id="node4" class="node">
+<title>C2</title>
+<ellipse fill="none" stroke="black" cx="42.04" cy="-90" rx="27" ry="18"/>
+<text text-anchor="middle" x="42.04" y="-86.3" font-family="Times,serif" font-size="14.00">C2</text>
+</g>
+<!-- B3&#45;&gt;C2 -->
+<g id="edge3" class="edge">
+<title>B3&#45;&gt;C2</title>
+<path fill="none" stroke="black" d="M69.69,-144.76C65.32,-136.28 59.89,-125.71 54.99,-116.2"/>
+<polygon fill="black" stroke="black" points="58.03,-114.44 50.34,-107.15 51.8,-117.64 58.03,-114.44"/>
+</g>
+<!-- D1 -->
+<g id="node5" class="node">
+<title>D1</title>
+<ellipse fill="none" stroke="black" cx="114.04" cy="-90" rx="27" ry="18"/>
+<text text-anchor="middle" x="114.04" y="-86.3" font-family="Times,serif" font-size="14.00">D1</text>
+</g>
+<!-- B3&#45;&gt;D1 -->
+<g id="edge4" class="edge">
+<title>B3&#45;&gt;D1</title>
+<path fill="none" stroke="black" d="M86.39,-144.76C90.75,-136.28 96.18,-125.71 101.08,-116.2"/>
+<polygon fill="black" stroke="black" points="104.27,-117.64 105.73,-107.15 98.05,-114.44 104.27,-117.64"/>
+</g>
+<!-- D1&#45;&gt;F1 -->
+<g id="edge6" class="edge">
+<title>D1&#45;&gt;F1</title>
+<path fill="none" stroke="black" d="M114.04,-71.7C114.04,-63.98 114.04,-54.71 114.04,-46.11"/>
+<polygon fill="black" stroke="black" points="117.54,-46.1 114.04,-36.1 110.54,-46.1 117.54,-46.1"/>
+</g>
+</g>
+</svg>
+
+
+<p>
+F1を変更してF2を作った場合は本当に複雑だ。Fに直接、関節に依存しているのはA, B, Dだ。しかし、BはDにも依存している。DのFに対する依存を変更したコミットを作らなければ、BのDに対する依存は修正できない。AとBの関係も同様だ。
+</p>
+
+<p>
+以下のような手順になる、
+</p>
+
+<ol>
+<li>F1を変更して、F2を作る</li>
+<li>D1を変更して、F2に依存した、D2を作る</li>
+<li>B3を変更して、D2, F2に依存した、B4を作る</li>
+<li>A3を変更して、B4, F2に依存した、A4を作る</li>
+</ol>
+
+<p>
+レポジトリが5個、エッジが6本しかない依存関係でもここまで面倒になる。
+</p>
+
+<p>
+最終的に変更するレポジトリは4個なのだが、作業は並列化できない。なぜならば、Dを変更するにはFを変更していなければならず、Bを変更するにはD, Fを変更していなければならず、Aを変更するにはB, Fを変更していなければならないからだ。
+</p>
+
+<p>
+健全なソフトウェア開発にはテストとコードレビューが不可欠だ。テストの実行は自動化できるが、コードレビューは自動化できない。変更をマージするにはコード変更者ではない複数人のコードレビューを経て承認されなければならないとすると、Fの変更には4回のコードレビューが必要だ。レポジトリの変更とコードレビューは交互に繰り返さなければならないので、コード変更者はレビューのたびに待たされることになる。
+</p>
+
+<p>
+そもそも、Fに依存するレポジトリをすべて把握していないこともある。Fを変更し、ソフトウェアのトップレベルのレポジトリAはわかりやすいから変更するとして、残りを変更しない場合、このような依存関係になってしまう。
+</p>
+
+
+<svg width="206pt" height="260pt"
+ viewBox="0.00 0.00 206.00 260.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 256)">
+<title>%3</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-256 202,-256 202,4 -4,4"/>
+<!-- A3 -->
+<g id="node1" class="node">
+<title>A3</title>
+<ellipse fill="none" stroke="black" cx="135" cy="-234" rx="27" ry="18"/>
+<text text-anchor="middle" x="135" y="-230.3" font-family="Times,serif" font-size="14.00">A3</text>
+</g>
+<!-- B3 -->
+<g id="node2" class="node">
+<title>B3</title>
+<ellipse fill="none" stroke="black" cx="99" cy="-162" rx="27" ry="18"/>
+<text text-anchor="middle" x="99" y="-158.3" font-family="Times,serif" font-size="14.00">B3</text>
+</g>
+<!-- A3&#45;&gt;B3 -->
+<g id="edge1" class="edge">
+<title>A3&#45;&gt;B3</title>
+<path fill="none" stroke="black" d="M126.65,-216.76C122.29,-208.28 116.85,-197.71 111.96,-188.2"/>
+<polygon fill="black" stroke="black" points="114.99,-186.44 107.3,-179.15 108.77,-189.64 114.99,-186.44"/>
+</g>
+<!-- F2 -->
+<g id="node3" class="node">
+<title>F2</title>
+<ellipse fill="none" stroke="black" cx="171" cy="-162" rx="27" ry="18"/>
+<text text-anchor="middle" x="171" y="-158.3" font-family="Times,serif" font-size="14.00">F2</text>
+</g>
+<!-- A3&#45;&gt;F2 -->
+<g id="edge2" class="edge">
+<title>A3&#45;&gt;F2</title>
+<path fill="none" stroke="black" d="M143.35,-216.76C147.71,-208.28 153.15,-197.71 158.04,-188.2"/>
+<polygon fill="black" stroke="black" points="161.23,-189.64 162.7,-179.15 155.01,-186.44 161.23,-189.64"/>
+</g>
+<!-- C2 -->
+<g id="node4" class="node">
+<title>C2</title>
+<ellipse fill="none" stroke="black" cx="27" cy="-90" rx="27" ry="18"/>
+<text text-anchor="middle" x="27" y="-86.3" font-family="Times,serif" font-size="14.00">C2</text>
+</g>
+<!-- B3&#45;&gt;C2 -->
+<g id="edge3" class="edge">
+<title>B3&#45;&gt;C2</title>
+<path fill="none" stroke="black" d="M84.43,-146.83C74.25,-136.94 60.48,-123.55 48.97,-112.36"/>
+<polygon fill="black" stroke="black" points="51.41,-109.85 41.8,-105.38 46.53,-114.87 51.41,-109.85"/>
+</g>
+<!-- D1 -->
+<g id="node5" class="node">
+<title>D1</title>
+<ellipse fill="none" stroke="black" cx="99" cy="-90" rx="27" ry="18"/>
+<text text-anchor="middle" x="99" y="-86.3" font-family="Times,serif" font-size="14.00">D1</text>
+</g>
+<!-- B3&#45;&gt;D1 -->
+<g id="edge4" class="edge">
+<title>B3&#45;&gt;D1</title>
+<path fill="none" stroke="black" d="M99,-143.7C99,-135.98 99,-126.71 99,-118.11"/>
+<polygon fill="black" stroke="black" points="102.5,-118.1 99,-108.1 95.5,-118.1 102.5,-118.1"/>
+</g>
+<!-- F1 -->
+<g id="node6" class="node">
+<title>F1</title>
+<ellipse fill="none" stroke="black" cx="126" cy="-18" rx="27" ry="18"/>
+<text text-anchor="middle" x="126" y="-14.3" font-family="Times,serif" font-size="14.00">F1</text>
+</g>
+<!-- B3&#45;&gt;F1 -->
+<g id="edge5" class="edge">
+<title>B3&#45;&gt;F1</title>
+<path fill="none" stroke="black" d="M112.75,-146.07C120.96,-136.1 130.62,-122.25 135,-108 141.26,-87.65 138.23,-63.57 134.07,-45.59"/>
+<polygon fill="black" stroke="black" points="137.43,-44.6 131.55,-35.79 130.65,-46.35 137.43,-44.6"/>
+</g>
+<!-- D1&#45;&gt;F1 -->
+<g id="edge6" class="edge">
+<title>D1&#45;&gt;F1</title>
+<path fill="none" stroke="black" d="M105.4,-72.41C108.51,-64.34 112.33,-54.43 115.83,-45.35"/>
+<polygon fill="black" stroke="black" points="119.13,-46.55 119.46,-35.96 112.6,-44.03 119.13,-46.55"/>
+</g>
+</g>
+</svg>
+
+<p>
+これが依存地獄だ。
+</p>
+
+<p>
+同一レポジトリの複数のバージョンが混在したときにパッケージマネージャーがどのように振る舞うかについて正解はない。あるパッケージマネージャーはバージョンの混合を許す。あるパッケージマネージャーは、決定的な方法でバージョンを一意に保とうとする。
+</p>
+
+<p>
+バージョンの混合を許す場合、Fに致命的な不具合があって修正したつもりでも、BやDから使うときは修正されないコードが実行されてしまう。バージョンを一意に保つ場合、F1かF2のどちらかが使われる。もしF1が選ばれた場合は修正が適用されない。
+</p>
+
+<p>
+バージョンを決定的に一意に保つ方法として、上位ノードの指定した依存バージョンを優先し、同じ深さのノードの場合は辞書順で優先順位を決定するとしよう。その場合、最上位であるAからF2が依存されているので、ソフトウェアとして結合した場合にはFの修正が適用される。ただし、レポジトリBやDを単体で動かしたときは修正が適用されない。レポジトリごとに単体テストがある場合は問題だ。
+</p>
+
+<p>
+大規模なソフトウェアは依存も多い。100個のレポジトリ、500本のエッジからなる依存関係をグラフに描くととんでもないことになる。そして、ほとんどのレポジトリで依存地獄が発生していた場合に修正する手間を考えてみよう。
+</p>
+
+<p>
+この規模になるとグラフとして描画した結果から修正するレポジトリの順番を人力で決定するのが不可能になる。依存関係を解決して依存グラフの一番下から変更するレポジトリの順番を自動で決定する必要がある。
+</p>
+
+<p>
+依存関係の解決をするには、依存関係を有向非巡回グラフに落とし込んだ上で、トポロジカルソートする。こう書くと難しそうだが、実はシェルスクリプトだけで解決できる。POSIXにはトポロジカルソートしてくれるtsortがあるのだ。
+</p>
+
+<p>
+まず依存関係を書き出す。tsortは偶数個の入力を取る。文字列ペアの1つ目が依存する文字列、2つ目が依存されている文字列だ。AがBに依存しているならば、"A B"となる。
+</p>
+
+<pre><code>$ cat deps.txt
+A  B
+A  F
+B  C
+B  D
+B  F
+D  F
+</code></pre>
+
+<p>
+これをtsortに突っ込めばいい。
+</p>
+
+<pre><code>$ cat deps.txt | tsort
+A
+B
+D
+C
+F
+</code></pre>
+
+<p>
+ただしtsortは依存グラフの上から下にソートしていくので今回ほしい順番とは逆順だ。tacにパイプして行ごとに逆順で出力する。
+</p>
+
+
+<pre><code>$ cat deps.txt | tsort | tac
+F
+C
+D
+B
+A
+</code></pre>
+
+<p>
+これでレポジトリを修正していく順番がわかった。
+</p>
+
+<p>
+実際に依存地獄を解決するには、ソフトウェアを構成するレポジトリ群のうち、依存地獄に陥っているレポジトリとそれに依存しているレポジトリ群だけを抽出し、依存解決し、レポジトリごとにどのレポジトリを修正すればいいか出力などするとさらに便利だ。
+</p>
+
+<p>
+しかしなぜtsortというプログラムがPOSIXにあるのだろうか。その背景事情はGNUのドキュメントに書いてある。
+</p>
+
+<p>
+<a href="https://www.gnu.org/software/coreutils/manual/html_node/tsort-background.html">https://www.gnu.org/software/coreutils/manual/html_node/tsort-background.html</a>
+</p>
+
+<p>
+初期のUNIXリンカーはアーカイブファイルを入力された順番で一回しか処理しなかった。そのため、依存関係を解決して正しい順序でアーカイブファイルを入力してやらなければならなかった。この処理はlorderというシェルスクリプトで行われていて、そのシェルスクリプトでトポロジカルソートをする必要があったのでtsortが実装された。
+</p>
+
+<p>
+tsort自体はC++なら100行程度で実装できる簡単なものだ。私も今回の件で勉強がてら書いてみた。奇数個の入力のときに警告せず最後の入力を無視する以外は完全なtsortの実装だ。
+</p>
+
+<p>
+<a href="https://github.com/EzoeRyou/tsort/blob/main/main.cpp">https://github.com/EzoeRyou/tsort/blob/main/main.cpp</a>
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
