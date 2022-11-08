@@ -1,0 +1,145 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+Twitterが2015年に行おうとした非倫理的なこと
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1>
+Twitterが2015年に行おうとした非倫理的なこと
+</h1>
+
+<p>
+<a href="https://twitter.com/stevekrenzel/status/1589700721121058817">https://twitter.com/stevekrenzel/status/1589700721121058817</a>
+</p>
+
+<blockquote>
+<p>
+Twitterのオーナーが変わったので、俺がやるように業務命令された当時のTwitterがやろうとしていた非倫理的なことについてそろそろ話してもいいだろう。
+</p>
+
+<p>
+Dick Costoloが追放されて、Jack DorseyがパートタイムCEOとしてやってきた2015-2016年頃。Twitterは死にかけていて買収先を探していた。FacebookもGoogleも買収は断った。
+</p>
+
+<p>
+当時のTwitterは潰れる寸前だった。2016年の大統領選挙のおかげで息を吹き返したようなものだ。でも俺は辞めることになった。
+</p>
+
+<p>
+当時の俺はTwitterで、新興地域（ブラジル、インド、ナイジェリアなど）でTwitterがうまく動くようにしていた。スマフォ周りの改善で、表向きではない仕事だ。帯域節約とか、メモリー消費量削減とか、バッテリー消費量削減といったことだ。
+</p>
+
+<p>
+そういえばアプリサイズなんてものもあったな。Twitterはスマフォアプリのサイズを10MB以下にするよう努力していた。自腹で100MBのアプリの転送量を無料にできるFacebookと違ってTwitterにはカネがなかったのだ。Twitterが動画機能を追加したとき、この10MB制約はどうでもよくなってしまったが。
+</p>
+
+<p>
+俺がやっていた仕事にスマフォアプリのログアップロードがあった。よそのスマフォアプリと同様に、Twitterはユーザーのすべてを記録していた。スワイプ、タップ、編集、遅延、あらゆるものをデバッグ、メトリクス、実験のために記録していた。ログのサイズは大きい。
+</p>
+
+<p>
+アプリでは、HTTPレスポンスは圧縮されていたが、リクエストは圧縮されていなかった。ログの圧縮率は高い。そこで俺はgzip HTTPリクエストするように変更して、ログを受け取るサーバー側でもしかるべく対応した。これによりスマフォアプリの帯域消費量は40%減った。めちゃくちゃだな。
+</p>
+
+<p>
+そういうわけで、俺は社内でスマフォログの第一人者になっていた。そのために俺は営業の戦略会議に呼び出されることになった。Twitterは当時死ぬ寸前であり、カネを必要としていた。とある巨大通信事業者が、北米におけるログの頻度データにカネを払う話が持ち上がっていた。
+</p>
+
+<p>
+俺の計画は、頻度をキャリアとロケーションで集計するというものだった。俺はデータサイエンティストと協力して、他のデーターソースと照合しても匿名性を保つ適切な粒度（最小エリアサイズとエリア内の区別可能なユーザ数）を検討した。differential privacyと呼ばれるやつだ。
+</p>
+
+<p>
+このデータを某通信事業者に送ったところ、データは約立たずだと返してきやがった。奴らは要求を変えて、自分のところの顧客が何人、競合他社の店に入ったかを知りたいと伝えてきた。どうもきな臭いが、まだギリギリでプライバシーに配慮した匿名化ができる範囲だろうか？
+</p>
+
+<p>
+そうこうしていろんなデータを某通信事業者に送ってみたものの、奴らはまだ満足せず文句たらたらで、営業も文句たらたらだった。そこで俺は某通信事業者の本社に行って、本当にほしいデータは何なのか聞いてくるよう命じられた。奴らの要求はめちゃくちゃだった。
+</p>
+
+<p>
+俺はその通信事業者のやたらハッスルした部長とやらと面談することになったわけだ。部長の言うことには「我々がほしいデータというのは、ユーザーが自宅を出た時刻、通勤経路、一日の移動情報のすべてだ。少しでも情報が欠けたデータは約立たずだ。他のIT企業からはもっと多くのデータの提供を受けているのだよ」
+</p>
+
+<p>
+俺は「できるわけねえだろクソが」をオブラートに包んだ返事をした。俺がそんな粒度でユーザーを特定なロケーションデータを売る世界線はねえよ。社内会議が頻繁に行われた。法務部は合法だと主張した。曰く、利用規約には反していない、と。
+</p>
+
+<p>
+通常ならば、他のエンジニアに作業させるところだが、うちの部署の人間は全員プライバシー上の懸念を理由に拒否した。当時のTwitterはレイオフをしたばかり（歴史は繰り返す）で、他にできそうなエンジニアはいなかった。
+</p>
+
+<p>
+うちの部署はレイオフの影響を受けなかったが、半分ぐらいは自発的に辞めた。Twitterは大量離職祭りのさなかだったのだ。俺はやれるだけのことはやったが、Twitterはまともに仕事ができる職場ではなくなっていた。そこで俺は祭りに便乗して辞めることにし、この話を打ち切った。
+</p>
+
+<p>
+そういえばこんなこともあった。この話の最中に上司が変わり、極めて印象深い発言をした。「トラックにカネを詰め込んでお前にぶちまけたら、実装してくれるか？」　俺はなんと答えたらいいのかわからなかったが、そんなことで俺を揺さぶれると思うなよ。
+</p>
+
+<p>
+俺のTwitterでの最後のメールはJack宛で、Jackは素早く返信し、「ちょっと誤解がないか調べてみるわ。そんなことうちはしないはずだ」という感じの内容だった。本件はJackの手に渡った。
+</p>
+
+<p>
+俺の知る限り、プロジェクトは中止されたはずだ。Jackはこの話を気に入らなかったのだ。この思想をTwitterの新しいオーナーも持ち合わせているかどうかは知らん。俺の見立てではイーロンがデータを手に入れたらもっとヤバイことをするはずだな。
+</p>
+
+<p>
+Twitterにまだいる社員に告ぐ。お前個人の拒否権はバカにしたもんじゃないぞ。常に効果的なわけでもないし、直訴とか告発しなけりゃならんこともあるし、クビになったりもするだろうが、個人の拒否権というのは用意しておくべき武器なのだ。
+</p>
+</blockquote>
+
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
