@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+ドイツでは航空交通管制にEmacsが使われていた
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1>
+ドイツでは航空交通管制にEmacsが使われていた
+</h1>
+
+<p>
+<a href="https://old.reddit.com/r/emacs/comments/lly7po/do_you_use_emacs_lisp_as_a_general_purpose/">https://old.reddit.com/r/emacs/comments/lly7po/do_you_use_emacs_lisp_as_a_general_purpose/</a>
+</p>
+
+<blockquote>
+<p>
+1990年代初頭、東欧革命で東西ドイツが統一したあと、私は厄介な仕事、というか誰もやりたがらない仕事に派遣された。ある月曜日の朝、DASAの工場に入った（DASAというのは当初ドイツ航空で、そのあとダイムラー航空になり、今はエアバスに吸収された）　プロジェクトはDASAからHPが受注したもので、東西のATC（航空交通管制）システムを統一するというものだった。つまり2つの大企業と政府からの葉中ということで、うちのような受注会社はおこぼれを預かっていたわけだ。Emacsの話は実は2つある。
+</p>
+
+<p>
+最初の話。その月曜日の朝、手助けする開発者達と顔合わせした。彼らは素晴らしいものに囲まれた研究所にいた。最新のHPワークステーションとHP/UX（SystemVベースの商用UNIX）、HPの最高グレードのサーバー群、冷蔵庫のような大きさでお値段は7桁だ。私が呼ばれたわけは厄介だった。彼らはこのシステムの使い方がわからなかったのだ。彼らはもともとVMS開発者で、もとをいえばシステムの一部（どういうものだったかは忘れた）をVMS上のC言語（マジでヤバイ。というのVMSはC言語対応がよろしくなかった。それはさておき）で実装する予定だった。とにかく、彼らはワークステーションとマニュアルを渡されて、テキストエディターはviだ。さあ取りかかれ、という感じだった。
+</p>
+
+<p>
+状況はこうだ。何十人もの開発者がviでコードをタイプするのに苦労していた。これは彼らがバカだったためではない。彼らに馴染みのあるVMSのエディター（たしかTPUだったはずだ。大昔の話）の操作感覚はviとは全くかけ離れたものだったのだ。
+</p>
+
+<p>
+私は家に戻り（会社より近かった）、GNUのソースをすべてQICテープにロードし、戻り、当時はよく知られていた作業を開始した。GNUのツールチェインをベンダーUNIX上でコンパイルするのだ。これによりEmacsなどの便利なツール群がコンパイルできるようになる。GCCのコンパイルに最も時間がかかった。まともなコンパイラーを手に入れるまで3段か4段のビルドステージを経なければならない。とはいえ1日かけて、HP/UXにEmacsを導入した。ここからがひどい話だ。私はVMSにも詳しかったので、init.elを編集して操作感をVMSエディターにできるだけ近づけ、ワークステーションに導入した。開発者からは抱きしめんばかりに喜ばれたよ。
+</p>
+
+<p>
+数週間語、別の事務所から呼ばれた。彼らは納期に遅れており、助けが必要だった。理由はよくわからないがATC用のワークステーションがmicroVAXenで動いていて、VMS用の4GL(第四世代言語)を使っていたが、ネットワーク越しにメッセージを取得するのに手間取っていた。4GLは端末指向で、ネットワークという概念すらなかった。ATCメッセージ（航空機の空域移動とかEurocontrolとか）はローカルメッセージルーターを通って、そこから宛先まで配送される。まだインターネットの時代ではなかった。X.25とか電話専用線とかの粗野で不便極まりない時代の話だ。
+</p>
+
+<p>
+私はVMSでTCP/IPを使うほうが、HP/UXでDECnetを使うよりは楽だと判断し、準備をした。そのために、最新の技術であるDCE（データ回線終端装置）を使って、メッセージ送信をすることにした。4GLにC拡張を書くVMS側の対応は数日で終わった。そして、メッセージルーターの開発者である本物のプログラマーに話をしに行った。
+</p>
+
+<p>
+ドイツでは、本物のプログラマーは常に正しい（本物のプログラマーはモーゼを赦された。モーゼは11番目の戒律を刻むべき石の余白がなかったが、本来なら11番目の戒律にこれが書いてあるべきなのだ）。本物のプログラマーはSymbolicsで働いていたので、たった一つのプログラミング言語を使っていた。Lispだ。本物のプログラマーはメッセージルーターをLispで書きたがった。というのも「複雑な要件」であるからだ（クソが！）。しかしHP/UXにLispはない（予算にもない）ので、仕事を進めなかった。私はEmacsのことを話してみた。移植したEmacsのテープを渡した。これが間違いだったのだろう。
+</p>
+
+<p>
+1週間後、私は4GLのUIを手伝っていてメッセージプロトコルを感染させたところだった。本物のプログラマーは幸せそうに連絡をよこしてきた。本物のプログラマーが持ってきたコードというのは、Emacs Lispの莫大な紙束。コメントは一切なし。「だってLispはセルフドキュメントさ」。私は背筋が凍った。これは航空交通管制システムなのだ。しかし私は本物のプログラマーではないので、Emacs用にDCEネイティブコード変換を実装し、メッセージサーバーのサーバーモードでEmacsをヘッドレスモードで実行した。メッセージが通るようになった。私はコードを納品し、数日後に帰宅した。「セルフドキュメント」なコードは、私が知る限り、本番環境に入った。そのためしばらくは、ドイツのすべてのATCシステムではEmacsが動いていた。
+</p>
+
+<p>
+私はしばらくの間ドイツの領空を通過するのが怖かった。
+</p>
+</blockquote>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
