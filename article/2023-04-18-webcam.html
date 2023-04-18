@@ -1,0 +1,177 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>
+ffmpegでwebcamを入力に使う方法
+</title>
+
+
+<link rel="stylesheet" type="text/css" href="../css/default.css" >
+
+<style type="text/css">
+</style>
+
+<!-- highlight.js -->
+<link rel="stylesheet" type="text/css" href="../css/github.css">
+<script type="text/javascript" src="../js/highlight.pack.js"></script>
+<script type="text/javascript">hljs.initHighlightingOnLoad();</script>
+
+<!-- mathjax CDN -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async>
+</script>
+
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>GitHub pages: <a href="https://ezoeryou.github.io/blog/">https://ezoeryou.github.io/blog/</a><br>
+Blogger: <a href="http://cpplover.blogspot.jp/">http://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+<p>
+<a href="http://www.amazon.co.jp/registry/wishlist/1X43J4K0NJVHK">アマゾンの江添のほしい物リスト</a>を著者に送るとブログ記事のネタになる
+</p>
+
+<p>
+筆者にブログのネタになる品物を直接送りたい場合、住所をメールで質問してください。
+</p>
+</header>
+
+
+<article>
+<h1>
+ffmpegでwebcamを入力に使う方法
+</h1>
+
+<p>
+ふと、某動画ストリーミングサイトの開発に携わりながら、動画投稿は経験があるが生放送の経験がないのは問題ではないかと思い、自腹でwebcamを買ってみた。今回買ったのは<a href="https://www.razer.com/streaming-cameras/razer-kiyo-pro">Razer KIYO PRO</a>だ。このwebcamはUSB 3.0で接続し、カメラとマイクがあり、1080p 60fpsまで対応しているらしい。
+</p>
+
+<p>
+普通の人ならば、これをつないで使うだけなのだろうが、筆者の環境はGNU/Linuxだ。はたして動くのだろうか。
+</p>
+
+<p>
+とりあえずつなぎ、Webcamを使うソフトウェアCheeseで確認したところ、正常に動作することを確認した。ではさっそく競合他社のYouTubeで生放送をしてみよう。
+</p>
+
+<p>
+FirefoxでYouTubeの生放送の配信ページを開き、webcamから配信をしようとしたが、ただしいwebcamを認識しない。筆者の使うラップトップには、内蔵のカメラとマイクもついているのだ。
+</p>
+
+<p>
+しかたなくOBS Studioで配信をしようとapt install obs-studioしたが、なぜか起動しない。
+</p>
+
+<p>
+本当に仕方がないのでffmpegを使って配信することにした。
+</p>
+
+<p>
+GNU/Linuxでwebcamの動画を入力するにはv4l2(video4linux2)を使う。
+</p>
+
+<p>
+<a href="https://ffmpeg.org/ffmpeg-all.html#video4linux2_002c-v4l2">ffmpeg: video4linux2</a>
+</p>
+
+<p>
+まず、
+</p>
+
+<pre><code>$ v4l2-ctl --list-devices
+Razer Kiyo Pro (usb-0000:00:14.0-1):
+	/dev/video2
+	/dev/video3
+	/dev/media1
+
+Integrated_Webcam_HD: Integrate (usb-0000:00:14.0-12):
+	/dev/video0
+	/dev/video1
+	/dev/media0
+</code></pre>
+
+<p>
+これをみると、Razer Kiyo Proは/dev/video2かvideo3のようだ。ffprobeで対応するフォーマットについて調べてみる。
+</p>
+
+<pre><code> $ ffprobe -hide_banner -f v4l2 -list_formats all -i /dev/video2
+[video4linux2,v4l2 @ 0x55f3756a92c0] Raw       :     yuyv422 :           YUYV 4:2:2 : 640x480 640x360 1280x720 1920x1080
+[video4linux2,v4l2 @ 0x55f3756a92c0] Compressed:       mjpeg :          Motion-JPEG : 640x480 640x360 1280x720 1920x1080
+[video4linux2,v4l2 @ 0x55f3756a92c0] Compressed:        h264 :                H.264 : 640x480 640x360 1280x720 1920x1080
+[video4linux2,v4l2 @ 0x55f3756a92c0] Raw       :        nv12 :         Y/CbCr 4:2:0 : 640x480 640x360 1280x720 1920x1080
+/dev/video2: Immediate exit requested
+
+$ ffprobe -hide_banner -f v4l2 -list_formats all -i /dev/video3
+[video4linux2,v4l2 @ 0x557d3c53f2c0] ioctl(VIDIOC_G_INPUT): Inappropriate ioctl for device
+/dev/video3: Inappropriate ioctl for device
+</code></pre>
+
+<p>
+どうやら/dev/video2が正しいらしい。Razer Kiyo Proは生データのキャプチャーの他に、H.264ハードウェアエンコードにも対応しているらしい。
+</p>
+
+<p>
+ffmpegを使ってRazer Kiyo ProからH.264エンコードされた1920x1080 60fps動画をファイルに保存するには以下のようにする。
+</p>
+
+<pre><code>$ ffmpeg -f v4l2 -input_format h264 -video_size 1920x1080 -framerate 60 -i /dev/video2 -c copy captured.mkv
+</code></pre>
+
+<p>
+Razer Kiyo Proのマイクをffmpegの入力に使うにはALSAを使う。まず現在存在する入力ソースを列挙する。
+</p>
+
+<pre><code> $ arecord -l
+**** List of CAPTURE Hardware Devices ****
+card 0: PCH [HDA Intel PCH], device 0: ALC3266 Analog [ALC3266 Analog]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+card 1: Pro [Razer Kiyo Pro], device 0: USB Audio [USB Audio]
+  Subdevices: 1/1
+  Subdevice #0: subdevice #0
+</code></pre>
+
+<p>
+どうやらcard 1がRazer Kiyo Proのようだ。音声のエンコードは軽いので非力なラップトップでもリアルタイムエンコードできる。
+</p>
+
+<p>
+ffmpegを使ってRazer Kiyo Proのマイク入力をaacにエンコードしてファイルに出力するには以下のようにする。
+</p>
+
+<pre><code>$ ffmpeg -f alsa -i hw:1 -acodec aac captured.mkv
+</code></pre>
+
+<p>
+ffmpegでRazer Kiyo Proから動画と音声を取得できるようになったので、あとはこれをYouTubeのrtmp URLに流し込んでやればいいだけだ。
+</p>
+
+<pre><code>$ ffmpeg -f v4l2 -input_format h264 -video_size 1920x1080 -framerate 60 -i /dev/video2 -f alsa -i hw:1 -vcodec copy -acodec aac -f flv rtmp://URL/key
+</code></pre>
+
+<p>
+これで生放送配信ができるようになった。
+</p>
+
+<p>
+さくっと書いているが、これを調べて実験するのに1時間はかかっている。なるほど、生放送配信とは面倒だな。
+</p>
+
+</article>
+
+<footer>
+<p>
+CC BY-SA 4.0: This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+</p>
+</footer>
+</body>
+</html>
