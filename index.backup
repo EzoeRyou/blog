@@ -1,0 +1,4016 @@
+<!doctype html>
+<html>
+<head><meta charset="UTF-8">
+<title>
+本の虫@GitHub
+</title>
+
+<link rel="stylesheet" type="text/css" href="css/default.css"></link>
+
+</head>
+
+<body>
+
+<header>
+<h1><a href="https://ezoeryou.github.io/blog/">本の虫</a></h1>
+
+<p>
+著者：江添亮<br>
+Blogger: <a href="https://cpplover.blogspot.jp/">https://cpplover.blogspot.jp/</a><br>
+メール: boostcpp@gmail.com<br>
+Twitter: <a href="https://twitter.com/EzoeRyou">https://twitter.com/EzoeRyou</a><br>
+GitHub: <a href="https://github.com/EzoeRyou">https://github.com/EzoeRyou</a>
+</p>
+</header>
+
+
+<ul>
+<li>
+<p>
+2023
+</p>
+
+<ul>
+<li>
+<p>
+04
+<li>
+<p>
+2023
+</p>
+
+<ul>
+<li>
+<p>
+10
+</p>
+
+<ul>
+<li>
+2023-10-21: <a href=article/2023-10-21-voyager.html>ボイジャーの保守</a>
+</li>
+<li>
+2023-10-19: <a href=article/2023-10-19-clipboard.html>クリップボードAPI</a>
+</li>
+<li>
+2023-10-19: <a href=article/2023-10-19-irresponsible-world.html>自動化による無責任社会</a>
+</li>
+</ul>
+</ul>
+</li>
+
+</p>
+
+<ul>
+<li>
+2023-04-18: <a href=article/2023-04-18-webcam.html>ffmpegでwebcamを入力に使う方法</a>
+</li>
+</ul>
+</li>
+
+</ul>
+</li>
+
+<li>
+<p>
+2022
+</p>
+
+<ul>
+<li>
+<p>
+11
+</p>
+
+<ul>
+<li>
+2022-11-09: <a href=article/2022-11-09-emacs.html>ドイツでは航空交通管制にEmacsが使われていた</a>
+</li>
+<li>
+2022-11-09: <a href=article/2022-11-09-unethical-twitter.html>Twitterが2015年に行おうとした非倫理的なこと</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+09
+</p>
+
+<ul>
+<li>
+2022-09-12: <a href=article/2022-09-12-aac-artcile.html>最高に笑える登山事故</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+08
+</p>
+
+<ul>
+<li>
+2022-08-29: <a href=article/2022-08-29-tech-debt.html>依存地獄の解決</a>
+</li>
+<li>
+2022-08-05: <a href=article/2022-08-05-c99-vla-turing-complete.html>C99のVLAは関数の本体が空でもコードが書ける</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+07
+</p>
+
+<ul>
+<li>
+2022-07-12: <a href=article/2022-07-12-rjsdf.html>予備自衛官の招集訓練に参加してきた</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+05
+</p>
+
+<ul>
+<li>
+2022-05-28: <a href=article/2022-05-28-no-trust-from-top-labs-paper.html>金持ちの研究所から出てきた機械学習の論文なんてゴミだ</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+04
+</p>
+
+<ul>
+<li>
+2022-04-02: <a href=article/2022-04-02-stealing-914.html>翻訳：私のポルシェ914を盗む手引</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+04
+</p>
+
+<ul>
+</ul>
+</ul>
+</li>
+
+<li>
+<p>
+2021
+</p>
+
+<ul>
+<li>
+<p>
+12
+</p>
+
+<ul>
+<li>
+2021-12-10: <a href=article/2021-12-10-log4j.html>log4jの脆弱性について</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+09
+</p>
+
+<ul>
+<li>
+2021-09-05: <a href=article/2021-09-05-faraday.html>200年前、ファラデーは電気モーターを発明した</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+08
+</p>
+
+<ul>
+<li>
+2021-08-20: <a href=article/2021-08-20-covid-prophecy.html>COVID-19の今後占い</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+06
+</p>
+
+<ul>
+<li>
+2021-06-27: <a href=article/2021-06-27-vaccine-strategy.html>日本とイギリスのCOVID=19ワクチン接種戦略の違い</a>
+</li>
+<li>
+2021-06-08: <a href=article/2021-06-08-forefoot-running.html>フォアフット走法に必要な重心位置を把握した</a>
+</li>
+</ul>
+</li>
+
+<p>
+05
+</p>
+
+<ul>
+<li>
+2021-05-26: <a href=article/2021-05-26-birth-rate.html>自然淘汰と年収と出生数と未来</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+04
+</p>
+
+<ul>
+<li>
+2021-04-18: <a href=article/2021-04-18-mask-interrupts.html>kworker/kacpidのCPU使用率が高い問題に対処した</a>
+</li>
+</ul>
+</li>
+
+</ul>
+</li>
+
+<li>
+<p>
+2020
+</p>
+
+<ul>
+<li>
+<p>
+12
+</p>
+
+<ul>
+<li>
+2020-12-15: <a href=article/2020-12-15-Eric-Engstrom.html>Walter BrightによるEric Engstromの思い出話</a>
+</li>
+<li>
+2020-12-07: <a href=article/2020-12-07-boulder.html>ボルダリングで追い込んだ</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+11
+</p>
+
+<ul>
+<li>
+2020-11-23: <a href=article/2020-11-23-macOS-M1-benchmark.html>macOSのM1とx86-64におけるベンチマーク比較の考察</a>
+</li>
+<li>
+2020-11-22: <a href=article/2020-11-22-okayama-trip-report.html>村上原野追悼旅行記</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+09
+</p>
+
+<ul>
+<li>
+2020-09-17: <a href=article/2020-09-17-gem-nokogiri-rmagick.html>gem installでnokogiriとrmagickが失敗する場合</a>
+</li>
+<li>
+2020-09-05: <a href=article/2020-09-05-C++20-has-been-approved.html>C++20の標準規格が承認された</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+08
+</p>
+
+<ul>
+<li>
+2020-08-31: <a href=article/2020-08-31-360-camera.html>360度カメラの残念な現状</a>
+</li>
+<li>
+2020-08-15: <a href=article/2020-08-15-GPL-condom.html>LinuxカーネルにおけるGPLコンドーム問題への対処パッチ</a>
+</li>
+<li>
+2020-08-05: <a href=article/2020-08-05-ebpf.html>GDBがeBPFのデバッグをサポートした</a>
+</li>
+<li>
+2020-08-02: <a href=article/2020-08-02-caster-board.html>キャスターボード</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+07
+</p>
+
+<ul>
+<li>
+2020-07-17: <a href=article/2020-07-17-arctic-vault-contributer.html>GitHubのArctic Vault Contributerになった</a>
+</li>
+<li>
+2020-07-05: <a href=article/2020-07-05-snowboard-second-house.html>スノーボード用の別荘を検討している</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+06
+</p>
+
+<ul>
+<li>
+2020-06-30: <a href=article/2020-06-30-rejected.html>職質裁判、上告不受理で終了</a>
+</li>
+<li>
+2020-06-21: <a href=article/2020-06-21-bttf-timeline.html>バックトゥザフューチャーのタイムライン</a>
+</li>
+<li>
+2020-06-13: <a href=article/2020-06-13-kick-scooter.html>キックスクーター</a>
+</li>
+<li>
+2020-06-01: <a href=article/2020-06-01-manga-and-copyright.html>パブリックドメインの漫画が出てくるのは2050年代から、アニメは2030年代から</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+05
+</p>
+
+<ul>
+<li>
+2020-05-03: <a href=article/2020-05-03-muscle-up.html>マッスルアップができない</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+04
+</p>
+
+<ul>
+<li>
+2020-04-17: <a href=article/2020-04-17-undetectable-cheat.html>検出不可能なゲームのチートが発表、今後のオンラインゲームのデザインはこのチートを前提に設計しなければならない</a>
+</li>
+<li>
+2020-04-16: <a href=article/2020-04-16-error-handling-in-erlang.html>Error handling in Erlang</a>
+</li>
+<li>
+2020-04-13: <a href=article/2020-04-13-tutorial.html>Erlang, Cowboy, Rebar3によるHello World HTTPサーバーのチュートリアル</a>
+</li>
+<li>
+2020-04-07: <a href=article/2020-04-07-tutorial.html>Walkthrough of hello world HTTP server with Erlang, Cowboy, and Rebar3</a>
+</li>
+<li>
+2020-04-04: <a href=article/2020-04-04-ski-areas.html>2019-2020シーズンに行ったスキー場の感想</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+03
+</p>
+
+<ul>
+<li>
+2020-03-29: <a href=article/2020-03-29-memory-of-murakami-genya.html>村上原野(ボレロ村上)の思い出</a>
+</li>
+<li>
+2020-03-29: <a href=article/2020-03-29-rip-bolero.html>ボレロ村上逝去</a>
+</li>
+<li>
+2020-03-08: <a href=article/2020-03-08-akakura-onsen.html>赤倉温泉スキー場に来ている</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+02
+</p>
+
+<ul>
+<li>
+2020-02-16: <a href=article/2020-02-16-cpp-20-DIS.html>C++20標準規格がほぼ固まった</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+01
+</p>
+
+<ul>
+<li>
+2020-01-18: <a href=article/2020-01-18-on-erlang.html>Erlangについて思うところ</a>
+</li>
+<li>
+2020-01-18: <a href=article/2020-01-18-knee-pain.html>膝の痛みがなかなか治らない</a>
+</li>
+<li>
+2020-01-05: <a href=article/2020-01-05-no-BBS.html>現代の日本には日本語の掲示板がない</a>
+</li>
+<li>
+2020-01-05: <a href=article/2020-01-05-zstd.html>Arch Linuxがパッケージ圧縮をxzからzstdに変更</a>
+</li>
+<li>
+2020-01-04: <a href=article/2020-01-04-future-taxi.html>未来のタクシーはネットカフェになる</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+01
+</p>
+
+<ul>
+</ul>
+</ul>
+</li>
+
+<li>
+<p>
+2019
+</p>
+
+<ul>
+<li>
+<p>
+12
+</p>
+
+<ul>
+<li>
+2019-12-18: <a href=article/2019-12-18-boardgame-party.html>江添自宅ボドゲ会@12月22日</a>
+</li>
+<li>
+2019-12-18: <a href=article/2019-12-18-kagura.html>かぐらスキー場に行ってきた</a>
+</li>
+<li>
+2019-12-18: <a href=article/2019-12-18-snowboard-binding-parameters.html>スノーボードの最適なスタンス設定を求めて</a>
+</li>
+<li>
+2019-12-14: <a href=article/2019-12-14-outer-worlds-bug.html>Outer Worldsでコンパニオンが死んでいないのに死亡したと認識されるバグ</a>
+</li>
+<li>
+2019-12-08: <a href=article/2019-12-08-kousai.html>違法な職務質問をされたので東京都を訴えた裁判の控訴審は棄却、理由は突然に</a>
+</li>
+<li>
+2019-12-07: <a href=article/2019-12-07-google-censorship.html>Googleがブログ記事を検閲</a>
+</li>
+<li>
+2019-12-02: <a href=article/2019-12-02-kagura.html>かぐらスキー場に行ってきた</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+11
+</p>
+
+<ul>
+<li>
+2019-11-29: <a href=article/2019-11-29-boardgame-party.html>江添ボドゲ会@11月30日</a>
+</li>
+<li>
+2019-11-28: <a href=article/2019-11-28-caddi-cpp.html>CADDiのC++勉強会#9</a>
+</li>
+<li>
+2019-11-25: <a href=article/2019-11-25-dance-6-months.html>ダンスを学んで半年たった</a>
+</li>
+<li>
+2019-11-17: <a href=article/2019-11-17-insulting-job-offer.html>侮辱的な報酬額の大学講師の仕事依頼がやってきた。その額なんと月2.7万円</a>
+</li>
+<li>
+2019-11-14: <a href=article/2019-11-14-john-carmack-on-AGI.html>John Carmack、人工汎用知能の取り組むと宣言</a>
+</li>
+<li>
+2019-11-10: <a href=article/2019-11-10-season-pass.html>スキー場のシーズン券の購入を考えている</a>
+</li>
+<li>
+2019-11-07: <a href=article/2019-11-07-cpp20-using-enum.html>Using enum</a>
+</li>
+<li>
+2019-11-07: <a href=article/2019-11-07-caddi-cpp.html>CADDiのC++勉強会@11月19日</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+10
+</p>
+
+<ul>
+<li>
+2019-10-25: <a href=article/2019-10-25-boardgame-party.html>江添誕生日ボドゲ会@10月27日</a>
+</li>
+<li>
+2019-10-15: <a href=article/2019-10-15-caddi-cpp.html>CADDiのC++勉強会</a>
+</li>
+<li>
+2019-10-12: <a href=article/2019-10-12-ski-areas.html>東京から行けるスキー場のまとめ</a>
+</li>
+<li>
+2019-10-07: <a href=article/2019-10-07-caddicpp.html>Caddi C++勉強会@10月9日</a>
+</li>
+<li>
+2019-10-06: <a href=article/2019-10-06-snowboard-injuries.html>スキー/スノーボードの怪我統計の考察</a>
+</li>
+<li>
+2019-10-03: <a href=article/2019-10-03-loop.html>また初心者にプログラミングを教える機会があった</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+09
+</p>
+
+<ul>
+<li>
+2019-09-22: <a href=article/2019-09-22-boardgame-party.html>江添ボドゲ会@9月29日</a>
+</li>
+<li>
+2019-09-20: <a href=article/2019-09-20-C++-intro-meeting.html>江添亮のC++入門の出版記念の勉強会告知</a>
+</li>
+<li>
+2019-09-19: <a href=article/2019-09-19-msvc-stl.html>MSVCのSTLがGitHubで公開</a>
+</li>
+<li>
+2019-09-19: <a href=article/2019-09-19-ezoeryou-cpp.html>江添亮のC++入門が出版された</a>
+</li>
+<li>
+2019-09-17: <a href=article/2019-09-17-caddi-cpp.html>CADDi C++勉強会5回目</a>
+</li>
+<li>
+2019-09-11: <a href=article/2019-09-11-caddi-cpp.html>CADDi C++勉強会、11日に延期</a>
+</li>
+<li>
+2019-09-03: <a href=article/2019-09-03-caddi-cpp.html>CADDi C++勉強会4回目</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+08
+</p>
+
+<ul>
+<li>
+2019-08-27: <a href=article/2019-08-27-caddi-meeting.html>CaddiのC++勉強会3回目</a>
+</li>
+<li>
+2019-08-16: <a href=article/2019-08-16-boardgame-party.html>江添ボドゲ会8月25日</a>
+</li>
+<li>
+2019-08-13: <a href=article/2019-08-13-p++.html>P++: 静的型付けをめざすPHP</a>
+</li>
+<li>
+2019-08-07: <a href=article/2019-08-07-caddi.html>キャディC++勉強会8月21日、テンプレート基礎</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+07
+</p>
+
+<ul>
+<li>
+2019-07-19: <a href=article/2019-07-19-caddi-technical-adviser.html>キャディ株式会社のテクニカルアドバイザーになった</a>
+</li>
+<li>
+2019-07-19: <a href=article/2019-07-19-boardgame-party.html>江添自宅ボドゲ回@7月28日</a>
+</li>
+<li>
+2019-07-15: <a href=article/2019-07-15-c++-three-year-cycle.html>標準C++規格が3年おきに制定される理由</a>
+</li>
+<li>
+2019-07-14: <a href=article/2019-07-14-AMD-zen2.html>AMDのZen 2でRDRANDが-1を返すので最近のGNU/Linuxがブートできない問題</a>
+</li>
+<li>
+2019-07-12: <a href=article/2019-07-12-purchase-gplv3-book.html>GPLv3でライセンスされた自由な技術書の電子書籍を買う理由</a>
+</li>
+<li>
+2019-07-09: <a href=article/2019-07-09-deprecate-implicit-lambda-capture-of-this.html>C++20 Deprecate implicit lambda capture of this</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+06
+</p>
+
+<ul>
+<li>
+2019-06-18: <a href=article/2019-06-18-boardgame-party.html>江添ボドゲ会6月30日</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+05
+</p>
+
+<ul>
+<li>
+2019-05-26: <a href=article/2019-05-26-learning-to-dance-for-one-month.html>ダンスを学び始めて一ヶ月がたった</a>
+</li>
+<li>
+2019-05-20: <a href=article/2019-05-20-boardgame-party.html>江添自宅ボドゲ会@5月26日</a>
+</li>
+<li>
+2019-05-18: <a href=article/2019-05-18-epic-chaos.html>Epicストア、根回しなしにセールをしてゲーム取り下げが発生しカオスな状況</a>
+</li>
+<li>
+2019-05-16: <a href=article/2019-05-16-beat.html>ダンスを学び始めたが裏拍が取れない</a>
+</li>
+<li>
+2019-05-12: <a href=article/2019-05-12-dance-2-weeks.html>ダンススクールに通って2週間がたった</a>
+</li>
+<li>
+2019-05-07: <a href=article/2019-05-07-resistance-is-futile.html>マイクロソフト、無駄な抵抗を辞めてWSLに本物のLinuxカーネルを同梱する</a>
+</li>
+<li>
+2019-05-05: <a href=article/2019-05-05-cloudflare-archive-is.html>CloudflareのDNSからArchive.isが解決できない問題について</a>
+</li>
+<li>
+2019-05-02: <a href=article/2019-05-02-SByke.html>奇妙な乗り物、SBykeを購入した</a>
+</li>
+<li>
+2019-05-01: <a href=article/2019-05-01-learn-to-dance.html>ダンスを学びたかったのでダンススクールに行ってみたが教育ではなかった</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+04
+</p>
+
+<ul>
+<li>
+2019-04-18: <a href=article/2019-04-18-moro-vs-japan.html>CoinHive裁判の控訴審費用の寄付をした</a>
+</li>
+<li>
+2019-04-10: <a href=article/2019-04-10-IIJ-DNS-blocking.html>IIJに対してマルウェア対策のDNSブロッキングについての質問の回答</a>
+</li>
+<li>
+2019-04-08: <a href=article/2019-04-08-boardgame-party.html>引越し祝い江添ボドゲ会@4月14日</a>
+</li>
+<li>
+2019-04-06: <a href=article/2019-04-06-snowboard-12.html>スノーボード12回目</a>
+</li>
+<li>
+2019-04-01: <a href=article/2019-04-01-npmjs-is-on-fire.html>npm社、社員を無責任に解雇</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+03
+</p>
+
+<ul>
+<li>
+2019-03-28: <a href=article/2019-03-28-snowboard-10-11.html>スノーボード10回目と11回目</a>
+</li>
+<li>
+2019-03-28: <a href=article/2019-03-28-cisco-ban-curl.html>Cisco、ルーターの脆弱性を修正するためにユーザーエージェントcurlを弾く変更を加える</a>
+</li>
+<li>
+2019-03-25: <a href=article/2019-03-25-while-true-alert.html>兵庫県警のブラクラ摘発事件の冤罪被害者に寄付をした #alertloop</a>
+</li>
+<li>
+2019-03-20: <a href=article/2019-03-20-ezoe-vs-tokyo.html>職質裁判で不当判決が出たので控訴する</a>
+</li>
+<li>
+2019-03-15: <a href=article/2019-03-15-counter-argument-to-jcast-news.html>J-CASTニュースの職質裁判の誤りを含む記事に対する反論</a>
+</li>
+<li>
+2019-03-13: <a href=article/2019-03-13-calling-110-is-suspicious.html>職質裁判一審で不当判決、曰く、110番通報を要請することは不審事由にあたる</a>
+</li>
+<li>
+2019-03-11: <a href=article/2019-03-11-snowboard-9.html>スノーボード9回目</a>
+</li>
+<li>
+2019-03-11: <a href=article/2019-03-11-snowboard-8.html>スノーボード8回目</a>
+</li>
+<li>
+2019-03-05: <a href=article/2019-03-05-magic-and-science.html>兵庫県警は魔法と科学の区別がつかない：JavaScriptプログラムによる補導が間違っている件について</a>
+</li>
+<li>
+2019-03-03: <a href=article/2019-03-03-snowboard-7.html>スノーボード7回目</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+02
+</p>
+
+<ul>
+<li>
+2019-02-27: <a href=article/2019-02-27-snowboard-6.html>スノーボード6回目</a>
+</li>
+<li>
+2019-02-21: <a href=article/2019-02-21-snowboard-5.html>スノーボード5回目</a>
+</li>
+<li>
+2019-02-15: <a href=article/2019-02-15-snowboard-4.html>スノーボード4回目</a>
+</li>
+<li>
+2019-02-13: <a href=article/2019-02-13-snowboard-3.html>スノーボード3回目</a>
+</li>
+<li>
+2019-02-09: <a href=article/2019-02-09-snowboard-2.html>スノーボード2回目</a>
+</li>
+<li>
+2019-02-04: <a href=article/2019-02-04-snowboard.html>スノーボード1回目</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+01
+</p>
+
+<ul>
+<li>
+2019-01-28: <a href=article/2019-01-28-1337.html>P1337R0: 標準ライブラリへのエイリアスを追加してC++を復活させる提案</a>
+</li>
+<li>
+2019-01-22: <a href=article/2019-01-22-ranges-projection-ja.html>C++20のRangeライブラリの強力な機能、プロジェクション</a>
+</li>
+<li>
+2019-01-22: <a href=article/2019-01-22-ranges-projection.html>Projection, a powerful feature in C++20 Ranges library</a>
+</li>
+<li>
+2019-01-21: <a href=article/2019-01-21-huge-flaiming-awaits.html>大炎上の煙くすぶる警察によるTポイントカード照会</a>
+</li>
+<li>
+2019-01-13: <a href=article/2019-01-13-possibility-of-english-books.html>Possibility of writing English C++ textbooks</a>
+</li>
+<li>
+2019-01-10: <a href=article/2019-01-10-range-view.html>The overview of C++20 Range view</a>
+</li>
+<li>
+2019-01-07: <a href=article/2019-01-07-cpp-draft.html>2018-11のC++ドラフトの主要な変更</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+01
+</p>
+
+<ul>
+</ul>
+</ul>
+</li>
+
+<li>
+<p>
+2018
+</p>
+
+<ul>
+<li>
+<p>
+12
+</p>
+
+<ul>
+<li>
+2018-12-25: <a href=article/2018-12-25-linus-quote.html>Linus Torvalds様、ユーザースペースの互換性を壊した開発者に強い態度をお示しになる</a>
+</li>
+<li>
+2018-12-08: <a href=article/2018-12-08-weird-incentive.html>経済学上最適な行動は時として奇妙に見えるという話</a>
+</li>
+<li>
+2018-12-03: <a href=article/2018-12-03-body.html>三十路を超えたので体について考える</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+11
+</p>
+
+<ul>
+<li>
+2018-11-25: <a href=article/2018-11-25-vimconf2018.html>Vimconf 2018のスタッフをしてきた</a>
+</li>
+<li>
+2018-11-25: <a href=article/2018-11-25-one-night-zinrou-and-rights.html>ワンナイト人狼とボードゲームの知的財産権について</a>
+</li>
+<li>
+2018-11-18: <a href=article/2018-11-18-bycycle.html>自転車を買おうか悩んでいる</a>
+</li>
+<li>
+2018-11-13: <a href=article/2018-11-13-2018-san-diego-meetings.html>C++標準化委員会の2018サンディエゴ会議の結果</a>
+</li>
+<li>
+2018-11-10: <a href=article/2018-11-10-PS-classic.html>かつてPSエミューレーターにスラップ訴訟を仕掛けたソニーのPSクラシック、自由ソフトウェア実装のPSエミュレーターであるPCSX ReARMedを使っていることが判明</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+10
+</p>
+
+<ul>
+<li>
+2018-10-29: <a href=article/2018-10-29-polite-linus.html>帰ってきたきれいなリーナス・トーバルズ、無作法な開発者をたしなめる</a>
+</li>
+<li>
+2018-10-24: <a href=article/2018-10-24-2018-10-mailings.html>C++標準化委員会の10月の興味深い文書</a>
+</li>
+<li>
+2018-10-23: <a href=article/2018-10-23-SQLite-coc.html>SQLiteの行動規範がキリスト教徒の戒律を全文引用していて香ばしすぎる</a>
+</li>
+<li>
+2018-10-22: <a href=article/2018-10-22-boardgame-birthday-party.html>江添誕生日ボドゲ会@10月28日</a>
+</li>
+<li>
+2018-10-14: <a href=article/2018-10-14-VAT.html>消費税について考えたこと</a>
+</li>
+<li>
+2018-10-07: <a href=article/2018-10-07-to-explain-the-world.html>Steven WeinbergのTo Explain The Worldを読んだ</a>
+</li>
+<li>
+2018-10-07: <a href=article/2018-10-07-china-malicious-chip.html>中国の悪意あるハードウェアの細工を見破る方法</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+09
+</p>
+
+<ul>
+<li>
+2018-09-20: <a href=article/2018-09-20-P2P-network.html>健全なP2Pネットワークの信用のためには全利用者の参加が必須であるという話</a>
+</li>
+<li>
+2018-09-17: <a href=article/2018-09-17-linus-time-off.html>Linus、今までの行いを謝罪し一時的にカーネルメンテナーの立場を退いて人の気持ちを勉強してくると発言</a>
+</li>
+<li>
+2018-09-10: <a href=article/2018-09-10-terry-davis-is-dead.html>TempleOSの作者Terry Davisが列車に引かれて死んだ</a>
+</li>
+<li>
+2018-09-10: <a href=article/2018-09-10-dxvk-gone.html>GitHubからDirectXのVulkan実装であるDXVKが消失</a>
+</li>
+<li>
+2018-09-03: <a href=article/2018-09-03-boardgame-party.html>江添ボドゲ会@9月8日</a>
+</li>
+<li>
+2018-09-02: <a href=article/2018-09-02-reading-DNA.html>DNAの読み取りについてプログラマーが誤解していること</a>
+</li>
+<li>
+2018-09-02: <a href=article/2018-09-02-mouse.html>ssh経由のtmuxの中で動くvimのウインドウサイズ変更にマウスを使う方法</a>
+</li>
+<li>
+2018-09-01: <a href=article/2018-09-01-portable-audio-player.html>ポータブルオーディオプレイヤーは二極化している</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+08
+</p>
+
+<ul>
+<li>
+2018-08-23: <a href=article/2018-08-23-steam-play.html>Steam Playで不自由なWindows用ゲームをGNU/Linux上で実行するにはPython 2が必要</a>
+</li>
+<li>
+2018-08-14: <a href=article/2018-08-14-boardgame-party.html>江添ボドゲ会@8月18日</a>
+</li>
+<li>
+2018-08-12: <a href=article/2018-08-12-observe.html>違法な職務質問を受けたので国賠訴訟を起こした裁判の傍聴のお知らせ</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+07
+</p>
+
+<ul>
+<li>
+2018-07-31: <a href=article/2018-07-31-gcc-git.html>GCCのgit移行が難航中</a>
+</li>
+<li>
+2018-07-24: <a href=article/2018-07-24-DO-translate-with-ms-style-guideline-conformance.html>しないでマイクロソフトのスタイルガイドライン準拠の翻訳</a>
+</li>
+<li>
+2018-07-13: <a href=article/2018-07-13-npm-malware.html>NPMのESLintのパッケージにマルウェアが混入された問題</a>
+</li>
+<li>
+2018-07-11: <a href=article/2018-07-11-alias.html>汎用エイリアス宣言の提案</a>
+</li>
+<li>
+2018-07-10: <a href=article/2018-07-10-static-exception.html>C++に提案されている静的例外</a>
+</li>
+<li>
+2018-07-06: <a href=article/2018-07-06-boardgame-party.html>江添ボドゲ会@7月15日</a>
+</li>
+<li>
+2018-07-05: <a href=article/2018-07-05-ipv6.html>プロフェッショナルIPv6の執筆経緯が興味深い</a>
+</li>
+<li>
+2018-07-04: <a href=article/2018-07-04-C++17.html>C++17をすでに現場で使っているというキャディ株式会社に話を聞いてきた</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+06
+</p>
+
+<ul>
+<li>
+2018-06-27: <a href=article/2018-06-27-writing-textbook.html>プログラミング入門書の執筆という手探りの活動</a>
+</li>
+<li>
+2018-06-14: <a href=article/2018-06-14-customer-rewards.html>xkcd: お客様特典</a>
+</li>
+<li>
+2018-06-12: <a href=article/2018-06-12-coinhive-nonsense.html>coinhiveが不正であるというナンセンスについて</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+05
+</p>
+
+<ul>
+<li>
+2018-05-31: <a href=article/2018-05-31-boardgame-party.html>江添ボドゲ会@6月10日</a>
+</li>
+<li>
+2018-05-29: <a href=article/2018-05-29-unteachable.html>世の中にはプログラミングを理解できない人間が存在する</a>
+</li>
+<li>
+2018-05-17: <a href=article/2018-05-17-porn-standard-currency.html>ポルノ本意制の通貨が登場したことにより今後予想される問題について</a>
+</li>
+<li>
+2018-05-14: <a href=article/2018-05-14-openbsd-do-not-chase-fad.html>OpenBSD、1985年に追加されたIntelの最新の誇大広告された機能を使わないことにより脆弱性を華麗に回避</a>
+</li>
+<li>
+2018-05-11: <a href=article/2018-05-11-8086-ss-sp.html>Intelの古いマニュアルを誤読したために生じた脆弱性</a>
+</li>
+<li>
+2018-05-08: <a href=article/2018-05-08-glibc-abort-law-joke.html>glibcのabortマニュアルの中絶方針ジョークについて</a>
+</li>
+<li>
+2018-05-03: <a href=article/2018-05-03-llvm-coc.html>LLVMで5番目に貢献の多い開発者、LLVMの最近のSJW運動に反対して開発をやめると表明</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+04
+</p>
+
+<ul>
+<li>
+2018-04-23: <a href=article/2018-04-23-tail-recursion.html>C++入門書で再帰について解説しようとしたら思わぬ最適化できないコードに出くわした</a>
+</li>
+<li>
+2018-04-18: <a href=article/2018-04-18-std-cpp-2018-04.html>2018-04でC++のドラフトに入った変更</a>
+</li>
+<li>
+2018-04-18: <a href=article/2018-04-18-russia-ban-telegram.html>ロシア、Telegramをブロックするために180万ものIPアドレスをブロック</a>
+</li>
+<li>
+2018-04-07: <a href=article/2018-04-07-boardgame-party.html>江添ボドゲ会@4月15日</a>
+</li>
+<li>
+2018-04-05: <a href=article/2018-04-05-for-dummies.html>入門書の文章量が増える問題</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+03
+</p>
+
+<ul>
+<li>
+2018-03-24: <a href=article/2018-03-24-vectordash.html>vectordash: 暗号通貨採掘している奴らに暗号通貨採掘よりは歩合のよい報酬を払ってGPGPU計算を購入するGPU版AirBnBみたいなサービス</a>
+</li>
+<li>
+2018-03-19: <a href=article/2018-03-19-2018-jacksonville.html>2018 Jacksonville会議でC++のドラフト入りが決定した機能</a>
+</li>
+<li>
+2018-03-16: <a href=article/2018-03-16-storage-failure.html>自宅のメインPCのストレージが故障した</a>
+</li>
+<li>
+2018-03-14: <a href=article/2018-03-14-git-submodule.html>git submoduleを含むレポジトリをGitHub Pagesで公開するときのsubmoduleのURLはhttpsでなければならない</a>
+</li>
+<li>
+2018-03-11: <a href=article/2018-03-11-programmers-math.html>プログラマの数学を読んだ</a>
+</li>
+<li>
+2018-03-09: <a href=article/2018-03-09-cpp17-book.html>江添亮の詳説C++17が発売された</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+02
+</p>
+
+<ul>
+<li>
+2018-02-28: <a href=article/2018-02-28-cpp17-book-meeting.html>江添亮の詳説C++17出版記念勉強会を3月14日に開催</a>
+</li>
+<li>
+2018-02-24: <a href=article/2018-02-24-NPM.html>NPM 5.7が重要なディレクトリの所有者を書き換える凄まじいバカをやらかす</a>
+</li>
+<li>
+2018-02-21: <a href=article/2018-02-21-speak-https.html>C++をプログラミング入門に使うならHTTPSぐらい喋れないと話にならんと言われたのでそういうライブラリを作った</a>
+</li>
+<li>
+2018-02-11: <a href=article/2018-02-11-cpp17-book.html>アマゾンで江添亮の小説C++17が予約可能になった</a>
+</li>
+<li>
+2018-02-09: <a href=article/2018-02-09-learning-a-new-language.html>新しいプログラミング言語を学ぶということ</a>
+</li>
+<li>
+2018-02-06: <a href=article/2018-02-06-money.html>年収1200万円と2億の資産でできる贅沢はパトロネージュ</a>
+</li>
+<li>
+2018-02-05: <a href=article/2018-02-05-monte-carlo.html>Haskellで書いてみたらC++の１０倍遅かった</a>
+</li>
+<li>
+2018-02-02: <a href=article/2018-02-02-board-game-party.html>江添ボドゲ会@2月11日</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+01
+</p>
+
+<ul>
+<li>
+2018-01-28: <a href=article/2018-01-28-nem.html>CoinCheckとNemの騒動から暗号通貨について思うこと</a>
+</li>
+<li>
+2018-01-20: <a href=article/2018-01-20-file-sharing.html>物理的に近くの相手とファイル共有する方法</a>
+</li>
+<li>
+2018-01-19: <a href=article/2018-01-19-C++17-textbook.html>3月に出版される「江添亮の詳説C++17」が予約できるようになった</a>
+</li>
+<li>
+2018-01-17: <a href=article/2018-01-17-mov-doom.html>今流行りの投機実行脆弱性の影響を一切受けないDOOM実装が公開される</a>
+</li>
+<li>
+2018-01-14: <a href=article/2018-01-14-dwango-challenge.html>第4回 ドワンゴからの挑戦状予選に参加してみた</a>
+</li>
+<li>
+2018-01-08: <a href=article/2018-01-08-gaming-with-content-id.html>fair use権利を侵害するYouTubeのContent IDと戦うために著作権侵害するゲーム批評家の話</a>
+</li>
+<li>
+2018-01-02: <a href=article/2018-01-02-clang-on-browser.html>Clangをブラウザー上で実行してC++をWebAssemblyにコンパイルして実行するデモ</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+01
+</p>
+
+<ul>
+</ul>
+</ul>
+</li>
+
+<li>
+<p>
+2017
+</p>
+
+<ul>
+<li>
+<p>
+12
+</p>
+
+<ul>
+<li>
+2017-12-20: <a href=article/2017-12-20-pilgrimage-toward-haskell.html>Haskellへの巡礼</a>
+</li>
+<li>
+2017-12-26: <a href=article/2017-12-26-haskell-error-message.html>Haskellのエラーメッセージについて</a>
+</li>
+<li>
+2017-12-26: <a href=article/2017-12-26-haskell-coding.html>Haskellでwordsを実装してみた</a>
+</li>
+<li>
+2017-12-23: <a href=article/2017-12-23-used-pc.html>中古PC市場</a>
+</li>
+<li>
+2017-12-19: <a href=article/2017-12-19-nvidia-fuck-you.html>nVidia、GeForceとTitanのデータセンターでの利用を禁止する</a>
+</li>
+<li>
+2017-12-12: <a href=article/2017-12-12-learn-haskell.html>C++の入門書を書くためにHaskellを学ぶことにした</a>
+</li>
+<li>
+2017-12-12: <a href=article/2017-12-12-boardgame-party.html>江添ボドゲ会@12月17日</a>
+</li>
+<li>
+2017-12-11: <a href=article/2017-12-11-cpp17-book-tex.html>来年出版予定のC++17参考書の組版に使うTEXを公開</a>
+</li>
+<li>
+2017-12-06: <a href=article/2017-12-06-std-cpp-p0790r0-p0799r0.html>C++標準化委員会の文書: P0790R0-P0799R0</a>
+</li>
+<li>
+2017-12-02: <a href=article/2017-12-02-crypto-currency-and-tax.html>仮想通貨と税金についての国税庁の見解についての所感</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+11
+</p>
+
+<ul>
+<li>
+2017-11-28: <a href=article/2017-11-28-std-cpp-p0780r0-p0789r0.html>C++標準化委員会の文書: P0780R0-P0789R0</a>
+</li>
+<li>
+2017-11-22: <a href=article/2017-11-22-cpp-std-p0770r0-p0779r0.html>C++標準化委員会の文書: P0770R0-P0779R0</a>
+</li>
+<li>
+2017-11-21: <a href=article/2017-11-21-boardgame.html>江添ボドゲ会 11月26日</a>
+</li>
+<li>
+2017-11-20: <a href=article/2017-11-20-cpp-std-p0735p0-p0769r0.html>C++標準化委員会の文書: P0735P0-P0769R0</a>
+</li>
+<li>
+2017-11-20: <a href=article/2017-11-20-slowpow.html>glibcのpowがslowpowを呼んで遅い件について</a>
+</li>
+<li>
+2017-11-13: <a href=article/2017-11-13-cpp-std-p0650r1-p0722R1.html>C++標準化委員会の文書: P0650R1-P0722R1</a>
+</li>
+<li>
+2017-11-13: <a href=article/2017-11-13-cpp-draft.html>今回C++ドラフトに入った機能</a>
+</li>
+<li>
+2017-11-13: <a href=article/2017-11-13-bitcoin-51.html>国家政府用のbitcoin破壊工作ガイド</a>
+</li>
+<li>
+2017-11-10: <a href=article/2017-11-10-cpp.html>国際標準規格の紹介 〜ISO国際標準規格プログラミング言語C++について〜</a>
+</li>
+<li>
+2017-11-08: <a href=article/2017-11-08-cpp-std-p0586r0-p0649r0.html>C++標準化委員会の文書: P0586R0-P0649R0</a>
+</li>
+<li>
+2017-11-06: <a href=article/2017-11-06-std-cpp-p0533r1-p0573r2.html>C++標準化委員会の文書: P0533R1-P0573r2</a>
+</li>
+<li>
+2017-11-05: <a href=article/2017-11-05-vimconf2017.html>VimConf 2017に行ってきた</a>
+</li>
+<li>
+2017-11-01: <a href=article/2017-11-01-std-cpp-p0399r0-p0515r2.html>C++標準化委員会の文書: P0399R0-P0515R2</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+10
+</p>
+
+<ul>
+<li>
+2017-10-30: <a href=article/2017-10-30-std-cpp-p0260r2-p0356r2.html>C++標準化委員会の文書: P0260R2-P0356R2</a>
+</li>
+<li>
+2017-10-27: <a href=article/2017-10-27-std-cpp-p0009r4-p0237r9.html>C++標準化委員会の文書: P0009R4-P0237R9</a>
+</li>
+<li>
+2017-10-23: <a href=article/2017-10-23-if-constexpr.html>インデックス付きrange-based forに必要なのはネストされた構造化束縛ではなくてif constexprだった</a>
+</li>
+<li>
+2017-10-23: <a href=article/2017-10-23-index-range-based-for.html>インデックス付きRange-based for文を実装したらネストされた構造化束縛が欲しくなった</a>
+</li>
+<li>
+2017-10-20: <a href=article/2017-10-20-ubuntu.html>Ubuntu 17.10にアップグレードした</a>
+</li>
+<li>
+2017-10-19: <a href=article/2017-10-19-boardgame-party.html>江添ボドゲ会 10月22日</a>
+</li>
+<li>
+2017-10-16: <a href=article/2017-10-16-pull-request.html>GitHubで他人のプルリクに対しコンフリクト解消や追加の修正を行いつつマージする方法</a>
+</li>
+<li>
+2017-10-13: <a href=article/2017-10-13-cpp17-book.html>C++17の参考書を書き上げた</a>
+</li>
+<li>
+2017-10-08: <a href=article/2017-10-08-australian-police-run-cp.html>オーストラリア警察が世界最大の児童ポルノサイトを運営していたことが判明</a>
+</li>
+<li>
+2017-10-05: <a href=article/2017-10-05-canvas-terminal.html>VS CodeがDOMによるターミナル実装のパフォーマンスを改善できなかったためCanvasに変更</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+09
+</p>
+
+<ul>
+<li>
+2017-09-29: <a href=article/2017-09-29-filesystem.html>C++のfilesystemライブラリが膨大すぎる</a>
+</li>
+<li>
+2017-09-28: <a href=article/2017-09-28-Abseil.html>Googleの公開したAbseilライブラリの価値がわからない</a>
+</li>
+<li>
+2017-09-25: <a href=article/2017-09-25-ub-function-call.html>C++の未定義の挙動で呼ばれないはずの関数が呼ばれる場合</a>
+</li>
+<li>
+2017-09-19: <a href=article/2017-09-19-w3c-accept-drm.html>W3Cよさらば！ 遂に協力の方途尽く W3C、DRMを可決し　我がEFF堂々退場す</a>
+</li>
+<li>
+2017-09-18: <a href=article/2017-09-18-jim-zemlin-use-mac.html>Linux財団のトップ、「2017年はLinuxデスクトップの年だ」というスピーチのスライド資料を映すのにMacを使って炎上</a>
+</li>
+<li>
+2017-09-12: <a href=article/2017-09-12-boardgame-party.html>江添ボドゲ会 9月17日</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+08
+</p>
+
+<ul>
+<li>
+2017-08-28: <a href=article/2017-08-28-azabu.html>麻布十番で職務質問を受けた話</a>
+</li>
+<li>
+2017-08-19: <a href=article/2017-08-19-llvm-supports-pdb.html>LLVMがWindowsのデバッグ情報フォーマットのPDBをサポート</a>
+</li>
+<li>
+2017-08-19: <a href=article/2017-08-19-oracle-free-up-java-ee8.html>OracleがJava EE 8の開発をコミュニティの手に委ねたいとか言い出す</a>
+</li>
+<li>
+2017-08-16: <a href=article/2017-08-16-boardgame-party.html>江添ボドゲ会 8月20日</a>
+</li>
+<li>
+2017-08-04: <a href=article/2017-08-04-cpp17book.html>C++17の参考書がだいぶ完成してきたので査読大募集中</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+07
+</p>
+
+<ul>
+<li>
+2017-07-24: <a href=article/2017-07-24-uganda.html>濫用にあたる職務質問を受けたと考えたので弁護士と現場検証してきた</a>
+</li>
+<li>
+2017-07-14: <a href=article/2017-07-14-interrogation-suit.html>濫用に当たる職務質問を受けたと考えたので弁護士に相談して訴訟を起こすことになった話</a>
+</li>
+<li>
+2017-07-13: <a href=article/2017-07-13-boardgameparty.html>江添ボドゲ会 7月16日</a>
+</li>
+<li>
+2017-07-04: <a href=article/2017-07-04-interrogation.html>警察官に職務質問をされた話</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+06
+</p>
+
+<ul>
+<li>
+2017-06-19: <a href=article/2017-06-19-mastodon-account-deletion.html>マストドンとアカウント削除機能の是非について</a>
+</li>
+<li>
+2017-06-05: <a href=article/2017-06-05-minimini-sucks.html>ミニミニ入居安心サービスはクソだ</a>
+</li>
+<li>
+2017-06-02: <a href=article/2017-06-02-boardgame-party.html>江添自宅ボドゲ会6月11日</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+05
+</p>
+
+<ul>
+<li>
+2017-05-11: <a href=article/2017-05-11-constexpr-if-pitfall.html>constexpr-ifの落とし穴</a>
+</li>
+<li>
+2017-05-10: <a href=article/2017-05-10-reserved-name.html>Rustのパッケージマネージャーでパッケージ名nulを作ったら全Windowsユーザーのパッケージマネージャーが壊れた話</a>
+</li>
+<li>
+2017-05-10: <a href=article/2017-05-10-ms-antimalware-sucks.html>マイクロソフトのWindowsに付属しているアンチマルウェアソフトウェアが最高にクソな件</a>
+</li>
+<li>
+2017-05-10: <a href=article/2017-05-10-chokaigi2017.html>超会議2017でマストドンブースの運営スタッフをした</a>
+</li>
+<li>
+2017-05-05: <a href=article/2017-05-05-boardgame.html>5月7日に江添ボドゲ会をやるかも</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+04
+</p>
+
+<ul>
+<li>
+2017-04-29: <a href=article/2017-04-29-mastodon-kaigi.html>マストドン会議で技術と自由を語る</a>
+</li>
+<li>
+2017-04-27: <a href=article/2017-04-27-KaTeX.html>KaTeXを使ってみた感想</a>
+</li>
+<li>
+2017-04-26: <a href=article/2017-04-26-mathjax-load.html>どんなWebページでもtexによる数式描画を追加できるブラウザー拡張</a>
+</li>
+<li>
+2017-04-24: <a href=article/2017-04-24-mathtodon.html>マストドンで数式を表示するブックマークレット</a>
+</li>
+<li>
+2017-04-20: <a href=article/2017-04-20-mastodon-friends.html>ここらでもう一度マストドンについて語っておくか</a>
+</li>
+<li>
+2017-04-16: <a href=article/2017-04-16-mastodon.html>マストドンが直面している問題はすでにP2P技術が15年前に遭遇した問題だ</a>
+</li>
+<li>
+2017-04-15: <a href=article/2017-04-15-mastodon.html>そろそろマストドンについて語っておくか</a>
+</li>
+<li>
+2017-04-06: <a href=article/2017-04-06-if-smartphone-was-free.html>もしスマートフォンが自由だったら今頃実現していた社会</a>
+</li>
+<li>
+2017-04-07: <a href=article/2017-04-07-wandbox.html>Wandboxのスポンサーになるべく、めるぽんに肉をおごってきた</a>
+</li>
+<li>
+2017-04-06: <a href=article/2017-04-06-ubuntu-drop-unity.html>UbuntuがUnityを捨てる予定</a>
+</li>
+<li>
+2017-04-04: <a href=article/2017-04-04-smartphone.html>インターネット端末のシェアでスマートフォンがPCを上回ったというディストピア</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+03
+</p>
+
+<ul>
+<li>
+2017-03-27: <a href=article/2017-03-27-cpp-N4643-N4661.html>C++標準化委員会の文書: N4643-N4661</a>
+</li>
+<li>
+2017-03-23: <a href=article/2017-03-23-4k-display.html>4Kディスプレイを買った</a>
+</li>
+<li>
+2017-03-23: <a href=article/2017-03-23-ubuntu-fsck.html>Ubuntuがブート時にmanual fsckが必要だとしてinitramfsで止まった時</a>
+</li>
+<li>
+2017-03-20: <a href=article/2017-03-20-paranoia.html>パラノイアで遊んだ</a>
+</li>
+<li>
+2017-03-09: <a href=article/2017-03-09-new-laptop.html>新しいラップトップRazer Blade Stealthの2016年版を中古で買った</a>
+</li>
+<li>
+2017-03-09: <a href=article/2017-03-09-headphone.html>5万円もするヘッドフォンATH-DN1000USBを買った話</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+02
+</p>
+
+<ul>
+<li>
+2017-02-28: <a href=article/2017-02-28-cpp-2017-02-new-2.html>C++標準化委員会の文書: P0550R0-P0601R0</a>
+</li>
+<li>
+2017-02-23: <a href=article/2017-02-23-cpp-2017-02-new.html>C++標準化委員会の文書: P0501R0-P0549R0</a>
+</li>
+<li>
+2017-02-22: <a href=article/2017-02-22-av-negligence.html>アンチウイルスソフトウェアの利用者は過失が問われるべき</a>
+</li>
+<li>
+2017-02-15: <a href=article/2017-02-15-cpp-2017-02.html>C++標準化委員会の文書: 2017-02のまとめ</a>
+</li>
+<li>
+2017-02-09: <a href=article/2017-02-09-patent-mafia.html>高度に発展した特許業界はヤクザと見分けがつかない</a>
+</li>
+<li>
+2017-02-07: <a href=article/2017-02-07-dqn-origin.html>「目撃！ドキュンはドキュンをバカにし過ぎでひどくない」と妻は言った</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+01
+</p>
+
+<ul>
+<li>
+2017-01-31: <a href=article/2017-01-31-gdb-support-cpp-injection.html>GDBがC++コード注入をサポート</a>
+</li>
+<li>
+2017-01-30: <a href=article/2017-01-30-xkcds.html>xkcdで最近面白かった話</a>
+</li>
+<li>
+2017-01-24: <a href=article/2017-01-24-filesystem.html>GCCの実験的なfilesystemを使う方法</a>
+</li>
+<li>
+2017-01-22: <a href=article/2017-01-22-murdering-job.html>最も日本人を多く殺す職について考察した結果、反医療主義という結論に至った</a>
+</li>
+<li>
+2017-01-21: <a href=article/2017-01-21-hololens.html>HoloLensを体験したが10年早かった</a>
+</li>
+<li>
+2017-01-17: <a href=article/2017-01-17-how-to-build-gcc.html>GCCのSVN trunkをビルドする方法</a>
+</li>
+<li>
+2017-01-13: <a href=article/2017-01-13-gcc.html>GCCがC++17のコア言語機能を実装完了</a>
+</li>
+<li>
+2017-01-10: <a href=article/2017-01-10-boulder.html>ボルダリングを初めて2年がたった</a>
+</li>
+<li>
+2017-01-05: <a href=article/2017-01-05-grumpy.html>GoogleがGoによるPython実装、Grumpyを発表</a>
+</li>
+<li>
+2017-01-03: <a href=article/2017-01-03-dystopian-plot.html>ディストピア小説のネタとして使える実話</a>
+</li>
+</ul>
+</li>
+
+
+
+<li>
+<p>
+2016
+</p>
+
+<ul>
+<li>
+<p>
+12
+</p>
+
+<ul>
+<li>
+2016-12-26: <a href=article/2016-12-26-paiza.html>paizaの問題はC++17でも成り立つ</a>
+</li>
+<li>
+2016-12-09: <a href=article/2016-12-09-patent-5503795.html>freeeの保有する特許5503795について読んで解釈を試みたがやはり新規性も技術的価値もわからないしゴミだったのでfreeeのエンジニアは早くfleeするべき</a>
+</li>
+<li>
+2016-12-08: <a href=article/2016-12-08-freee-crap-patent.html>freeeのゴミのような特許の新規性が全く理解できない</a>
+</li>
+<li>
+2016-12-07: <a href=article/2016-12-07-boargame-party.html>江添ボドゲ会@12月24日</a>
+</li>
+<li>
+2016-12-07: <a href=article/2016-12-07-old-hack.html>参考書に昔の技法を書くべきか：C++17のコンパイル時分岐</a>
+</li>
+<li>
+2016-12-01: <a href=article/2016-12-01-aws-honeytoken.html>AWSのアクセスキーをハニートークンとして使うアイディア</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+11
+</p>
+
+<ul>
+<li>
+2016-11-15: <a href=article/2016-11-15-cpp-P0480R-P0489R0.html>C++標準化委員会の文書: P0480R0-P0489R0</a>
+</li>
+<li>
+2016-11-14: <a href=article/2016-11-14-cpp-P0471R0-P0479R0.html>C++標準化委員会の文書: P0471R0-P0479R0</a>
+</li>
+<li>
+2016-11-10: <a href=article/2016-11-10-cpp-P0460R0-P0469R0.html>C++標準化委員会の文書: P0460R0-P0469R0</a>
+</li>
+<li>
+2016-11-08: <a href=article/2016-11-08-cpp-P0451R0-P0459R0.html>C++標準化委員会の文書: P0451R0-P0459R0</a>
+</li>
+<li>
+2016-11-08: <a href=article/2016-11-08-cpp-P0440R0-P0448R0.html>C++標準化委員会の文書: P0440R0-P0448R0</a>
+</li>
+<li>
+2016-11-07: <a href=article/2016-11-07-cpp-P0430R0-P0439R0.html>C++標準化委員会の文書: P0430R0-P0439R0</a>
+</li>
+<li>
+2016-11-05: <a href=article/2016-11-05-boardgame-party.html>江添ボドゲ会@11月23日</a>
+</li>
+<li>
+2016-11-04: <a href=article/2016-11-04-bypass-adblock-by-websocket.html>PornhubはWebSocketを使ってAdBlockを回避している</a>
+</li>
+<li>
+2016-11-03: <a href=article/2016-11-03-ubuntu-16-10.html>Ubuntu 16.10にアップグレードしたらログイン時にディスプレイが点灯しない不具合に悩まされている</a>
+</li>
+<li>
+2016-11-02: <a href=article/2016-11-02-cpp-P0421R0-P0429R0.html>C++標準化委員会の文書: P0421R0-P0429R0</a>
+</li>
+<li>
+2016-11-02: <a href=article/2016-11-02-></a>
+</li>
+<li>
+2016-11-01: <a href=article/2016-11-01-cpp-P0403R0-P0418R1.html>C++標準化委員会の文書: P0403R0-P0418R1</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+10
+</p>
+
+<ul>
+<li>
+2016-10-31: <a href=article/2016-10-31-cpp-P0165R0-P0293R0.html>C++標準化委員会の文書: P0165R0-P0293R0</a>
+</li>
+<li>
+2016-10-25: <a href=article/2016-10-25-cpp-P0009R3-P0099R1.html>C++標準化委員会の文書: P0009R3-P0099R1</a>
+</li>
+<li>
+2016-10-24: <a href=article/2016-10-24-cpp-N4607-N4617.html>C++標準化委員会の文書: N4607-N4617</a>
+</li>
+<li>
+2016-10-11: <a href=article/2016-10-11-deduction.html>C++17のクラスのテンプレート実引数推定</a>
+</li>
+</li>
+2016-10-11: <a href=article/2016-10-11-kosen-procon.html>高専プロコンの問題がクソすぎるのでプログラミングを放り出して人力に走るのは最適解であり協賛企業はプログラミングを軽視する企業として唾棄されるべき</a>
+</li>
+</ul>
+
+<li>
+<p>
+09
+</p>
+
+<ul>
+<li>
+2016-09-29: <a href=article/2016-09-29-cpplib.html>C++17の標準ライブラリの参考書を書く</a>
+</li>
+<li>
+2016-09-29: <a href=article/2016-09-29-xkcd-1739.html>XKCD 1739: 問題の修正</a>
+</li>
+<li>
+2016-09-29: <a href=article/201></a>
+</li>
+<li>
+2016-09-25: <a href=article/2016-09-25-hair-clipper.html>新しく買ったバリカンが素晴らしい品質だった</a>
+</li>
+<li>
+2016-09-24: <a href=article/2016-09-24-capcom-rootkit.html>カプコンのPC版ストリートファイター5にチート対策として誰でもカーネルモードで任意のコードを実行できるルートキットが仕込まれている問題</a>
+</li>
+<li>
+2016-09-24: <a href=article/2016-09-24-datacenter-scale.html>xkcd: データセンターのスケール</a>
+</li>
+<li>
+2016-09-22: <a href=article/2016-09-22-skylake-sucks.html>LenovoのWindows 10 Signature EditionがSATAがRAIDモードに固定されているのはIntelのせい</a>
+</li>
+<li>
+2016-09-21: <a href=article/2016-09-21-lenovo-sucks.html>LenovoのWindows 10 Signature Edition PCにLinuxのインストールを妨害する機能が発覚</a>
+</li>
+<li>
+2016-09-20: <a href=article/2016-09-20-rails.html>レールに沿わない人生を送っていたら、未だにレールに乗れていない話</a>
+</li>
+<li>
+2016-09-19: <a href=article/2016-09-19-libreboo-sjw.html>Librebootの開発者Leah Rowe、自由ソフトウェア財団がトランスジェンダーを理由に人を解雇したと糾弾、自由ソフトウェア財団は否定、ポップコーンを用意されたし</a>
+</li>
+<li>
+2016-09-15: <a href=article/2016-09-15-shows.html>Five TenのQuantum Blueを買った</a>
+</li>
+<li>
+2016-09-12: <a href=article/2016-09-12-cpp-P0411R0-P0417R0.html>C++標準化委員会の文書: P0411R0-P0417R0</a>
+</li>
+<li>
+2016-09-12: <a href=article/2016-09-12-cpp-P0400R0-P0409R0.html>C++標準化委員会の文書: P0400R0-P0409R0</a>
+</li>
+<li>
+2016-09-09: <a href=article/2016-09-09-why-is-number-sign-slow.html>なぜターミナルにBを表示するのは#に比べて遅いのか</a>
+</li>
+<li>
+2016-09-09: <a href=article/2016-09-09-></a>
+</li>
+<li>
+2016-09-08: <a href=article/2016-09-08-cpp-P0390R0-P0399R0.html>C++標準化委員会の文書: P0390R0-P0399R0</a>
+</li>
+<li>
+2016-09-06: <a href=article/2016-09-06-cpp-P0380R0-P0389R0.html>C++標準化委員会の文書: P0380R0-P0389R0</a>
+</li>
+<li>
+2016-09-05: <a href=article/2016-09-05-boardgame-party.html>江添ボドゲ会@9月18日開催のお知らせ</a>
+</li>
+<li>
+2016-09-02: <a href=article/2016-09-02-cpp-P0370R1-P0379R0.html>C++標準化委員会の文書: P0370R1-P0379R0</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+08
+</p>
+
+<ul>
+<li>
+2016-08-31: <a href=article/2016-08-31-cpp-P0360R0-P0369R0.html>C++標準化委員会の文書: P0360R0-P0360R9</a>
+</li>
+<li>
+2016-08-24: <a href=article/2016-08-24-npm-fs.html>npm、一見無意味なパッケージを消したら1000件ものパッケージが依存するパッケージであったことが判明</a>
+</li>
+<li>
+2016-08-23: <a href=article/2016-08-23-iostream.html>C++17のiostreamに入った変更点</a>
+</li>
+<li>
+2016-08-23: <a href=article/2016-08-23-Goebbels.html>公益財団法人日本生産性本部のヨーゼフ・ゲッベルスが平成28年度の新入社員のタイプは「ドローン型」であるとの報告書を発表した</a>
+</li>
+<li>
+2016-08-15: <a href=article/2016-08-15-cpp-P0350R0-P0359R0.html>C++標準化委員会の文書: P0350R0-P0359R0</a>
+</li>
+<li>
+2016-08-09: <a href=article/2016-08-09-cpp-P0340R0-P0349R0.html>C++標準化委員会の文書: P0340R0-P0349R0</a>
+</li>
+<li>
+2016-08-08: <a href=article/2016-08-08-okimoti.html>お気持ち表</a>
+</li>
+<li>
+2016-08-06: <a href=article/2016-08-06-is-outing-illegal.html>アウティングは違法か？</a>
+</li>
+<li>
+2016-08-06: <a href=article/2016-08-06-pppuc-review.html>Bjarne Stroustrupのプログラミング入門書の査読の感想</a>
+</li>
+<li>
+2016-08-02: <a href=article/2016-08-02-cpp-P0330R0-P0339R0.html>C++標準化委員会の文書: P0330R0-P0339R0</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+07
+</p>
+
+<ul>
+<li>
+2016-07-29: <a href=article/2016-07-29-is-it-posssible.html>東京都知事選挙の候補者の主張の実現可能性の考察</a>
+</li>
+<li>
+2016-07-28: <a href=article/2016-07-28-cpp-P0320R0-P0329R0.html>C++標準化委員会の文書: P0320R0-P0329R0</a>
+</li>
+<li>
+2016-07-27: <a href=article/2016-07-27-cpp-P0310R0-P0319R0.html>C++標準化委員会の文書: P0310R--P0319R0</a>
+</li>
+<li>
+2016-07-25: <a href=article/2016-07-25-cpp-P0301R0-P0309R0.html>C++標準化委員会の文書: P0301R0-P0309R0</a>
+</li>
+<li>
+2016-07-25: <a href=article/2016-07-25-doorkeeper.html>doorkeeperが有料化するらしい</a>
+</li>
+<li>
+2016-07-25: <a href=article/2016-07-25-tablet.html>タブレットを使ってみた</a>
+</li>
+<li>
+2016-07-23: <a href=article/2016-07-23-used-computers.html>中古PCを買った</a>
+</li>
+<li>
+2016-07-22: <a href=article/2016-07-22-board-game-party.html>江添ボドゲ会@8月13日</a>
+</li>
+<li>
+2016-07-21: <a href=article/2016-07-21-cpp-P0290R0-P0299R0.html>C++標準化委員会の文書: P0290R0-P0299R0</a>
+</li>
+<li>
+2016-07-17: <a href=article/2016-07-17-steal-money-by-premium-numbeer.html>ダイヤルQ2風の電話番号でInstagramやGoogleやMicrosoftから金をむしりとれる脆弱性</a>
+</li>
+<li>
+2016-07-17: <a href=article/2016-07-17-speed-difference-among-programmers.html>作業が早いプログラマーと遅いプログラマーの差の比は4:1</a>
+</li>
+<li>
+2016-07-14: <a href=article/2016-07-14-cpp-P0280R0-P0289R0.html>C++標準化委員会の文書: P0280R0-P0289R0</a>
+</li>
+<li>
+2016-07-13: <a href=article/2016-07-13-cpp14-to-commodore64.html>C++14でCommodore 64の開発をする</a>
+</li>
+<li>
+2016-07-12: <a href=article/2016-07-12-cpp-P0270R0-P0279R0.html>C++標準化委員会の文書: P0270R0-P0279R0</a>
+</li>
+<li>
+2016-07-05: <a href=article/2016-07-05-cpp-P0260R0-P0269R0.html>C++標準化委員会の文書: P0260R0-P0269R0</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+06
+</p>
+
+<ul>
+<li>
+2016-06-29: <a href=article/2016-06-29-cpp-P0250R0-P0259R0.html>C++標準化委員会の文書: P0250R0-P0259R0</a>
+</li>
+<li>
+2016-06-28: <a href=article/2016-06-28-cpp-P0240R0-P0249R0.html>C++標準化委員会の文書: P0240R0-P0249R0</a>
+</li>
+<li>
+2016-06-27: <a href=article/2016-06-27-pp-number.html>C/C++で0xf+1は合法なのに0xe+1はコンパイルエラーになるのはなんで？</a>
+</li>
+<li>
+2016-06-24: <a href=article/2016-06-24-cpp-P0230R0-P0239R0.html>C++標準化委員会の文書: P0230R0-P0239R0</a>
+</li>
+<li>
+2016-06-21: <a href=article/2016-06-21-v8-bug.html>Chrome 51のV8の興味深いバグ</a>
+</li>
+<li>
+2016-06-21: <a href=article/2016-06-21-cpp-P0220R0-P0229R0.html>C++標準化委員会の文書: P0220R0-P0229R0</a>
+</li>
+<li>
+2016-06-17: <a href=article/2016-06-17-steam-runtime-sucks.html>GNU/Linux版Steamがクソすぎる件</a>
+</li>
+<li>
+2016-06-16: <a href=article/2016-06-16-cpp-P0210R0-P0219R0.html>C++標準化委員会の文書: P0210R0-P0219R0</a>
+</li>
+<li>
+2016-06-13: <a href=article/2016-06-13-rootless-sshfs.html>rootが無効化された環境でsshfsで権限の必要なファイルを変更する方法</a>
+</li>
+<li>
+2016-06-11: <a href=article/2016-06-11-wantedly-benkyo-kai.html>プログラミング言語基礎勉強会で発表した</a>
+</li>
+<li>
+2016-06-09: <a href=article/2016-06-09-game-on-gnu-linux.html>GNU/Linuxでゲーム</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+05
+</p>
+
+<ul>
+<li>
+2016-05-26: <a href=article/2016-05-26-diary.html>近況</a>
+</li>
+<li>
+2016-05-08: <a href=article/2016-05-08-xkcd-463.html>xkcd 463: 投票機</a>
+</li>
+<li>
+2016-05-05: <a href=article/2016-05-05-sicp.html>MITがSICPを教えなくなった理由</a>
+</li>
+<li>
+2016-05-02: <a href=article/2016-05-02-bitcoin-scam.html>Craig WrightがSatoshi Nakamotoだとする証明はない</a>
+</li>
+<li>
+2016-05-02: <a href=article/2016-05-02-extreamly-angry.html>コンピューター科学のアカデミック業界の残念な現状</a>
+</li>
+<li>
+2016-05-01: <a href=article/2016-05-01-chokaigi-2016.html>超会議2016で運営スタッフとして焼きそばを焼いた感想</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+04
+</p>
+
+<ul>
+<li>
+2016-04-23: <a href=article/2016-04-23-ubuntu-16-04.html>Ubuntu 16.04にアップグレードした</a>
+</li>
+<li>
+2016-04-20: <a href=article/2016-04-20-boardgame-party.html>江添ボドゲ会@5月</a>
+</li>
+<li>
+2016-04-20: <a href=article/2016-04-20-detect-curl-bash.html>curl | bashをサーバーサイドで判定する方法</a>
+</li>
+<li>
+2016-04-12: <a href=article/2016-04-12-troff.html>Brian Kernighanがプログラミング言語Goの組版に使ったのはなんとtroff</a>
+</li>
+<li>
+2016-04-06: <a href=article/2016-04-06-vis.html>Vim風のテキストエディターvis</a>
+</li>
+<li>
+2016-04-04: <a href=article/2016-04-04-public-software.html>アメリカ合衆国政府が公金を投じて開発されたソフトウェアは自由ソフトウェアにする法案を公開</a>
+</li>
+<li>
+2016-04-04: <a href=article/2016-04-04-isekai-cheat.html>物理法則が同じかつ1900年ぐらいの科学レベルの異世界にタイムリープした現代人は現代の進んだ科学知識を活用して異世界チート主人公系ラノベのごとくになれるか</a>
+</li>
+<li>
+2016-04-01: <a href=article/2016-04-01-cpp-P0200R0-P0209R0.html>C++標準化委員会の文書: P0200R0-P0209R0</a>
+</li>
+<li>
+2016-04-01: <a href=article/2016-04-01-leftpad-syscall.html>Linuxにleftpad()というシステムコールを入れる提案</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+03
+</p>
+
+<ul>
+<li>
+2016-03-30: <a href=article/2016-03-30-cpp-P0190R0-P0199R0.html>C++標準化委員会の文書: P0190R0-P0199R0</a>
+</li>
+<li>
+2016-03-30: <a href=article/2016-03-30-ubuntu-on-windows.html>WindowsにLinuxサブシステムを載せてUbuntuのユーザースペースが動く未来が来る？</a>
+</li>
+<li>
+2016-03-29: <a href=article/2016-03-29-cpp-P0174R0-P0189R0.html>C++標準化委員会の文書: P0174R0-P0189R0</a>
+</li>
+<li>
+2016-03-24: <a href=article/2016-03-24-crack-iphone.html>FBIが2週間でiPhoneをクラックする方法について</a>
+</li>
+<li>
+2016-03-24: <a href=article/2016-03-24-npm-chaos.html>npmからkikとその他諸々が消されたまとめ</a>
+</li>
+<li>
+2016-03-22: <a href=article/2016-03-22-kabukiza-9.html>歌舞伎座.tech#9異種言語格闘を開催した</a>
+</li>
+<li>
+2016-03-18: <a href=article/2016-03-18-cpp-P0142R0-P0167R1.html>C++標準化委員会の文書: P0142R0-P0167R1</a>
+</li>
+<li>
+2016-03-17: <a href=article/2016-03-17-emojitracker.html>Twitterでつぶやかれている絵文字のリアルタイムなトラッカー</a>
+</li>
+<li>
+2016-03-16: <a href=article/2016-03-16-cpp-P0119R1-P0138R1.html>C++標準化委員会の文書: P0119R1-P0138R1</a>
+</li>
+<li>
+2016-03-10: <a href=article/2016-03-10-3dnes.html>ファミコンのゲームを3次元化するエミュレーターがすごい</a>
+</li>
+<li>
+2016-03-07: <a href="article/2016-03-07-cpp-P0063R1-P0096R1.html">C++標準化委員会の文書のレビュー: P0063R1-P0096R1</a>
+</li>
+<li>
+2016-03-06: <a href=article/2016-03-06-shoes.html>靴を買った話</a>
+</li>
+<li>
+2016-03-02: <a href="article/2016-03-02-radio.html">普通のコンピューターからAMラジオを鳴らそう</a>
+</li>
+</ul>
+</li>
+</ul>
+
+<ul>
+<li>
+<p>
+02
+</p>
+
+
+<ul>
+
+<li>
+2016-02-29: <a href="article/2016-02-29-cpp-P0033R1-P0059R1.html">C++標準化委員会の文書: P0033R1-P0059R1</a>
+</li>
+
+<li>
+2016-02-27: <a href="article/2016-02-27-tech9.html">歌舞伎座.tech #9で発表される各言語の簡易的なまとめ</a>
+</li>
+
+<li>
+2016-02-25: <a href="article/2016-02-25-cpp-P0003R1-P0028R1.html">C++標準化委員会の文書のレビュー: P0003R1-P028R1</a>
+</li>
+
+<li>
+2016-02-23: <a href="article/2016-02-23-N4568-N4577.html">C++標準化委員会の文書: N4568-N4577</a>
+</li>
+
+<li>
+2016-02-22: <a href="article/2016-02-22-kabukiza9.html">歌舞伎座.tech#9「異種プログラミング言語格闘勉強会」開催のお知らせ</a>
+</li>
+
+<li>
+2016-02-18: <a href="article/2016-02-18-apple-merketing.html">Appleのマーケティングに騙されてはいけない</a>
+</li>
+
+<li>
+2016-02-11: <a href="article/2016-02-11-happy-birthday.html">Warner Music、ハッピーバースデーの歌の著作権を保有していないことを認めて訴訟を降りる</a>
+</li>
+
+<li>
+2016-02-06: <a href="article/2016-02-06-video-games.html">最近遊んだ不自由なビデオゲーム</a>
+</li>
+
+<li>
+2016-02-05: <a href="article/2016-02-05-malware-museum.html">往年のDOSマルウェアをDOSエミューレーター上で実行できる博物館</a></li>
+
+<li>
+2016-02-01: <a href="article/2016-02-01-UEFI-sucks.html ">Archユーザー、rm -rfしてMSIのラップトップのUEFIのバグを発見する</a>
+</li>
+</ul>
+</li>
+
+
+<li>
+<p>
+01
+</p>
+
+
+<ul>
+
+<li>
+2016-01-31: <a href="article/2016-01-31-tatakaigi.html">闘会議2016のアナログゲームのとある運営スタッフの感想</a>
+</li>
+
+<li>
+2016-01-24: <a href="article/2016-01-24-gravity-reserch-ginza.html">グラビティリサーチ銀座に行ってきた</a>
+</li>
+
+<li>
+2016-01-24: <a href="article/2016-01-24-atcoder.html">第2回 ドワンゴからの挑戦状の予選に参加した</a>
+</li>
+
+<li>
+2016-01-20: <a href="article/2016-01-20-cpp-P0160R0-P0172R0.html">C++標準化委員会の文書のレビュー: P0160R0-P0172R0</a>
+</li>
+
+<li>
+2016-01-18: <a href="article/2016-01-18-cpp-P0144R0-P0159R0.html">C++標準化委員会の文書のレビュー: P0144R0-P0159R0</a>
+</li>
+
+<li>
+2016-01-12: <a href="article/2016-01-12-cpp-P0100R1-P0136R1.html">C++標準化委員会の文書のレビュー: P0100R1-P0136R1</a>
+</li>
+
+<li>
+2016-01-11: <a href="article/2016-01-11-gcc6.html">GCC 6にインデントミスの警告機能が追加</a>
+</li>
+
+<li>
+2016-01-09: <a href="article/2016-01-09-linus-TLB.html">Linus Torvalds、Microsoftが「ジャンプしてみろよ」と言えばIntelとAMDはジャンプする</a>
+</li>
+
+<li>
+2016-01-09: <a href="article/2016-01-09-xorg.html">x.orgドメインが消失の危機</a>
+</li>
+
+<li>
+2016-01-07: <a href="article/2016-01-07-cpp-P0022R1-P0092R1.html">C++標準化委員会の文書のレビュー: P0022R1-P0092R1</a>
+</li>
+
+<li>
+2016-01-07: <a href="article/2016-01-07-cpp-P0001R1-P0018R1.html">C++標準化委員会の文書のレビュー: P0001R1-P0018R1</a>
+</li>
+
+<li>
+2016-01-07: <a href="article/2016-01-07-promotion.html">yumetodoが本当に欲しかったもの</a>
+</li>
+
+<li>
+2016-01-05: <a href="article/2016-01-05-cpp-N4553-N4567.html">C++標準化員会の文書のレビュー: N4553-N4567</a>
+</li>
+
+<li>
+2016-01-03: <a href="article/2016-01-03-boardgame.html">江添ボドゲ会1月の調整さん</a>
+</li>
+
+<li>
+2016-01-02: <a href="article/2016-01-02-recommend.html">教えてgooのリコメンドが怪しい</a>
+</li>
+</ul>
+</li>
+</ul>
+
+</li>
+
+<li>
+<p>
+2015
+</p>
+
+<ul>
+
+<li>
+<p>
+12
+</p>
+
+<ul>
+
+<li>
+2015-12-30: <a href="article/2015-12-30-game.html">今年遊んだビデオゲームの感想</a>
+</li>
+
+<li>
+2015-12-29: <a href="article/2015-12-29-avg.html">AVGのクソみたいなChrome拡張の脆弱性</a>
+</li>
+
+<li>
+2015-12-29: <a href="article/2015-12-29-sushi.html">このマッポーの世の中では年末といえどもまともなオーガニック・スシを食べることすらかなわない</a>
+</li>
+
+<li>
+2015-12-22: <a href="article/2015-12-22-rockchip-calendar.html">Linuxカーネル、Rockchip暦に対応</a>
+</li>
+
+<li>
+2015-12-21: <a href="article/2015-12-21-slack.html">ドワンゴにおける業務外Slackチャンネルのまとめ</a>
+</li>
+
+<li>
+2015-12-21: <a href="article/2015-12-21-cpp-P0130R0-P0146R0.html">C++標準化委員会の文書のレビュー: P0130R0-P046R0</a>
+</li>
+
+<li>
+2015-12-21: <a href="article/2015-12-21-ub.html">とても賢いコンパイラーの逆襲</a>
+</li>
+
+<li>
+2015-12-20: <a href="article/2015-12-20-451.html">HTTPステータスコード451(政治的な検閲)が正式に承認される</a>
+</li>
+
+<li>
+2015-12-18: <a href="article/2015-12-18-yaneu.html">やねうらおが本当に必要だったもの</a>
+</li>
+
+<li>
+2015-12-18: <a href="article/2015-12-18-ubuntu-kernel-panic.html">Ubuntuのカーネルをアップデートしたらカーネルパニックが起きた時の解決方法</a>
+</li>
+
+<li>
+2015-12-16: <a href="article/2015-12-16-grub-bug.html">Grub2の認証でバックスペースを28回押すとレスキューコンソールに入れる脆弱性が発見された</a>
+</li>
+
+<li>
+2015-12-16: <a href="article/2015-12-16-cpp-P0120R0-P0129R0.html">C++標準化委員会の文書: P0120R0-P0129R0</a>
+</li>
+
+<li>
+<a href="article/2015-12-14-free-laptop.html">自由ソフトウェア財団の認定する自由なコンピューター：Libreboot T400</a>
+</li>
+
+<li>
+<a href="article/2015-12-11-cpp-P0110R0-P0119R0.html">C++標準化委員会の文書のレビュー: P0110R0-P0119R0</a>
+</li>
+
+<li>
+2015-12-08: <a href="article/2015-12-08-cpp-P0100R0-P0109R0.html">C++標準化委員会の文書のレビュー: P0100R0-P0109R0</a>
+</li>
+
+<li>
+2015-12-04: <a href="article/2015-12-04-boardgame-party.html">江添ボドゲ会@12月開催のお知らせ</a>
+</li>
+
+<li>
+2015-12-01: <a href="article/2015-12-01-cpp-P0090R0-P0099R0.html">C++標準化委員会の文書のレビュー: P0090R0-P0099R0</a>
+</li>
+
+</ul>
+</li>
+
+<li>
+<p>
+11
+</p>
+
+<ul>
+
+
+
+<li>
+2015-11-27: <a href="article/2015-11-27-cfront-check.html">C++30周年を記念してCFrontのバグ調査をしてみた</a>
+</li>
+<li>
+2015-11-27: <a href="article/2015-11-27-boardgame-party-plan.html">江添ボドゲ会@12月の日程調整</a>
+</li>
+
+<li>
+2015-11-26: <a href="article/2015-11-26-catan-america.html">カタン アメリカの開拓者たちの感想</a>
+</li>
+
+<li>
+2015-11-25: <a href="article/2015-11-25-cpp-P0080R0-P0089R0.html">C++標準化委員会の文書のレビュー: P0080R0-P0089R0</a>
+</li>
+
+<li>
+2015-11-20: <a href="article/2015-11-20-mac-unremovable-file.html">Mac OS Xで削除がとても難しいファイルを作成する方法</a>
+</li>
+
+<li>
+2015-11-20: <a href="article/2015-11-20-cpp-P0070R0-P0079R0.html">C++標準化委員会の文書のレビュー : P0070R0-P0079R0</a>
+</li>
+
+<li>
+2015-11-18: <a href="article/2015-11-18-dockercraft.html">Minecraftクライアントからdockerの管理ができるminecraftサーバー: Dockercraft</a>
+</li>
+
+<li>
+2015-11-16: <a href="article/2015-11-16-cpp-P0060-P0069.html">C++標準化委員会の文書のレビュー: P0060R0-P0069R0</a>
+</li>
+
+<li>
+2015-11-09： <a href="article/2015-11-09-cpp-P0050-P0059.html">C++標準化委員会の文書: P0050R0-P0059R0</a>
+</li>
+
+<li>
+2015-11-05: <a href="article/2015-11-05-usb-cable.html">GoogleのエンジニアがAmazonで片っ端からType-C USBケーブルをレビューしている</a>
+</li>
+
+<li>
+2015-11-03: <a href="article/2015-11-03-linus-rant.html">Linus Torvals、クソコードにブチギレ</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+10
+</p>
+
+<ul>
+
+<li>
+2015-11-01: <a href="article/2015-11-01-pdb.html">MicrosoftがPDBフォーマットの構造体定義のソースコードを公開</a>
+</li>
+
+<li>
+2015-10-29: <a href="article/2015-10-29-2015-09-pre-Kona0P0040R0-P0048R0.html">C++標準化委員会の文書のレビュー: P0040R0-P0048R0</a>
+</li>
+
+<li>
+2015-10-29: <a href="article/2015-10-29-Novena.html">ある程度自由なラップトップ、Novena</a>
+</li>
+
+<li>
+2015-10-29: <a href="article/2015-10-22-msvc-clang.html">Visual StudioにClangフロントエンドがやってくる</a>
+</li>
+
+<li>
+2015-10-26: <a href="article/2015-10-26-2015-09-pre-Kona-P0030R0-P0039R0.html">C++標準化委員会の文書のレビュー: P0030R0-P0039R0</a>
+</li>
+
+<li>
+2015-10-20: <a href="article/2015-10-20-2015-09-pre-Kona-P0021R0-P0029R0.html">C++標準化委員会の文書のレビュー: P0021R0-P0029R0</a>
+</li>
+
+<li>
+2015-10-13: <a href="article/2015-10-13-steam.html">ゲーム用のPCを買ってゲームを始めた</a>
+</li>
+
+<li>
+2015-10-13: <a href="article/2015-10-13-2015-09-pre-Kona-P0011R0-P0020R0.html">C++標準化委員会の文書 2015-09 pre-Kona: P0011R0-P0020R0</a>
+</li>
+
+<li>
+2015-10-13: <a href="article/2015-10-13-boost.html">Boost.勉強会 #18 大阪で発表してきた</a>
+</li>
+
+<li>
+2015-10-10: <a href="article/2015-10-10-facebook-ad.html">スマフォの近くで話をしたらFacebookに関連する広告がでたんだけどマイクで音声拾ってやがるのか？</a>
+</li>
+
+<li>
+2015-10-07: <a href="article/2015-10-07-2015-09-pre-Kona-P0001R0-P0009R0.html">C++標準化委員会の文書2015-09 pre-Konaのレビュー: P0001R0-P0009R0</a>
+</li>
+
+<li>
+2015-10-07: <a href="article/2015-10-07-2015-09-pre-Kona-N4545-N4552.html">C++標準化委員会の文書2015-09 pre-Konaのレビュー: N4545-N4552</a>
+</li>
+
+<li>
+2015-10-07: <a href="article/2015-10-07-closing-door.html">Sarah Sharp、Linuxカーネルコミュニティの暴力性に嫌気がさして貢献をやめる</a>
+</li>
+
+<li>
+2015-10-03: <a href="article/2015-10-03-fake.html">自作のサポセン応答AIを作ったとされるニューヨーク市の職員は単にロボット声で応答していただけだった</a>
+</li>
+
+<li>
+2015-10-01: <a href="article/2015-10-01-book.html">C++11/14 コア言語が出版された</a>
+</li>
+</ul>
+
+</li>
+<li>
+<p>
+09
+</p>
+
+<ul>
+
+<li>
+2015-09-24: <a href="article/2015-09-24-boardgame-party.html">江添ボドゲ会@10月の開催案内</a>
+</li>
+
+<li>
+2015-09-18: <a href="article/2015-09-18-memory_resource.html">memory_resourceについて</a>
+</li>
+
+<li>
+2015-09-18: <a href="article/2015-09-18-emc.html">Effective Modern C++の見本が届いた</a>
+</li>
+
+<li>
+2015-09-14: <a href="article/2015-09-14-allocator.html">C++のアロケーター</a>
+</li>
+
+<li>
+2015-09-13: <a href="article/2015-09-13-contextually-converted.html">C++の規格におけるcontextually converted to boolという用語について</a>
+</li>
+
+<li>
+<a href=" article/2015-09-07-ezoe-book.html">歌舞伎座.tech 番外編「C++11/14コア言語」出版記念　開催のお知らせ</a>
+</li>
+<li>
+2015-09-01:<a href="article/2015-09-01-boardgame-party.html">江添ボドゲ会@9月開催の案内</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+08
+</p>
+
+<ul>
+
+<li>
+2015-08-27: <a href="article/2015-08-27-xkcd.html">xkcd 1566と1567</a>
+</li>
+
+<li>
+2015-08-21: <a href="article/2015-08-21-GCC.html">GCCがgitに移行</a>
+</li>
+
+<li>
+2015-08-21: <a href="article/2015-08-21-LLVM.html">LLVM財団が非営利団体に認定される</a>
+</li>
+
+<li>
+2015-08-19: <a href="article/2015-08-19-boardgame-party.html">江添ボドゲ会@8月の案内</a>
+</li>
+
+<li>
+2015-08-15: <a href="article/2015-08-15-bouldering.html">ボルダリング</a>
+</li>
+
+<li>
+2015-08-14: <a href="article/2015-08-14-evilml.html">MLからC++テンプレートへのコンパイラー</a>
+</li>
+
+<li>
+2015-08-13: <a href="article/2015-08-13-emscripten-pthread.html">Emscriptenがpthreadを実験的にサポート</a>
+</li>
+
+<li>
+2015-08-12: <a href="article/2015-08-12-lenovo-sucks.html">Lenovoのファームウェアがファイルシステムを改ざんするクソ仕様なので絶対に使ってはいけない</a>
+</li>
+
+<li>
+2015-08-09: <a href="article/2015-08-09-diary.html">引越しの片付けがようやく終わりそうだ</a>
+</li>
+
+<li>
+2015-08-07: <a href="article/2015-08-07-gcc-concept.html">GCCのconceptブランチがtrunkにマージされる</a>
+</li>
+
+<li>
+2015-08-04: <a href="article/2015-08-04-cpp-book.html">C++参考書、C＋＋11/14 コア言語を9月に出版予定</a>
+</li>
+
+<li>
+2015-08-02: <a href="article/2015-08-02-sagawa.html">佐川急便のWeb上の再配達受付がクソすぎる件</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+07
+</p>
+
+<ul>
+
+<li>
+2015-07-29: <a href="article/2015-07-29-github-censorship.html">GitHub運営により言葉狩りが行われている</a>
+</li>
+
+<li>
+2015-07-22: <a href="article/2015-07-22-2015-05-post-Lenexa-N4531-N4541.html">C++標準化委員会の文書 2015-05 post-Lenexaのレビュー: M4531-N4544</a>
+</li>
+
+<li>
+2015-07-18: <a href="article/2015-07-18-moving.html">引越と信用</a>
+</li>
+
+<li>
+2015-07-18: <a href="article/2015-07-18-salary.html">元Google社員、社内での給与額の公開運動について語る</a>
+</li>
+
+<li>
+2015-07-14: <a href="article/2015-07-14-2015-05-post-Lenexa-N4520-N4530.html">C++標準化委員会の文書 2015-05 post-Lenexaのレビュー: N4521-N4530</a>
+</li>
+
+<li>
+2015-07-13: <a href="article/2015-07-13-2015-05-post-Lenexa-N4510-N4519.html">C++標準化委員会の文書のレビュー: N5410-N5419</a>
+</li>
+
+<li>
+2015-07-13: <a href="article/2015-07-13-climbing.html">御岳にクライミングに行ってきた</a>
+</li>
+
+<li>
+2015-07-10: <a href="article/2015-07-10-2015-05-post-Lenexa-N4501-N4509.html">C++標準化委員会の文書 2015-05 post-Lenexaのレビュー: N4501-N5409</a>
+</li>
+
+<li>
+2015-07-10: <a href="article/2015-07-10-plant-evidence.html">Hacking Teamから流出したとされるコードにブラウザーヒストリーの改変をするためとおぼしきものが発見される</a>
+</li>
+
+<li>
+2015-07-07: <a href="article/2015-07-07-2015-05-post-Lenexa-N4483-N4499.html">C++標準化委員会の文書 2015-05 post-Lenexaのレビュー: N4483-N4499</a>
+</li>
+
+<li>
+2015-07-06: <a href="article/2015-07-06-bouldering.html">ボルダリング半年</a>
+</li>
+
+
+<li>
+2015-07-02: <a href="article/2015-07-02-2015-04-pre-Lenexa-N4470-N4482.html">C++標準化委員会の文書 2015-04-pre-Lenexaのレビュー: N4470-N4482</a>
+</li>
+
+<li>
+2015-07-02: <a href="article/2015-07-02-2015-04-pre-Lenexa-N4460-N4469.html">C++標準化委員会の文書 2015-04-pre-Lenexaのレビュー: N4460-N4469</a>
+</li>
+
+</ul>
+
+</li>
+
+</ul>
+
+<ul>
+
+<li>
+<p>
+06
+</p>
+
+<ul>
+
+<li>
+2015-06-30: <a href="article/2015-06-30-2015-04-pre-Lenexa-N4450-N4459.html">C++標準化委員会の文書 2015-04-pre-Lenexaのレビュー: N4450-N4459</a>
+</li>
+
+<li>
+2015-06-30: <a href="article/2015-06-30-share-house-and-drug.html">シェアハウスとタバコと暴力</a>
+</li>
+
+<li>
+2015-06-29: <a href="article/2015-06-29-noscript.html">そんなにセキュアではないお粗末なNoScriptのホワイトリスト（修正済み）</a>
+</li>
+
+<li>
+2015-06-23: <a href="article/2015-06-23-boardgame-party.html">江添ボドゲ会@7月</a>
+</li>
+
+<li>
+2015-06-23: <a href="article/2015-06-23-2015-04-pre-Lenexa-N4440-N4449.html">C++標準化委員会の文書 2015-04 pre-Lenexaのレビュー: N4440-N4449</a>
+</li>
+
+<li>
+2015-06-22: <a href="article/2015-06-22-2015-04-pre-Lenexa-N4430-N4439.html">C++標準化委員会の文書 2015-04 pre-Lenexaのレビュー: N4430-N4439</a>
+</li>
+
+<li>
+2015-06-21: <a href="article/2015-06-21-turing-complete.html">x86のmov命令はチューリング完全</a>
+</li>
+
+<li>
+2015-06-16: <a href="article/2015-06-16-reserved-force.html">予備自衛官の訓練に出頭した</a>
+</li>
+
+<li>
+2015-06-11: <a href="article/2015-06-11-duqu.html">Duqu 2.0</a>
+</li>
+
+<li>
+2015-06-09: <a href="article/2015-06-09-2015-04-pre-Lenexa-N4420-N4429.html">C++標準化委員会: 2015-04 pre-Lenexaのレビュー: N4420-N4429</a>
+</li>
+
+<li>
+2015-06-07: <a href="article/2015-06-07-boardgame-party.html">江添ボドゲ会@6月を開催した</a>
+</li>
+
+<li>
+2015-06-05: <a href="article/2015-06-05-2015-04-pre-Lenexa-N4410-N4419.html">C++標準化委員会の文書 2015-04-pre-Lenexaのレビュー: N4410-N4419</a>
+</li>
+
+<li>
+2015-06-05: <a href="article/2015-06-05-assholes.html">技術を理解しないクソバカの治める国、ニッポン</a>
+</li>
+
+<li>
+2015-06-05: <a href="article/2015-06-05-wifi.html">公衆無線LANサービスへの加入を検討している</a>
+</li>
+
+<li>
+2015-06-03: <a href="article/2015-06-03-dasai.html">なぜオカンの買ってくる服はダサいのか</a>
+</li>
+
+</ul>
+</li>
+
+<li>
+<p>
+05
+</p>
+
+<ul>
+
+<li>
+2015-05-28: <a href="article/2015-05-28-that-is-not-a-command.html">コマンド間違えると「コマンドではない。」って返してくれる江添プラギン</a>
+</li>
+
+<li>
+2015-05-27: <a href="article/2015-05-27-2015-04-pre-Lenexa-N4400-N4409.html">C++標準化委員会の文書 2015-04 Pre-Lenexaのレビュー: N4400-N4409</a>
+</li>
+
+<li>
+2015-05-27: <a href="article/2015-05-27-Ubuntu-15-04.html">Ubuntu 15.04の感想</a>
+</li>
+
+<li>
+2015-05-26: <a href="article/2015-05-26-gifts.html">贈り物</a>
+</li>
+
+<li>
+2015-05-26: <a href="article/2015-05-26-tadpole.html">Old New Thing: 超最新の実験的C++機能、オタマジャクシ演算子</a>
+</li>
+
+<li>
+2015-05-25: <a href="article/2015-05-25-2015-04-pre-Lenexa-N4390-N4399.html">2015-04 pre-Lenexaのレビュー: N4390-N4399</a>
+</li>
+
+<li>
+2015-05-23: <a href="article/2015-05-23-boargame-party.html">江添ボドゲ会@6月開催</a>
+</li>
+
+<li>
+2015-05-23: <a href="article/2015-05-23-unix-history-repository.html">Unixの歴史のgitレポジトリ</a>
+</li>
+
+<li>
+2015-05-20: <a href="article/2015-05-20-askfm.html">ask.fmの回答を簡単にするブラウザー拡張を書いた</a>
+</li>
+
+<li>
+2015-05-19: <a href="article/2015-05-19-2038.html">Linuxカーネルを2038年問題に対応させるには</a>
+</li>
+
+<li>
+2015-05-18: <a href="article/2015-05-18-kabukiza-tech-8.html">歌舞伎座.tech #8 「C++初心者会」を開催した</a>
+</li>
+
+<li>
+2015-05-14: <a href="article/2015-05-14-cpp.html">歌舞伎座.tech #8 C++初心者会の参加枠を10人増やした</a>
+</li>
+
+<li>
+2015-05-13: <a href="article/2015-05-13-2015-04-pre-Lenexa-N4381-N4389.html">C++標準化委員会の文書集、2015-04 pre-Lenexa mailingsのレビュー: N4381-N4389</a>
+</li>
+
+<li>
+2015-05-11: <a href="article/2015-05-11-D4492.html">D4492: Bjarne StroustrupによるC++17の考察の翻訳</a>
+</li>
+
+<li>
+2015-05-07: <a href="article/2015-05-07-bs-interview.html">InfoQのC++17についてBjarne Stroustrupへのインタビュー記事の翻訳</a>
+</li>
+
+<li>
+2015-05-06: <a href="article/2015-05-06-Kaplan-Moss-speech-at-pycon2015.html">Jacob Kaplan-MossのPyCon 2015における基調講演: プログラミングの才能という都市伝説</a>
+</li>
+
+<li>
+2015-05-04: <a href="article/2015-05-04-constexpr.html">constexprで非定数式の状態を保持</a>
+</li>
+
+<li>
+2015-05-01: <a href="article/2015-05-01-cooking.html">婚約者が作って欲しい料理：オムライス</a>
+</li>
+
+</ul>
+</li>
+
+<li>
+<p>
+04
+</p>
+
+<ul>
+
+<li>
+2015-04-30: <a href="add article/2015-04-30-gcc5.html">GCC 5の変更点</a>
+</li>
+
+<li>
+2015-04-30: <a href="article/2015-04-30-vim-clang.html">vim-clang: clangを使ったC++の静的補完Vimプラグイン</a>
+</li>
+
+<li>
+2015-04-30: <a href="article/2015-04-30-debian-gnu-hurd.html ">Debian GNU/Hurd 2015がリリースされた</a>
+</li>
+
+<li>
+2015-04-29: <a href="article/2015-04-29-linus-on-dbus.html">Linus Torvalds、「dbusはマジでクソだ」</a>
+</li>
+
+<li>
+2015-04-28: <a href="article/2015-04-28-chokaigi2015.html">超会議2015の感想</a>
+</li>
+
+<li>
+2015-04-28: <a href="article/2015-04-28-big-joke.html">ビッグデータツールチェインのセキュリティはビッグリスク、あるいは、誰もHadoopをスクラッチからビルドする方法を知らない件について</a>
+</li>
+
+<li>
+2015-04-25: <a href="article/2015-04-25-chokaigi2015.html">超会議2015 開幕前</a>
+</li>
+
+<li>
+2015-04-20: <a href="article/2015-04-20-kabukiza-tech-8.html">C++勉強会: 歌舞伎座.tech#8「C++初心者会」の開催案内</a>
+</li>
+
+<li>
+2015-04-19: <a href="article/2015-04-19-wasting.html">散財</a>
+</li>
+
+<li>
+2015-04-19: <a href="article/2015-04-19-xkcd-1513.html">XKCD 1513: コード品質</a>
+</li>
+
+<li>
+2015-04-19: <a href="article/2015-04-19-temp.html">The Old New Thing: なぜ環境変数にはTMPとTEMPがあるのか。どちらが正しいのか</a>
+</li>
+
+<li>
+2015-04-17: <a href="article/2015-04-17-cho-kaigi2015.html">超会議2015</a>
+</li>
+
+<li>
+2015-04-16: <a href="article/2015-04-16-PIC.html">GCC 5.0でのx86におけるPICの改善と、いかに32bit PICコードがクソであるかというお話</a>
+</li>
+
+<li>
+2015-04-14: <a href="article/2015-04-14-encrypt-ext4.html">Ted Ts'oがEXT4で暗号化を実装</a>
+</li>
+
+<li>
+2015-04-13: <a href="article/2015-04-13-gyoza.html">餃子</a>
+</li>
+
+<li>
+2015-04-13: <a href="article/2015-04-13-boargame-party.html">江添ボドゲ会@5月</a>
+</li>
+
+<li>
+2015-04-09: <a href="article/2015-04-09-color-coded.html">libclangを使ったC++のセマンティックハイライトのVimプラグイン、color_coded</a>
+</li>
+
+<li>
+2015-04-09: <a href="article/2015-04-09-500-miles.html">500マイル以上離れた場所にメールが送れないのだが</a>
+</li>
+
+<li>
+2015-04-08: <a href="article/2015-04-08-linus-git-interview.html">gitの10周年を記念したLinus Torvalsへのインタビューの翻訳</a>
+</li>
+
+<li>
+2015-04-08: <a href="article/2015-04-08-weekend.html">週末</a>
+</li>
+
+<li>
+2015-04-02: <a href="article/2015-04-02-boardgame.html">江添ボドゲ会@4月</a>
+</li>
+
+<li>
+2015-04-01: <a href="article/2015-04-01-marriage.html">結婚することになった</a>
+</li>
+
+</ul>
+</li>
+
+<li>
+<p>
+03
+</p>
+
+<ul>
+
+<li>
+2015-03-30: <a href="article/2015-03-30-opt.html">コンパイラーを負かす</a>
+</li>
+
+<li>
+2015-03-25: <a href="article/2015-03-25-show-installed-packages.html">Ubuntu(Debian)でインストール済みのパッケージ一覧を得る方法</a>
+</li>
+
+<li>
+2015-03-24: <a href="article/2015-03-24-pointer.html">メンバー関数へのポインターを返すメンバー関数へのポインターを返すメンバー関数</a>
+</li>
+
+<li>
+2015-03-22: <a href="article/2015-03-22-beef.html">妖怪ハウスで肉会をした</a>
+</li>
+
+<li>
+2015-03-18: <a href="article/2015-03-18-beef.html">2kgのサーロインブロックが届いたので21日の夜はステーキ会</a>
+</li>
+
+<li>
+2015-03-16: <a href="article/2015-03-16-money.html">金の使い道が分からない</a>
+</li>
+
+<li>
+2015-03-11: <a href="article/2015-03-11-cpp17.html">最近のC++17事</a>
+</li>
+
+<li>
+2015-03-11: <a href="article/2015-03-11-bg.html">江添ボドゲ会3月の様子</a>
+</li>
+<li>
+2015-03-09: <a href="article/2015-03-09-tsync.html">ChromiumがLinuxカーネル3.17より前のサポートを打ち切り</a>
+</li>
+
+<li>
+2015-03-08: <a href="article/2015-03-08-boardgame-party.html">毎月第一週の土曜日</a>
+</li>
+</ul>
+</li>
+</ul>
+
+<ul>
+
+<li>
+<p>
+02
+</p>
+
+<ul>
+
+<li>
+2015-02-27: <a href="article/2015-02-27-nth-loop.html">range-based forで固定回ループ</a>
+</li>
+
+<li>
+2015-02-26: <a href="article/2015-02-26-rhel.html">C++11/14の採用が進んでいないのはだいたいRHELのせい</a>
+</li>
+
+<li>
+2015-02-24: <a href="article/2015-02-24-go.html">goのgcコンパイラーがC実装を除去</a>
+</li>
+
+<li>
+2015-02-24: <a href="article/2015-02-24-fundamental-forces.html">xkcd: 基本の力</a>
+</li>
+
+<li>
+2015-02-24: <a href="article/2015-02-24-boardgame.html">エンジニアボードゲーム会に参加してきた</a>
+</li>
+
+<li>
+2015-02-24: <a href="article/2015-02-24-bg-party.html">江添ボドゲ会@3月</a>
+</li>
+
+<li>
+2015-02-23: <a href="article/2015-02-23-2015-02-mid-meeting-N4370-N4380.html">C++標準 2015-02 mid-meetingのレビュー: N4370-N4380</a>
+</li>
+
+<li>
+2015-02-21: <a href="article/2015-02-21-bouldering.html">ボルダリング</a>
+</li>
+
+<li>
+2015-02-19: <a href="article/2015-02-19-2015-02-mid-meeting-N4360-N4369.html">C++標準 2015-02 mid-meetingのレビュー: N4360-N4369</a>
+</li>
+
+<li>
+2015-02-17: <a href="article/2015-02-17-2015-02-mid-meeting-N4340-N4359.html">C++標準: 2015-02 mailingsのレビュー: N4340-N4359</a>
+</li>
+
+<li>
+2015-02-15: <a href="article/2015-02-15-dwango-procon.html">Dwangoプログラミングコンテストの感想</a>
+</li>
+
+<li>
+2015-02-02: <a href="article/2015-02-02-tatakaigi-2015.html">闘会議2015のアナログゲームエリア、とある運営スタッフの感想</a>
+</li>
+
+</ul>
+
+</li>
+
+<li>
+<p>
+01
+</p>
+
+<ul>
+<li>
+2015-01-29: <a href="article/2015-01-29-tatakaigi.html">闘会議2015のアナログゲームエリアのボードゲームの紹介</a>
+</li>
+
+<li>
+2015-01-28: <a href="article/2015-01-28-procon.html">ドワンゴのプログラミングコンテストをクリアできなかったお話</a>
+</li>
+
+<li>
+2015-01-26: <a href="article/2015-01-26-convicted.html">Convictedというボドゲが送られてきた</a>
+</li>
+
+<li>
+2015-01-26: <a href="add article/2015-01-26-chrono.html">C++11の時間ライブラリ: chrono</a>
+</li>
+
+<li>
+2015-01-26: <a href="article/2015-01-26-override.html">GCCのoverrideのバグらしきもの</a>
+</li>
+
+<li>
+2015-01-24: <a href="article/2015-01-24-face.html">人の顔が認識できない</a>
+</li>
+
+<li>
+2015-01-20: <a href="article/2015-01-20-regex.html">C++の正規表現ライブラリ: std::regex</a>
+</li>
+
+<li>
+2015-01-16: <a href="article/2015-01-16-sovaldi.html">インドでC型肝炎の薬の特許が無効化された理由</a>
+</li>
+
+<li>
+2015-01-15: <a href="article/2015-01-15-garake.html">ガラケー時代の翻訳</a>
+</li>
+
+<li>
+2015-01-14: <a href="article/2015-01-14-hfs-sucks.html">Linus Torvalds、HFS+に激怒</a>
+</li>
+
+<li>
+2015-01-12: <a href="article/2015-01-12-av.html">アンチウイルスソフトウェアの脆弱性</a>
+</li>
+
+<li>
+2015-01-09: <a href="article/2015-01-09-deprecated.html">[[deprecated]] はテンプレート名には使えない</a>
+</li>
+
+<li>
+2015-01-07: <a href="article/2015-01-07-cpp14.html">巻末C++14の新機能をとりあえず書いた</a>
+</li>
+
+<li>
+2015-01-06: <a href="article/2015-01-06-deprecated.html">[[deprecated]]の文面の疑問点</a>
+</li>
+
+
+</ul>
+</li>
+
+</ul>
+</li>
+
+<li>
+<p>
+2014
+</p>
+
+<ul>
+
+<li>
+<p>
+12
+</p>
+
+<ul>
+<li>
+2014-12-29: <a href="article/2014-12-29-gift.html">近況</a>
+</li>
+
+<li>
+2014-12-24: <a href="article/2014-12-24-cpp14.html">C++14の新機能の解説を戻り値の型推定まで書いた</a>
+</li>
+
+<li>
+2014-12-22: <a href="article/2014-12-22-cpp14-book.html">C++14の新機能の解説</a>
+</li>
+
+<li>
+2014-12-21: <a href="article/2014-12-21-arm-x86-64.html">各言語のARVv7とx86-64での実装のパフォーマンス比較</a>
+</li>
+
+<li>
+2014-12-19: <a href="article/2014-12-19-git.html">.git/configが書き換えられるgitの脆弱性</a>
+</li>
+
+<li>
+2014-12-18: <a href="article/2014-12-18-bo.html">12月25日、妖怪ハウスでケーキ会とできればボドゲ会</a>
+</li>
+
+<li>
+2014-12-16: <a href="article/2014-12-16-precision-dice.html">プレシジョンダイス</a>
+</li>
+
+<li>
+2014-12-16: <a href="article/2014-12-16-feature-test.html">C++14に入る機能テストマクロの一覧</a>
+</li>
+
+<li>
+2014-12-16: <a href="article/2014-12-16-google-news.html">Google Newsに強制課金する法律、あっけなく失敗</a>
+</li>
+
+<li>
+2014-12-14: <a href="article/2014-12-14-ms-bitcoin.html">Microsoftがbitcoinによる支払いを受け付けるらしい</a>
+</li>
+
+<li>
+2014-12-12: <a href="article/2014-12-12-cpp-1z-features.html">C++1zに採択された新機能</a>
+</li>
+
+<li>
+2014-12-11: <a href="article/2014-12-11-tarse-range-based-for-removed-from-clang.html">Tarse Range-Based forがClangから取り除かれていた</a>
+</li>
+
+<li>
+2014-12-10: <a href="article/2014-12-10-N4332-N4339.html">2014-11-post-Urbanaのレビュー: N4332-N4339</a>
+</li>
+
+<li>
+2014-12-10: <a href="article/2014-12-10-N4320-N4331.html">2014-11-post-Urbanaのレビュー: N4320-N4331</a>
+</li>
+
+<li>
+2014-12-09: <a href="article/2014-12-09-N4310-N4319.html">2014-11-post-Urbanaのレビュー: N4310-N4319</a>
+</li>
+
+<li>
+2014-12-09: <a href="article/2014-12-09-N4301-N4309.html">2014-11-post-Urbanaのレビュー: N4301-N4309</a>
+</li>
+
+<li>
+2014-12-08: <a href="article/2014-12-08-N4293-N4298.html">2014-11-post-Urbanaのレビュー: N4293-N4298</a>
+</li>
+
+<li>
+2014-12-08: <a href="article/2014-12-08-N4280-N4288.html">2014-11-post-Urbanaのレビュー: N4280-N4288</a>
+</li>
+
+<li>
+2014-12-05: <a href="article/2014-12-05-N4270-N4279.html">2014-11-post-Urbanaのレビュー: N4270-N4279</a>
+</li>
+
+<li>
+2014-12-05: <a href="article/2014-12-05-N4260-N4269.html">2014-11-post-Urbanaのレビュー: N4260-N4269</a>
+</li>
+
+<li>
+2014-12-05: <a href="article/2014-12-05-N4250-N4259.html">2014-11-post-Urbanaのレビュー: N4250-N4259</a>
+</li>
+
+<li>
+2014-12-04: <a href="article/2014-12-04-house.html">シェアハウスを作ってみたい</a>
+</li>
+
+<li>
+2014-12-04: <a href="article/2014-12-04-N4240-N4249.html">2014-10-pre-Urbanaのレビュー: N4240-N4249</a>
+</li>
+
+<li>
+2014-12-03: <a href="article/2014-12-03-N4230-N4239.html">2014-10-pre-Urbanaのレビュー: N4230-N4239</a>
+</li>
+
+</ul>
+</li>
+
+<li>
+<p>
+11
+</p>
+
+<ul>
+
+
+<li>
+2014-11-30: <a href="article/2014-11-30-boradgame-party.html">12月7日の日曜日に妖怪ハウスでボドゲ会</a>
+</li>
+
+<li>
+2014-11-28: <a href="article/2014-11-28-N4220-N4229.html">2014-10-pre-Urbanaのレビュー: N4220-N4229</a>
+</li>
+
+<li>
+2014-11-26: <a href="article/2014-11-26-boardgame.html">妖怪ハウスで12月にボドゲ会でもしようかと思うので日程を募集</a>
+</li>
+
+<li>
+2014-11-26: <a href="article/2014-11-26-N4210-N4219.html">2014-10-pre-UrbanaのC++標準化委員会文書のレビュー: N4210-N4219</a>
+</li>
+
+<li>
+2014-11-25: <a href="article/2014-11-25-NPAPI-countdown.html">ChromiumがNPAPIを殺す予定</a>
+</li>
+
+<li>
+2014-11-21: <a href="article/2014-11-21-N4200-N4209.html">2014-10-pre-Urbanaのレビュー: N4200-N4209</a>
+</li>
+
+<li>
+2014-11-20: <a href="article/2014-11-20-N4190-N4199.html">2014-10-pre-Urbanaのレビュー: M4190-N4199</a>
+</li>
+
+<li>
+2014-11-19: <a href="article/2014-11-19-N4183-N4189.html">2014-10-pre-Urbana mailingsのレビュー: N4183-N4189</a>
+</li>
+
+<li>
+2014-11-18: <a href="article/2014-11-18-reserved-JSDF.html">予備自衛官の訓練に出頭してきた</a>
+</li>
+
+<li>
+2014-11-12: <a href="article/2014-11-12-C-array.html">最近のC言語の配列</a>
+</li>
+
+<li>
+2014-11-10: <a href="article/2014-11-10-N4170-N41782.html">2014-10-pre-Urbana mailingsのレビュー: N4170-N4182</a>
+</li>
+
+<li>
+2014-11-08: <a href="article/2014-11-08-compile-time-selection.html">コンパイル時分岐</a>
+</li>
+
+<li>
+2014-11-08: <a href="article/2014-11-08-bouldering.html">ボルダリングに挑戦してきた</a>
+</li>
+
+<li>
+2014-11-05: <a href="article/2014-11-05-N4160-N4169.html">2014-10-pre-Urbana mailingsのレビュー: N4160-N4169</a>
+</li>
+
+<li>
+2014-11-04: <a href="article/2014-11-04-unified-call-syntax.html">C++に提案されている統一関数呼び出し文法(Unified Call Syntax): N4165, N4174</a>
+</li>
+
+
+</ul>
+</li>
+
+<li>
+<p>
+10
+</p>
+
+<ul>
+
+<li>
+2014-11-03: <a href="article/2014-11-03-sugoi-goudou-2014.html">すごい合同勉強会2014 in 広島</a>
+</li>
+
+<li>
+2014-10-29: <a href="article/2014-10-29-Sugoi-goudou.html">すごい合同勉強会2014 in 広島で発表する</a>
+</li>
+
+<li>
+2014-10-29: <a href="article/2014-10-29-Ubuntu-14-10.html">Ubuntu 14.10にアップグレードした</a>
+</li>
+
+<li>
+2014-10-23: <a href="article/2014-10-23-N4150-N4159.html">2014-10-pre-Urbanaのレビュー: N4150-N4159</a>
+</li>
+
+<li>
+2014-10-21: <a href="article/2014-10-21-gift.html">誕生日プレゼントに送られてきたもの</a>
+</li>
+
+<li>
+2014-10-21: <a href="article/2014-10-21-2014-10-pre-Urbana-N4142-N4149.html">2014-10-pre-Urbanaのレビュー: N4142-N4149</a>
+</li>
+
+<li>
+2014-10-21: <a href="article/2014-10-21-finally.html">C++でfinally</a>
+</li>
+
+<li>
+2014-10-20: <a href="article/2014-10-20-2014-10-pre-Urbana-N4138-N4141.html">2014-10-pre-Urbanaのレビュー: N4138-N4141</a>
+</li>
+
+<li>
+2014-10-20: <a href="article/2014-10-20-2014-10-pre-Urbana-N4130-N4137.html">2014-10-pre-Urbana mailingsのレビュー : N4130-N4137</a>
+</li>
+
+<li>
+2014-10-18: <a href="article/2014-10-18-xng.html">XNGという新しいアニメーション画像フォーマット</a>
+</li>
+
+<li>
+2014-10-15: <a href="article/2014-10-15-mailing-2014-10-N4122-N4129.html">2014-10-pre-Urbana mailingsのレビュー: N4122-N4129</a>
+</li>
+
+<li>
+2014-10-14: <a href="article/2014-10-14-gift.html">私宛に届いた料理本</a>
+</li>
+
+<li>
+2014-10-12: <a href="article/2014-10-12-espeak.html">GNU/Linuxでコマンドラインから喋らせる方法</a>
+</li>
+
+<li>
+2014-10-12: <a href="article/2014-10-12-tired.html">読書</a>
+</li>
+
+<li>
+2014-10-12: <a href="article/2014-10-12-ping.html">Pingプログラムの話</a>
+</li>
+
+<li>
+2014-10-09: <a href="article/2014-10-09-excepction-specification.html">C++の例外指定</a>
+</li>
+
+<li>
+2014-10-09: <a href="article/2014-10-09-openbsd-fix-bug.html">OpenBSD、headに37年前から存在したBill Joyのバグの修正に22年前のKeith Bosticの変更を適用</a>
+</li>
+
+<li>
+2014-10-09: <a href="article/2014-10-09-cpp-doc-1989.html">C++標準化委員会の文書: 1989年</a>
+</li>
+
+<li>
+2014-10-08: <a href="article/2014-10-08-sit-up-bench.html">妖怪ハウスにシットアップベンチを導入した</a>
+</li>
+
+<li>
+2014-10-08: <a href="article/2014-10-08-rtti.html">C++のtypeidとtype_infoとtype_index</a>
+</li>
+
+<li>
+2014-10-07: <a href="article/2014-10-07-gaming-pc.html">ゲーム用PCが欲しいが、今は時期が悪い</a>
+</li>
+
+<li>
+2014-10-06: <a href="article/2014-10-06-sized-deallocation.html">C++14の新機能: サイズ付き解放関数</a>
+</li>
+
+<li>
+2014-10-06: <a href="article/2014-10-05-windows-base-address.html">The Old New Thing: 実行ファイルのベースアドレスが0x00400000である理由</a>
+</li>
+
+<li>
+2014-10-04: <a href="article/2014-10-04-boardgame-party.html">妖怪ハウスでボドゲ会の告知(10/25)</a>
+</li>
+
+<li>
+2014-10-03: <a href="article/2014-10-03-digit-separator.html">C++14の新機能: 数値区切り</a>
+</li>
+
+<li>
+2014-10-03: <a href="article/2014-10-03-deprecated.html">C++14の新機能: [[deprecated]] 属性</a>
+</li>
+
+<li>
+2014-10-02: <a href="article/2014-10-02-N1875.html">N1875: C言語にクラスを追加する提案</a>
+</li>
+
+<li>
+2014-10-02: <a href="article/2014-10-02-member-initializer-and-aggregate.html">C++14の新機能: メンバー初期化子と初期化リストの組み合わせ</a>
+</li>
+
+<li>
+2014-10-02: <a href="article/2014-10-02-constexpr.html">C++14の新機能: constexpr関数の制限緩和</a>
+</li>
+
+<li>
+2014-10-01: <a href="article/2014-10-01-variable-template.html">C++14の新機能: 変数テンプレート</a>
+</li>
+</ul>
+
+<li>
+<p>
+09
+</p>
+
+<ul>
+
+<li>
+2014-09-30: <a href="article/2014-09-30-generic-lambda.html">C++14の新機能: ジェネリックlambda</a>
+</li>
+
+<li>
+2014-09-30: <a href="article/2014-09-30-init-lambda-capture.html">C++14の新機能: 初期化lambdaキャプチャー</a>
+</li>
+
+<li>
+2014-09-29: <a href="article/2014-09-29-stuffed-chicken.html">妖怪ハウスでスタッフドチキンを作った</a>
+</li>
+
+<li>
+2014-09-29: <a href="article/2014-09-29-return-type-deduction.html">C++14の新機能: 関数の戻り値の型推定</a>
+</li>
+
+<li>
+2014-09-28: <a href="article/2014-09-28-manuals.html">xkcd: マニュアル</a>
+</li>
+
+<li>
+2014-09-27: <a href="article/2014-09-27-tasks.html">xkcd: 業務</a>
+</li>
+
+<li>
+2014-09-26: <a href="article/2014-09-26-decltype-auto.html">C++14の新機能: decltype(auto)</a>
+</li>
+
+<li>
+2014-09-25: <a href="article/2014-09-25-binary-literals.html">C++14の新機能: 2進数リテラル</a>
+</li>
+
+<li>
+2014-09-23: <a href="article/2014-09-23-chicken.html">妖怪ハウスに不思議なものが送られてきた</a>
+</li>
+
+<li>
+2014-09-22: <a href="article/2014-09-22-the-tale-of-peter-rabbit.html">兎のピイタアの話</a>
+</li>
+
+<li>
+2014-09-22: <a href="article/2014-09-22-boost-benkyokai-16-oosaka.html">Boost勉強会#16大阪</a>
+</li>
+
+<li>
+2014-09-17: <a href="article/2014-09-17-urayasu.html">電車を盛大に乗り過ごした</a>
+</li>
+
+<li>
+2014-09-16: <a href="article/2014-09-16-cooking.html">最近の料理事情</a>
+</li>
+
+<li>
+2014-09-15: <a href="article/2014-09-15-mp3fs.html">mp3fs : FUSEを利用したファイルシステム経由のmp3変換</a>
+</li>
+
+<li>
+2014-09-15: <a href="article/2014-09-15-cppcon2014-slides.html">CppCon 2014のスライド資料</a>
+</li>
+
+<li>
+2014-09-15: <a href="article/2014-09-15-random-note.html">雑記</a>
+</li>
+
+<li>
+2014-09-12: <a href="article/2014-09-12-notice.html">三連休</a>
+</li>
+
+<li>
+2014-09-12: <a href="article/2014-09-12-cp-to-copy-a-lot-of-files.html">cpで大量のファイルをコピーした（4億3200万件、39TB）</a>
+</li>
+
+<li>
+2014-09-11: <a href="article/2014-09-11-oldnewthing-BSoD-author.html">Old New Thing: ブルースクリーンを書いた人間は、まあ、僕さ</a>
+</li>
+
+<li>
+2014-09-09: <a href="article/2014-09-09-kiseizyu.html">寄生獣に感じるデジャブ</a>
+</li>
+
+<li>
+2014-09-06: <a href="article/2014-09-06-what-if-expensive-shoebox.html">What if? : 高額な靴箱</a>
+</li>
+
+<li>
+2014-09-04: <a href="article/2014-09-04-2014-07-post-Rapperswil-N4109-N4121.html">2014-07-post-Rapperswilのレビュー: N4109-N4121</a>
+</li>
+
+<li>
+2014-09-03: <a href="article/2014-09-03-2014-07-post-Rapperswil-N4090-N4108.html">2014-07-post-Rapperswilのレビュー: N4090-N4108</a>
+</li>
+
+<li>
+2014-09-01: <a href="article/2014-09-01-2014-07-post-Rapperswil-N4080-N4089.html">2014-07 post Rapperswil mailingのレビュー: N4080-N4089</a>
+</li>
+</ul>
+</li>
+
+<li>
+<p>
+08
+</p>
+
+<ul>
+
+
+
+<li>
+2014-08-29: <a href="article/2014-08-29-2014-07-post-Rapperswil-mailing-N4070-N4079.html">2014-07 post Rapperswil mailingのレビュー: N4070-N4079</a>
+</li>
+
+<li>
+2014-08-29: <a href="article/2014-08-29-pornhub-traffic.html">あるポルノサイトのアクセス解析によるOSシェア率によれば、GNU/Linuxユーザーは1.7%</a>
+</li>
+
+<li>
+2014-08-25: <a href="article/2014-08-25-non-meat.html">大豆肉を入手した</a>
+</li>
+
+<li>
+2014-08-25: <a href="article/2014-08-25-plan-of-new-pc.html">コンピューターを新調したいが踏み切れない</a>
+</li>
+
+<li>
+2014-08-25: <a href="article/2014-08-25-cpp-debugger.html">GNU/Linuxで動くデバッガーのGUIフロントエンド比較</a>
+</li>
+
+<li>
+2014-08-25: <a href="article/2014-08-25-2014-07-post-Rapperswil-mailing-N4060-N4069.html">2014-07 post Rapperswil mailingのレビュー: N4060-N4069</a>
+</li>
+
+<li>
+2014-08-21: <a href="article/2014-08-21-filesystem.html">ファイルシステムの破損？、付記using宣言とusingディレクティブの違い</a>
+</li>
+
+<li>
+2014-08-21: <a href="article/2014-08-21-fork-can-fail.html">fork()は失敗するんだぜ、覚えときな</a>
+</li>
+
+<li>
+2014-08-20: <a href="article/2014-08-20-eject.html">Sparc上のNetBSDでejectするとパニックに陷る問題の修正</a>
+</li>
+
+<li>
+2014-08-19: <a href="article/2014-08-19-haskell.html">Haskellの入門書を読んだ</a>
+</li>
+
+<li>
+2014-08-18: <a href="article/2014-08-18-2014-07-post-Rapperswil-mailing-N4052-N4059.html">2014-07 post Rapperswil mailingのレビュー: N4052-N4059</a>
+</li>
+
+<li>
+2014-08-08: <a href="article/2014-08-08-2014-05-pre-Rapperswil-mailing-N4040-N4051.html">2014-05-pre-Rapperswil-mailingのレビュー: N4040-N4051</a>
+</li>
+
+<li>
+2014-08-07: <a href="article/2014-08-07-2014-05-pre-Rapperswil-mailing-N4030-N4039.html">2014-05-pre-Rapperswil-mailingのレビュー: N4030-N4039</a>
+</li>
+
+<li>
+2014-08-07: <a href="article/2014-08-07-youkai-plan.html">妖怪ハウスのイベント予定</a>
+</li>
+
+<li>
+2014-08-05: <a href="article/2014-08-05-Windows-toaster.html">何でWindowsは俺のワイヤレスキーボードをトースターだと認識するんだ？</a>
+</li>
+
+<li>
+2014-08-04: <a href="article/2014-08-04-false-dependency.html">ループカウンタを64bitにしたり、 バッファのサイズを定数にしたらパフォーマンス激落ちなんだけど何で？</a>
+</li>
+
+<li>
+2014-08-03: <a href="article/2014-08-03-momonga.vim.html">momonga.vim #6 in ドワンゴ</a>
+</li>
+
+<li>
+2014-08-02: <a href="article/2014-08-02-nintendo-oss.html">任天堂の使っている自由ソフトウェア</a>
+</li>
+
+</ul>
+
+</li>
+
+<li>
+<p>
+07
+</p>
+
+<ul>
+
+<li>
+2014-07-27: <a href="article/2014-07-27-linus-rant-on-gcc4.9.0.html">Linus Torvalds、 GCC 4.9.0のコード生成にブチ切れる</a>
+</li>
+
+<li>
+2014-07-26: <a href="article/2014-07-26-lossless-compression.html">ロスレス圧縮アルゴリズムの歴史</a>
+</li>
+
+<li>
+2014-07-26: <a href="article/2014-07-26-camp.html">キャンプの計画は難しい</a>
+</li>
+
+<li>
+2014-07-25: <a href="article/2014-07-25-php7.html">PHPの次のバージョンはPHP 7かもしれない</a>
+</li>
+
+<li>
+2014-07-25: <a href="article/2014-07-25-git-bisect.html">Linuxカーネルのバグをgit bisectで特定する話</a>
+</li>
+
+<li>
+2014-07-24: <a href="article/2014-07-24-pixiv.html">Pixivに会社見学に行ってきた</a>
+</li>
+
+<li>
+2014-07-21: <a href="article/2014-07-21-cooking.html">最近の動向</a>
+</li>
+
+<li>
+2014-07-18: <a href="article/2014-07-18-2014-05-pre-Rapperswil-mailing-N4021-N4029.html">2014-05-pre-Rapperswil-mailingのレビュー: N4021-N4029</a>
+</li>
+
+<li>
+2014-07-16: <a href="article/2014-07-16-ncpg-ad.html">シンガポールの問題ギャンブル国家委員会のワールドカップサッカーでドイツに息子の貯金を全部賭けた啓蒙広告、コメディに終わる</a>
+</li>
+
+<li>
+2014-07-15: <a href="article/2014-07-15-dwango-poker.html">ドワンゴポーカー選手権<?a>
+</li>
+
+<li>
+2014-07-12: <a href="article/2014-07-12-zakki.html">雑記</a>
+</li>
+
+<li>
+2014-07-11: <a href="article/2014-07-11-mokumoku-vim.html">momonga.vim #6 ドワンゴ開催の告知</a>
+</li>
+
+<li>
+2014-07-10: <a href="article/2014-07-10-2014-05-pre-Rapperswil-mailing-N4010-N4020.html">2014-05-pre-Rapperswil mailingのレビュー</a>
+</li>
+
+<li>
+2014-07-07: <a href="article/2014-07-07-potato-salad.html">Kickstarterでポテトサラダを10ドルでクラウドファンディングした者が、すでに8000ドルの出資を受けた話</a>
+</li>
+
+<li>
+2014-07-05: <a href="article/2014-07-05-qualcomm-dmca-take-down-notice.html">Qualcommが謎のDMCA取り下げ通知を発行</a>
+</li>
+
+<li>
+2014-07-04: <a href="article/2014-07-04-2014-05-pre-Rapperswil-mailing-N4000-N4009.html">2014-05-pre-Rapperswil mailingのレビュー: N4000-N4009</a>
+</li>
+
+<li>
+2014-07-04: <a href="article/2014-07-04-in-case-unity-config-was-corrupted.html">Ubuntu 14.04のUnityの設定をぶっ壊した場合の修復方法</a>
+</li>
+
+<li>
+2014-07-02: <a href="article/2014-07-02-youkai-hammock.html">妖怪ハンモック</a>
+</li>
+
+<li>
+2014-07-01: <a href="article/2014-07-01-2014-05-pre-Rapperswil-mailing-N3990-N3999.html">2014-05-pre-Rapperswil mailingのレビュー: N3990-N3999</a>
+</li>
+
+</ul>
+
+
+</li>
+
+<li>
+<p>
+06
+</p>
+
+<ul>
+
+<li>
+2014-06-30: <a href="article/2014-06-30-old-new-things.html">Old New Thing: 未定義動作はタイムトラベルを引き起こす（他にもいろいろあるけど、タイムトラベルが一番ぶっ飛んでる）</a>
+</li>
+
+<li>
+2014-06-30: <a href="article/2014-06-30-new-gen.html">新たなC++世代</a>
+</li>
+
+<li>
+2014-06-29: <a href="article/2014-06-29-Dwango-C++-meetng.html">ドワンゴC++勉強会#1を開催した</a>
+</li>
+
+<li>
+2014-06-26: <a href="article/2014-06-26-amazon-wish-list.html">誰かから送られてきたコスプレ衣装</a>
+</li>
+
+<li>
+2014-06-25: <a href="article/2014-06-25-clang-cpp1y.html">Clangが現在実装しているC++1z機能</a>
+</li>
+
+<li>
+2014-06-25: <a href="article/2014-06-25-2014-05-pre-Rapperswil-mailing-N3980-N3989.html">2014-05-pre-Rapperswil mailingのレビュー: N3980-N3989</a>
+</li>
+
+<li>
+2014-06-24: <a href="article/2014-06-24-dwango-cpp-channel.html">ドワンゴC++勉強会のニコ生の番組宣伝</a>
+</li>
+
+<li>
+2014-06-23: <a href="article/2014-06-23-random-thouhts.html">妖怪ハンモックその他の雑多な感想</a>
+</li>
+
+<li>
+2014-06-22: <a href="article/2014-06-22-eulogy.html">Eric Meyerのレベッカに対する弔辞</a>
+</li>
+
+<li>
+2014-06-22: <a href="article/2014-06-22-youkai-hammock.html">妖怪ハウスにハンモックを導入した</a>
+</li>
+
+<li>
+2014-06-22: <a href="article/2014-06-22-rebeccapurple.html">rebeccapurpleがCSS 4 colorに提案された経緯</a>
+</li>
+
+<li>
+2014-06-19: <a href="article/2014-06-19-debian-is-switching-back-to-glibc.html">Debianがeglibcからglibcに戻る</a>
+</li>
+
+<li>
+2014-06-19: <a href="article/2014-06-19-youkai-tent.html">妖怪テント、リベンジ</a>
+</li>
+
+<li>
+2014-06-18: <a href="article/2014-06-18-kusaya.html">妖怪ハウスでくさやをたべた</a>
+</li>
+
+<li>
+2014-06-17: <a href="article/2014-06-17-extream.html">ドワンゴにエクストリーム出社した</a>
+</li>
+
+<li>
+2014-06-15: <a href="article/2014-06-15-rm-rf.html">rm -rfしちゃったけどどうする</a>
+</li>
+
+<li>
+2014-06-14: <a href="article/2014-06-14-ugly-8086.html">8086のバイナリが汚すぎる</a>
+</li>
+
+<li>
+2014-06-11: <a href="article/2014-06-11-interesting-articles.html">興味深い記事</a>
+</li>
+
+<li>
+2014-06-09: <a href="article/2014-06-09-2014-05-pre-Rapperswil-mailing-N3967-N3979.html">2014-05 pre Rapperswil mailingのレビュー: N3967-N3979</a>
+</li>
+
+<li>
+2014-06-09: <a href="article/2014-06-09-garakee.html">シニアエンジニアによるガラケー大戦回顧録に参加した</a>
+</li>
+
+<li>
+2014-06-07: <a href="article/2014-06-07-if-lambda-was-constexpr.html">もしlambda式がconstexprだったら</a>
+</li>
+
+<li>
+2014-06-06: <a href="article/2014-06-06-dwango-cpp-benkyokai.html">ドワンゴC++勉強会 #1の開催告知</a>
+</li>
+
+<li>
+2014-06-06L: <a href="article/2014-06-06-ask-fm.html">ask.fmを始めた</a>
+</li>
+
+
+<li>
+2014-06-05: <a href="article/2014-06-05-freee.html">freeeの会社見学に行ってきた</a>
+</li>
+
+<li>
+2014-06-05: <a href="article/2014-06-05-connpass-sucks.html">connpassのHTML編集がクソすぎる</a>
+</li>
+
+<li>
+2014-06-03: <a href="article/2014-06-03-Apple-new-language-swift.html">Appleが新言語、Swiftを発表するも、すでに閉鎖的すぎて絶望しかない</a>
+</li>
+
+<li>
+2014-06-01: <a href="article/2014-06-01-ikebukuro-biniary-benkyokai.html">池袋バイナリ勉強会に行ってきた</a>
+</li>
+
+
+<li>
+2014-06-01: <a href="article/2014-06-01-amazon-wish-list.html">久しぶりにアマゾンのお気に入りリストで贈られてきたもの</a>
+</li>
+
+
+</ul>
+</li>
+
+<li>
+
+<p>
+05
+</p>
+
+<ul>
+
+<li>
+2014-05-29: <a href="article/2014-05-29-cat-cat-cat.html">今日絶対見るべき動画</a>
+</li>
+
+<li>
+2014-05-29: <a href="article/2014-05-29-spreadsheet-sucks.html">表計算をマジなことに使わないほうがいいよ（マジで）</a>
+</li>
+
+<li>
+2014-05-28: <a href="article/2014-05-28-youkai-house.html">妖怪ハウスの環境をさらに改善した</a>
+</li>
+
+<li>
+2014-05-27: <a href="article/2014-05-27-boost-meeting-sapporo.html">Boost勉強会 #15 札幌に参加した</a>
+</li>
+
+<li>
+2014-05-22: <a href="article/2014-05-22-how-to-learn.html">プログラミングを学ぶ方法がわからない</a>
+</li>
+
+<li>
+2014-05-21: <a href="article/2014-05-21-The-Desktop-and-the-Developer.html">Matthew Garrett、開発者にMacユーザーが多いことについて語る</a>
+</li>
+
+<li>
+2014-05-20: <a href="article/2014-05-20-Steve-Woz.html">Steve Wozniakによって書かれた浮動小数点数演算ライブラリのソースコード</a>
+</li>
+
+<li>
+2014-05-19: <a href="article/2014-05-19-The-Truth-on-OpenGL-Driver-Quality.html">OpenGLドライバー品質の実情</a>
+</li>
+
+<li>
+2014-05-17: <a href="article/2014-05-17-tapioca-board-game.html">江添とタピオカボドゲ会</a>
+</li>
+
+<li>
+2014-05-17: <a href="article/2014-05-17-Things-that-drive-me-nuts-about-OpenGL.html">OpenGLでムカつくこと</a>
+</li>
+
+<li>
+2014-05-15: <a href="article/2014-05-15-recent-youka-house.html">最近の妖怪ハウスの様子</a>
+</li>
+
+<li>
+2014-05-14: <a href="article/2014-05-14-KADOKAWA-DWANGO.html">KADOKAWA・DWANGOについて</a>
+</li>
+
+<li>
+2014-05-14: <a href="article/2014-05-14-Boost-benkyo-sapporo.html">Boost.勉強会 #15 札幌の発表に使うスライド資料</a>
+</li>
+
+<li>
+2014-05-12: <a href="article/2014-05-12-passport.html">C++標準化委員会の国際会議に出席するためにパスポートを取得した</a>
+</li>
+
+<li>
+2014-05-10: <a href="article/2014-05-10-youkai-house.html">妖怪ハウス一周年</a>
+</li>
+
+<li>
+2014-05-05: <a href="article/2014-05-05-old-software-business.html">1980年代に不自由ソフトウェアを販売するということ</a>
+</li>
+
+<li>
+2014-05-04: <a href="article/2014-05-04-Google-Translate.html">Google翻訳には秘密の特別版があるのか？</a>
+</li>
+
+<li>
+2014-05-02: <a href="article/2014-05-02-cost-of-page-faults.html">Linux Torvalds、最近のCPUのPage Faultのコストにご不満の様子</a>
+</li>
+
+<li>
+2014-05-02: <a href="article/2014-05-02-Game-Space-Kasiwagi.html">ゲームスペース柏木でドミニオンをした</a>
+</li>
+
+<li>
+2014-05-01: <a href="article/2014-05-01-replacing-the-PC.html">PCを置き換えるもの</a>
+</li>
+</ul>
+
+</li>
+
+</ul>
+
+<ul>
+
+<li>
+
+<p>
+04
+</p>
+
+<ul>
+
+<li>
+2014-04-30: <a href="article/2014-04-30-noise-canceling-headphone-2.html">ノイズキャンセリングヘッドホンの購入をやめた</a>
+</li>
+
+<li>
+2014-04-30: <a href="article/2014-04-30-cho-tuning.html">超会議3の超チューニング祭の感想</a>
+</li>
+
+<li>
+2014-04-30: <a href="article/2014-04-30-youkai-cooking.html">妖怪クッキング</a>
+</li>
+
+<li>
+2014-04-30: <a href="article/2014-04-30-noise-cancelling.html">ノイズキャンセリングヘッドホンの購入を検討中</a>
+</li>
+
+<li>
+2014-04-28: <a href="article/2014-04-28-Pizza.html">ピザ</a>
+</li>
+
+<li>
+2014-04-27: <a href="article/2014-04-27-cho-tuning-html">超チューニング祭りの投票受付中</a>
+</li>
+
+<li>
+2014-04-27: <a href="article/2014-04-27-Cho-Kaigi-3.html">超会議3の見どころ</a>
+</li>
+
+<li>
+2014-04-25: <a href="article/2014-04-25-Cho-kaigi-3.html">超会議3の前日の手記</a>
+</li>
+
+<li>
+2014-04-24: <a href="article/2014-04-24-U-talking-to-me.html">Ubuntu 14.04のリリースと、Ubuntu 14.10のコードネーム決定</a>
+</li>
+
+<li>
+2014-04-24: <a href="article/2014-04-24-Dominion-expansion.html">ドミニオンの拡張が送られてきた</a>
+</li>
+
+<li>
+2014-04-23: <a href="article/2014-04-23-JavaScript-Object-Initiliser.html">JavaScriptのオブジェクト初期化子</a>
+</li>
+
+<li>
+2014-04-21: <a href="article/2014-04-21-Birth-and-Death-of-javascript.html">JavaScriptの誕生と終焉</a>
+</li>
+
+<li>
+2014-04-21: <a href="article/2014-04-21-JavaScript-Array_initialiser.html">JavaScriptの配列初期化子</a>
+</li>
+
+<li>
+2014-04-20: <a href="article/2014-04-20-youkai-house-water.html">妖怪ハウスの水道事情</a>
+</li>
+
+<li>
+2014-04-17: <a href="article/2014-04-17-JavaScript-Automatic-Semicolon-Insertion.html">JavaScriptの自動セミコロン挿入</a>
+</li>
+
+<li>
+2014-04-16: <a href="article/2014-04-16-JavaScript-regex-literal.html">JavaScript規格の正規表現リテラルの文面の疑問点</a>
+</li>
+<li>
+2014-04-16: <a href="article/2014-04-16-JavaScript-comments.html">JavaScriptのコメントと改行</a>
+</li>
+
+<li>
+2014-04-15: <a href="article/2014-04-15-multipath-tcp.html">Multipath TCPについて</a>
+</li>
+
+<li>
+2014-04-14: <a href="article/2014-04-14-python-2.7-life-till-2020.html">Python 2.7のサポート期間が2020年まで延長</a>
+</li>
+
+<li>
+2014-04-14: <a href="article/2014-04-14-difference-of-java-javascript.html">JavaとJavaScriptの違い</a>
+</li>
+
+<li>
+2014-04-13: <a href="article/2014-04-13-GCC-4.9.html">GCC 4.9リリース</a>
+</li>
+
+<li>
+2014-04-13: <a href="article/2014-04-13-OpenBSD.html">OpenBSDが2014年度の寄付金目標額に到達したため、文字通り腐敗したサーバーインフラを再構築できるようになった</a>
+</li>
+
+<li>
+2014-04-12: <a href="article/2014-04-12-youkai-network.html">妖怪ネットワーク改善案</a>
+</li>
+
+<li>
+2014-04-11: <a href="article/2014-04-11-useless-heartbeat.html">なぜTheo de RaadtはIETFに激怒しているのか</a>
+</li>
+
+<li>
+2014-04-11: <a href="article/2014-04-11-OpenBSD-First-blood-commit.html">OpenBSD、怒りのコミット</a>
+</li>
+
+<li>
+2014-04-10: <a href="article/2014-04-10-How-I-Came-To-Write-D.html">余は如何にしてDを書くにいたりしか</a>
+</li>
+
+<li>
+2014-04-10: <a href="article/2014-04-10-OpenSSL-is-written-by-monkeys.html">OpenSSLはサルによって書かれた</a>
+</li>
+
+<li>
+2014-04-09: <a href="article/2014-04-09-2014-02-post-Issaquah-mailings-N3950-66.html">2014-02 post Issaquah mailingsのレビュー: N3950-N3966</a>
+</li>
+
+<li>
+2014-04-09: <a href="article/2014-04-09-Dell-Vostro-1500.html">Dell Vostro 1500を手に入れた</a>
+</li>
+<li>
+2014-04-08: <a href="article/2014-04-08-cp-speed.html">cpの速度を計測する方法</a>
+</li>
+
+<li>
+2014-04-07: <a href="article/2014-04-07-2014-02-post-Issaquah-mailings-N3940-N3949.html">2014-02-post-Issaquah-mailingsのレビュー: N3940-N3949</a>
+</li>
+
+<li>
+2014-04-07: <a href="article/2014-04-07-2014-02-post-Issaquah-mailings-N3930-N3939.html">2014-02-post-Issaquah mailingsのレビュー:N3930-N3939</a>
+</li>
+
+<li>
+2014-04-04: <a href="article/2014-04-04-rise-of-the-R.html">Rの興隆が科学にオープンソースをもたらす</a>
+</li>
+
+<li>
+2014-04-03: <a href="article/2014-04-03-systemd-parse-kernel-cmdline.html">Linus様がSystemdにぶちきれる</a>
+</li>
+
+<li>
+2014-04-01: <a href="article/2014-04-01-you-got-your-web-browser-in-my-compiler.html">MSVC++コンパイラーの中に入っているWebブラウザー</a>
+</li>
+
+<li>
+2014-04-01: <a href="article/2014-04-01-Quake-3-bounty.html">Quake IIIを走らせる完全に自由な新規のRaspberry Pi用のGPUドライバーが公開</a>
+</li>
+
+</ul>
+
+</li>
+
+<li>
+
+<p>
+03
+</p>
+
+<ul>
+
+<li>
+2014-03-31: <a href="article/2014-03-31-2014-02-post-Issaquah-N3920-N3929.html">2014-02-post-Issaquahのレビュー: N3920-N3929</a>
+</li>
+
+<li>
+2014-03-31: <a href="article/2014-03-31-X60.html">LenovoのThinkpad X60を手に入れた
+</a>
+</li>
+
+<li>
+2014-03-30: <a href="article/2014-03-30-geekhouse-sinnzyuku-2.html">ギークハウス新宿二丁目</a>
+</li>
+
+<li>
+2014-03-28: <a href="article/2014-03-28-GCC-cant-optimize-floating-point.html">なんでGCCはa*a*a*a*a*a を (a*a*a)*(a*a*a) に最適化できないの？っと
+</a>
+</li>
+
+<li>
+2014-03-27: <a href="article/2014-03-27-2014-02-post-Issaquah-review-N3910-N3919.html">2014-02-post-Issaquahのレビュー: N3910-N3919</a>
+</li>
+
+<li>
+2014-03-25: <a href="article/2014-03-25-2014-02-post-Issaquah-review-N3900-N3909.html">2014-02-post-Issaquahのレビュー: N3900-3909</a>
+</li>
+
+<li>
+2014-03-24: <a href="article/2014-03-24-zyosimane.html">女子マネという過酷な訓練</a>
+</li>
+
+<li>
+2014-03-22: <a href="article/2014-03-22-lovely-spam.html">SPAMは意外とうまい</a>
+</li>
+
+<li>
+2014-03-22: <a href="article/2014-03-22-spam-spam-spam.html">spamが送られてきた</a>
+</li>
+
+<li>
+2014-03-21: <a href="article/2014-03-21-youkai-power-issue.html">妖怪ハウスの電源事情</a>
+</li>
+<li>
+2014-03-18: <a href="article/2014-03-18-amateur-mizuho.html">みずほ銀行の信じられない契約軽視姿勢</a>
+</li>
+
+<li>
+2014-03-18: <a href="article/2014-03-18-2014-03-pre-Issaquah-mailing-review-N3890-N3899.html">2014-01-pre-Issaquah-mailingのレビュー：N3890-N3899</a>
+</li>
+
+<li>
+2014-03-16: <a href="article/2014-03-16-youka-network.html">妖怪ネットワークにRTX810を導入した</a>
+</li>
+
+<li>
+2014-03-16: <a href="article/2014-03-16-Samsung-Galaxy-Backdoor.html">Samsung Galaxyにバックドアが発見される</a>
+</li>
+
+<li>
+2014-03-16: <a href="article/2014-03-16-Running-Cubase-5-from-VM.html">仮想環境越しにCubase 5を動かす</a>
+</li>
+
+<li>
+2014-03-15: <a href="article/2014-03-15-Mozilla-stop-working-on-metro.html">MozillaがMetro版Firefox開発中止を発表</a>
+</li>
+
+<li>
+2014-03-14: <a href="article/2014-03-14-2014-01-pre-Issaquah-mailing-review-N3880-N3889.html ">2014-01-pre-Issaquah mailingのレビュー: N3880-N3889</a>
+</li>
+
+<li>
+2014-03-14: <a href="article/2014-03-14-Ubuntu-news.html">最近のUbuntuの動向</a>
+</li>
+
+<li>
+2014-03-13: <a href="article/2014-03-13-boring.html">最近このブログがつまらなくなったという指摘について</a>
+</li>
+
+<li>
+2014-03-13: <a href="article/2014-03-13-youkai-house-network.html">妖怪ハウスのネット環境改善作業</a>
+</li>
+
+<li>
+2014-03-12: <a href="article/2014-03-12-pre-Issaquah-mailing-review-N3872-N3879.html">2014-01-pre-Issaquah mailingのレビュー: N3872-N3879</a>
+</li>
+
+<li>
+2014-03-12: <a href="article/2014-03-12-TOGL-and-ANGEL.html">ValveがDota 2で使われているらしきDirect3D-OpenGL変換のライブラリを抜きだして公開</a>
+</li>
+
+<li>
+2014-03-09: <a href="article/2014-03-09-Amazn-wish-list-part-4.html">Amazonのお気に入りリストで送られてきたもの Part 4</a>
+</li>
+
+<li>
+2014-03-04: <a href="article/2014-03-04-Boost-conference.html">Boost.勉強会 #14 東京に参加した</a>
+</li>
+
+<li>
+2014-03-03: <a href="article/2014-03-03-amazon-wish-list-3.html">Amazonのお気に入りリストで送られてきたもの Part 3</a>
+</li>
+
+<li>
+2014-03-01: <a href="article/2014-03-01-Raspberry-Pi-free-software-graphic-driver.html">Raspberry Piのグラフィックスタックが自由ソフトウェアとして提供開始</a>
+</li>
+</ul>
+</li>
+
+<li>
+
+<p>
+02
+</p>
+
+<ul>
+<li>
+2014-02-28: <a href="article/2014-02-28-pre-Issaquah-mailing-review-part-2.html">2014-01-pre-Issaquah mailingの簡易レビュー Part 2</a>
+</li>
+<li>
+2014-02-27: <a href="article/2014-02-27-atom.html">AtomとかいうGitHub発の不自由なテキストエディターについて</a>
+</li>
+
+<li>
+2014-02-26: <a href="article/2014-02-26-amazon-part3.html">アマゾンのお気に入りリストで送られてきたもの</a>
+</li>
+
+<li>
+2014-02-25: <a href="article/2014-02-25-sibu-house.html">渋ハウスと立ちション禁止とタバコ禁止</a>
+</li>
+
+<li>
+2014-02-25: <a href="article/2014-02-25-geek-house-higasi-ueno.html">ギークハウス東上野</a>
+</li>
+
+<li>
+2014-02-24: <a href="article/2014-02-24-neovim.html">Bram MoolenaarがNeovimに反応</a>
+</li>
+<li>
+2014-02-23: <a href="article/2014-02-23-interesting-article.html">興味深かった記事</a>
+</li>
+
+<li>
+2014-02-22: <a href="article/2014-02-22-hanamasa.html">肉のハナマサのいい話</a>
+</li>
+<li>
+2014-02-19: <a href="article/2014-02-19-domemo.html">アマゾンのお気に入りリストからドメモ</a>
+</li>
+
+<li>
+2014-02-17: <a href="article/2014-02-17-hundosi.html">続アマゾンのお気に入りリスト </a>
+</li>
+<li>
+2014-02-12: <a href="article/2014-02-17-2014-01-pre-Issaquah-mailing-review-part-1.html">2014-01-pre-Issaquah mailingの簡易レビュー Part 1</a>
+</li>
+<li>
+2014-02-17: <a href="article/2014-02-17-amazon-wish-list.html">アマゾンの欲しい物リストで送られてきたものと、付随した変なもの</a>
+</li>
+<li>
+2014-02-12: <a href="article/2014-02-12-I-got-a-job-at-dwango.html">ドワンゴに入社 </a>
+</li>
+</ul>
+
+</li>
+
+</ul>
+
+</li>
+
+</ul>
+
+
+<footer>
+<p>
+Unless otherwise noted,<br>
+<br>
+Copyright (C) 2014 江添亮<br>
+<br>
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+</p>
+</footer>
+</body>
+</html>
