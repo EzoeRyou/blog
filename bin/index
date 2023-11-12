@@ -19,14 +19,18 @@ filename=${filename/draft/$(date -I)}
 
 mv "$1" "$filename"
 
-cat index-top.html > index.html
-for file in $(ls article | grep -v '^draft-' | sort -r)
-do
-    echo '<li><a href="article/'$file'">'${file:0:10}': '$(sed '6q;d' article/$file)'</a></li>' >> index.html
-done
-cat index-bottom.html >> index.html
+generate_index()
+{
+    cat index-top.html
+    for file in $(ls article | grep -v '^draft-' | sort -r)
+    do
+        echo '<li><a href="article/'$file'">'${file:0:10}': '$(sed '6q;d' article/$file)'</a></li>'
+    done
+    cat index-bottom.html
+}
 
+generate_index > index.html
 
-# git add "$filename"
-# git commit -am "$title"
-# echo "$title" "https://ezoeryou.github.io/blog/$filename" | xsel -b
+git add "$filename"
+git commit -am "$title"
+echo "$title" "https://ezoeryou.github.io/blog/$filename" | xsel -b
